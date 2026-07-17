@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的網頁作品集</title>
+    <style>
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 250px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .card h2 {
+            margin: 0 0 10px 0;
+            color: #0076ff;
+            font-size: 1.5em;
+        }
+        .card p {
+            color: #666;
+            font-size: 0.9em;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>歡迎來到我的網頁工具箱</h1>
+    
+    <div class="container">
+        <!-- 連結到第一個網頁 -->
+        <a href="./RestaurantRecommendations/" class="card">
+            <h2>🍽️ 餐廳推薦系統</h2>
+            <p>探索並記錄美食的好幫手</p>
+        </a>
+
+        <!-- 連結到第二個網頁 -->
+        <a href="./RandomSpinWheel/" class="card">
+            <h2>🎡 隨機大轉盤</h2>
+            <p>解決選擇障礙的娛樂工具</p>
+        </a>
+    </div>
+
+</body>
+</html>

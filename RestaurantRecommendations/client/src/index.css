@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 明水然‧樂風格的色彩 - 優雅的日式風格配色 */
+    --background: 30 20% 98%;  /* 淡米色背景 */
+    --foreground: 35 15% 15%;  /* 深棕色文字 */
+    --muted: 35 30% 92%;      /* 淡棕色淡化元素 */
+    --muted-foreground: 35 15% 40%; /* 淡棕色文字 */
+    --popover: 30 20% 98%;    /* 彈出窗格背景 */
+    --popover-foreground: 35 15% 15%; /* 彈出窗格文字 */
+    --card: 35 35% 99%;       /* 卡片背景 - 近乎白色帶一點暖調 */
+    --card-foreground: 35 15% 15%; /* 卡片文字 */
+    --border: 35 20% 85%;     /* 邊框顏色 - 溫暖的淺灰色 */
+    --input: 35 20% 90%;      /* 輸入框底色 */
+    
+    /* 主色調 - 深棕色系，類似明水然網站的木質感 */
+    --primary: 35 80% 35%;    /* 棕色主調 */
+    --primary-foreground: 30 20% 98%; /* 淡色文字 */
+    
+    /* 次色調 - 優雅的深紅褐色 */
+    --secondary: 15 60% 45%;  /* 紅棕色 */
+    --secondary-foreground: 30 20% 98%; /* 淡色文字 */
+    
+    /* 強調色 - 溫暖的金黃色 */
+    --accent: 35 90% 65%;    /* 溫暖金黃色 */
+    --accent-foreground: 35 15% 15%; /* 深色文字 */
+    
+    --destructive: 0 60% 45%; /* 柔和的紅色作為警告 */
+    --destructive-foreground: 30 20% 98%; /* 淡色文字 */
+    --ring: 35 80% 35%;      /* 與主色調相同 */
+    
+    /* 圖表顏色 - 日式雅緻配色 */
+    --chart-1: 35 80% 35%;   /* 棕色 */
+    --chart-2: 15 60% 45%;   /* 紅棕色 */
+    --chart-3: 35 90% 65%;   /* 金黃色 */
+    --chart-4: 180 30% 45%;  /* 淡墨綠色 */
+    --chart-5: 0 30% 60%;    /* 磚紅色 */
+    
+    --radius: 0.25rem;      /* 較小的圓角，更符合日式設計的精簡感 */
+  }
+
+  .dark {
+    /* 夜間模式 - 以黑色和深棕色為基調，保持日式風格 */
+    --background: 35 15% 10%;   /* 深棕黑背景 */
+    --foreground: 35 10% 90%;   /* 淡米色文字 */
+    --muted: 35 15% 20%;        /* 暗色調淡化元素 */
+    --muted-foreground: 35 10% 70%; /* 米色淡化文字 */
+    --popover: 35 15% 10%;      /* 彈出窗格背景 */
+    --popover-foreground: 35 10% 90%; /* 彈出窗格文字 */
+    --card: 35 15% 12%;         /* 卡片背景 - 深棕色 */
+    --card-foreground: 35 10% 90%; /* 卡片文字 */
+    --border: 35 15% 25%;       /* 邊框 - 暗棕色 */
+    --input: 35 15% 20%;        /* 輸入框底色 */
+    
+    /* 主色調 - 保持原本的溫暖棕色調但深沉一些 */
+    --primary: 35 70% 40%;      /* 暗棕色 */
+    --primary-foreground: 35 10% 90%; /* 淡色文字 */
+    
+    /* 次色調 - 更深沉的紅褐色 */
+    --secondary: 15 50% 35%;    /* 深紅棕色 */
+    --secondary-foreground: 35 10% 90%; /* 淡色文字 */
+    
+    /* 強調色 - 較暗的金色 */
+    --accent: 35 70% 50%;       /* 暗金色 */
+    --accent-foreground: 35 10% 90%; /* 淡色文字 */
+    
+    --destructive: 0 50% 40%;   /* 暗紅色警告 */
+    --destructive-foreground: 35 10% 90%; /* 淡色文字 */
+    --ring: 35 70% 40%;         /* 與主色調相同 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Noto Serif TC', 'Noto Sans TC', serif, sans-serif;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* 日式簡約設計元素 */
+@layer components {
+  /* 卡片風格 - 模仿日式簡約設計 */
+  .card {
+    @apply bg-card shadow-sm border border-border/50 hover:shadow-md transition-all duration-300;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* 標題 - 使用明水然‧樂風格的簡潔標題 */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-wide;
+  }
+  
+  h1 {
+    @apply text-3xl sm:text-4xl font-medium leading-tight;
+  }
+  
+  h2 {
+    @apply text-2xl sm:text-3xl font-medium;
+  }
+  
+  /* 按鈕風格 - 簡約優雅 */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors;
+  }
+  
+  /* 投票按鈕效果 */
+  .vote-btn {
+    @apply hover:shadow-inner transition-all duration-150;
+  }
+  
+  /* 餐廳卡片效果 */
+  .restaurant-card {
+    @apply hover:translate-y-[-3px] transition-transform duration-300;
+  }
+  
+  /* 添加日式分隔線 */
+  .japanese-divider {
+    @apply w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-8;
+  }
+  
+  /* 標題裝飾 */
+  .title-decoration {
+    @apply relative inline-block;
+  }
+  
+  .title-decoration::after {
+    content: "";
+    @apply absolute bottom-0 left-0 w-1/3 h-[2px] bg-primary/70;
+  }
+}
