@@ -60,7 +60,7 @@ export default function UserManual() {
             <ol className="list-decimal pl-6">
               <li>點擊頁面右上角的「登入」按鈕</li>
               <li>在彈出的登入視窗中輸入用戶名</li>
-              <li>如需以管理員身份登入，請選擇「管理員登入」並輸入管理員密碼</li>
+              <li>如需以管理員身份登入，請打開「管理者模式」，輸入管理員的 email 和密碼</li>
               <li>點擊「登入」按鈕完成登入</li>
             </ol>
             

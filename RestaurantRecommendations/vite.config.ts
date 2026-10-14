@@ -24,8 +24,10 @@ export default defineConfig({
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
+  // 相對路徑 + 輸出到儲存庫根目錄的 restaurant/，由 GitHub Pages 直接提供
+  base: "./",
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(import.meta.dirname, "../restaurant"),
     emptyOutDir: true,
   },
 });

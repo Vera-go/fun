@@ -15,32 +15,25 @@ interface LoginDialogProps {
 
 export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
   const [username, setUsername] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useUser();
   const { toast } = useToast();
 
-  // 管理員密碼
-  const ADMIN_PASSWORD = "24657";
-
+  // 管理員改用 Supabase 帳號（email + 密碼）登入，密碼不再寫在程式裡
   const handleLogin = async () => {
     if (!username.trim()) return;
-    
-    // 檢查管理員模式是否啟用，如果是，則檢查密碼
-    if (isAdmin && adminPassword !== ADMIN_PASSWORD) {
-      toast({
-        title: "管理員驗證失敗",
-        description: "密碼不正確，請重新輸入",
-        variant: "destructive",
-      });
+    if (isAdmin && (!adminEmail.trim() || !adminPassword)) {
+      toast({ title: "請輸入管理員 email 和密碼", variant: "destructive" });
       return;
     }
-    
+
     setIsLoading(true);
     try {
       console.log(`Attempting login for ${username}, isAdmin=${isAdmin}`);
-      await login(username, isAdmin);
+      await login(username, isAdmin, adminEmail.trim(), adminPassword);
       onClose();
     } catch (error) {
       console.error("Login failed:", error);
@@ -91,6 +84,21 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
           {isAdmin && (
             <>
               <div className="grid gap-2">
+                <Label htmlFor="admin-email" className="flex items-center">
+                  <Lock className="h-4 w-4 mr-1 text-amber-500" />
+                  <span>管理員 email</span>
+                </Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  autoComplete="username"
+                  placeholder="請輸入管理員 email"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid gap-2">
                 <Label htmlFor="admin-password" className="flex items-center">
                   <Lock className="h-4 w-4 mr-1 text-amber-500" />
                   <span>管理員密碼</span>
@@ -98,6 +106,7 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
                 <Input
                   id="admin-password"
                   type="password"
+                  autoComplete="current-password"
                   placeholder="請輸入管理員密碼"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
@@ -106,7 +115,7 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
               </div>
               <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
                 <p className="text-amber-700 text-sm">
-                  管理者模式已啟用。管理者可以查看每個餐廳的投票詳情，包括所有投票者的名單。需要輸入正確的管理員密碼。
+                  管理者模式已啟用。管理者可以查看每個餐廳的投票詳情，包括所有投票者的名單。需要用管理員的 email 和密碼登入。
                 </p>
               </div>
             </>
@@ -115,7 +124,7 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
         <div className="flex justify-end">
           <Button 
             onClick={handleLogin} 
-            disabled={!username.trim() || isLoading || (isAdmin && adminPassword !== ADMIN_PASSWORD)}
+            disabled={!username.trim() || isLoading || (isAdmin && (!adminEmail.trim() || !adminPassword))}
             className="bg-gradient-to-r from-primary to-secondary text-white"
           >
             {isLoading ? "登入中..." : "登入"}
