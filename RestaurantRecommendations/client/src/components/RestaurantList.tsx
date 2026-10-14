@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Edit, Trash2, Info, Globe, MapPin, Crown } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Info, Globe, MapPin, Crown, UtensilsCrossed } from "lucide-react";
 import { Restaurant, RestaurantWithVotes, Vote } from "@/types";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -270,11 +270,8 @@ function RestaurantList() {
           <div className="h-[1px] w-20 bg-primary/20 mx-auto mb-4"></div>
           <p className="text-muted-foreground mb-10 font-serif">點擊上方按鈕開始新增您推薦的餐廳</p>
           <div className="max-w-md mx-auto opacity-60">
-            <img 
-              src="https://illustrations.popsy.co/amber/dish.svg" 
-              alt="空餐廳列表插圖" 
-              className="w-40 h-40 mx-auto"
-            />
+            {/* 原本的外部插圖網站已失效，改用內建圖示 */}
+            <UtensilsCrossed aria-label="空餐廳列表插圖" className="w-24 h-24 mx-auto text-primary" strokeWidth={1.2} />
           </div>
         </div>
       ) : (
