@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全網最聽勸｜許願池</title>
+<meta name="description" content="想要什麼新功能、新網站？來許願、幫喜歡的願望 +1，票數最高的優先做。">
+<meta property="og:title" content="全網最聽勸｜許願池">
+<meta property="og:description" content="想要什麼新功能、新網站？來許願、幫喜歡的願望 +1，票數最高的優先做。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a href="../" class="small">← 回工具箱</a>
+    <h1>🙋 全網最聽勸</h1>
+    <p class="lead">想要什麼新功能、新網站？許個願，或幫喜歡的願望 +1。<b>票數最高的優先做</b>。</p>
+  </header>
+
+  <h2 id="new">許個願</h2>
+  <div class="card">
+    <div class="rules">
+      <b>許願規則</b>
+      <ul>
+        <li>每人每天最多許 5 個願望，每個願望只能 +1 一次</li>
+        <li><b>需要額外付費才做得出來的功能不收</b>，例如金流、簡訊、付費 API、上架 App Store</li>
+        <li>不適合的內容、做不到的功能會被移除，不另外通知</li>
+      </ul>
+    </div>
+    <form id="wishForm" novalidate>
+      <label for="site">想改哪個網站？</label>
+      <select id="site" required></select>
+      <label for="title">想要什麼？（4～60 字）</label>
+      <input id="title" maxlength="60" placeholder="例如：大轉盤可以存好幾組選項">
+      <label for="detail">補充說明（選填）</label>
+      <textarea id="detail" maxlength="500" rows="3" placeholder="為什麼想要？會在什麼情況用到？"></textarea>
+      <label for="name">你的暱稱</label>
+      <input id="name" maxlength="20" placeholder="例如：吃貨小明" autocomplete="nickname">
+      <div class="warn" id="paidWarn" hidden></div>
+      <label class="check"><input type="checkbox" id="agree"> 我確認這個願望不需要額外付費才做得出來</label>
+      <div class="warn" id="formErr" hidden></div>
+      <div class="row" style="margin-top:14px"><button class="btn acc" id="submitBtn" type="submit">送出願望</button></div>
+    </form>
+  </div>
+
+  <h2>⏳ 待處理 <span class="small muted" style="font-weight:500">依 +1 數排序，最上面的最先做</span></h2>
+  <div id="pending" class="wishes"><div class="empty">載入中⋯⋯</div></div>
+
+  <h2>🎉 已完成</h2>
+  <div id="done" class="wishes"></div>
+
+  <div id="rejectedBox" hidden>
+    <h2>🚫 不採納（只有你看得到）</h2>
+    <div id="rejected" class="wishes"></div>
+  </div>
+
+  <footer>
+    <span id="adminArea"><a href="#" id="adminOpen">管理</a></span>
+  </footer>
+  <div class="card" id="adminLogin" hidden style="max-width:360px;margin:12px auto 0">
+    <b>管理員登入</b>
+    <label for="adEmail">email</label><input id="adEmail" type="email" autocomplete="username">
+    <label for="adPass">密碼</label><input id="adPass" type="password" autocomplete="current-password">
+    <div class="row" style="margin-top:12px"><button class="btn acc" id="adLogin">登入</button><button class="btn" id="adCancel">取消</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../assets/wish-core.js"></script>
+<script>
+const { esc, SITES, day } = Wish;
+const $ = s => document.querySelector(s);
+let admin = false, busy = false;
+function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200); }
+const safeUrl = u => /^https?:\/\//i.test(u) ? u : "";
+
+// 表單
+$("#site").innerHTML = Object.entries(SITES).map(([k, s]) => `<option value="${k}">${s.icon} ${esc(s.name)}</option>`).join("");
+try { $("#name").value = localStorage.getItem("wishName") || ""; } catch (e) {}
+const checkPaid = () => {
+  const w = Wish.paidHint($("#title").value + " " + $("#detail").value);
+  $("#paidWarn").hidden = !w;
+  $("#paidWarn").textContent = w ? `提醒：內容提到「${w}」。需要額外付費才做得出來的功能不收，確認不需要付費再送出。` : "";
+};
+$("#title").addEventListener("input", checkPaid); $("#detail").addEventListener("input", checkPaid);
+$("#wishForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = $("#formErr"); err.hidden = true;
+  const f = { site: $("#site").value, title: $("#title").value, detail: $("#detail").value, name: $("#name").value };
+  const msg = f.title.trim().length < 4 ? "請用 4 個字以上描述你想要什麼" : !f.name.trim() ? "請填暱稱" : !$("#agree").checked ? "請勾選「不需要額外付費」的確認" : "";
+  if (msg) { err.textContent = msg; err.hidden = false; return; }
+  $("#submitBtn").disabled = true;
+  try {
+    await Wish.addWish(f);
+    try { localStorage.setItem("wishName", f.name.trim()); } catch (e) {}
+    $("#title").value = ""; $("#detail").value = ""; $("#agree").checked = false; checkPaid();
+    toast("願望送出了！記得揪朋友來 +1");
+    await load();
+  } catch (e2) { err.textContent = e2.message; err.hidden = false; }
+  $("#submitBtn").disabled = false;
+});
+
+// 願望列表
+function wishHtml(w, opts = {}) {
+  const site = SITES[w.site];
+  const canVote = w.status === "open" || w.status === "doing";
+  const badge = w.status === "doing" ? '<span class="badge doing">製作中</span>'
+    : w.status === "done" ? '<span class="badge done">已完成</span>'
+    : w.status === "rejected" ? '<span class="badge rej">不採納</span>'
+    : opts.next ? '<span class="badge next">下一個要做</span>' : "";
+  const url = safeUrl(w.done_url);
+  return `<div class="card wish" data-id="${w.id}">
+    <button class="vote ${w.mine ? "mine" : ""}" data-vote="${w.id}" ${canVote ? "" : "disabled"} title="${canVote ? (w.mine ? "取消 +1" : "我也想要") : ""}"><span class="n">${w.votes}</span><span class="p">${w.mine ? "已 +1" : "+1"}</span></button>
+    <div class="body">
+      <div class="t">${esc(w.title)}</div>
+      ${w.detail ? `<div class="d">${esc(w.detail)}</div>` : ""}
+      ${w.admin_note ? `<div class="note">💬 Vera：${esc(w.admin_note)}</div>` : ""}
+      <div class="meta">${badge}<span>${site.icon} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
+        ${w.status === "done" && w.done_at ? `<span>${day(w.done_at)} 完成</span>` : ""}
+        ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}
+        ${w.is_author && w.status === "open" && !admin ? `<a href="#" data-del="${w.id}">刪除</a>` : ""}</div>
+      ${admin ? `<div class="admin-bar">
+        <select data-status="${w.id}" style="width:auto;padding:5px 8px;font-size:13px">
+          ${[["open", "待處理"], ["doing", "製作中"], ["done", "已完成"], ["rejected", "不採納"]].map(([k, n]) => `<option value="${k}" ${w.status === k ? "selected" : ""}>${n}</option>`).join("")}
+        </select>
+        <input data-note="${w.id}" placeholder="回覆（例如不採納原因）" value="${esc(w.admin_note)}">
+        <input data-url="${w.id}" placeholder="完成連結 https://…" value="${esc(w.done_url)}">
+        <button class="btn small" data-save="${w.id}">儲存</button>
+        <button class="btn small" data-del="${w.id}" style="color:var(--bad)">刪除</button>
+      </div>` : ""}
+    </div>
+  </div>`;
+}
+async function load() {
+  try {
+    const { pending, done, rejected } = await Wish.listWishes();
+    const firstOpen = pending.findIndex(w => w.status === "open");
+    $("#pending").innerHTML = pending.length ? pending.map((w, i) => wishHtml(w, { next: i === firstOpen })).join("") : '<div class="empty">還沒有待處理的願望，<a href="#new">許第一個願吧！</a></div>';
+    $("#done").innerHTML = done.length ? done.map(w => wishHtml(w)).join("") : '<div class="empty">還沒有完成的願望</div>';
+    $("#rejectedBox").hidden = !admin;
+    $("#rejected").innerHTML = rejected.map(w => wishHtml(w)).join("") || '<div class="empty">沒有</div>';
+  } catch (e) {
+    $("#pending").innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-vote],[data-del],[data-save],#adminOpen,#adLogin,#adCancel,#adLogout");
+  if (!t || busy) return;
+  if (t.dataset.vote) {
+    busy = true;
+    try { const { pending } = await Wish.listWishes(); const w = pending.find(x => x.id == t.dataset.vote); if (w) await Wish.toggleVote(w); await load(); }
+    catch (err) { toast(err.message); }
+    busy = false; return;
+  }
+  if (t.dataset.del) {
+    e.preventDefault();
+    if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "確定刪除？"; return; }   // 點兩次才刪
+    try { await Wish.deleteWish(+t.dataset.del); toast("已刪除"); await load(); } catch (err) { toast(err.message); }
+    return;
+  }
+  if (t.dataset.save) {
+    const id = t.dataset.save;
+    try {
+      await Wish.updateWish(+id, { status: $(`[data-status="${id}"]`).value, admin_note: $(`[data-note="${id}"]`).value.trim(), done_url: $(`[data-url="${id}"]`).value.trim() });
+      toast("已更新"); await load();
+    } catch (err) { toast(err.message); }
+    return;
+  }
+  if (t.id === "adminOpen") { e.preventDefault(); $("#adminLogin").hidden = false; $("#adEmail").focus(); return; }
+  if (t.id === "adCancel") { $("#adminLogin").hidden = true; return; }
+  if (t.id === "adLogin") {
+    try { await Wish.adminLogin($("#adEmail").value.trim(), $("#adPass").value); $("#adPass").value = ""; $("#adminLogin").hidden = true; await setAdmin(true); toast("管理模式"); }
+    catch (err) { toast(err.message); }
+    return;
+  }
+  if (t.id === "adLogout") { e.preventDefault(); await Wish.adminLogout(); await setAdmin(false); toast("已登出管理模式"); }
+});
+async function setAdmin(on) {
+  admin = on;
+  $("#adminArea").innerHTML = on ? '管理模式中・<a href="#" id="adLogout">登出</a>' : '<a href="#" id="adminOpen">管理</a>';
+  await load();
+}
+
+(async () => { admin = await Wish.isAdmin(); await setAdmin(admin); })();
+</script>
+</body>
+</html>

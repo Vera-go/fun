@@ -1,75 +1,91 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的網頁作品集</title>
-    <style>
-        body {
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background: #f4f7f6;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 250px;
-            padding: 30px;
-            text-align: center;
-            text-decoration: none;
-            color: #333;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .card h2 {
-            margin: 0 0 10px 0;
-            color: #0076ff;
-            font-size: 1.5em;
-        }
-        .card p {
-            color: #666;
-            font-size: 0.9em;
-            margin: 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vera 的網頁工具箱</title>
+<meta name="description" content="好玩又實用的小網站，想要什麼功能就來許願，票數最高的優先做。">
+<meta property="og:title" content="Vera 的網頁工具箱｜全網最聽勸">
+<meta property="og:description" content="好玩又實用的小網站，想要什麼功能就來許願，票數最高的優先做。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+<div class="wrap">
+  <header class="top">
+    <h1>Vera 的網頁工具箱</h1>
+    <p class="lead">好玩又實用的小網站。想要什麼新功能？來許願，<b>票數最高的優先做</b>。</p>
+  </header>
 
-    <h1>歡迎來到我的網頁工具箱</h1>
-    
-    <div class="container">
-        <!-- 連結到第一個網頁 -->
-        <a href="./restaurant/" class="card">
-            <h2>🍽️ 餐廳推薦系統</h2>
-            <p>探索並記錄美食的好幫手</p>
-        </a>
-
-        <!-- 連結到第二個網頁 -->
-        <a href="./wheel/" class="card">
-            <h2>🎡 隨機大轉盤</h2>
-            <p>解決選擇障礙的娛樂工具</p>
-        </a>
+  <h2>🙋 全網最聽勸：大家的願望</h2>
+  <div class="card">
+    <div id="topWishes" class="wishes"><div class="empty">載入中⋯⋯</div></div>
+    <div class="row" style="margin-top:14px">
+      <a class="btn acc" href="wish/#new">我要許願</a>
+      <a class="btn" href="wish/">看全部願望 →</a>
     </div>
+  </div>
+  <div id="recentDone"></div>
 
+  <h2>🧰 我的網站</h2>
+  <div class="sites">
+    <a class="card site" href="restaurant/">
+      <div class="ic">🍽️</div><b>餐廳推薦投票</b>
+      <span>建立聚餐活動，大家一起推薦餐廳、投票決定去哪吃。</span>
+    </a>
+    <a class="card site" href="wheel/">
+      <div class="ic">🎡</div><b>隨機大轉盤</b>
+      <span>午餐吃什麼、誰去倒垃圾？轉一下就知道。</span>
+    </a>
+    <a class="card site" href="https://claude.ai/artifact/XGG6icNPLVGySCdGUAQQW5" target="_blank" rel="noopener">
+      <div class="ic">📘</div><b>安安英文教室</b>
+      <span>國中、高中段考和多益的單字、文法，跟著安安老師上課、闖關。</span>
+      <span class="tag">需要邀請才能使用</span>
+    </a>
+    <div class="card site" aria-disabled="true">
+      <div class="ic">🧵</div><b>NOSTRINGS</b>
+      <span>測測你是哪一種反骨人格？</span>
+      <span class="tag soon">即將推出</span>
+    </div>
+  </div>
+
+  <footer>想要新網站或新功能？<a href="wish/#new">來許願</a></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="assets/wish-core.js"></script>
+<script>
+// 入口頁只顯示前 3 個願望和最近完成的 3 個；完整功能在 wish/
+(async () => {
+  const { esc, SITES, day } = Wish;
+  const box = document.getElementById("topWishes");
+  try {
+    const { pending, done } = await Wish.listWishes();
+    const top = pending.slice(0, 3);
+    box.innerHTML = top.length ? top.map((w, i) => `
+      <div class="wish">
+        <div class="vote" title="${w.votes} 人想要"><span class="n">${w.votes}</span><span class="p">+1</span></div>
+        <div class="body">
+          <div class="t">${esc(w.title)}</div>
+          <div class="meta">
+            ${w.status === "doing" ? '<span class="badge doing">製作中</span>' : i === pending.findIndex(x => x.status === "open") ? '<span class="badge next">下一個要做</span>' : ""}
+            <span>${SITES[w.site].icon} ${esc(SITES[w.site].name)}</span>
+          </div>
+        </div>
+      </div>`).join("") : `<div class="empty">還沒有人許願，<a href="wish/#new">當第一個吧！</a></div>`;
+    if (done.length) document.getElementById("recentDone").innerHTML = `
+      <h2>🎉 最近完成</h2>
+      <div class="card"><div class="wishes">${done.slice(0, 3).map(w => `
+        <div class="wish"><div class="body">
+          <div class="t">${esc(w.title)} <span class="badge done">已完成</span></div>
+          <div class="meta"><span>${SITES[w.site].icon} ${esc(SITES[w.site].name)}</span><span>${day(w.done_at)} 完成</span>${w.done_url ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
+        </div></div>`).join("")}</div></div>`;
+  } catch (e) {
+    box.innerHTML = `<div class="empty">願望暫時載入不了，<a href="wish/">到許願池看看</a></div>`;
+  }
+})();
+</script>
 </body>
 </html>
