@@ -121,7 +121,7 @@ export function AddRestaurantModal({ isOpen, onClose }: AddRestaurantModalProps)
               <Utensils className="h-6 w-6" />
             </div>
             <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-              新增AOCC共好餐廳推薦
+              推薦餐廳
             </h2>
           </div>
 

@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { supabase } from "./supabase";
 import { getImageByType } from "@/utils/restaurantImageUtils";
+import { getEvent } from "./event";
 
 /* 原本這些 /api/... 是 Replit 上的伺服器；現在網站是純靜態網頁，
    改成在這裡把同樣的網址轉成 Supabase 查詢，畫面元件不用改。
@@ -26,7 +27,7 @@ function friendly(error: any): Error {
   if (!error) return apiError("發生未知錯誤");
   if (error.code === "23505") return apiError("你已經投過這家餐廳了！同一家餐廳只能投一票。");
   if (error.code === "P0001") return apiError(error.message);
-  if (error.code === "42501") return apiError("沒有權限：請先登入，或只有新增這家餐廳的人和管理員可以修改。", 403);
+  if (error.code === "42501") return apiError("沒有權限：可能已經過了截止日期，或只有推薦這家餐廳的人和主辦人可以修改。", 403);
   return apiError(error.message || "發生未知錯誤");
 }
 
@@ -37,10 +38,15 @@ async function currentUid(): Promise<string> {
   return uid;
 }
 
+// 每個活動各自的餐廳和票數
+const eventId = () => getEvent()?.id ?? null;
+
 async function restaurantsWithVotes() {
+  const eid = eventId();
+  if (!eid) return [];
   const [{ data: rs, error: e1 }, { data: counts, error: e2 }] = await Promise.all([
-    supabase.from("restaurants").select("*").order("id"),
-    supabase.rpc("restaurant_vote_counts"),
+    supabase.from("restaurants").select("*").eq("event_id", eid).order("id"),
+    supabase.rpc("restaurant_vote_counts", { p_event: eid }),
   ]);
   if (e1 || e2) throw friendly(e1 || e2);
   const map = new Map((counts || []).map((c: any) => [Number(c.restaurant_id), Number(c.vote_count)]));
@@ -54,13 +60,15 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
   let m: RegExpMatchArray | null;
 
   if (method === "GET" && path === "/api/restaurants") {
-    const { data, error } = await supabase.from("restaurants").select("*").order("id");
+    if (!eventId()) return [];
+    const { data, error } = await supabase.from("restaurants").select("*").eq("event_id", eventId()).order("id");
     if (error) throw friendly(error);
     return data.map(toRestaurant);
   }
   if (method === "GET" && path === "/api/votes/restaurants") return restaurantsWithVotes();
   if (method === "GET" && path === "/api/votes/unique-voters-count") {
-    const { data, error } = await supabase.rpc("unique_voters_count");
+    if (!eventId()) return { count: 0 };
+    const { data, error } = await supabase.rpc("unique_voters_count", { p_event: eventId() });
     if (error) throw friendly(error);
     return { count: Number(data) || 0 };
   }
@@ -84,7 +92,8 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
   }
   if (method === "POST" && path === "/api/restaurants") {
     await currentUid();
-    const { data, error } = await supabase.from("restaurants").insert(fromRestaurant(body)).select().single();
+    if (!eventId()) throw apiError("找不到這個活動");
+    const { data, error } = await supabase.from("restaurants").insert({ ...fromRestaurant(body), event_id: eventId() }).select().single();
     if (error) throw friendly(error);
     return toRestaurant(data);
   }
@@ -110,13 +119,14 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
   }
   if (method === "DELETE" && path === "/api/votes") {
     const uid = await currentUid();
-    const { error } = await supabase.from("votes").delete().eq("user_id", uid).eq("restaurant_id", body.restaurantId);
+    const { data, error } = await supabase.from("votes").delete().eq("user_id", uid).eq("restaurant_id", body.restaurantId).select("id");
     if (error) throw friendly(error);
+    if (!data.length) throw apiError("投票已經截止，不能再取消。", 403);
     return null;
   }
   if (method === "POST" && path === "/api/fix-restaurant-images") {
     // 管理員工具：依餐廳類型重新配圖（權限由資料庫檢查）
-    const { data: rs, error } = await supabase.from("restaurants").select("id,type");
+    const { data: rs, error } = await supabase.from("restaurants").select("id,type").eq("event_id", eventId());
     if (error) throw friendly(error);
     let n = 0;
     for (const r of rs || []) {

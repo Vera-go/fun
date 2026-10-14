@@ -29,7 +29,8 @@ export const createRestaurantSchema = createInsertSchema(restaurants)
     notes: z.string().optional(),
     imageUrl: z.string().min(1),
     recommender: z.string().optional(),
-    websiteUrl: z.string().url("請輸入有效的網址").optional()
+    // 選填：留空也可以，有填才檢查格式
+    websiteUrl: z.union([z.literal(""), z.string().url("請輸入有效的網址")]).optional()
   });
 
 // 用戶表

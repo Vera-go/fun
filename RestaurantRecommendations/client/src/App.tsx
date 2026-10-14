@@ -6,7 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "@/components/UserContext";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
+import Landing from "@/pages/Landing";
+import EventPage from "@/pages/EventPage";
+import AdminClaim from "@/pages/AdminClaim";
 import UserManual from "@/pages/UserManual";
 
 // 用網址的 # 切換頁面（#/manual），放在 GitHub Pages 的子資料夾也不會 404
@@ -14,7 +16,9 @@ function Router() {
   return (
     <WouterRouter hook={useHashLocation}>
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={Landing} />
+      <Route path="/e/:code/admin/:token">{(p: any) => <AdminClaim code={p.code} token={p.token} />}</Route>
+      <Route path="/e/:code">{(p: any) => <EventPage code={p.code} />}</Route>
       <Route path="/manual" component={UserManual} />
       <Route component={NotFound} />
     </Switch>

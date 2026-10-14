@@ -3,6 +3,7 @@ import { User } from "@/types";
 import { supabase } from "@/lib/supabase";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useEvent, reloadEvent, ensureSession } from "@/lib/event";
 
 interface UserContextType {
   currentUser: User | null;
@@ -25,7 +26,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       try {
         const saved = JSON.parse(localStorage.getItem(SAVED) || "null");
         const { data } = await supabase.auth.getSession();
-        if (saved && data.session && data.session.user.id === saved.id) setCurrentUser(saved);
+        const { data: u, error } = data.session ? await supabase.auth.getUser() : { data: { user: null }, error: null };
+        if (saved && !error && u.user && u.user.id === saved.id) setCurrentUser(saved);
         else localStorage.removeItem(SAVED);
       } catch {
         localStorage.removeItem(SAVED);
@@ -42,13 +44,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signInWithPassword({ email: email || "", password: password || "" });
         if (error) throw new Error("email 或密碼不正確");
       } else {
-        const { data } = await supabase.auth.getSession();
-        // 已經有這台裝置的匿名身分就沿用，投過的票才不會不見；之前是管理員登入就換回匿名
-        if (!data.session || !data.session.user.is_anonymous) {
-          if (data.session) await supabase.auth.signOut();
-          const { error } = await supabase.auth.signInAnonymously();
-          if (error) throw new Error("無法登入，請稍後再試");
-        }
+        // 已經有這台裝置的匿名身分就沿用，投過的票才不會不見；之前是管理員登入、或身分已失效就換新的匿名身分
+        await ensureSession({ anonymousOnly: true });
       }
 
       const { data: s } = await supabase.auth.getSession();
@@ -69,6 +66,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const user: User = { id: uid as any, name, isAdmin: admin ? 1 : 0, createdAt: new Date().toISOString() };
       setCurrentUser(user);
       localStorage.setItem(SAVED, JSON.stringify(user));
+      await reloadEvent();          // 換了身分，重新確認是不是這個活動的主辦人
       queryClient.invalidateQueries();
       toast({ title: "登入成功", description: `歡迎 ${name}${admin ? "（管理員）" : ""}` });
     } catch (error: any) {
@@ -82,14 +80,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (currentUser?.isAdmin === 1) await supabase.auth.signOut();
     setCurrentUser(null);
     localStorage.removeItem(SAVED);
+    await reloadEvent();
     queryClient.invalidateQueries();
     toast({ title: "已登出", description: "你已成功登出" });
   };
 
-  const isAdmin = currentUser?.isAdmin === 1;
+  // 管理權限 = 你這個超級管理員，或目前這個活動的主辦人；畫面元件都看 currentUser.isAdmin
+  const { event } = useEvent();
+  const isAdmin = currentUser?.isAdmin === 1 || (!!currentUser && !!event?.isAdmin);
+  const effectiveUser = currentUser ? { ...currentUser, isAdmin: isAdmin ? 1 : 0 } : null;
 
   return (
-    <UserContext.Provider value={{ currentUser, isAdmin, login, logout }}>
+    <UserContext.Provider value={{ currentUser: effectiveUser, isAdmin, login, logout }}>
       {children}
     </UserContext.Provider>
   );

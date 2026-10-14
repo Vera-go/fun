@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { VoteButton } from "./VoteButton";
 import { VoteDetailsDialog } from "./VoteDetailsDialog";
 import { useUser } from "./UserContext";
+import { useEvent, isOpen, shortDate } from "@/lib/event";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,9 @@ function RestaurantList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { currentUser } = useUser();
+  const { event } = useEvent();
+  // 推薦截止後就不能新增（主辦人例外）；資料庫也會檢查
+  const recommendOpen = !!event && (isOpen(event.recommendDeadline, event.today) || currentUser?.isAdmin === 1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editRestaurant, setEditRestaurant] = useState<Restaurant | null>(null);
   const [deleteRestaurant, setDeleteRestaurant] = useState<Restaurant | null>(null);
@@ -89,7 +93,8 @@ function RestaurantList() {
     notes: r.notes,
     imageUrl: r.imageUrl,
     recommender: r.recommender,
-    websiteUrl: r.websiteUrl
+    websiteUrl: r.websiteUrl,
+    createdBy: (r as any).createdBy
   }));
 
   const isLoading = isRestaurantsLoading || (currentUser && isVotesLoading);
@@ -189,10 +194,10 @@ function RestaurantList() {
           <Button 
             onClick={() => setIsAddModalOpen(true)}
             className="bg-primary hover:bg-accent text-white text-lg px-8 py-6 rounded-full transition-all transform hover:scale-105 shadow-lg"
-            disabled={!currentUser}
+            disabled={!currentUser || !recommendOpen}
           >
             <PlusCircle className="mr-2 h-6 w-6" />
-            新增AOCC共好餐廳
+            推薦餐廳
           </Button>
         </div>
         
@@ -227,14 +232,18 @@ function RestaurantList() {
         <Button 
           onClick={() => setIsAddModalOpen(true)}
           className="bg-primary hover:bg-primary/90 text-primary-foreground font-serif text-lg px-8 py-6 rounded-sm transition-all transform hover:translate-y-[-2px] shadow-sm border border-primary/30"
-          disabled={!currentUser} // 未登入用戶不能添加餐廳
+          disabled={!currentUser || !recommendOpen} // 未登入或已過推薦截止日
         >
           <PlusCircle className="mr-2 h-5 w-5 opacity-90" />
-          新增共好餐廳
+          推薦餐廳
         </Button>
-        {!currentUser && (
+        {!recommendOpen && event ? (
           <div className="ml-2 text-amber-600 text-sm flex items-center">
-            <span className="italic">請先登入以新增餐廳</span>
+            <span className="italic">推薦已於 {shortDate(event.recommendDeadline)} 截止</span>
+          </div>
+        ) : !currentUser && (
+          <div className="ml-2 text-amber-600 text-sm flex items-center">
+            <span className="italic">請先登入以推薦餐廳</span>
           </div>
         )}
       </div>
@@ -257,16 +266,16 @@ function RestaurantList() {
         <div className="h-1 w-24 bg-yellow-500/50 mx-auto mb-4"></div>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
           以下餐廳根據投票數量進行排名，票數越多排名越前。
-          目前共有 <span className="font-medium text-primary">{uniqueVotersData?.count || 0}</span> 位同仁參與投票。
+          目前共有 <span className="font-medium text-primary">{uniqueVotersData?.count || 0}</span> 人參與投票。
           <span className="block mt-2 text-amber-600 text-xs font-medium">
-            投票規則：一人有兩票，同一間餐廳限投一票
+            投票規則：一人有 {event?.votesPerPerson ?? 2} 票，同一間餐廳限投一票
           </span>
         </p>
       </div>
       
       {restaurants.length === 0 ? (
         <div className="text-center py-16 bg-card border border-border/40 rounded-sm shadow-sm">
-          <h3 className="text-xl font-serif tracking-wide font-medium mb-3 text-primary">尚無共好餐廳</h3>
+          <h3 className="text-xl font-serif tracking-wide font-medium mb-3 text-primary">還沒有人推薦餐廳</h3>
           <div className="h-[1px] w-20 bg-primary/20 mx-auto mb-4"></div>
           <p className="text-muted-foreground mb-10 font-serif">點擊上方按鈕開始新增您推薦的餐廳</p>
           <div className="max-w-md mx-auto opacity-60">
@@ -435,14 +444,14 @@ function RestaurantList() {
                     {/* 編輯與刪除按鈕 - 只對推薦人本人或管理員顯示 */}
                     {currentUser && (
                       // 確認是否有權限編輯/刪除：推薦人本人或管理員
-                      (currentUser.isAdmin === 1 || (restaurant.recommender && restaurant.recommender.includes(currentUser.name))) && (
+                      (currentUser.isAdmin === 1 || (restaurant as any).createdBy === currentUser.id) && (
                         <>
                           <Button 
                             variant="outline" 
                             size="sm"
                             className="h-9 px-2 hover:bg-secondary/10 hover:text-secondary rounded-sm"
                             onClick={() => setEditRestaurant(restaurant)}
-                            title={currentUser.isAdmin === 1 ? "管理員編輯" : "推薦人編輯"}
+                            title={currentUser.isAdmin === 1 ? "主辦人編輯" : "推薦人編輯"}
                           >
                             <Edit className="h-4 w-4 text-secondary/80" />
                           </Button>
@@ -452,7 +461,7 @@ function RestaurantList() {
                             size="sm"
                             className="h-9 px-2 hover:bg-destructive/10 hover:text-destructive rounded-sm"
                             onClick={() => setDeleteRestaurant(restaurant)}
-                            title={currentUser.isAdmin === 1 ? "管理員刪除" : "推薦人刪除"}
+                            title={currentUser.isAdmin === 1 ? "主辦人刪除" : "推薦人刪除"}
                           >
                             <Trash2 className="h-4 w-4 text-destructive/80" />
                           </Button>

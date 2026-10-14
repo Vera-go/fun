@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, Check, Info } from "lucide-react";
 import { useUser } from "./UserContext";
+import { useEvent, isOpen } from "@/lib/event";
 import { type Vote } from "@/types";
 import { VoteDetailsDialog } from "./VoteDetailsDialog";
 
@@ -18,6 +19,8 @@ interface VoteButtonProps {
 
 export function VoteButton({ restaurantId, restaurantName, hasVoted, voteCount, className }: VoteButtonProps) {
   const { currentUser, isAdmin } = useUser();
+  const { event } = useEvent();
+  const voteOpen = !event || isOpen(event.voteDeadline, event.today);   // 資料庫也會檢查
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showVoteDetails, setShowVoteDetails] = useState(false);
@@ -174,11 +177,16 @@ export function VoteButton({ restaurantId, restaurantName, hasVoted, voteCount, 
                     ${hasVoted ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border-primary/40 hover:border-primary/70"} 
                     ${!currentUser ? "bg-muted hover:bg-muted/80 text-muted-foreground border-muted cursor-pointer" : ""}`}
         onClick={handleVoteClick} 
-        disabled={isLoading} 
+        disabled={isLoading || !voteOpen} 
         title={!currentUser ? "請先登入以進行投票" : hasVoted ? "點擊取消投票" : "點擊投票"}
       >
         {isLoading ? (
           <span className="animate-spin">⟳</span>
+        ) : !voteOpen ? (
+          <>
+            <Check className="h-4 w-4 opacity-70 flex-shrink-0" />
+            <span>投票已截止 ({voteCount})</span>
+          </>
         ) : !currentUser ? (
           <>
             <ThumbsUp className="h-4 w-4 opacity-70 flex-shrink-0" />

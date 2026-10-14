@@ -6,9 +6,12 @@ import { LoginDialog } from "./LoginDialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { useEvent } from "@/lib/event";
 
 export function Header() {
   const { currentUser, isAdmin, logout } = useUser();
+  const { event } = useEvent();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isFixingImages, setIsFixingImages] = useState(false);
   const { toast } = useToast();
@@ -45,18 +48,18 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-gray-900 via-primary to-gray-900 sticky top-0 z-10 shadow-md border-b border-amber-500/20">
       <div className="container mx-auto px-6 py-5 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+        <Link href="/" className="flex items-center space-x-4" title="回首頁">
           <div className="p-2 rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 backdrop-blur-sm border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.2)]">
             <Utensils className="h-6 w-6 text-amber-300" />
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-medium tracking-wider flex items-center flex-wrap">
-              <span className="font-serif mr-2 font-semibold text-amber-100">AOCC</span>
-              <span className="text-lg md:text-xl font-serif text-amber-100/90">PM/QA/DATA/健康</span>
+              <span className="font-serif mr-2 font-semibold text-amber-100">餐廳推薦投票</span>
+              <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">一起決定去哪吃</span>
             </h1>
             <div className="h-[1px] w-[60%] mx-auto bg-gradient-to-r from-amber-500/0 via-amber-500/40 to-amber-500/0 mt-2"></div>
           </div>
-        </div>
+        </Link>
         
         <div className="flex items-center space-x-3">
           {currentUser ? (
@@ -74,12 +77,12 @@ export function Header() {
                       <div className="flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-900/80 to-amber-800/80 border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.15)]">
                         <span className="text-xs text-amber-300 font-medium tracking-wide">
                           <Shield className="h-3 w-3 inline mr-1 text-amber-300" />
-                          管理員
+                          {currentUser.isAdmin === 1 && event?.isAdmin ? "主辦人" : "管理員"}
                         </span>
                       </div>
                     </div>
                     
-                    <Button
+                    {event && <Button
                       variant="ghost" 
                       size="sm"
                       className="h-6 px-1.5 py-0.5 rounded-md bg-gradient-to-r from-blue-900/80 to-blue-800/80 border border-blue-500/30 text-xs text-blue-300 font-medium tracking-wide hover:bg-blue-800/50"
@@ -89,7 +92,7 @@ export function Header() {
                     >
                       <ImageIcon className="h-3 w-3 inline mr-1 text-blue-300" />
                       {isFixingImages ? "修復中..." : "修復餐廳圖片"}
-                    </Button>
+                    </Button>}
                   </div>
                 )}
               </div>

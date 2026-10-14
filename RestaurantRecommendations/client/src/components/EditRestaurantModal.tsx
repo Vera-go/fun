@@ -113,7 +113,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-blue-50">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-primary">編輯AOCC共好餐廳資訊</h2>
+          <h2 className="text-2xl font-bold text-primary">編輯餐廳資訊</h2>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
