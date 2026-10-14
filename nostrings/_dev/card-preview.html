@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><title>分享卡片樣品</title>
+<style>body{margin:0;background:#333;display:flex;gap:0}img{width:540px;height:960px;display:block}</style></head>
+<body>
+<script src="../content.js"></script>
+<script src="../card.js"></script>
+<script>
+// 樣品預覽：?code=ESFP，左邊鮮豔漸層版、右邊深色霓虹版
+const code = (new URLSearchParams(location.search).get("code") || "ESFP").toUpperCase();
+for(const st of ["pop", "neon"]){
+  const img = new Image();
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(shareCard(code, st, "nostrings.tw", ["ENFP","INTJ","ISTP","ISFJ","ENTP",code], st === "pop" ? "阿傑" : ""));
+  document.body.appendChild(img);
+}
+</script>
+</body></html>

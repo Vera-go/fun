@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NOSTRINGS</title>
+<meta name="description" content="測測你的反骨人格。菸商花大錢研究怎麼讓你上鉤，你剪得斷線嗎？">
+<meta name="theme-color" content="#0A0A0A">
+<!-- 上線前檢查清單完成前，不讓搜尋引擎收錄；正式上線時刪掉這一行 -->
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="NOSTRINGS｜你是哪一種反骨？">
+<meta property="og:description" content="16 型反骨人格，看看菸商最想對你用什麼套路。">
+<meta property="og:type" content="website">
+<!-- 上線後補上：<meta property="og:image" content="https://你的網域/og-image.png"> -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0A; --panel:#141414; --panel2:#1D1D1D; --line:#2E2E2E; --text:#F2F2F2; --muted:#9A9A9A;
+  --green:#00FF66; --purple:#B026FF; --yellow:#FFE600; --blue:#3DA5FF; --red:#FF4D6D;
+  --acc:var(--green);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;line-height:1.6;-webkit-text-size-adjust:100%;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--green)}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 120px}
+header{position:sticky;top:0;z-index:5;background:rgba(10,10,10,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header .bar{max-width:560px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+header .brand{height:30px;cursor:pointer;display:block}
+header .brand svg{height:100%;width:auto;display:block}
+header nav{margin-left:auto;display:flex;gap:6px}
+header nav button{background:none;border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:13px;color:var(--muted);white-space:nowrap}
+header .brand{flex:0 1 auto;min-width:0}
+header nav button.on{color:var(--text);border-color:var(--text)}
+
+h1,h2,h3{line-height:1.25;text-wrap:balance}
+h1{font-size:30px;font-weight:900;margin:22px 0 8px}
+h2{font-size:22px;font-weight:900;margin:28px 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* 按鈕：街頭風粗框 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--text);background:var(--panel);border-radius:14px;padding:12px 18px;font-weight:700;font-size:16px;transition:transform .08s}
+.btn:active{transform:translate(2px,2px)}
+.btn.big{width:100%;padding:16px;font-size:19px}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#0A0A0A;box-shadow:4px 4px 0 var(--text)}
+.btn.acc:active{box-shadow:2px 2px 0 var(--text)}
+.btn.ghost{background:none;border-color:var(--line);color:var(--muted)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row > .btn{flex:1 1 140px}
+
+.card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px;margin:14px 0}
+
+/* 首頁 */
+.hero{padding:26px 0 6px}
+.hero .logo svg{width:100%;height:auto;display:block}
+.hero .tag{font-size:28px;font-weight:900;margin:18px 0 0;line-height:1.3}
+.hero .tag b{color:var(--green)}
+.friend{border:2px dashed var(--green);border-radius:14px;padding:12px 14px;margin:16px 0;font-weight:700}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.tile{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:16px;text-align:left;min-width:0}
+.tile .ic{font-size:30px;line-height:1}
+.tile b{display:block;font-size:17px;margin-top:8px}
+.tile span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.tile.wide{grid-column:1 / -1;display:flex;align-items:center;gap:14px}
+.tile.locked{border-style:dashed;border-color:#555}
+
+/* 測驗 */
+.prog{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:18px 0 6px}
+.prog i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.qtext{font-size:22px;font-weight:900;margin:18px 0 16px;line-height:1.4}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:17px;font-weight:500}
+.opt:hover,.opt:focus-visible{border-color:var(--acc);outline:none}
+.mbti-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mbti-grid button{border:2px solid var(--fc);background:var(--panel);border-radius:12px;padding:12px 0;font-weight:900;font-size:16px;letter-spacing:1px;color:var(--fc)}
+.mbti-grid button:hover{background:var(--fc);color:#0A0A0A}
+.fam-label{font-size:12px;color:var(--muted);margin:12px 0 4px}
+
+/* 結果 */
+.result-top{text-align:center;padding-top:10px}
+.result-top .code{font-size:64px;font-weight:900;letter-spacing:4px;color:var(--acc);line-height:1}
+.result-top .name{font-size:28px;font-weight:900;margin-top:4px}
+.result-top .ch{width:200px;margin:8px auto 0;display:block}
+.score{display:inline-block;margin-top:8px;border:2px solid var(--acc);color:var(--acc);border-radius:99px;padding:4px 14px;font-weight:900}
+.slogan{font-size:20px;font-weight:700;text-align:center;margin:16px 0}
+.trick{border-color:var(--acc)}
+.trick h3{margin:0 0 6px;font-size:15px;color:var(--acc)}
+.trick p{margin:0;font-size:18px;font-weight:700}
+.trick .counter{margin-top:10px;font-size:15px;color:var(--muted);font-weight:500}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.duo .card{margin:0;text-align:center}
+.duo .card b{display:block;font-size:20px;letter-spacing:1px}
+.cardprev{width:100%;max-width:300px;display:block;margin:14px auto;border-radius:16px;border:2px solid var(--line)}
+.note{font-size:13px;color:var(--muted);text-align:center}
+
+
+/* 新版結果頁 */
+.cardmain{width:100%;max-width:380px;display:block;margin:12px auto 14px;border-radius:18px;border:2px solid var(--line)}
+.ch2{width:230px;margin:6px auto 0}
+.ch2 svg{width:100%;height:auto;display:block}
+h3.mini{margin:0 0 8px;font-size:15px;color:var(--acc)}
+.me{margin:0;padding:0;list-style:none}
+.me li{position:relative;padding:6px 0 6px 30px;font-size:17px;font-weight:700}
+.me li::before{content:"✓";position:absolute;left:4px;color:var(--acc);font-weight:900}
+.power{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;font-weight:900}
+.power span{color:var(--acc);margin-right:8px}
+.hidden-r{border-style:dashed;border-color:var(--acc);text-align:center}
+.hidden-r.open{border-style:solid;text-align:left}
+.lure{font-size:22px;font-weight:900;margin:8px 0 12px}
+.lure.blur{filter:blur(7px);user-select:none}
+.where{margin:6px 0 12px;padding-left:20px}
+.where li{padding:2px 0}
+.counter2{background:var(--panel2);border-radius:12px;padding:10px 12px}
+.counter2 b{color:var(--acc);margin-right:8px}
+.hold{position:relative;overflow:hidden;width:100%;border:2px solid var(--acc);background:var(--panel);border-radius:14px;padding:14px;font-weight:900;font-size:17px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--acc);opacity:.35}
+.hold span{position:relative}
+.relay{border-color:var(--acc)}
+.relay-n{font-size:20px;font-weight:900;color:var(--acc);margin-bottom:8px}
+.relay input{display:block;width:100%;margin:6px 0 4px;font:inherit;font-size:18px;color:var(--text);background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.relay input:focus{outline:none;border-color:var(--acc)}
+/* 換算器 */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:2px solid var(--line);background:var(--panel);border-radius:99px;padding:6px 14px;font-weight:700}
+.chip.on{border-color:var(--acc);color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--green);height:28px}
+.money{display:flex;justify-content:space-between;gap:8px;text-align:center;margin-top:10px}
+.money div{flex:1;background:var(--panel2);border-radius:12px;padding:10px 4px}
+.money b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.money span{font-size:12px;color:var(--muted)}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.item{background:var(--panel2);border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;min-width:0}
+.item .ic{font-size:28px}
+.item b{font-size:20px;color:var(--green);font-variant-numeric:tabular-nums}
+.item span{display:block;font-size:13px;color:var(--muted)}
+.days{font-size:56px;font-weight:900;color:var(--green);line-height:1;font-variant-numeric:tabular-nums}
+
+/* 泡泡紙：按下先壓扁、放開才破；手指滑過一路爆 */
+.ftop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ftop .mute{margin-left:auto;background:none;border:1px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted)}
+.bubwrap{overflow:hidden;border-radius:18px;margin:14px 0 8px;background:#101010;border:2px solid var(--line);padding:10px}
+.bubbles{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;touch-action:none;user-select:none;-webkit-user-select:none}
+.bubbles.roll{animation:rollIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes rollIn{from{transform:translateY(105%)}to{transform:none}}
+.bub{--hl:radial-gradient(circle at 34% 28%,rgba(255,255,255,.8) 0 9%,rgba(255,255,255,.2) 10% 26%,transparent 27%),radial-gradient(circle at 62% 72%,rgba(0,0,0,.28),transparent 60%);position:relative;aspect-ratio:1;border-radius:50%;border:none;padding:0;background:var(--hl),var(--bc,#00FF66);box-shadow:inset -3px -4px 8px rgba(0,0,0,.35),inset 2px 2px 6px rgba(255,255,255,.25),0 3px 6px rgba(0,0,0,.45);transition:transform .14s cubic-bezier(.3,1.6,.5,1);font-size:11px;font-weight:900;color:#0A0A0A;line-height:1.1;overflow:visible;-webkit-tap-highlight-color:transparent}
+.bub.press{transform:scale(.88,.78)}
+.bub.gold{--bc:#FFD23F;animation:shine 1.4s infinite}
+.bub.rainbow{background:var(--hl),conic-gradient(#ff4d6d,#ffe600,#00ff66,#3da5ff,#b026ff,#ff4d6d);animation:shine 1.4s infinite}
+@keyframes shine{50%{filter:brightness(1.35) saturate(1.2)}}
+.bub.pop{background:repeating-linear-gradient(35deg,#1b1b1b 0 3px,#242424 3px 6px);box-shadow:inset 0 0 0 2px #2b2b2b;transform:scale(.8);color:transparent;animation:popflat .2s ease-out}
+@keyframes popflat{0%{transform:scale(1.18)}100%{transform:scale(.8)}}
+.fx{position:absolute;left:50%;top:50%;pointer-events:none;z-index:2}
+.fx.ring{width:100%;height:100%;border:3px solid var(--fxc);border-radius:50%;transform:translate(-50%,-50%) scale(.6);animation:ring .45s ease-out forwards}
+@keyframes ring{to{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
+.fx.bit{width:7px;height:7px;border-radius:2px;background:var(--fxc);transform:translate(-50%,-50%);animation:bit .55s ease-out forwards}
+@keyframes bit{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(200deg);opacity:0}}
+.fx.bye{font-size:15px;font-weight:900;color:#fff;white-space:nowrap;transform:translate(-50%,-50%);animation:bye .9s ease-out forwards}
+@keyframes bye{to{transform:translate(-50%,-190%);opacity:0}}
+.popcount{display:flex;gap:16px;font-size:13px;color:var(--muted);justify-content:center}
+.popcount b{color:var(--text);font-variant-numeric:tabular-nums}
+.worry{display:flex;gap:8px}
+.worry input{flex:1;min-width:0;font:inherit;color:var(--text);background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.worry input:focus{outline:none;border-color:var(--green)}
+.timer{height:10px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--yellow)}
+.fscore{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
+.fscore b{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums}
+.breath{display:flex;flex-direction:column;align-items:center;padding:40px 0 10px;text-align:center}
+.bball{width:130px;height:130px;border-radius:50%;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.7) 0 9%,rgba(255,255,255,.18) 10% 26%,transparent 27%),var(--green);box-shadow:0 0 50px rgba(0,255,102,.35);transition:transform 4s ease-in-out}
+.bball.in{transform:scale(1.7)}
+.bword{font-size:26px;font-weight:900;margin-top:64px;min-height:1.4em}
+.bleft{font-variant-numeric:tabular-nums;color:var(--muted)}
+/* 機密檔案 */
+.file{border:2px solid var(--red);border-radius:18px;padding:20px;background:repeating-linear-gradient(-45deg,#141414 0 14px,#181818 14px 28px)}
+.file .stamp{display:inline-block;border:2px solid var(--red);color:var(--red);font-weight:900;padding:2px 10px;border-radius:6px;transform:rotate(-4deg);letter-spacing:2px}
+.file p{font-size:18px;font-weight:700;margin:14px 0;opacity:0;animation:reveal .5s forwards}
+@keyframes reveal{to{opacity:1}}
+
+/* 找人聊聊 */
+.helpfab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:8px 14px;font-size:13px}
+dialog{background:var(--panel);color:var(--text);border:2px solid var(--line);border-radius:18px;padding:20px;width:min(440px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+.hl{border-top:1px solid var(--line);padding:12px 0}
+.hl b{font-size:17px}
+.hl .tel{font-size:22px;font-weight:900;color:var(--green);letter-spacing:1px;user-select:all}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--text);color:#0A0A0A;padding:8px 16px;border-radius:99px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} .file p{opacity:1} }
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand" id="brand" role="link" aria-label="回首頁"></div>
+  <nav><button data-go="calc">換算器</button><button data-go="fidget">紓壓</button></nav>
+</div></header>
+<main class="wrap" id="app"></main>
+<button class="helpfab" id="helpBtn"></button>
+<dialog id="helpDlg"></dialog>
+<div class="toast" id="toast"></div>
+
+<script src="content.js"></script>
+<script src="card.js"></script>
+<script>
+"use strict";
+const C = window.NS;
+const TYPE_CODES = Object.keys(C.types);
+const parseRelay = s => String(s || "").toUpperCase().split(".").filter(x => TYPE_CODES.includes(x)).slice(-60);
+const RELAY_IN = parseRelay(new URLSearchParams(location.search).get("relay"));
+// 交棒暱稱：不雅字詞不收
+const BAD_WORDS = ["幹", "靠北", "靠杯", "白癡", "白痴", "智障", "垃圾", "去死", "婊", "賤", "屌", "雞巴", "fuck", "shit", "bitch"];
+const badName = s => BAD_WORDS.some(w => s.toLowerCase().includes(w));
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fill = (tpl, o) => tpl.replace(/\{(\w+)\}/g, (_, k) => o[k] ?? "");
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
+
+/* ---------- 只存在這台裝置的資料 ---------- */
+const KEY = "nostrings:v1";
+let S = {};
+try{ S = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ S = {}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+/* ---------- 品牌 logo（字形和 brand/make_logo.py 相同） ---------- */
+const GLYPHS = {
+  N:[72,"M11 100V11L61 89V0"], O:[72,"M30 11H42Q61 11 61 30V70Q61 89 42 89H30Q11 89 11 70V30Q11 11 30 11Z"],
+  S:[72,"M61 22Q61 11 50 11H24Q11 11 11 24V37Q11 50 24 50H48Q61 50 61 63V76Q61 89 48 89H22Q11 89 11 78"],
+  T:[72,"M0 11H72M36 11V100"], R:[72,"M11 100V11H44Q61 11 61 28V33Q61 50 44 50H11M38 50L66.4 111.5"],
+  I:[36,"M18 0V100"], G:[72,"M61 26Q61 11 44 11H28Q11 11 11 28V72Q11 89 28 89H44Q61 89 61 72V54H38"]
+};
+let clipSeq = 0;
+function logoInner(main = "#FFFFFF", acc = "#00FF66"){
+  const id = "cap" + (++clipSeq), pad = 48, top = 118;
+  let x = 0, xs = [], paths = "";
+  [..."NOSTRINGS"].forEach((ch, i) => {
+    const [w, d] = GLYPHS[ch]; xs.push(x);
+    paths += `<g transform="translate(${pad + x} ${top})"><path d="${d}" fill="none" stroke="${i < 2 ? acc : main}" stroke-width="22" stroke-linejoin="miter" clip-path="url(#${id})"/></g>`;
+    x += w + 16;
+  });
+  const cut = (cx, cy) => `<path d="M${cx} 0V${cy - 13}L${cx + 4} ${cy - 5}" fill="none" stroke="${acc}" stroke-width="8" stroke-linejoin="round"/><path d="M${cx - 4} ${cy + 5}L${cx} ${cy + 13}V${top}" fill="none" stroke="${acc}" stroke-width="8" stroke-linejoin="round"/>`;
+  return `<defs><clipPath id="${id}"><rect x="-20" y="0" width="120" height="100"/></clipPath></defs>${cut(pad + xs[1] + 36, 58)}${cut(pad + xs[5] + 18, 44)}${paths}`;
+}
+const logoSvg = () => `<svg viewBox="0 0 836 266" role="img" aria-label="NOSTRINGS">${logoInner()}</svg>`;
+
+/* ---------- 角色：四大家族各有配件，上方都有被剪斷的線 ---------- */
+const famOf = code => code[1] === "N" ? (code[2] === "T" ? "NT" : "NF") : (code[3] === "J" ? "SJ" : "SP");
+const famColor = code => C.families[famOf(code)].color;
+function charSvg(code, withBg = false){
+  const c = famColor(code), f = famOf(code), ink = "#151515";
+  const acc = {
+    NT: `<path d="M56 92 C54 50 74 38 100 38 C126 38 146 50 144 92" fill="none" stroke="${c}" stroke-width="5"/><rect x="74" y="80" width="22" height="16" rx="4" fill="none" stroke="${c}" stroke-width="4"/><rect x="104" y="80" width="22" height="16" rx="4" fill="none" stroke="${c}" stroke-width="4"/><path d="M96 86h8" stroke="${c}" stroke-width="4"/>`,
+    NF: `<path d="M58 90 C58 40 142 40 142 90" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round"/><rect x="48" y="80" width="16" height="28" rx="7" fill="${c}"/><rect x="136" y="80" width="16" height="28" rx="7" fill="${c}"/>`,
+    SJ: `<path d="M62 74 C62 44 138 44 138 74 Z" fill="${c}"/><path d="M100 74 H160 Q160 82 150 82 H100 Z" fill="${c}"/><circle cx="100" cy="50" r="4" fill="${ink}"/>`,
+    SP: `<path d="M62 72 C62 34 138 34 138 72 Z" fill="${c}"/><rect x="58" y="66" width="84" height="14" rx="5" fill="${c}" stroke="${ink}" stroke-width="3"/><circle cx="100" cy="34" r="9" fill="${c}"/>`
+  }[f];
+  const eyes = f === "NT" ? "" : `<path d="M80 89h13M107 89h13" stroke="${c}" stroke-width="4" stroke-linecap="round"/>`;
+  const strings = (x, cy) => `<path d="M${x} 0V${cy - 9}" stroke="${c}" stroke-width="3"/><path d="M${x} ${cy + 9}V200" stroke="${c}" stroke-width="3"/><path d="M${x - 6} ${cy - 3}l12 -4" stroke="#FFFFFF" stroke-width="1.5" opacity=".6"/>`;
+  return `<svg viewBox="0 0 200 220" role="img" aria-label="${code}">${withBg ? `<rect width="200" height="220" fill="#0A0A0A"/>` : ""}
+    ${strings(46, 50)}${strings(154, 66)}
+    <path d="M28 220 C28 166 58 136 100 136 C142 136 172 166 172 220 Z" fill="${ink}" stroke="${c}" stroke-width="4"/>
+    <path d="M78 140 L100 162 L122 140" fill="none" stroke="${c}" stroke-width="3"/>
+    <circle cx="100" cy="92" r="38" fill="${ink}" stroke="${c}" stroke-width="4"/>
+    ${eyes}<path d="M90 110 q10 6 20 -2" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/>
+    ${acc}
+    <text x="100" y="204" text-anchor="middle" font-family="Arial Black,Impact,sans-serif" font-size="26" font-weight="900" fill="${c}" letter-spacing="2">${code}</text></svg>`;
+}
+
+/* ---------- 分享卡片（9:16，只顯示類型，不含任何個人資訊） ---------- */
+// 每行 n 個字，標點不放在行首
+function wrapText(s, n){ const out = []; let line = ""; for(const ch of s){ if(line.length >= n && !"，。、！？」）".includes(ch)){ out.push(line); line = ""; } line += ch; } if(line) out.push(line); return out; }
+const FONT = `'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif`;
+const siteUrl = () => location.host ? location.host + location.pathname.replace(/index\.html$/, "") : "nostrings";
+function resultCardSvg(code, score){
+  const t = C.types[code], c = famColor(code);
+  const lines = wrapText(t.trick, 17);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <rect width="1080" height="1920" fill="#0A0A0A"/>
+  <g transform="translate(206 70) scale(0.8)">${logoInner()}</g>
+  <text x="540" y="400" text-anchor="middle" font-family="${FONT}" font-size="40" font-weight="700" fill="#9A9A9A">我的反骨人格</text>
+  <text x="540" y="580" text-anchor="middle" font-family="Arial Black,Impact,sans-serif" font-size="190" font-weight="900" fill="${c}" letter-spacing="12">${code}</text>
+  <text x="540" y="690" text-anchor="middle" font-family="${FONT}" font-size="80" font-weight="900" fill="#FFFFFF">${esc(t.name)}</text>
+  <g transform="translate(320 730) scale(2.2)">${charSvg(code).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</g>
+  <rect x="330" y="1250" width="420" height="84" rx="42" fill="none" stroke="${c}" stroke-width="5"/>
+  <text x="540" y="1307" text-anchor="middle" font-family="${FONT}" font-size="44" font-weight="900" fill="${c}">${C.scoreLabel} ${score}%</text>
+  <text x="540" y="1430" text-anchor="middle" font-family="${FONT}" font-size="44" font-weight="700" fill="#FFFFFF">「${esc(t.slogan)}」</text>
+  <text x="120" y="1550" font-family="${FONT}" font-size="34" font-weight="700" fill="${c}">菸商最想對我用的套路</text>
+  ${lines.map((l, i) => `<text x="120" y="${1615 + i * 58}" font-family="${FONT}" font-size="42" font-weight="700" fill="#F2F2F2">${esc(l)}</text>`).join("")}
+  <text x="540" y="1860" text-anchor="middle" font-family="${FONT}" font-size="32" font-weight="700" fill="#9A9A9A">你是哪一型？ ${esc(siteUrl())}</text>
+</svg>`;
+}
+function scoreCardSvg(n){
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <rect width="1080" height="1920" fill="#0A0A0A"/>
+  <g transform="translate(206 120) scale(0.8)">${logoInner()}</g>
+  <text x="540" y="620" text-anchor="middle" font-family="${FONT}" font-size="64" font-weight="900" fill="#FFFFFF">泡泡紙 30 秒挑戰</text>
+  ${[0,1,2,3,4,5].map(i => `<circle cx="${240 + i * 120}" cy="780" r="44" fill="${i % 2 ? "#1D1D1D" : "#00FF66"}"/>`).join("")}
+  <text x="540" y="1180" text-anchor="middle" font-family="Arial Black,Impact,sans-serif" font-size="320" font-weight="900" fill="#00FF66">${n}</text>
+  <text x="540" y="1300" text-anchor="middle" font-family="${FONT}" font-size="56" font-weight="900" fill="#FFFFFF">個泡泡，30 秒戳破</text>
+  <text x="540" y="1480" text-anchor="middle" font-family="${FONT}" font-size="60" font-weight="900" fill="#FFE600">你能贏我嗎？</text>
+  <text x="540" y="1860" text-anchor="middle" font-family="${FONT}" font-size="32" font-weight="700" fill="#9A9A9A">${esc(siteUrl())}</text>
+</svg>`;
+}
+const svgUrl = svg => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+async function svgToPng(svg){
+  const img = new Image(); img.src = svgUrl(svg);
+  await img.decode();
+  const cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1920;
+  cv.getContext("2d").drawImage(img, 0, 0, 1080, 1920);
+  return new Promise(res => cv.toBlob(res, "image/png"));
+}
+async function shareImage(svg, filename, text){
+  try{
+    const blob = await svgToPng(svg);
+    const file = new File([blob], filename, {type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], text: text + " " + relayUrl()});
+      return;
+    }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast("圖片已下載，到相簿或下載資料夾找");
+  }catch(e){
+    if(e && e.name === "AbortError") return;   // 自己按了取消
+    toast("這個瀏覽器沒辦法產生圖片，可以直接截圖");
+  }
+}
+const relayChain = () => [...(view.relay || []), view.code];
+const relayUrl = () => location.origin + location.pathname + "?relay=" + relayChain().join(".");
+async function copyLink(){
+  const url = relayUrl();
+  try{ await navigator.clipboard.writeText(url); toast("連結已複製，貼給朋友"); }
+  catch(e){ prompt("複製這個連結給朋友：", url); }
+}
+
+/* ---------- 音效與震動 ---------- */
+let actx = null, noiseBuf = null;
+function audio(){
+  if(S.mute) return null;
+  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  if(actx.state === "suspended") actx.resume();
+  if(!noiseBuf){   // 一小段快速衰減的白噪音，當作塑膠破掉的「啵」
+    const len = Math.floor(actx.sampleRate * .06);
+    noiseBuf = actx.createBuffer(1, len, actx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+  }
+  return actx;
+}
+function popSound(special){
+  try{
+    const a = audio(); if(!a) return;
+    const t = a.currentTime;
+    // 啵：帶通濾波的噪音，每次音高都不太一樣
+    const n = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    n.buffer = noiseBuf; n.playbackRate.value = .85 + Math.random() * .3;
+    f.type = "bandpass"; f.frequency.value = 1400 + Math.random() * 1600; f.Q.value = 1.4;
+    g.gain.setValueAtTime(.9, t); g.gain.exponentialRampToValueAtTime(.001, t + .06);
+    n.connect(f).connect(g).connect(a.destination); n.start(t);
+    // 底下一點點低音，聽起來比較「實」
+    const o = a.createOscillator(), og = a.createGain();
+    o.frequency.setValueAtTime(170 + Math.random() * 60, t); o.frequency.exponentialRampToValueAtTime(60, t + .05);
+    og.gain.setValueAtTime(.3, t); og.gain.exponentialRampToValueAtTime(.001, t + .06);
+    o.connect(og).connect(a.destination); o.start(t); o.stop(t + .07);
+    // 特殊泡泡：再加一段叮叮叮
+    if(special) [0, 4, 7, 12].forEach((s, i) => {
+      const o2 = a.createOscillator(), g2 = a.createGain(), st = t + .04 + i * .07;
+      o2.frequency.value = (special === "rainbow" ? 660 : 523) * Math.pow(2, s / 12);
+      g2.gain.setValueAtTime(0, st); g2.gain.linearRampToValueAtTime(.16, st + .01); g2.gain.exponentialRampToValueAtTime(.001, st + .35);
+      o2.connect(g2).connect(a.destination); o2.start(st); o2.stop(st + .4);
+    });
+  }catch(e){}
+}
+const buzz = p => { if(navigator.vibrate) navigator.vibrate(p); };   // 只有 Android 支援
+
+/* ---------- 頁面切換 ---------- */
+let view = {page:"home"};
+function go(page, extra = {}){
+  stopChallenge(); stopBreath();
+  view = Object.assign({page}, extra);
+  history.replaceState(null, "", location.pathname + location.search + (page === "home" ? "" : "#" + page));
+  window.scrollTo(0, 0); render();
+}
+function render(){
+  document.querySelectorAll("header nav button").forEach(b => b.classList.toggle("on", b.dataset.go === view.page));
+  document.documentElement.style.setProperty("--acc", view.code ? famColor(view.code) : "#00FF66");
+  ({home:renderHome, quiz:renderQuiz, result:renderResult, calc:renderCalc, fidget:renderFidget, secret:renderSecret}[view.page] || renderHome)();
+}
+
+/* 首頁 */
+function renderHome(){
+  const friend = new URLSearchParams(location.search).get("t");
+  const ft = friend && C.types[friend.toUpperCase()] ? friend.toUpperCase() : null;
+  const rl = RELAY_IN;
+  app.innerHTML = `
+    <div class="hero">
+      <div class="logo">${logoSvg()}</div>
+      <p class="tag">${esc(C.site.tagline)}<br><b>${esc(C.site.tagline2)}</b></p>
+      <p class="muted">${esc(C.site.intro)}</p>
+    </div>
+    ${rl.length ? `<div class="friend">${esc(fill(C.site.relayBanner, {n:rl.length + 1}))}<div class="small" style="font-weight:500;margin-top:4px">${esc(C.site.relayPrev)}${rl.length > 6 ? "⋯ → " : ""}${rl.slice(-6).map(c => `<b style="color:${famColor(c)}">${c}</b>`).join(" → ")}</div></div>` : ft ? `<div class="friend">${esc(fill(C.site.friendBanner, {code:ft, name:C.types[ft].name}))}</div>` : ""}
+    <button class="btn acc big" data-go="quiz">測你的反骨人格（1 分鐘）</button>
+    ${S.last ? `<p class="small muted" style="text-align:center">上次測出：<a href="#" data-last="1">${S.last.code}・${esc(C.types[S.last.code].name)}</a></p>` : ""}
+    <div class="tiles">
+      <button class="tile" data-go="calc"><div class="ic">💸</div><b>自由財富換算器</b><span>這筆錢能換到什麼</span></button>
+      <button class="tile" data-go="fidget"><div class="ic">🫧</div><b>無限泡泡紙</b><span>手癢就戳</span></button>
+      <button class="tile wide locked" data-go="secret"><div class="ic">🔒</div><div><b>${esc(C.secret.title)}</b><span>${esc(C.secret.teaser)}</span></div></button>
+    </div>`;
+}
+
+/* 測驗：選 MBTI（或 4 題判斷）→ 反骨情境題 → 結果 */
+function renderQuiz(){
+  const q = view.q || (view.q = {stage:"pick"});
+  const total = C.rebelQuiz.length;
+  if(q.stage === "pick"){
+    const fam = {NT:["INTJ","INTP","ENTJ","ENTP"], NF:["INFJ","INFP","ENFJ","ENFP"], SJ:["ISTJ","ISFJ","ESTJ","ESFJ"], SP:["ISTP","ISFP","ESTP","ESFP"]};
+    app.innerHTML = `<h1>你的 MBTI 是？</h1><p class="muted">選你自己的類型。</p>
+      ${Object.entries(fam).map(([k, list]) => `<div class="fam-label">${C.families[k].name}</div>
+        <div class="mbti-grid">${list.map(c => `<button data-mbti="${c}" style="--fc:${C.families[k].color}">${c}</button>`).join("")}</div>`).join("")}
+      <div style="margin-top:18px"><button class="btn ghost" data-quick="start" style="width:100%">不知道？回答 4 題幫你判斷</button></div>`;
+    return;
+  }
+  if(q.stage === "quick"){
+    const it = C.mbtiQuick[q.i];
+    app.innerHTML = `<div class="prog"><i style="width:${q.i / C.mbtiQuick.length * 100}%"></i></div>
+      <div class="small muted">先判斷你的類型 ${q.i + 1} / ${C.mbtiQuick.length}</div>
+      <div class="qtext">${esc(it.q)}</div>
+      <div class="opts">${it.a.map(([t, v]) => `<button class="opt" data-qk="${v}">${esc(t)}</button>`).join("")}</div>`;
+    return;
+  }
+  const it = C.rebelQuiz[q.i];
+  app.innerHTML = `<div class="prog"><i style="width:${q.i / total * 100}%"></i></div>
+    <div class="small muted">${q.code}・第 ${q.i + 1} / ${total} 題</div>
+    <div class="qtext">${esc(it.q)}</div>
+    <div class="opts">${it.a.map(([t, v], k) => `<button class="opt" data-rq="${k}">${esc(t)}</button>`).join("")}</div>`;
+}
+function startRebel(code){ view.q = {stage:"rebel", code, i:0, sum:0}; view.code = code; render(); }
+function answerRebel(k){
+  const q = view.q, it = C.rebelQuiz[q.i];
+  q.sum += it.a[k][1]; q.i++;
+  if(q.i < C.rebelQuiz.length) return render();
+  const n = C.rebelQuiz.length, max = C.rebelQuiz.reduce((a, x) => a + Math.max(...x.a.map(o => o[1])), 0);
+  const score = Math.round(60 + (q.sum - n) / (max - n) * 39);
+  S.last = {code:q.code, score, relay:RELAY_IN}; save();
+  go("result", {code:q.code, score, relay:RELAY_IN});
+}
+
+/* 結果：有新版內容（me、lure）的類型用新版結果頁，其餘先用舊版 */
+function renderResult(){
+  const code = view.code, t = C.types[code];
+  if(!t.me || !t.lure) return renderResultOld();
+  const unlocked = !!(S.unlocked && S.unlocked[code]);
+  const style = S.cardStyle || "pop";
+  // 卡片本身就是結果：上面不再另外重複一次角色和描述
+  app.innerHTML = `
+    <div class="chips" style="justify-content:center;margin-top:18px">${[["pop", "鮮豔"], ["neon", "霓虹"]].map(([k, n]) => `<button class="chip ${style === k ? "on" : ""}" data-cardstyle="${k}">${n}</button>`).join("")}</div>
+    <img class="cardmain" id="cardImg" src="${svgUrl(shareCard(code, style, siteUrl(), relayChain(), view.toName || ""))}" alt="${code}・${esc(t.name)}：${t.me.map(esc).join("、")}">
+    <div class="card relay">
+      <div class="relay-n">${esc(fill(C.site.relayYou, {n:relayChain().length}))}</div>
+      <label for="handoff" class="small">${esc(C.site.handoffLabel)}</label>
+      <input id="handoff" maxlength="6" autocomplete="off" placeholder="${esc(C.site.handoffPlaceholder)}" value="${esc(view.toName || "")}">
+      <div class="small" id="handoffErr" style="color:var(--red)"></div>
+      <div class="small muted">${esc(C.site.handoffNote)}</div>
+    </div>
+    <div class="row">
+      <button class="btn acc" id="shareCard">分享到限動</button>
+      <button class="btn" id="copyLink">複製連結給朋友</button>
+    </div>
+    <p class="note">最佳拍檔 <b style="color:${famColor(t.partner)}">${t.partner}</b> ${esc(C.types[t.partner].name)}・天敵 <b style="color:${famColor(t.rival)}">${t.rival}</b> ${esc(C.types[t.rival].name)}</p>
+    <div class="card hidden-r ${unlocked ? "open" : ""}" id="hiddenBox">
+      <h3 class="mini">${unlocked ? "🔓" : "🔒"} 隱藏結果：${esc(C.site.hiddenTitle)}</h3>
+      ${unlocked ? `<p class="lure">「${esc(t.lure)}」</p>
+        <div class="small muted">${esc(C.site.hiddenWhere)}</div>
+        <ul class="where">${t.where.map(w => `<li>${esc(w)}</li>`).join("")}</ul>
+        <div class="counter2"><b>${esc(C.site.hiddenCounter)}</b>${esc(t.counter)}</div>`
+      : `<p class="lure blur">「這一句只有你自己看得到」</p>
+        <button class="hold" id="holdBtn"><i id="holdBar"></i><span>${esc(C.site.hiddenHold)}</span></button>`}
+    </div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn ghost" data-go="calc">💸 換算器</button>
+      <button class="btn ghost" data-go="fidget">🫧 泡泡紙</button>
+    </div>
+    <div style="margin-top:10px"><button class="btn ghost" data-go="quiz" style="width:100%">重新測一次</button></div>`;
+}
+/* 按住 3 秒解鎖：放開就歸零 */
+let hold = null;
+function holdStart(){
+  if(hold) return;
+  const bar = $("#holdBar"); if(!bar) return;
+  const t0 = Date.now();
+  hold = setInterval(() => {
+    const p = Math.min(1, (Date.now() - t0) / 3000);
+    bar.style.width = p * 100 + "%";
+    if(p > .33 && p < .36 || p > .66 && p < .69) buzz(8);
+    if(p >= 1){
+      holdEnd(); buzz([20, 40, 20]); popSound("gold");
+      S.unlocked = Object.assign({}, S.unlocked, {[view.code]:true}); save();
+      render(); const box = $("#hiddenBox"); if(box) box.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+  }, 30);
+}
+function holdEnd(){ if(hold){ clearInterval(hold); hold = null; const bar = $("#holdBar"); if(bar) bar.style.width = "0"; } }
+
+/* 舊版結果頁（還沒有新版內容的類型） */
+function renderResultOld(){
+  const code = view.code, t = C.types[code], score = view.score;
+  const svg = resultCardSvg(code, score);
+  app.innerHTML = `
+    <div class="result-top">
+      <div class="small muted">你的反骨人格</div>
+      <div class="code">${code}</div>
+      <div class="name">${esc(t.name)}</div>
+      <div class="ch">${charSvg(code)}</div>
+      <div class="score">${C.scoreLabel} ${score}%</div>
+    </div>
+    <p class="slogan">「${esc(t.slogan)}」</p>
+    <div class="card trick"><h3>菸商最想對你用的套路</h3><p>${esc(t.trick)}</p><div class="counter">破解：${esc(t.counter)}</div></div>
+    <div class="duo">
+      <div class="card"><span class="small muted">最佳拍檔</span><b style="color:${famColor(t.partner)}">${t.partner}</b><span class="small">${esc(C.types[t.partner].name)}</span></div>
+      <div class="card"><span class="small muted">天敵</span><b style="color:${famColor(t.rival)}">${t.rival}</b><span class="small">${esc(C.types[t.rival].name)}</span></div>
+    </div>
+    <h2>分享你的反骨卡</h2>
+    <img class="cardprev" src="${svgUrl(svg)}" alt="${code} 反骨卡預覽">
+    <div class="row">
+      <button class="btn acc" id="shareCard">分享到限動</button>
+      <button class="btn" id="copyLink">複製連結給朋友</button>
+    </div>
+    <p class="note">卡片只有你的類型，不會出現任何個人資料。</p>
+    <div class="row" style="margin-top:18px">
+      <button class="btn ghost" data-go="calc">💸 換算器</button>
+      <button class="btn ghost" data-go="secret">🔒 機密檔案</button>
+    </div>
+    <div style="margin-top:10px"><button class="btn ghost" data-go="quiz" style="width:100%">重新測一次</button></div>`;
+}
+
+/* 換算器 */
+function renderCalc(){
+  const k = S.kind ?? 0, weekly = S.weekly ?? C.calc.kinds[k][1];
+  const ctr = S.counter;
+  const days = ctr ? Math.floor((Date.now() - ctr.start) / 864e5) : 0;
+  app.innerHTML = `<h1>自由財富換算器</h1><p class="muted">${esc(C.calc.lead)}</p>
+    <div class="card">
+      <div class="chips">${C.calc.kinds.map(([n], i) => `<button class="chip ${i === k ? "on" : ""}" data-kind="${i}">${n}</button>`).join("")}</div>
+      <label style="display:block;margin-top:14px">每週大概花 <b id="wk" style="color:var(--green);font-size:20px">${weekly}</b> 元
+        <input type="range" id="weekly" min="0" max="2000" step="10" value="${weekly}" aria-label="每週花費"></label>
+      <div class="money"><div><b id="mo"></b><span>一個月</span></div><div><b id="yr"></b><span>一年</span></div><div><b id="y3"></b><span>三年</span></div></div>
+    </div>
+    <h2>一年省下來，可以換</h2>
+    <div class="items" id="items"></div>
+    <h2>${esc(C.calc.counterTitle)}</h2>
+    <div class="card" style="text-align:center">
+      ${ctr ? `<div class="days">${days}</div><div class="muted">天${ctr.best > days ? `・最長紀錄 ${ctr.best} 天` : ""}</div>
+        <button class="btn ghost" id="ctrReset" style="margin-top:12px">${esc(C.calc.counterReset)}</button>`
+        : `<button class="btn acc" id="ctrStart">${esc(C.calc.counterStart)}</button>`}
+      <p class="small muted" style="margin-bottom:0">${esc(C.calc.counterNote)}</p>
+    </div>`;
+  updateCalc(weekly);
+}
+function updateCalc(weekly){
+  const fmt = n => n >= 10000 ? (n / 10000).toFixed(n >= 100000 ? 0 : 1) + " 萬" : Math.round(n).toLocaleString();
+  $("#wk").textContent = weekly;
+  $("#mo").textContent = fmt(weekly * 52 / 12); $("#yr").textContent = fmt(weekly * 52); $("#y3").textContent = fmt(weekly * 156);
+  const yr = weekly * 52;
+  $("#items").innerHTML = C.calc.items.map(it => { const n = Math.floor(yr / it.price); return `<div class="item"><div class="ic">${it.icon}</div><div><b>${n}</b> <span>${esc(it.name)}</span></div></div>`; }).join("");
+}
+
+/* 泡泡紙：隨便戳／戳掉煩惱／30 秒挑戰／深呼吸 */
+const BUBS = 42;
+let ch = null, breath = null, pressEl = null, dragging = false;
+function popStats(){
+  const p = S.pops || (S.pops = {date:"", today:0, total:0}), d = new Date().toDateString();
+  if(p.date !== d){ p.date = d; p.today = 0; }
+  return p;
+}
+function sheetHtml(){
+  const words = view.mode === "worry" ? (view.words || []) : [];
+  return Array.from({length:BUBS}, (_, i) => {
+    const r = Math.random(), sp = r < 1 / 45 ? " rainbow" : r < 1 / 22 ? " gold" : "";
+    const w = words.length ? words[i % words.length] : "";
+    return `<button class="bub${sp}" data-b="${i}" aria-label="泡泡">${w ? esc(w.slice(0, 4)) : ""}</button>`;
+  }).join("");
+}
+function renderFidget(){
+  const F = C.fidget, mode = view.mode || "free", p = popStats();
+  const modes = [["free", F.modeFree], ["worry", F.modeWorry], ["ch", F.challengeTitle], ["breath", F.modeBreath]];
+  let body = "";
+  if(mode === "breath"){
+    body = `<p class="muted">${esc(F.breathLead)}</p>
+      <div class="breath"><div class="bball" id="bball"></div><div class="bword" id="bword"></div><div class="bleft" id="bleft">3:00</div></div>
+      <div id="bctl" style="text-align:center"><button class="btn acc" id="breathStart">開始</button></div>`;
+  }else{
+    if(mode === "worry") body += `<div class="card"><p style="margin-top:0">${esc(F.worryLead)}</p>
+      <div class="worry"><input id="worryIn" maxlength="12" placeholder="${esc(F.worryPlaceholder)}" aria-label="讓你煩的事"><button class="btn acc" id="worryAdd">寫上去</button></div>
+      <div class="chips" style="margin-top:10px">${F.worryChips.map(w => `<button class="chip" data-worry="${esc(w)}">${esc(w)}</button>`).join("")}</div>
+      ${(view.words || []).length ? `<p class="small" style="margin-bottom:0">要戳掉的：${view.words.map(esc).join("、")}　<a href="#" id="worryClear">清空</a></p>` : ""}
+      <p class="small muted" style="margin-bottom:0">${esc(F.worryNote)}</p></div>`;
+    if(mode === "ch") body += `<div class="card"><p class="small muted" style="margin-top:0">${esc(F.challengeLead)}</p>
+      <div class="timer"><i id="tbar" style="width:100%"></i></div>
+      <div class="fscore"><b id="cnt">0</b><span class="muted">最佳紀錄 <b id="bestv" style="font-size:18px">${S.best || 0}</b></span></div>
+      <div id="chCtl"><button class="btn acc big" id="chStart">開始</button></div></div>`;
+    body += `<div class="bubwrap"><div class="bubbles" id="bubbles">${sheetHtml()}</div></div>
+      <div class="popcount"><span>${esc(F.today)} <b id="ptoday">${p.today}</b></span><span>${esc(F.total)} <b id="ptotal">${p.total}</b></span></div>`;
+  }
+  app.innerHTML = `<h1>${esc(F.title)}</h1><p class="muted">${esc(F.lead)}</p>
+    <div class="ftop">${modes.map(([k, n]) => `<button class="chip ${mode === k ? "on" : ""}" data-mode="${k}">${esc(n)}</button>`).join("")}
+      <button class="mute" id="muteBtn" aria-label="音效開關">${S.mute ? "🔇 靜音" : "🔊 音效"}</button></div>
+    ${body}`;
+  if(mode === "ch") document.querySelectorAll(".bub").forEach(b => b.disabled = true);
+}
+function burst(el, special, word){
+  const fxc = special === "gold" ? "#FFD23F" : special === "rainbow" ? ["#ff4d6d", "#ffe600", "#3da5ff", "#b026ff"][Math.floor(Math.random() * 4)] : "#00FF66";
+  const add = (cls, style, text = "") => { const s = document.createElement("span"); s.className = "fx " + cls; s.style.cssText = `--fxc:${fxc};` + style; s.textContent = text; el.appendChild(s); setTimeout(() => s.remove(), 950); };
+  add("ring", "");
+  const n = special ? 14 : 6;
+  for(let i = 0; i < n; i++){
+    const a = Math.PI * 2 * i / n + Math.random() * .5, r = (special ? 46 : 28) + Math.random() * 20;
+    add("bit", `--dx:${(Math.cos(a) * r).toFixed(0)}px;--dy:${(Math.sin(a) * r).toFixed(0)}px;${special === "rainbow" ? `background:${["#ff4d6d", "#ffe600", "#00ff66", "#3da5ff", "#b026ff"][i % 5]};` : ""}`);
+  }
+  if(word) add("bye", "", C.fidget.bye);
+}
+function popBubble(el){
+  if(!el || el.disabled || el.classList.contains("pop")) return;
+  const special = el.classList.contains("rainbow") ? "rainbow" : el.classList.contains("gold") ? "gold" : "";
+  const word = el.textContent.trim();
+  el.classList.remove("press", "gold", "rainbow"); el.classList.add("pop");
+  popSound(special); buzz(special ? [15, 30, 15] : 10);
+  burst(el, special, word);
+  if(special) toast(C.fidget[special]);
+  const p = popStats(); p.today++; p.total++; save();
+  const td = $("#ptoday"), tt = $("#ptotal"); if(td){ td.textContent = p.today; tt.textContent = p.total; }
+  if([100, 500, 1000, 5000, 10000].includes(p.total)) setTimeout(() => toast(fill(C.fidget.milestone, {n:p.total})), 300);
+  if(ch && ch.running){ ch.n += special ? 3 : 1; $("#cnt").textContent = ch.n; }   // 挑戰時特殊泡泡算 3 個
+  const all = document.querySelectorAll(".bub");
+  if([...all].every(b => b.classList.contains("pop"))) setTimeout(newSheet, ch && ch.running ? 80 : 450);
+}
+function newSheet(){   // 新的一張從下面捲上來
+  const g = $("#bubbles"); if(!g) return;
+  g.innerHTML = sheetHtml(); g.classList.remove("roll"); void g.offsetWidth; g.classList.add("roll");
+}
+function startChallenge(){
+  newSheet();
+  ch = {running:true, n:0, end:Date.now() + 30000};
+  $("#cnt").textContent = 0; $("#chCtl").innerHTML = "";
+  ch.timer = setInterval(() => {
+    const left = Math.max(0, ch.end - Date.now());
+    const bar = $("#tbar"); if(bar) bar.style.width = left / 300 + "%";
+    if(left <= 0) finishChallenge();
+  }, 100);
+}
+function stopChallenge(){ if(ch){ clearInterval(ch.timer); ch = null; } }
+function finishChallenge(){
+  const n = ch.n; stopChallenge();
+  document.querySelectorAll(".bub").forEach(b => b.disabled = true);
+  const record = n > (S.best || 0);
+  if(record){ S.best = n; save(); $("#bestv").textContent = n; }
+  $("#chCtl").innerHTML = `<p style="font-size:18px;font-weight:900">${esc(fill(C.fidget.resultLine, {n}))}${record ? "　🏆 新紀錄！" : ""}</p>
+    <div class="row"><button class="btn acc" id="shareScore" data-n="${n}">分享成績</button><button class="btn" id="chStart">再挑戰</button></div>`;
+}
+function addWorry(w){
+  w = String(w || "").trim(); if(!w) return;
+  view.words = [...(view.words || []).filter(x => x !== w), w].slice(-6);
+  render();
+}
+function startBreath(){
+  stopBreath();
+  const F = C.fidget, ball = $("#bball"), word = $("#bword"), left = $("#bleft");
+  breath = {end:Date.now() + 180000, phase:0};
+  const step = () => { const inhale = breath.phase % 2 === 0; ball.classList.toggle("in", inhale); word.textContent = inhale ? F.inhale : F.exhale; breath.phase++; };
+  step(); breath.iv = setInterval(step, 4000);
+  breath.tick = setInterval(() => {
+    const s = Math.max(0, Math.ceil((breath.end - Date.now()) / 1000));
+    left.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    if(s <= 0) finishBreath();
+  }, 250);
+  $("#bctl").innerHTML = `<button class="btn ghost" id="breathStop">停止</button>`;
+}
+function stopBreath(){ if(breath){ clearInterval(breath.iv); clearInterval(breath.tick); breath = null; } }
+function finishBreath(){
+  stopBreath();
+  $("#bball").classList.remove("in"); $("#bword").textContent = C.fidget.breathDone;
+  $("#bctl").innerHTML = `<button class="btn acc" id="breathStart">再來一次</button>`;
+}
+
+/* 機密檔案 */
+function renderSecret(){
+  const open = view.open;
+  app.innerHTML = `<h1>${open ? "🔓" : "🔒"} ${esc(C.secret.title)}</h1>
+    <div class="file">
+      <span class="stamp">CLASSIFIED</span>
+      ${open ? C.secret.body.map((p, i) => `<p style="animation-delay:${i * .7}s">${esc(p)}</p>`).join("")
+        : `<p style="opacity:1">${esc(C.secret.teaser)}</p><button class="btn acc" id="unlock">解鎖檔案</button>`}
+    </div>
+    ${open ? `<p class="muted small" style="margin-top:14px">擔心自己或朋友碰到了？右下角「${esc(C.help.button)}」有可以匿名詢問的專線。</p>` : ""}`;
+}
+
+/* 找人聊聊 */
+function renderHelp(){
+  const h = C.help;
+  $("#helpBtn").textContent = "🎧 " + h.button;
+  $("#helpDlg").innerHTML = `<h2 style="margin-top:0">${esc(h.title)}</h2><p class="muted">${esc(h.lead)}</p>
+    ${h.lines.map(l => `<div class="hl"><b>${esc(l.name)}</b><div class="tel"><a href="tel:${l.tel.replace(/-/g, "")}" style="color:inherit;text-decoration:none">${esc(l.tel)}</a></div><div class="small muted">${esc(l.note)}</div></div>`).join("")}
+    <div class="hl small">${esc(h.school)}</div>
+    <p class="small muted">${esc(h.disclaimer)}</p>
+    <button class="btn" id="helpClose" style="width:100%">關閉</button>`;
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button,a,[data-go],#brand");
+  if(!t) return;
+  if(t.id === "brand") return go("home");
+  if(t.dataset.go){ e.preventDefault(); return go(t.dataset.go); }
+  if(t.dataset.last){ e.preventDefault(); return go("result", {code:S.last.code, score:S.last.score, relay:S.last.relay || []}); }
+  if(t.dataset.mbti) return startRebel(t.dataset.mbti);
+  if(t.dataset.quick){ view.q = {stage:"quick", i:0, code:""}; return render(); }
+  if(t.dataset.qk){ const q = view.q; q.code += t.dataset.qk; q.i++; if(q.i >= C.mbtiQuick.length){ toast(`你可能是 ${q.code}`); return startRebel(q.code); } return render(); }
+  if(t.dataset.rq !== undefined) return answerRebel(+t.dataset.rq);
+  if(t.dataset.cardstyle){ S.cardStyle = t.dataset.cardstyle; save(); return render(); }
+  if(t.id === "shareCard") return shareImage(C.types[view.code].me ? shareCard(view.code, S.cardStyle || "pop", siteUrl(), relayChain(), view.toName || "") : resultCardSvg(view.code, view.score), `nostrings-${view.code}.png`, fill(C.site.shareText, {code:view.code, name:C.types[view.code].name}));
+  if(t.id === "copyLink") return copyLink();
+  if(t.dataset.kind !== undefined){ S.kind = +t.dataset.kind; S.weekly = C.calc.kinds[S.kind][1]; save(); return render(); }
+  if(t.id === "ctrStart"){ S.counter = {start:Date.now(), best:(S.counter && S.counter.best) || 0}; save(); return render(); }
+  if(t.id === "ctrReset"){ const c = S.counter, d = Math.floor((Date.now() - c.start) / 864e5); S.counter = {start:Date.now(), best:Math.max(c.best || 0, d)}; save(); toast("重新開始也是一種反抗"); return render(); }
+  if(t.dataset.mode){ stopChallenge(); stopBreath(); view.mode = t.dataset.mode; return render(); }
+  if(t.id === "muteBtn"){ S.mute = !S.mute; save(); t.textContent = S.mute ? "🔇 靜音" : "🔊 音效"; return; }
+  if(t.dataset.worry) return addWorry(t.dataset.worry);
+  if(t.id === "worryAdd") return addWorry($("#worryIn").value);
+  if(t.id === "worryClear"){ e.preventDefault(); view.words = []; return render(); }
+  if(t.id === "breathStart") return startBreath();
+  if(t.id === "breathStop"){ stopBreath(); return render(); }
+  if(t.classList.contains("bub") && e.detail === 0) return popBubble(t);   // 用鍵盤按 Enter
+  if(t.id === "chStart") return startChallenge();
+  if(t.id === "shareScore") return shareImage(scoreCardSvg(+t.dataset.n), "nostrings-bubble.png", `我 30 秒戳破 ${t.dataset.n} 個泡泡，你能贏我嗎？`);
+  if(t.id === "unlock"){ view.open = true; return render(); }
+  if(t.id === "helpBtn") return $("#helpDlg").showModal();
+  if(t.id === "helpClose") return $("#helpDlg").close();
+});
+// 泡泡：按下先壓扁，放開才破；按著滑過去，經過的泡泡一路爆
+document.addEventListener("pointerdown", e => {
+  const b = e.target.closest(".bub"); if(!b || b.disabled || b.classList.contains("pop")) return;
+  e.preventDefault(); audio(); dragging = true; pressEl = b; b.classList.add("press");
+});
+document.addEventListener("pointermove", e => {
+  if(!dragging) return;
+  const el = document.elementFromPoint(e.clientX, e.clientY), b = el && el.closest && el.closest(".bub");
+  if(b && b !== pressEl){ if(pressEl) popBubble(pressEl); pressEl = null; popBubble(b); }
+});
+document.addEventListener("pointerup", () => { if(pressEl) popBubble(pressEl); pressEl = null; dragging = false; holdEnd(); });
+// 隱藏結果：按住解鎖（手指移開或放開就重來）
+document.addEventListener("pointerdown", e => { if(e.target.closest("#holdBtn")){ e.preventDefault(); holdStart(); } });
+document.addEventListener("pointerleave", holdEnd);
+document.addEventListener("contextmenu", e => { if(e.target.closest("#holdBtn")) e.preventDefault(); });
+document.addEventListener("pointercancel", () => { holdEnd(); if(pressEl) pressEl.classList.remove("press"); pressEl = null; dragging = false; });
+document.addEventListener("keydown", e => { if(e.key === "Enter" && e.target.id === "worryIn") addWorry(e.target.value); });
+document.addEventListener("input", e => {
+  if(e.target.id === "weekly"){ S.weekly = +e.target.value; save(); updateCalc(S.weekly); }
+  if(e.target.id === "handoff"){
+    const v = e.target.value.trim(), err = $("#handoffErr");
+    if(badName(v)){ err.textContent = C.site.handoffBad; return; }
+    err.textContent = ""; view.toName = v;
+    $("#cardImg").src = svgUrl(shareCard(view.code, S.cardStyle || "pop", siteUrl(), relayChain(), v));
+  }
+});
+
+/* ---------- 開始 ---------- */
+$("#brand").innerHTML = logoSvg();
+renderHelp();
+const start = location.hash.slice(1);
+go(["calc", "fidget", "secret", "quiz"].includes(start) ? start : "home");
+</script>
+</body>
+</html>
