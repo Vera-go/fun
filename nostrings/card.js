@@ -52,37 +52,69 @@ function hatSvg(f, c){
   return `<g fill="none" stroke="${c}" stroke-width="5"><circle cx="96" cy="116" r="17"/><circle cx="146" cy="116" r="17"/><path d="M113 114 Q121 108 129 114"/></g>`;   // NT：圓框眼鏡
 }
 function faceSvg(face){
-  const ink = "#2B1B14";
+  const ink = "#2B1B14", skin = "#FFE1CC";
   const eye = x => `<ellipse cx="${x}" cy="116" rx="9" ry="12" fill="${ink}"/><circle cx="${x - 3}" cy="110" r="3.6" fill="#fff"/><circle cx="${x + 3.5}" cy="121" r="1.7" fill="#fff"/>`;
-  const left = face === "wink" ? `<path d="M88 117 Q97 107 106 117" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>` : eye(96);
-  return `${left}${eye(146)}
+  const shut = x => `<path d="M${x - 9} 118 Q${x} 107 ${x + 9} 118" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`;
+  // 半睜眼：上半蓋一塊皮膚色，再畫眼皮
+  const lid = x => `${eye(x)}<rect x="${x - 12}" y="100" width="24" height="15" fill="${skin}"/><path d="M${x - 11} 115 H${x + 11}" stroke="${ink}" stroke-width="4" stroke-linecap="round"/>`;
+  const eyes = { wink: shut(96) + eye(146), soft: shut(96) + shut(146), cool: lid(96) + lid(146) }[face] || eye(96) + eye(146);
+  const openSmile = `<path d="M108 138 Q121 154 134 138 Z" fill="#7A2333"/><path d="M114 145 Q121 151 128 145 Q121 148 114 145 Z" fill="#FF7A8A"/>`;
+  const mouth = {
+    smirk: `<path d="M110 143 Q124 149 136 136" fill="none" stroke="#7A2333" stroke-width="4.5" stroke-linecap="round"/>`,
+    grin: `<path d="M104 136 Q121 160 138 136 Z" fill="#7A2333"/><path d="M106 137 H136 L134 142 H108 Z" fill="#fff"/><path d="M113 149 Q121 155 129 149 Q121 151 113 149 Z" fill="#FF7A8A"/>`,
+    soft: `<path d="M112 140 Q121 148 130 140" fill="none" stroke="#7A2333" stroke-width="4.5" stroke-linecap="round"/>`,
+    cool: `<path d="M113 142 Q122 146 131 140" fill="none" stroke="#7A2333" stroke-width="4.5" stroke-linecap="round"/>`,
+  }[face] || openSmile;
+  return `${eyes}
     <ellipse cx="84" cy="134" rx="10" ry="5.5" fill="#FF8FA3" opacity=".6"/><ellipse cx="158" cy="134" rx="10" ry="5.5" fill="#FF8FA3" opacity=".6"/>
-    <path d="M108 138 Q121 154 134 138 Z" fill="#7A2333"/><path d="M114 145 Q121 151 128 145 Q121 148 114 145 Z" fill="#FF7A8A"/>`;
+    ${mouth}`;
 }
-function propSvg(prop, c){
-  if(prop === "mic") return `<path d="M178 196 Q196 190 202 206" stroke="#151515" stroke-width="20" stroke-linecap="round" fill="none"/>
-    <rect x="196" y="160" width="12" height="44" rx="5" fill="#2A2A2A" transform="rotate(14 202 182)"/>
-    <circle cx="196" cy="152" r="16" fill="#9AA0A6"/><path d="M184 148 H208 M184 156 H208 M196 138 V166" stroke="#6B7177" stroke-width="2"/>
-    <circle cx="204" cy="200" r="11" fill="#FFE1CC"/>
-    <path d="M216 120 l4 -10 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 z" fill="#fff"/>`;
-  return "";
+// 右手拿的道具：袖子 → 道具 → 手（手蓋在道具下緣，看起來像握著）
+function propSvg(prop, c, sleeve){
+  const S = `<path d="M178 196 Q196 190 202 206" stroke="${sleeve}" stroke-width="20" stroke-linecap="round" fill="none"/>`;
+  const H = `<circle cx="204" cy="200" r="11" fill="#FFE1CC"/>`;
+  const items = {
+    mic: `<rect x="196" y="160" width="12" height="44" rx="5" fill="#2A2A2A" transform="rotate(14 202 182)"/><circle cx="196" cy="152" r="16" fill="#9AA0A6"/><path d="M184 148 H208 M184 156 H208 M196 138 V166" stroke="#6B7177" stroke-width="2"/>`,
+    chess: `<path d="M192 196 L192 186 Q190 170 200 160 Q196 152 204 146 Q216 148 220 162 Q222 176 214 186 L214 196 Z" fill="#F5F5F5" stroke="#222" stroke-width="3" stroke-linejoin="round"/><circle cx="208" cy="158" r="2.5" fill="#222"/><rect x="186" y="193" width="34" height="9" rx="3" fill="#222"/>`,
+    magnifier: `<line x1="204" y1="198" x2="214" y2="172" stroke="#6B4A2A" stroke-width="7" stroke-linecap="round"/><circle cx="220" cy="156" r="16" fill="#CFE8FF" opacity=".8" stroke="#333" stroke-width="5"/><path d="M212 150 Q216 145 222 146" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    megaphone: `<path d="M196 192 L226 166 L234 198 Z" fill="${c}" stroke="#222" stroke-width="3" stroke-linejoin="round"/><path d="M238 170 l8 -6 M240 182 h10 M238 194 l8 6" stroke="#222" stroke-width="3" stroke-linecap="round"/>`,
+    bolt: `<path d="M216 124 L198 160 L212 160 L200 194 L232 148 L216 148 L228 124 Z" fill="#FFE600" stroke="#222" stroke-width="3" stroke-linejoin="round"/>`,
+    crystal: `<circle cx="206" cy="168" r="21" fill="${c}" opacity=".85" stroke="#222" stroke-width="2.5"/><circle cx="198" cy="160" r="6" fill="#fff" opacity=".8"/><path d="M190 190 h32 l-5 9 h-22 z" fill="#6B4A2A"/>`,
+    notebook: `<rect x="188" y="156" width="32" height="42" rx="4" fill="#fff" stroke="#333" stroke-width="3"/><path d="M194 168 h20 M194 176 h20 M194 184 h13" stroke="#999" stroke-width="2"/><path d="M230 146 l-14 38" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`,
+    flag: `<line x1="204" y1="208" x2="204" y2="134" stroke="#6B4A2A" stroke-width="5" stroke-linecap="round"/><path d="M206 136 L238 147 L206 160 Z" fill="${c}" stroke="#222" stroke-width="2" stroke-linejoin="round"/>`,
+    balloon: `<path d="M204 196 Q198 176 212 160" stroke="#555" stroke-width="2" fill="none"/><ellipse cx="216" cy="136" rx="19" ry="23" fill="${c}" stroke="#222" stroke-width="2"/><path d="M213 158 l3 5 l3 -5 z" fill="${c}"/><ellipse cx="209" cy="127" rx="5" ry="8" fill="#fff" opacity=".5"/>`,
+    clipboard: `<rect x="186" y="154" width="36" height="46" rx="4" fill="#C8A26B" stroke="#333" stroke-width="3"/><rect x="192" y="161" width="24" height="33" fill="#fff"/><rect x="197" y="150" width="14" height="8" rx="2" fill="#666"/><path d="M196 172 l3 3 l7 -7 M196 185 l3 3 l7 -7" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    heart: `<path d="M206 198 C180 180 184 156 198 156 C203 156 206 160 206 163 C206 160 209 156 214 156 C228 156 232 180 206 198 Z" fill="#FF6B9A" stroke="#222" stroke-width="2.5"/><path d="M198 166 Q200 162 204 162" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    whistle: `<path d="M194 180 h22 a11 11 0 1 1 -7 18 h-15 z" fill="#C0C6CC" stroke="#333" stroke-width="3" stroke-linejoin="round"/><circle cx="214" cy="190" r="4" fill="#333"/><path d="M226 166 l9 -7 M230 176 l11 -2 M228 186 l10 4" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>`,
+    popper: `<path d="M198 200 L212 158 L228 170 Z" fill="${c}" stroke="#222" stroke-width="3" stroke-linejoin="round"/><rect x="214" y="132" width="6" height="10" fill="#FF6B9A" transform="rotate(25 217 137)"/><rect x="232" y="146" width="6" height="10" fill="#3DA5FF" transform="rotate(-20 235 151)"/><circle cx="226" cy="128" r="4" fill="#00FF66"/><circle cx="240" cy="134" r="3" fill="#FFE600"/><circle cx="206" cy="140" r="3" fill="#B026FF"/>`,
+    wrench: `<path d="M201 200 L223 158" stroke="#9AA0A6" stroke-width="10" stroke-linecap="round"/><path d="M216 146 a14 14 0 1 0 20 16 l-10 -3 l-3 -10 z" fill="#9AA0A6" stroke="#555" stroke-width="2.5" stroke-linejoin="round"/>`,
+    brush: `<line x1="202" y1="204" x2="222" y2="160" stroke="#C8864A" stroke-width="7" stroke-linecap="round"/><path d="M219 162 l-3 -5 l9 -13 l7 4 z" fill="#555"/><path d="M225 144 l7 4 q6 -12 -3 -15 z" fill="${c}" stroke="#222" stroke-width="1.5"/><circle cx="234" cy="166" r="4" fill="${c}"/><circle cx="228" cy="178" r="2.5" fill="${c}"/>`,
+    skate: `<rect x="212" y="128" width="20" height="80" rx="10" fill="${c}" stroke="#222" stroke-width="3"/><path d="M216 140 h12 M216 196 h12" stroke="#222" stroke-width="2"/><circle cx="210" cy="141" r="4.5" fill="#333"/><circle cx="234" cy="141" r="4.5" fill="#333"/><circle cx="210" cy="195" r="4.5" fill="#333"/><circle cx="234" cy="195" r="4.5" fill="#333"/>`,
+  };
+  if(!items[prop]) return "";
+  const sparkle = prop === "mic" ? `<path d="M216 120 l4 -10 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 z" fill="#fff"/>` : "";
+  return S + items[prop] + H + sparkle;
 }
 function character(code, line = "#fff"){
   const t = NS.types[code] || {}, f = famOf(code), c = NS.families[f].color, L = FAM_LOOK[f];
   const skin = "#FFE1CC";
   // 上方被剪斷的線（品牌意象）
   const str = (x, cy, y1) => `<path d="M${x} 0V${cy - 8}" stroke="${line}" stroke-width="3.5"/><path d="M${x} ${cy + 8}V${y1}" stroke="${line}" stroke-width="3.5"/><path d="M${x - 7} ${cy - 2}l14 -4" stroke="${line}" stroke-width="2" opacity=".7"/>`;
-  return `<svg viewBox="0 0 240 260" xmlns="http://www.w3.org/2000/svg">
+  // 沒戴帽子的家族（分析家、外交家）要補上頭頂的頭髮
+  const hairTop = (f === "NT" || f === "NF") ? `<path d="M57 108 Q52 46 120 44 Q188 46 183 108 Q170 70 120 66 Q70 70 57 108 Z" fill="${L.hair}"/>` : "";
+  // 圖框比角色寬一點，右手的道具才不會被切掉（角色仍置中在 x=120）
+  return `<svg viewBox="-6 0 252 260" xmlns="http://www.w3.org/2000/svg">
     ${str(78, 26, 62)}${str(162, 38, 62)}
     <path d="M38 260 C38 200 70 170 120 170 C170 170 202 200 202 260 Z" fill="${L.hoodie}"/>
     <path d="M78 176 Q120 214 162 176" fill="none" stroke="${mix(L.hoodie, "#ffffff", .15)}" stroke-width="9" stroke-linecap="round"/>
     <path d="M106 188 L103 226 M134 188 L137 226" stroke="${c}" stroke-width="4" stroke-linecap="round"/><circle cx="103" cy="228" r="4" fill="${c}"/><circle cx="137" cy="228" r="4" fill="${c}"/>
     <rect x="108" y="156" width="24" height="22" rx="8" fill="${mix(skin, "#C08060", .25)}"/>
     <circle cx="120" cy="110" r="62" fill="${skin}"/>
+    ${hairTop}
     <path d="M58 104 Q66 66 120 62 Q174 66 182 104 Q164 90 152 100 Q142 84 128 96 Q116 82 104 96 Q92 84 84 100 Q72 90 58 104 Z" fill="${L.hair}"/>
     ${faceSvg(t.face)}
     ${hatSvg(f, c)}
-    ${propSvg(t.prop, c)}
+    ${propSvg(t.prop, c, L.hoodie)}
   </svg>`;
 }
 
