@@ -157,7 +157,22 @@ dialog::backdrop{background:rgba(0,0,0,.35)}
 .face.front{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;text-align:center;
   background-image:radial-gradient(var(--surface2) 1.5px,transparent 1.5px);background-size:18px 18px;background-color:var(--surface)}
 .face.front .word{font-size:52px}
-.flip-tag{position:absolute;top:12px;right:14px;font-size:12px;color:var(--muted)}
+.flip-tag{position:absolute;top:12px;left:14px;right:52px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.face.back{position:relative}
+.fav-btn{position:absolute;top:6px;right:8px;z-index:2;border:0;background:none;font-size:26px;line-height:1;cursor:pointer;color:var(--muted);padding:4px 6px}
+.fav-btn.on{color:#f5b301}
+.cardnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.cardnav select{flex:1 1 160px;min-width:0;max-width:320px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-size:14px}
+.phr{border:0;background:none;padding:0;margin:0;font:inherit;color:var(--accent);text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer;text-align:inherit}
+.phr:hover{text-decoration-style:solid}
+#phraseDlg{max-width:min(460px,calc(100vw - 32px))}
+.phr-item+.phr-item{border-top:1px solid var(--border);margin-top:12px;padding-top:12px}
+.phr-head{display:flex;align-items:center;gap:8px;font-size:18px;flex-wrap:wrap}
+.phr-ex{margin-top:8px;background:var(--surface2);border-radius:10px;padding:8px 10px}
+.phr-ex .en{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:16px;line-height:1.5}
+.phr-ex .en span{flex:1;min-width:0}
+.phr-ex .ex-zh{font-size:14px}
+.peekbar{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
 .face.front{position:relative}
 .back-top{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .illus{width:230px;max-width:100%;flex:none;position:relative}
@@ -516,6 +531,7 @@ button.ctile:hover{border-color:var(--accent)}
   </form>
 </dialog>
 <dialog id="syncDlg"></dialog>
+<dialog id="phraseDlg"></dialog>
 <dialog id="confirmDlg">
   <form method="dialog">
     <div id="confirmMsg" style="font-weight:700;margin-bottom:14px"></div>
@@ -901,7 +917,7 @@ const LEVELS = [
    單元檔呼叫 registerUnit(id, 內容)；共用的插圖、提示等放進下面的登記表
    ========================================================= */
 const BUILTIN = {};
-const PH = {}, EXC_NOTE = {}, VOWEL_AUDIO = {}, ILLUS = {}, ILLUS2 = {}, MEMO = {};
+const PH = {}, EXC_NOTE = {}, VOWEL_AUDIO = {}, ILLUS = {}, ILLUS2 = {}, MEMO = {}, PHRASES = {};
 const unitWaiters = {};
 function convertWord([w, pos, zh, ex, parts, logic, art, tip]){
   let draw = ILLUS[w] ? () => ILLUS[w]() : null;
@@ -1309,6 +1325,7 @@ function render(){
   if(view.screen === "home") renderHome();
   else if(view.screen === "me") renderMe();
   else if(view.screen === "box") renderBox();
+  else if(view.screen === "fav") renderFav();
   else renderStudy();
 }
 
@@ -1328,7 +1345,7 @@ function renderHome(){
       <div style="flex:1"><b>${esc(callName())}${streakNow() ? `已經連續學習 ${streakNow()} 天了，今天也繼續吧！` : "今天也一起加油吧！"}</b>
         <div class="muted" style="font-size:14px">${esc(tName())}：${esc(curTeacher().greet)}</div>
         <div class="daily-mini" style="margin-top:6px">${DAILY_TASKS.map(t => { const v = Math.min(t.n, dailyNow()[t.k] || 0); return `<span class="${v >= t.n ? "ok" : ""}">${v >= t.n ? "✅" : "⬜"} ${t.label.split("（")[0]} ${v}/${t.n}</span>`; }).join("")}</div>
-        <div class="greet-box"><button class="btn small ${boxReady() ? "primary" : ""}" id="openBox">🎁 盲盒・商店${boxReady() ? "：今天可以抽了！" : ""}</button><span class="muted" style="font-size:13px">🪙 ${G().coins}${boxReady() ? "" : G().box.freeDate === today() ? "・今天的免費盲盒抽過了" : `・再複習 ${freeDrawNeed()} 張卡或答對 ${freeDrawNeed()} 題，就能免費抽盲盒`}</span></div></div></div>
+        <div class="greet-box"><button class="btn small" id="openFav">⭐ 我的珍藏${favs().length ? `（${favs().length}）` : ""}</button><button class="btn small ${boxReady() ? "primary" : ""}" id="openBox">🎁 盲盒・商店${boxReady() ? "：今天可以抽了！" : ""}</button><span class="muted" style="font-size:13px">🪙 ${G().coins}${boxReady() ? "" : G().box.freeDate === today() ? "・今天的免費盲盒抽過了" : `・再複習 ${freeDrawNeed()} 張卡或答對 ${freeDrawNeed()} 題，就能免費抽盲盒`}</span></div></div></div>
     <h1>今天要複習哪個範圍？</h1>
     <p class="sub">先選程度，再選考試範圍。標示「即將推出」的範圍之後會陸續補上。</p>
     <div class="levels">
@@ -1442,15 +1459,82 @@ function vocabState(R){
   }
   return p.vocab;
 }
+/* 學過的單字：依最後一次評分的順序（舊進度沒有紀錄時，用單元裡的順序） */
+function seenList(v){ return (v.hist && v.hist.length) ? v.hist : Object.keys(v.seen || {}).map(Number).filter(id => v.seen[id]).sort((x, y) => x - y); }
+function lastEx(R, v, id){ const n = Math.max(1, R.words[id].ex.length); return v && v.exIdx && v.exIdx[id] != null ? ((v.exIdx[id] - 1) % n + n) % n : 0; }   // 上次看到的那一個例句
+function cardHtml(R, rangeId, id, k, o = {}){
+  const w = R.words[id];
+  const exs = w.ex.length ? w.ex : [["","",""]];
+  k = k % exs.length;
+  const [en, zh, note] = exs[k];
+  return `<div class="flip ${view.flipped ? "is-flipped" : ""} ${view.enter ? "enter" : ""}" id="flip">
+      <div class="flip-inner">
+        <div class="face front card" id="card">
+          <span class="flip-tag">${o.tag || ""}</span>${favBtn(rangeId, w.w)}
+          <div class="word">${esc(w.w)}</div>
+          <div>${spk("en", w.w, "發音")}</div>
+          <div class="hint">想想看它的意思，再按空白鍵或點卡片翻面</div>
+        </div>
+        <div class="face back card">${favBtn(rangeId, w.w)}
+          <div class="back-top">
+            <div class="illus">${wordArt(w)}<span class="spark-fx" style="left:-6px;top:4px">✨</span><span class="spark-fx" style="right:-6px;top:34%">⭐</span><span class="spark-fx" style="left:44%;bottom:-10px">✨</span></div>
+            <div style="flex:1;min-width:190px">
+              <div class="wordline"><span class="word">${esc(w.w)}</span><span class="pos">${esc(w.pos)}</span>${spk("en", w.w, "")}</div>
+              <div class="zh" style="margin-bottom:6px">${esc(w.zh)}</div>
+              ${w.memo ? `<div class="memo"><div><span class="lbl">${R.memoLabel || "💡 記憶小提示"}</span>${memoHtml(w.memo)}</div>${spk("zh", w.memo, "")}</div>` : ""}
+            </div>
+          </div>
+          ${R.morph ? morphRow(w) : phonicsRow(w)}
+          ${en ? `<div class="ex" style="margin-top:12px">
+            <div class="ex-head"><span>例句 ${k+1} / ${exs.length}${o.exExtra || ""}</span></div>
+            <div class="en"><span>${highlight(en, w.w)}</span>${spk("en", en, "")}</div>
+            <div class="ex-zh">${esc(zh)}</div>
+            ${note ? `<div class="note"><div><span class="lbl">文法說明</span>${esc(note)}</div>${spk("zh", note, "說明")}</div>` : ""}
+          </div>` : ""}
+        </div>
+      </div>
+    </div>
+    <div class="flipbar ${view.flipped ? "gone" : ""}" id="flipbar"><button class="btn primary" id="flipBtn">👆 翻面看答案</button></div>`;
+}
+function vocabNav(R, v){
+  const L = seenList(v); if(!L.length) return "";
+  const p = view.peek;
+  return `<div class="cardnav">
+    <button class="btn small" id="vPrev" ${p === 0 ? "disabled" : ""}>◀ 上一張</button>
+    <select id="vJump" aria-label="跳到學過的單字"><option value="">📚 學過的單字（${L.length}）</option>${L.map((id, i) => `<option value="${i}" ${p === i ? "selected" : ""}>${esc(R.words[id].w)}　${esc(R.words[id].zh)}</option>`).join("")}</select>
+    ${p != null ? `<button class="btn small" id="vNext">${p >= L.length - 1 ? "回到目前進度 ▶" : "下一張 ▶"}</button>` : ""}
+  </div>`;
+}
+/* 翻閱學過的單字：只看不評分，不會改變複習順序；i = null 回到目前進度 */
+function vocabPeek(i){
+  const L = seenList(vocabState(getRange(view.range)));
+  stopSpeak(); view.flipped = false; view.spokeFor = null; view.enter = true;
+  view.peek = (i == null || i < 0 || i >= L.length) ? null : i;
+  renderStudy();
+}
+function vocabPrev(){ const L = seenList(vocabState(getRange(view.range))); if(!L.length) return; vocabPeek(view.peek == null ? L.length - 1 : Math.max(0, view.peek - 1)); }
+function vocabNext(){ if(view.peek != null) vocabPeek(view.peek + 1); }
+function speakFront(key, word){ if(!view.flipped && S.settings.autoSpeak && view.spokeFor !== key){ view.spokeFor = key; sayEn(word); } }
 function renderVocab(R){
   const v = vocabState(R);
   const pane = $("#pane");
+  const L = seenList(v);
+  if(view.peek != null && !(view.peek < L.length)) view.peek = null;
   const doneCount = v.total - v.queue.length;
   const header = `<div class="prog"><span>剩 ${v.queue.length} / ${v.total}</span>
     <div class="track"><div class="fill" style="width:${v.total ? doneCount / v.total * 100 : 0}%"></div></div>
     <div class="chips"><span class="chip" style="color:var(--again)">Again ${v.stats.again}</span><span class="chip" style="color:var(--hard)">Hard ${v.stats.hard}</span><span class="chip" style="color:var(--good)">Good ${v.stats.good}</span><span class="chip" style="color:var(--easy)">Easy ${v.stats.easy}</span></div></div>`;
+  if(view.peek != null){
+    const id = L[view.peek];
+    pane.innerHTML = header + vocabNav(R, v) + cardHtml(R, view.range, id, lastEx(R, v, id), {tag: `👀 學過的第 ${view.peek + 1} / ${L.length} 個`})
+      + `<div class="peekbar">翻閱學過的單字，不會影響複習進度 <button class="btn small primary" id="vBack">回到目前進度 ▶</button></div>
+      <div class="keys">鍵盤：空白鍵 翻面・← 上一張・→ 下一張</div>`;
+    view.enter = false;
+    speakFront("p" + id, R.words[id].w);
+    return;
+  }
   if(v.queue.length === 0){
-    pane.innerHTML = header + `<div class="card done"><div class="big">🎉</div><h2 style="margin:6px 0">這個範圍的單字都記住了！</h2>
+    pane.innerHTML = header + vocabNav(R, v) + `<div class="card done"><div class="big">🎉</div><h2 style="margin:6px 0">這個範圍的單字都記住了！</h2>
       <div class="stats">${["again","hard","good","easy"].map(k => `<div class="stat"><b style="color:var(--${k})">${v.stats[k]}</b>${k[0].toUpperCase()+k.slice(1)}</div>`).join("")}</div>
       <div style="font-size:28px;color:#f5b301">${starText(starsOf(view.range, "vocab"))}</div>
       <p class="muted">Again 按得越少，星星越多。考前可以再從頭複習一輪，例句會換成你還沒看過的那一句。</p>
@@ -1462,49 +1546,114 @@ function renderVocab(R){
     return;
   }
   const id = v.queue[0];
-  const w = R.words[id];
-  const exs = w.ex.length ? w.ex : [["","",""]];
-  const k = (v.exIdx[id] || 0) % exs.length;
-  const [en, zh, note] = exs[k];
   const seen = v.seen[id] || 0;
-  pane.innerHTML = header + `
-    <div class="flip ${view.flipped ? "is-flipped" : ""} ${view.enter ? "enter" : ""}" id="flip">
-      <div class="flip-inner">
-        <div class="face front card" id="card">
-          <span class="flip-tag">${seen ? `第 ${seen + 1} 次見面` : "新卡片"}</span>
-          <div class="word">${esc(w.w)}</div>
-          <div>${spk("en", w.w, "發音")}</div>
-          <div class="hint">想想看它的意思，再按空白鍵或點卡片翻面</div>
-        </div>
-        <div class="face back card">
-          <div class="back-top">
-            <div class="illus">${wordArt(w)}<span class="spark-fx" style="left:-6px;top:4px">✨</span><span class="spark-fx" style="right:-6px;top:34%">⭐</span><span class="spark-fx" style="left:44%;bottom:-10px">✨</span></div>
-            <div style="flex:1;min-width:190px">
-              <div class="wordline"><span class="word">${esc(w.w)}</span><span class="pos">${esc(w.pos)}</span>${spk("en", w.w, "")}</div>
-              <div class="zh" style="margin-bottom:6px">${esc(w.zh)}</div>
-              ${w.memo ? `<div class="memo"><div><span class="lbl">${R.memoLabel || "💡 記憶小提示"}</span>${esc(w.memo)}</div>${spk("zh", w.memo, "")}</div>` : ""}
-            </div>
-          </div>
-          ${R.morph ? morphRow(w) : phonicsRow(w)}
-          ${en ? `<div class="ex" style="margin-top:12px">
-            <div class="ex-head"><span>例句 ${k+1} / ${exs.length}${seen ? `（第 ${seen+1} 次看到這個字，換一個例句）` : ""}</span></div>
-            <div class="en"><span>${highlight(en, w.w)}</span>${spk("en", en, "")}</div>
-            <div class="ex-zh">${esc(zh)}</div>
-            ${note ? `<div class="note"><div><span class="lbl">文法說明</span>${esc(note)}</div>${spk("zh", note, "說明")}</div>` : ""}
-          </div>` : ""}
-        </div>
-      </div>
-    </div>
-    <div class="flipbar ${view.flipped ? "gone" : ""}" id="flipbar"><button class="btn primary" id="flipBtn">👆 翻面看答案</button></div>
+  pane.innerHTML = header + vocabNav(R, v) + cardHtml(R, view.range, id, v.exIdx[id] || 0, {tag: seen ? `第 ${seen + 1} 次見面` : "新卡片", exExtra: seen ? `（第 ${seen+1} 次看到這個字，換一個例句）` : ""}) + `
     <div class="rates ${view.flipped ? "" : "wait"}" id="rates">
       <button class="rate again" data-rate="again">Again<small>完全不會</small><kbd>1</kbd></button>
       <button class="rate hard" data-rate="hard">Hard<small>有點難</small><kbd>2</kbd></button>
       <button class="rate good" data-rate="good">Good<small>想得起來</small><kbd>3</kbd></button>
       <button class="rate easy" data-rate="easy">Easy<small>已經記住</small><kbd>4</kbd></button>
     </div>
-    <div class="keys">鍵盤：空白鍵 翻面・1 Again・2 Hard・3 Good・4 Easy</div>`;
+    <div class="keys">鍵盤：空白鍵 翻面・1 Again・2 Hard・3 Good・4 Easy${L.length ? "・← 上一張" : ""}</div>`;
   view.enter = false;
-  if(!view.flipped && S.settings.autoSpeak && view.spokeFor !== "f"+id){ view.spokeFor = "f"+id; sayEn(w.w); }
+  speakFront("f" + id, R.words[id].w);
+}
+
+/* ---------- 重點裡的片語：點了跳出例句 ---------- */
+let phraseRe = null, phraseN = 0;
+function memoHtml(t){
+  const keys = Object.keys(PHRASES);
+  if(!keys.length) return esc(t);
+  if(keys.length !== phraseN){   // 載入新單元後重建
+    phraseN = keys.length;
+    phraseRe = new RegExp(keys.sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
+  }
+  let out = "", last = 0;
+  t.replace(phraseRe, (m, i) => {
+    if(/[A-Za-z]/.test(t[i - 1] || "") || /[A-Za-z]/.test(t[i + m.length] || "")) return m;   // 只比對完整的字
+    out += esc(t.slice(last, i)) + `<button class="phr" data-phr="${esc(m)}">${esc(m)}</button>`;
+    last = i + m.length; return m;
+  });
+  return out + esc(t.slice(last));
+}
+function openPhrase(key){
+  const list = PHRASES[key]; if(!list) return;
+  stopSpeak();
+  const d = $("#phraseDlg");
+  d.innerHTML = `<div class="phr-box">${list.map(([p, zh, en, enZh]) => `<div class="phr-item">
+      <div class="phr-head"><b>${esc(p)}</b>${spk("en", p.replace(/\s*\+.*$/, ""), "")}</div>
+      <div class="muted">${esc(zh)}</div>
+      <div class="phr-ex"><div class="en"><span>${esc(en)}</span>${spk("en", en, "")}</div><div class="ex-zh">${esc(enZh)}</div></div>
+    </div>`).join("")}
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn primary" data-phrclose="1">知道了</button></div></div>`;
+  d.showModal();
+}
+
+/* ---------- 珍藏：每位學習者各自一份 [[單元 id, 單字], ...] ---------- */
+function favs(){ S.fav = S.fav || {}; return S.fav[S.current] || (S.fav[S.current] = []); }
+function isFav(r, w){ return favs().some(f => f[0] === r && f[1] === w); }
+function favBtn(r, w){
+  if(!r) return "";
+  const on = isFav(r, w);
+  return `<button class="fav-btn ${on ? "on" : ""}" data-favr="${esc(r)}" data-favw="${esc(w)}" title="${on ? "取消珍藏" : "加入珍藏"}" aria-pressed="${on}">${on ? "⭐" : "☆"}</button>`;
+}
+function toggleFav(r, w){
+  const L = favs(), i = L.findIndex(f => f[0] === r && f[1] === w), on = i < 0;
+  if(on) L.push([r, w]); else L.splice(i, 1);
+  save();
+  document.querySelectorAll(".fav-btn").forEach(b => {
+    if(b.dataset.favr !== r || b.dataset.favw !== w) return;
+    b.classList.toggle("on", on); b.textContent = on ? "⭐" : "☆";
+    b.title = on ? "取消珍藏" : "加入珍藏"; b.setAttribute("aria-pressed", on);
+  });
+  toast(on ? "已加入珍藏 ⭐" : "已移出珍藏");
+}
+async function openFav(){
+  stopSpeak();
+  view = {screen:"fav", range:null, tab:"vocab", flipped:false, quizAnswered:null, spokeFor:null, favList: favs().slice(), favI: 0};
+  const need = [...new Set(view.favList.map(f => f[0]))].filter(r => !BUILTIN[r] && !S.custom[r]);
+  if(need.length){ toast("載入單元中…"); await Promise.all(need.map(r => loadUnit(r).catch(() => null))); }
+  if(view.screen !== "fav") return;
+  window.scrollTo(0, 0); render();
+}
+/* 進入珍藏頁時的清單：在這頁取消珍藏的字先留著（星星變空心），下次進來才不見 */
+function favItems(){
+  return (view.favList || []).map(([r, w]) => { const R = getRange(r); const id = R ? R.words.findIndex(x => x.w === w) : -1; return id >= 0 ? {r, R, id} : null; }).filter(Boolean);
+}
+function favK(it){ return lastEx(it.R, ((S.progress[S.current] || {})[it.r] || {}).vocab, it.id); }
+function favGo(i){
+  const n = favItems().length; if(!n) return;
+  stopSpeak(); view.flipped = false; view.spokeFor = null; view.enter = true;
+  view.favI = (i + n) % n;
+  if(i >= n) toast("從第一張重新開始");
+  renderFav();
+}
+function renderFav(){
+  const items = favItems();
+  if(view.favI >= items.length) view.favI = 0;
+  const head = `<div class="crumb"><button class="btn small" id="backHome">← 回首頁</button><b>⭐ 我的珍藏</b></div>`;
+  if(!items.length){
+    app.innerHTML = head + `<div class="card done" style="margin-top:14px"><div class="big">☆</div><h2 style="margin:6px 0">還沒有珍藏的單字</h2>
+      <p class="muted">複習單字卡時，點卡片右上角的 ☆，就能把不熟的單字收進來，之後在這裡一起複習。</p></div>`;
+    return;
+  }
+  const it = items[view.favI];
+  app.innerHTML = head + `<p class="muted" style="font-size:13px;margin:6px 0 12px">把不熟的單字放在一起複習，這裡的複習不會影響各單元的進度。</p>
+    <div class="cardnav"><button class="btn small" id="fPrev">◀ 上一張</button><span class="muted" style="font-variant-numeric:tabular-nums">${view.favI + 1} / ${items.length}</span><button class="btn small" id="fNext">下一張 ▶</button><button class="btn small" id="fShuffle">🔀 打亂順序</button></div>`
+    + cardHtml(it.R, it.r, it.id, favK(it), {tag: "⭐ " + esc(it.R.name)})
+    + `<div class="keys">鍵盤：空白鍵 翻面・← 上一張・→ 下一張</div>`;
+  view.enter = false;
+  speakFront("v" + view.favI, it.R.words[it.id].w);
+}
+/* 目前畫面上的那張卡（單字卡、翻閱模式、珍藏頁共用翻面） */
+function curCard(){
+  if(view.screen === "fav"){ const it = favItems()[view.favI]; return it ? {R: it.R, id: it.id, k: favK(it), key: "v" + view.favI} : null; }
+  const R = getRange(view.range); if(!R) return null;
+  const v = vocabState(R);
+  if(view.peek != null){ const id = seenList(v)[view.peek]; return id == null ? null : {R, id, k: lastEx(R, v, id), key: "p" + id}; }
+  if(!v.queue.length) return null;
+  const id = v.queue[0];
+  return {R, id, k: v.exIdx[id] || 0, key: "f" + id};
 }
 function wordArt(w){
   if(w.draw){ try{ return w.draw(); }catch(e){} }
@@ -1516,25 +1665,25 @@ function wordArt(w){
   return `<svg viewBox="0 0 160 120"><rect width="160" height="120" rx="14" fill="hsl(${hue} 80% 92%)"/><text x="80" y="84" text-anchor="middle" font-size="66" font-weight="900" fill="hsl(${hue} 55% 45%)" font-family="sans-serif">${esc(w.w[0].toUpperCase())}</text></svg>`;
 }
 function flipCard(){
-  const R = getRange(view.range); const v = vocabState(R);
-  if(view.flipped || !v.queue.length) return;
+  const c = curCard();
+  if(view.flipped || !c) return;
   view.flipped = true;
   const el = $("#flip"); if(el) el.classList.add("is-flipped");
   const r = $("#rates"); if(r) r.classList.remove("wait");
   const fb = $("#flipbar"); if(fb) fb.classList.add("gone");
   sfx("flip");
-  const id = v.queue[0], w = R.words[id];
+  const w = c.R.words[c.id];
   const exs = w.ex.length ? w.ex : [["","",""]];
-  const en = exs[(v.exIdx[id] || 0) % exs.length][0];
-  if(S.settings.autoSpeak && view.spokeFor !== "b"+id){
-    view.spokeFor = "b"+id;
-    setTimeout(() => { if(view.flipped && vocabState(R).queue[0] === id) speakQueue(en ? [[w.w,"en-US"],[en,"en-US"]] : [[w.w,"en-US"]]); }, 380);
+  const en = exs[c.k % exs.length][0];
+  if(S.settings.autoSpeak && view.spokeFor !== "b" + c.key){
+    view.spokeFor = "b" + c.key;
+    setTimeout(() => { const n = curCard(); if(view.flipped && n && n.key === c.key) speakQueue(en ? [[w.w,"en-US"],[en,"en-US"]] : [[w.w,"en-US"]]); }, 380);
   }
 }
 let rating = false;
 function rateAnim(kind){
   const el = $("#flip");
-  if(rating || !el || !view.flipped) return;
+  if(rating || !el || !view.flipped || view.peek != null || view.screen !== "study") return;
   rating = true; stopSpeak();
   el.classList.add("out-" + kind);
   if(kind === "easy") burstStars(el);
@@ -1559,6 +1708,7 @@ function rate(kind){
   const n = Math.max(1, R.words[id].ex.length);
   v.exIdx[id] = ((v.exIdx[id] || 0) + 1) % n;
   v.seen[id] = (v.seen[id] || 0) + 1;
+  v.hist = seenList(v).filter(x => x !== id); v.hist.push(id);
   if(kind === "again") v.queue.splice(Math.min(1, v.queue.length), 0, id);       // 下一張之後馬上再出現
   else if(kind === "hard") v.queue.splice(Math.ceil(v.queue.length / 2), 0, id);  // 排到中間
   else if(kind === "good") v.queue.push(id);                                       // 排到最後
@@ -3291,9 +3441,19 @@ document.addEventListener("click", e => {
   if(t.id === "clsPause") return classPause();
   if(t.id === "clsReplay") return classReplay();
   if(t.id === "clsAgain") return classTryAgain();
-  if(t.dataset.tab){ view.tab = t.dataset.tab; view.cls = null; view.flipped = false; view.quizAnswered = null; view.spokeFor = null; stopSpeak(); window.scrollTo(0,0); return renderStudy(); }
+  if(t.dataset.tab){ view.tab = t.dataset.tab; view.cls = null; view.peek = null; view.flipped = false; view.quizAnswered = null; view.spokeFor = null; stopSpeak(); window.scrollTo(0,0); return renderStudy(); }
   if(t.dataset.lessonjump){ view.tab = "grammar"; view.openLesson = t.dataset.lessonjump; view.quizAnswered = null; renderStudy(); const el = document.querySelector(`[data-lesson="${t.dataset.lessonjump}"]`); if(el) el.scrollIntoView({behavior:"smooth"}); return; }
+  if(t.dataset.phr) return openPhrase(t.dataset.phr);
+  if(t.dataset.phrclose){ stopSpeak(); return $("#phraseDlg").close(); }
+  if(t.dataset.favr) return toggleFav(t.dataset.favr, t.dataset.favw);
   if(t.id === "card" || t.id === "flipBtn") return flipCard();
+  if(t.id === "openFav") return openFav();
+  if(t.id === "vPrev") return vocabPrev();
+  if(t.id === "vNext") return vocabNext();
+  if(t.id === "vBack") return vocabPeek(null);
+  if(t.id === "fPrev") return favGo(view.favI - 1);
+  if(t.id === "fNext") return favGo(view.favI + 1);
+  if(t.id === "fShuffle"){ view.favList = shuffle(view.favList.slice()); view.favI = 0; view.flipped = false; view.spokeFor = null; toast("已打亂順序"); return renderFav(); }
   if(t.dataset.rate) return rateAnim(t.dataset.rate);
   if(t.id === "vocabRestart") return restartVocab();
   if(t.dataset.ans !== undefined) return answer(+t.dataset.ans);
@@ -3313,7 +3473,7 @@ document.addEventListener("click", e => {
     if(S.learners.length < 2) return;
     const who = S.current;
     return askConfirm(`確定要刪除「${who}」和這位學習者的所有進度嗎？`, () => {
-      delete S.progress[who]; if(S.game) delete S.game[who];
+      delete S.progress[who]; if(S.game) delete S.game[who]; if(S.fav) delete S.fav[who];
       S.learners = S.learners.filter(n => n !== who); S.current = S.learners[0];
       save(); view.screen = "home"; render();
     });
@@ -3325,6 +3485,7 @@ document.addEventListener("input", e => {
   document.querySelectorAll(`[data-speedval="${k}"]`).forEach(el => el.textContent = (+e.target.value).toFixed(2) + "×");
 });
 document.addEventListener("change", e => {
+  if(e.target.id === "vJump"){ if(e.target.value !== "") vocabPeek(+e.target.value); return; }
   if(e.target.id === "setAuto"){ S.settings.autoSpeak = e.target.checked; save(); }
   if(e.target.dataset && e.target.dataset.voice){ const b = e.target.dataset.voice; voicePrefs()[b] = e.target.value; save(); if(b === "en") sayEn("attend"); else sayZh("同學好，這是老師說話的聲音。"); }
   if(e.target.id === "setListenText"){ S.settings.listenText = e.target.checked; save(); renderStudy(); }
@@ -3345,7 +3506,7 @@ $("#renameDlg").addEventListener("close", () => {
   if(!to || to === from) return;
   if(S.learners.includes(to)){ toast("已經有這個名字了"); return; }
   S.learners = S.learners.map(n => n === from ? to : n);
-  for(const box of [S.progress, S.game, S.speed, S.voicePref]){
+  for(const box of [S.progress, S.game, S.speed, S.voicePref, S.fav]){
     if(box && Object.prototype.hasOwnProperty.call(box, from)){ box[to] = box[from]; delete box[from]; }
   }
   S.current = to; save(); render(); toast(`已改名為「${to}」`);
@@ -3358,11 +3519,20 @@ $("#addDlg").addEventListener("close", () => {
   S.learners.push(n); S.current = n; save(); view.screen = "home"; render(); toast(`歡迎，${n}！`);
 });
 document.addEventListener("keydown", e => {
-  if(view.screen !== "study" || e.target.matches("input,select,textarea") || $("#addDlg").open) return;
+  if((e.target.matches && e.target.matches("input,select,textarea")) || document.querySelector("dialog[open]")) return;
+  if(view.screen === "fav"){
+    if(e.code === "Space"){ e.preventDefault(); flipCard(); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); favGo(view.favI - 1); }
+    else if(e.key === "ArrowRight"){ e.preventDefault(); favGo(view.favI + 1); }
+    return;
+  }
+  if(view.screen !== "study") return;
   if(view.tab === "vocab"){
-    const R = getRange(view.range); if(!vocabState(R).queue.length) return;
+    if(e.key === "ArrowLeft"){ e.preventDefault(); return vocabPrev(); }
+    if(e.key === "ArrowRight" && view.peek != null){ e.preventDefault(); return vocabNext(); }
+    if(!curCard()) return;
     if(e.code === "Space"){ e.preventDefault(); flipCard(); return; }
-    if(view.flipped && ["1","2","3","4"].includes(e.key)){ rateAnim(["again","hard","good","easy"][+e.key-1]); }
+    if(view.flipped && view.peek == null && ["1","2","3","4"].includes(e.key)){ rateAnim(["again","hard","good","easy"][+e.key-1]); }
   }else if(view.tab === "posq" && view.posq && !view.posq.done){
     if(view.posq.picked === null && ["1","2","3","4"].includes(e.key)) posAnswer(+e.key - 1);
     else if(view.posq.picked !== null && e.key === "Enter"){ e.preventDefault(); posNext(); }

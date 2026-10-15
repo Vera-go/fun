@@ -630,6 +630,78 @@ const T1_LISTEN = [
  ["I'm afraid I can't make it to the meeting.",["That's OK. I'll send you the notes.","I made it myself.","The meeting room is large."],"對方說無法出席，回應體諒並提供協助。B 的 made 是重複字陷阱。"]
 ];
 
+/* 多益重點裡可以點開的片語：key 是重點文字裡出現的原文，值是 [片語, 中文, 例句, 例句中文] 的清單 */
+Object.assign(PHRASES, {
+"set the agenda": [["set the agenda","訂定議程","The director will set the agenda for next week's planning meeting.","處長會訂定下週規劃會議的議程。"]],
+"item on the agenda": [["item on the agenda","議程項目","The new hiring plan is the last item on the agenda.","新的招聘計畫是議程上的最後一個項目。"]],
+"attend to": [["attend to","處理；照料","Mr. Kim has to attend to an urgent matter this afternoon.","金先生今天下午得處理一件緊急的事。"]],
+"put off": [["put off","延後","We had to put off the product launch until March.","我們不得不把產品發表延到三月。"]],
+"scheduling conflict": [["scheduling conflict","時間衝突","Due to a scheduling conflict, Ms. Park cannot join the call.","因為時間衝突，朴小姐無法參加這通電話會議。"]],
+"attend a conference": [["attend a conference","參加研討會","Three engineers will attend a conference in Singapore next month.","三位工程師下個月會到新加坡參加研討會。"]],
+"conference room": [["conference room","會議室","The interviews will be held in Conference Room B.","面試會在 B 會議室舉行。"]],
+"conference call": [["conference call","電話會議","Let's set up a conference call with the Tokyo office.","我們和東京辦公室安排一場電話會議吧。"]],
+"meet / miss / extend the deadline": [
+  ["meet the deadline","趕上截止期限","The team worked late to meet the deadline.","團隊加班到很晚才趕上截止期限。"],
+  ["miss the deadline","錯過截止期限","If we miss the deadline, the client may cancel the order.","如果我們錯過截止期限，客戶可能會取消訂單。"],
+  ["extend the deadline","延長截止期限","The manager agreed to extend the deadline by two days.","經理同意把截止期限延長兩天。"]],
+"submit A to B": [["submit A to B","把 A 交給 B","Please submit your expense report to the accounting department.","請把你的費用報告交給會計部。"]],
+"approve of": [["approve of","贊成","The board does not approve of the plan to close the store.","董事會不贊成關閉這家店的計畫。"]],
+"be responsible for": [["be responsible for","負責","Ms. Chen is responsible for training new employees.","陳小姐負責訓練新進員工。"]],
+"human resources": [["human resources","人力資源（人資部門）","Please send your application to human resources by Friday.","請在週五前把申請書寄給人資部。"]],
+"inform 人 of 事": [["inform someone of something","通知某人某事","We will inform all staff of the new policy next week.","我們下週會通知全體員工新政策。"]],
+"remind 人 of 事": [["remind someone of something","提醒某人某事","This e-mail is to remind you of tomorrow's safety training.","這封信是提醒您明天的安全訓練。"]],
+"remind 人 to V": [["remind someone to do","提醒某人做某事","Please remind Mr. Lopez to sign the contract.","請提醒羅培茲先生簽合約。"]],
+"distribute handouts": [["distribute handouts","發講義","The assistant will distribute handouts before the presentation begins.","助理會在簡報開始前發講義。"]],
+"in summary": [["in summary","總之","In summary, sales rose by ten percent this quarter.","總之，這一季的銷售額成長了百分之十。"]],
+"brainstorming session": [["brainstorming session","腦力激盪會議","We held a brainstorming session to come up with new slogans.","我們開了一場腦力激盪會議來想新的標語。"]],
+"give feedback": [["give feedback","給意見","Customers can give feedback through our online survey.","顧客可以透過我們的線上問卷給意見。"]],
+"positive feedback": [["positive feedback","正面評價","The new design has received a lot of positive feedback.","新設計收到很多正面評價。"]],
+"reach / sign an agreement": [
+  ["reach an agreement","達成協議","The two companies finally reached an agreement on prices.","兩家公司終於在價格上達成協議。"],
+  ["sign an agreement","簽訂協議","Both sides will sign the agreement on Monday.","雙方會在週一簽訂協議。"]],
+"agree with 人": [["agree with someone","同意某人（的看法）","I agree with Ms. Ito that we need more staff.","我同意伊藤小姐的看法，我們需要更多人手。"]],
+"agree to 提議": [["agree to a proposal","同意某個提議","The landlord agreed to our request for a lower rent.","房東同意了我們降低租金的要求。"]],
+"agree on 事": [["agree on something","對某事達成共識","The team could not agree on a date for the launch.","團隊對發表日期無法達成共識。"]],
+"renew a contract": [["renew a contract","續約","We decided to renew the contract with our cleaning company.","我們決定和清潔公司續約。"]],
+"terminate a contract": [["terminate a contract","終止合約","Either party may terminate the contract with 30 days' notice.","任何一方都可以提前 30 天通知終止合約。"]],
+"participate in": [["participate in","參加","All new employees must participate in the orientation.","所有新進員工都必須參加新人說明會。"]],
+"book / reserve a venue": [["book a venue","預訂場地","We need to book a venue for the annual dinner soon.","我們得盡快預訂年度晚宴的場地。"]],
+"make / confirm / cancel a reservation": [
+  ["make a reservation","預約；訂位","I'd like to make a reservation for four people at 7 P.M.","我想訂晚上七點四個人的位子。"],
+  ["confirm a reservation","確認預約","Please call the hotel to confirm your reservation.","請打電話給飯店確認您的預約。"],
+  ["cancel a reservation","取消預約","Guests can cancel a reservation free of charge up to 24 hours in advance.","房客最晚可在 24 小時前免費取消預約。"]],
+"be scheduled to V": [["be scheduled to do","預定做……","The new branch is scheduled to open in May.","新分店預定五月開幕。"]],
+"ahead of / behind / on schedule": [
+  ["ahead of schedule","比預定提早","The construction was finished two weeks ahead of schedule.","工程比預定提早兩週完成。"],
+  ["behind schedule","進度落後","The project is behind schedule because of supply problems.","因為供貨問題，專案進度落後。"],
+  ["on schedule","照預定進度","Don't worry—everything is on schedule.","別擔心，一切都照預定進度進行。"]],
+"make copies": [["make copies","影印","Could you make copies of this report for everyone?","可以幫每個人影印一份這份報告嗎？"]],
+"supply A with B": [["supply A with B","提供 B 給 A","The company supplies local hotels with fresh towels.","這家公司提供乾淨毛巾給當地飯店。"]],
+"take effect": [["take effect","生效","The new dress code will take effect on July 1.","新的服裝規定將在七月一日生效。"]],
+"go into effect": [["go into effect","生效","The updated parking rules go into effect next Monday.","更新後的停車規定下週一生效。"]],
+"comply with": [["comply with","遵守","All visitors must comply with the safety rules.","所有訪客都必須遵守安全規定。"]],
+"in compliance with": [["in compliance with","依照……","The factory operates in compliance with local laws.","這間工廠依照當地法規營運。"]],
+"up-to-date": [["up-to-date","最新的","Please keep your contact information up-to-date.","請隨時更新您的聯絡資料。"]],
+"rough draft": [["rough draft","草稿","I'll send you a rough draft of the speech tonight.","我今晚會把演講稿的草稿寄給你。"]],
+"final draft": [["final draft","定稿","The final draft must be approved by the legal team.","定稿必須經過法務團隊核准。"]],
+"file a complaint": [["file a complaint","提出申訴","The customer filed a complaint about the late delivery.","那位顧客對延遲送貨提出申訴。"]],
+"file a report": [["file a report","提出報告","Employees must file a report after every business trip.","員工每次出差後都必須提出報告。"]],
+"Please find attached": [["Please find attached ...","隨信附上……","Please find attached the revised price list.","隨信附上修改後的價目表。"]],
+"look forward to": [["look forward to + V-ing","期待……","We look forward to working with you again.","我們期待再次與您合作。"]],
+"forwarding address": [["forwarding address","轉寄地址","Please leave a forwarding address before you move out.","搬走前請留下轉寄地址。"]],
+"in response to": [["in response to","回應……","In response to your inquiry, we have attached our catalog.","為回應您的詢問，我們附上了型錄。"]],
+"inquire about": [["inquire about","詢問","Several customers called to inquire about the sale.","有好幾位顧客打電話來詢問特價活動。"]],
+"heavy / light workload": [
+  ["heavy workload","工作量很重","Because of her heavy workload, Ms. Diaz hired an assistant.","因為工作量很重，狄亞茲小姐請了一位助理。"],
+  ["light workload","工作量很輕","The workload is usually light in early January.","一月初的工作量通常很輕。"]],
+"overtime pay": [["overtime pay","加班費","Staff who work on holidays receive overtime pay.","假日上班的員工可以領加班費。"]],
+"performance review": [["performance review","績效考核","Performance reviews are held at the end of each year.","績效考核在每年年底舉行。"]],
+"on / under / over budget": [
+  ["on budget","符合預算","The event was completed on time and on budget.","活動準時並在預算內完成。"],
+  ["under budget","低於預算","We finished the renovation under budget.","我們用低於預算的花費完成了裝修。"],
+  ["over budget","超出預算","The project went over budget by five thousand dollars.","這個專案超出預算五千美元。"]]
+});
+
 registerUnit("toeic-office", {
   name:"多益 單元 1：辦公室與會議",
   sub:"Part 5 解題技巧：詞性判斷、動詞時態語態、連接詞與介係詞、代名詞與關係詞；Part 2 聽力應答",
