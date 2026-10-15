@@ -18,7 +18,9 @@ Logo 的產生程式在私人儲存庫 `verachang-go/nostrings` 的 `brand/`。
 
 本機預覽：在 `D:\AI tools` 啟動 launch.json 的 `fun` 伺服器，打開 http://localhost:8767/fun/nostrings/
 
-## 上線前檢查清單
+## 上線檢查清單
+
+2026-10-15 已正式推出（已刪 noindex、入口頁改成連結）。下面沒打勾的項目改成上線後持續處理。
 
 - [x] 三支專線號碼向官方網站再確認一次（`content.js` 的 `help`，2026-10-15 確認）
   - 戒菸專線 0800-636363，週一到週六 9:00–21:00：[衛福部](https://www.mohw.gov.tw/cp-6557-76938-1.html)
@@ -33,4 +35,4 @@ Logo 的產生程式在私人儲存庫 `verachang-go/nostrings` 的 `brand/`。
 - [ ] 請學校輔導老師或反菸團體審閱
 - [ ] 做連結預覽圖（1200×630），在 `index.html` 補上 `og:image`
 - [ ] 查 NOSTRINGS 的商標、網域和社群帳號
-- [ ] 刪掉 index.html 裡的 `noindex`，並把入口頁（fun/index.html）的「即將推出」改成連結
+- [x] 刪掉 index.html 裡的 `noindex`，並把入口頁（fun/index.html）的「即將推出」改成連結（2026-10-15）
