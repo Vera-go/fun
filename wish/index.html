@@ -27,7 +27,7 @@
       <ul>
         <li>每人每天最多許 5 個願望，每個願望只能 +1 一次</li>
         <li><b>需要額外付費才做得出來的功能不收</b>，例如金流、簡訊、付費 API、上架 App Store</li>
-        <li>不適合的內容、做不到的功能會被移除，不另外通知</li>
+        <li>不適合的內容、做不到的功能會被標成「不採納」，原因寫在回覆裡，只有提出的那個瀏覽器看得到，不另外通知</li>
       </ul>
     </div>
     <form id="wishForm" novalidate>
@@ -46,14 +46,15 @@
     </form>
   </div>
 
-  <h2>⏳ 待處理 <span class="small muted" style="font-weight:500">依 +1 數排序，最上面的最先做</span></h2>
+  <h2>🌱 待處理<span class="small muted" style="font-weight:500">依 +1 數排序，最上面的最先做</span></h2>
   <div id="pending" class="wishes"><div class="empty">載入中⋯⋯</div></div>
 
-  <h2>🌱 已完成</h2>
+  <h2>🌸 已完成</h2>
   <div id="done" class="wishes"></div>
 
   <div id="rejectedBox" hidden>
-    <h2>🚫 不採納（只有你看得到）</h2>
+    <h2 id="rejectedTitle">🚫 不採納（只有你看得到）</h2>
+    <p class="muted small" id="rejectedHint" hidden style="margin-top:-6px">原因寫在回覆裡。只有提出願望的這個瀏覽器看得到，換裝置或清除瀏覽資料就看不到了。</p>
     <div id="rejected" class="wishes"></div>
   </div>
 
@@ -141,7 +142,9 @@ async function load() {
     const firstOpen = pending.findIndex(w => w.status === "open");
     $("#pending").innerHTML = pending.length ? pending.map((w, i) => wishHtml(w, { next: i === firstOpen })).join("") : '<div class="empty">還沒有待處理的願望，<a href="#new">許第一個願吧！</a></div>';
     $("#done").innerHTML = done.length ? done.map(w => wishHtml(w)).join("") : '<div class="empty">還沒有完成的願望</div>';
-    $("#rejectedBox").hidden = !admin;
+    $("#rejectedBox").hidden = !admin && !rejected.length;   // 一般人只會看到自己被不採納的願望
+    $("#rejectedTitle").textContent = admin ? "🚫 不採納（只有你看得到）" : "🚫 你的願望中不採納的";
+    $("#rejectedHint").hidden = admin;
     $("#rejected").innerHTML = rejected.map(w => wishHtml(w)).join("") || '<div class="empty">沒有</div>';
   } catch (e) {
     $("#pending").innerHTML = `<div class="empty">${esc(e.message)}</div>`;

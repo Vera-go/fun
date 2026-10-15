@@ -62,7 +62,7 @@
         </div>
       </a>`).join("") : `<div class="box empty">還沒有人許願，<a href="wish/#new">當第一個吧！</a></div>`;
     if (done.length) document.getElementById("recentDone").innerHTML = `
-      <h2>🌱 最近完成</h2>
+      <h2>🌸 最近完成</h2>
       <div class="box done-list">${done.slice(0, 3).map(w => `
         <div class="done-item">
           <div class="t">${esc(w.title)} <span class="badge done">已完成</span></div>
