@@ -206,6 +206,8 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 .hl{border-top:1px solid var(--line);padding:12px 0}
 .hl b{font-size:17px}
 .hl .tel{font-size:22px;font-weight:900;color:var(--green);letter-spacing:1px;user-select:all}
+.portal-foot{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 96px;margin-top:-72px}
+.portal-foot a{color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--text);color:#0A0A0A;padding:8px 16px;border-radius:99px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 .toast.show{opacity:1}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} .file p{opacity:1} }
@@ -217,6 +219,7 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
   <nav><button data-go="calc">換算器</button><button data-go="fidget">紓壓</button></nav>
 </div></header>
 <main class="wrap" id="app"></main>
+<footer class="portal-foot"><a href="../">🧰 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
 <button class="helpfab" id="helpBtn"></button>
 <dialog id="helpDlg"></dialog>
 <div class="toast" id="toast"></div>

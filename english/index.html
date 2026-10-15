@@ -62,6 +62,10 @@ h2{font-size:18px;margin:24px 0 10px}
 .tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
 .crumb{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:14px;color:var(--muted);flex-wrap:wrap}
 .crumb b{color:var(--text);font-size:17px}
+.portal-link{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--surface);text-decoration:none;font-size:20px;flex:none}
+.portal-link:hover,.portal-link:focus-visible{border-color:var(--primary,#2f6fde)}
+.portal-foot{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 40px}
+.portal-foot a{color:var(--muted)}
 /* progress */
 .prog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:10px;flex-wrap:wrap}
 .track{flex:1;min-width:120px;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
@@ -495,6 +499,7 @@ button.ctile:hover{border-color:var(--accent)}
 <body>
 <header>
   <div class="bar">
+    <a class="portal-link" href="../" title="回工具箱" aria-label="回工具箱">🧰</a>
     <div class="brand" id="brand" title="回首頁">📘 安安英文教室</div>
     <button class="hud" id="hud" title="我的成就"></button>
     <button class="boxbtn" id="boxBtn" title="盲盒・商店">🎁<span class="bdot" id="boxDot" hidden></span></button>
@@ -508,6 +513,7 @@ button.ctile:hover{border-color:var(--accent)}
   </div>
 </header>
 <main class="wrap" id="app"></main>
+<footer class="portal-foot"><a href="../">🧰 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
 
 <dialog id="addDlg">
   <form method="dialog" id="addForm">
@@ -1345,7 +1351,7 @@ function renderHome(){
       <div style="flex:1"><b>${esc(callName())}${streakNow() ? `已經連續學習 ${streakNow()} 天了，今天也繼續吧！` : "今天也一起加油吧！"}</b>
         <div class="muted" style="font-size:14px">${esc(tName())}：${esc(curTeacher().greet)}</div>
         <div class="daily-mini" style="margin-top:6px">${DAILY_TASKS.map(t => { const v = Math.min(t.n, dailyNow()[t.k] || 0); return `<span class="${v >= t.n ? "ok" : ""}">${v >= t.n ? "✅" : "⬜"} ${t.label.split("（")[0]} ${v}/${t.n}</span>`; }).join("")}</div>
-        <div class="greet-box"><button class="btn small" id="openFav">⭐ 我的珍藏${favs().length ? `（${favs().length}）` : ""}</button><button class="btn small ${boxReady() ? "primary" : ""}" id="openBox">🎁 盲盒・商店${boxReady() ? "：今天可以抽了！" : ""}</button><span class="muted" style="font-size:13px">🪙 ${G().coins}${boxReady() ? "" : G().box.freeDate === today() ? "・今天的免費盲盒抽過了" : `・再複習 ${freeDrawNeed()} 張卡或答對 ${freeDrawNeed()} 題，就能免費抽盲盒`}</span></div></div></div>
+        <div class="greet-box"><button class="btn small" id="openFav">❤️ 我的珍藏${favs().length ? `（${favs().length}）` : ""}</button><button class="btn small ${boxReady() ? "primary" : ""}" id="openBox">🎁 盲盒・商店${boxReady() ? "：今天可以抽了！" : ""}</button><span class="muted" style="font-size:13px">🪙 ${G().coins}${boxReady() ? "" : G().box.freeDate === today() ? "・今天的免費盲盒抽過了" : `・再複習 ${freeDrawNeed()} 張卡或答對 ${freeDrawNeed()} 題，就能免費抽盲盒`}</span></div></div></div>
     <h1>今天要複習哪個範圍？</h1>
     <p class="sub">先選程度，再選考試範圍。標示「即將推出」的範圍之後會陸續補上。</p>
     <div class="levels">
@@ -1436,7 +1442,7 @@ function renderStudy(){
   if(view.tab !== "boss" && !tabs.some(t => t[0] === view.tab)) view.tab = "map";
   rememberPlace(view.range, view.tab === "boss" ? "map" : view.tab);
   app.innerHTML = `
-    <div class="crumb"><button class="btn small" id="backHome">← 選範圍</button><b>${esc(R.name)}</b></div>
+    <div class="crumb"><button class="btn small" id="backHome">← 選範圍</button><b>${esc(R.name)}</b>${unitFavBtn(view.range)}</div>
     <div class="muted" style="font-size:13px;margin-top:4px">${esc(R.sub)}</div>
     <div class="tabs">${tabs.map(([k,n]) => `<button class="tab ${view.tab===k?"on":""}" data-tab="${k}">${n}</button>`).join("")}</div>
     <div id="pane"></div>`;
@@ -1497,12 +1503,14 @@ function cardHtml(R, rangeId, id, k, o = {}){
     <div class="flipbar ${view.flipped ? "gone" : ""}" id="flipbar"><button class="btn primary" id="flipBtn">👆 翻面看答案</button></div>`;
 }
 function vocabNav(R, v){
-  const L = seenList(v); if(!L.length) return "";
+  const L = seenList(v); if(!L.length && !favCount(view.range)) return "";
   const p = view.peek;
+  if(!L.length) return `<div class="cardnav">${unitFavBtn(view.range, true)}</div>`;
   return `<div class="cardnav">
     <button class="btn small" id="vPrev" ${p === 0 ? "disabled" : ""}>◀ 上一張</button>
     <select id="vJump" aria-label="跳到學過的單字"><option value="">📚 學過的單字（${L.length}）</option>${L.map((id, i) => `<option value="${i}" ${p === i ? "selected" : ""}>${esc(R.words[id].w)}　${esc(R.words[id].zh)}</option>`).join("")}</select>
     ${p != null ? `<button class="btn small" id="vNext">${p >= L.length - 1 ? "回到目前進度 ▶" : "下一張 ▶"}</button>` : ""}
+    ${unitFavBtn(view.range, true)}
   </div>`;
 }
 /* 翻閱學過的單字：只看不評分，不會改變複習順序；i = null 回到目前進度 */
@@ -1595,7 +1603,7 @@ function isFav(r, w){ return favs().some(f => f[0] === r && f[1] === w); }
 function favBtn(r, w){
   if(!r) return "";
   const on = isFav(r, w);
-  return `<button class="fav-btn ${on ? "on" : ""}" data-favr="${esc(r)}" data-favw="${esc(w)}" title="${on ? "取消珍藏" : "加入珍藏"}" aria-pressed="${on}">${on ? "⭐" : "☆"}</button>`;
+  return `<button class="fav-btn ${on ? "on" : ""}" data-favr="${esc(r)}" data-favw="${esc(w)}" title="${on ? "取消珍藏" : "加入珍藏"}" aria-pressed="${on}">${on ? "❤️" : "🤍"}</button>`;
 }
 function toggleFav(r, w){
   const L = favs(), i = L.findIndex(f => f[0] === r && f[1] === w), on = i < 0;
@@ -1603,20 +1611,29 @@ function toggleFav(r, w){
   save();
   document.querySelectorAll(".fav-btn").forEach(b => {
     if(b.dataset.favr !== r || b.dataset.favw !== w) return;
-    b.classList.toggle("on", on); b.textContent = on ? "⭐" : "☆";
+    b.classList.toggle("on", on); b.textContent = on ? "❤️" : "🤍";
     b.title = on ? "取消珍藏" : "加入珍藏"; b.setAttribute("aria-pressed", on);
   });
-  toast(on ? "已加入珍藏 ⭐" : "已移出珍藏");
+  toast(on ? "已加入珍藏 ❤️" : "已移出珍藏");
 }
-async function openFav(){
+/* 單元裡的「本單元珍藏」入口：進入只含這個單元的珍藏頁 */
+function favCount(r){ return favs().filter(f => f[0] === r).length; }
+function unitFavBtn(r, inline){
+  if(!r) return "";
+  const n = favCount(r);
+  return `<button class="btn small" data-favunit="${esc(r)}" style="${inline ? "" : "margin-left:auto"}">❤️ 本單元珍藏${n ? `（${n}）` : ""}</button>`;
+}
+async function openFav(unit){
   stopSpeak();
-  view = {screen:"fav", range:null, tab:"vocab", flipped:false, quizAnswered:null, spokeFor:null, favList: favs().slice(), favI: 0};
+  const from = unit ? (view.tab === "boss" ? "map" : view.tab) : null;   // 從單元進來的，返回時回到原本的分頁
+  view = {screen:"fav", range:null, tab:"vocab", flipped:false, quizAnswered:null, spokeFor:null, favUnit: unit || null, favFrom: from,
+    favList: favs().filter(f => !unit || f[0] === unit), favI: 0};
   const need = [...new Set(view.favList.map(f => f[0]))].filter(r => !BUILTIN[r] && !S.custom[r]);
   if(need.length){ toast("載入單元中…"); await Promise.all(need.map(r => loadUnit(r).catch(() => null))); }
   if(view.screen !== "fav") return;
   window.scrollTo(0, 0); render();
 }
-/* 進入珍藏頁時的清單：在這頁取消珍藏的字先留著（星星變空心），下次進來才不見 */
+/* 進入珍藏頁時的清單：在這頁取消珍藏的字先留著（愛心變空心），下次進來才不見 */
 function favItems(){
   return (view.favList || []).map(([r, w]) => { const R = getRange(r); const id = R ? R.words.findIndex(x => x.w === w) : -1; return id >= 0 ? {r, R, id} : null; }).filter(Boolean);
 }
@@ -1631,16 +1648,19 @@ function favGo(i){
 function renderFav(){
   const items = favItems();
   if(view.favI >= items.length) view.favI = 0;
-  const head = `<div class="crumb"><button class="btn small" id="backHome">← 回首頁</button><b>⭐ 我的珍藏</b></div>`;
+  const UR = view.favUnit ? getRange(view.favUnit) : null;
+  const head = view.favUnit
+    ? `<div class="crumb"><button class="btn small" id="backUnit">← 回單元</button><b>❤️ ${esc(UR ? UR.name : "本單元")}的珍藏</b></div>`
+    : `<div class="crumb"><button class="btn small" id="backHome">← 回首頁</button><b>❤️ 我的珍藏</b></div>`;
   if(!items.length){
-    app.innerHTML = head + `<div class="card done" style="margin-top:14px"><div class="big">☆</div><h2 style="margin:6px 0">還沒有珍藏的單字</h2>
-      <p class="muted">複習單字卡時，點卡片右上角的 ☆，就能把不熟的單字收進來，之後在這裡一起複習。</p></div>`;
+    app.innerHTML = head + `<div class="card done" style="margin-top:14px"><div class="big">🤍</div><h2 style="margin:6px 0">${view.favUnit ? "這個單元還沒有珍藏的單字" : "還沒有珍藏的單字"}</h2>
+      <p class="muted">複習單字卡時，點卡片右上角的 🤍，就能把不熟的單字收進來，之後在這裡一起複習。</p></div>`;
     return;
   }
   const it = items[view.favI];
   app.innerHTML = head + `<p class="muted" style="font-size:13px;margin:6px 0 12px">把不熟的單字放在一起複習，這裡的複習不會影響各單元的進度。</p>
     <div class="cardnav"><button class="btn small" id="fPrev">◀ 上一張</button><span class="muted" style="font-variant-numeric:tabular-nums">${view.favI + 1} / ${items.length}</span><button class="btn small" id="fNext">下一張 ▶</button><button class="btn small" id="fShuffle">🔀 打亂順序</button></div>`
-    + cardHtml(it.R, it.r, it.id, favK(it), {tag: "⭐ " + esc(it.R.name)})
+    + cardHtml(it.R, it.r, it.id, favK(it), {tag: "❤️ " + esc(it.R.name)})
     + `<div class="keys">鍵盤：空白鍵 翻面・← 上一張・→ 下一張</div>`;
   view.enter = false;
   speakFront("v" + view.favI, it.R.words[it.id].w);
@@ -3448,6 +3468,8 @@ document.addEventListener("click", e => {
   if(t.dataset.favr) return toggleFav(t.dataset.favr, t.dataset.favw);
   if(t.id === "card" || t.id === "flipBtn") return flipCard();
   if(t.id === "openFav") return openFav();
+  if(t.dataset.favunit) return openFav(t.dataset.favunit);
+  if(t.id === "backUnit") return openRange(view.favUnit, view.favFrom || "vocab");
   if(t.id === "vPrev") return vocabPrev();
   if(t.id === "vNext") return vocabNext();
   if(t.id === "vBack") return vocabPeek(null);
