@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><title>NOSTRINGS 連結預覽圖</title>
+<!-- 開發用：產生 og-image.png（1200×630）。用 Edge 無頭模式截圖，見 README。 -->
+<style>
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0A0A0A}
+.og{position:relative;width:1200px;height:630px;color:#F2F2F2;font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;
+  background:radial-gradient(circle at 78% 50%,#1b1b1b 0,#0A0A0A 62%)}
+.left{position:absolute;left:64px;top:70px;width:560px}
+.logo svg{width:560px;height:auto;display:block;margin-left:-32px}
+.t1{font-size:40px;font-weight:700;margin:26px 0 0;line-height:1.35}
+.t2{font-size:64px;font-weight:900;color:#00FF66;margin:4px 0 0;line-height:1.2}
+.pill{display:inline-block;margin-top:34px;border:2px solid #F2F2F2;border-radius:99px;padding:8px 22px;font-size:26px;font-weight:700}
+.url{position:absolute;left:64px;bottom:40px;font-size:22px;color:#9A9A9A;letter-spacing:.02em}
+.grid{position:absolute;left:652px;top:40px;display:grid;grid-template-columns:repeat(2,240px);gap:20px}
+.tile{position:relative;height:265px;border-radius:24px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.tile svg{width:236px;height:auto;display:block}
+.tile b{position:absolute;left:16px;top:12px;font:900 26px/1 "Arial Black",Impact,sans-serif;letter-spacing:.04em}
+</style></head>
+<body>
+<div class="og">
+  <div class="left">
+    <div class="logo" id="logo"></div>
+    <p class="t1" id="t1"></p>
+    <p class="t2" id="t2"></p>
+    <span class="pill">16 型反骨人格・1 分鐘測驗</span>
+  </div>
+  <div class="url">vera-go.github.io/fun/nostrings</div>
+  <div class="grid" id="grid"></div>
+</div>
+<script src="../content.js"></script>
+<script src="../card.js"></script>
+<script>
+// logo 字形同 index.html 的 logoInner()
+const GLYPHS = {
+  N:[72,"M11 100V11L61 89V0"], O:[72,"M30 11H42Q61 11 61 30V70Q61 89 42 89H30Q11 89 11 70V30Q11 11 30 11Z"],
+  S:[72,"M61 22Q61 11 50 11H24Q11 11 11 24V37Q11 50 24 50H48Q61 50 61 63V76Q61 89 48 89H22Q11 89 11 78"],
+  T:[72,"M0 11H72M36 11V100"], R:[72,"M11 100V11H44Q61 11 61 28V33Q61 50 44 50H11M38 50L66.4 111.5"],
+  I:[36,"M18 0V100"], G:[72,"M61 26Q61 11 44 11H28Q11 11 11 28V72Q11 89 28 89H44Q61 89 61 72V54H38"]
+};
+function logoInner(main = "#FFFFFF", acc = "#00FF66"){
+  const id = "cap", pad = 48, top = 118;
+  let x = 0, xs = [], paths = "";
+  [..."NOSTRINGS"].forEach((ch, i) => {
+    const [w, d] = GLYPHS[ch]; xs.push(x);
+    paths += `<g transform="translate(${pad + x} ${top})"><path d="${d}" fill="none" stroke="${i < 2 ? acc : main}" stroke-width="22" stroke-linejoin="miter" clip-path="url(#${id})"/></g>`;
+    x += w + 16;
+  });
+  const cut = (cx, cy) => `<path d="M${cx} 0V${cy - 13}L${cx + 4} ${cy - 5}" fill="none" stroke="${acc}" stroke-width="8" stroke-linejoin="round"/><path d="M${cx - 4} ${cy + 5}L${cx} ${cy + 13}V${top}" fill="none" stroke="${acc}" stroke-width="8" stroke-linejoin="round"/>`;
+  return `<defs><clipPath id="${id}"><rect x="-20" y="0" width="120" height="100"/></clipPath></defs>${cut(pad + xs[1] + 36, 58)}${cut(pad + xs[5] + 18, 44)}${paths}`;
+}
+document.getElementById("logo").innerHTML = `<svg viewBox="0 0 836 266">${logoInner()}</svg>`;
+document.getElementById("t1").textContent = NS.site.tagline;
+document.getElementById("t2").textContent = NS.site.tagline2;
+// 每個家族各一位
+const fam = c => c[1] === "N" ? (c[2] === "T" ? "NT" : "NF") : (c[3] === "J" ? "SJ" : "SP");
+document.getElementById("grid").innerHTML = ["INTJ", "ENFP", "ISTJ", "ESTP"].map(c => {
+  const col = NS.families[fam(c)].color;
+  return `<div class="tile" style="background:${col}26;box-shadow:inset 0 0 0 2px ${col}66"><b style="color:${col}">${c}</b>${characterSvg(c)}</div>`;
+}).join("");
+</script>
+</body></html>

@@ -33,6 +33,6 @@ Logo 的產生程式在私人儲存庫 `verachang-go/nostrings` 的 `brand/`。
 - [ ] 換算器的品項和價格請青少年挑過
 - [ ] 16 型的文案請 3～5 位目標年齡的青少年看過、改寫流行語
 - [ ] 請學校輔導老師或反菸團體審閱
-- [ ] 做連結預覽圖（1200×630），在 `index.html` 補上 `og:image`
+- [x] 做連結預覽圖（1200×630），在 `index.html` 補上 `og:image`（2026-10-15；`og-image.png` 由 `_dev/og.html` 用 Edge 無頭模式截圖產生，改文案或角色後要重新截圖）
 - [ ] 查 NOSTRINGS 的商標、網域和社群帳號
 - [x] 刪掉 index.html 裡的 `noindex`，並把入口頁（fun/index.html）的「即將推出」改成連結（2026-10-15）
