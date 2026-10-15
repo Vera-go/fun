@@ -1,0 +1,639 @@
+/* 單元檔：由 index.html 在選到這個單元時載入，內容都會透過 registerUnit() 登記 */
+(function(){
+/* =========================================================
+   多益 單元 1：辦公室與會議（原創例句，仿多益情境與難度）
+   格式：[單字, 詞性, 中文, [[例句, 中文, 說明] x3], null, null, 概念卡, 多益重點]
+   ========================================================= */
+const T1_WORDS = [
+["agenda","n.","議程",[
+ ["Please review the agenda before the meeting.","開會前請先看過議程。","review 表示「仔細看過、檢閱」；agenda 是可數名詞，指會議要討論的項目清單。"],
+ ["The budget is the first item on the agenda.","預算是議程上的第一個項目。","item on the agenda 是固定搭配，介係詞用 on。"],
+ ["The agenda was sent to all participants yesterday.","議程昨天已寄給所有與會者。","was sent 是過去式被動。主詞是物、後面接 to 人，多半要用被動。"]],
+ null,null,"📋|議程","常見搭配：set the agenda（訂定議程）、item on the agenda（議程項目）。"],
+["attend","v.","出席；參加",[
+ ["All managers are required to attend the meeting.","所有經理都必須出席會議。","attend 是及物動詞，後面直接接活動：attend the meeting，不說 attend to the meeting。"],
+ ["Ms. Lee could not attend because she was on a business trip.","李小姐因為出差無法出席。","because 是連接詞，後面接完整子句；because of 後面只能接名詞。"],
+ ["Those who attended the workshop received a certificate.","參加工作坊的人都拿到了證書。","Those who + 動詞 表示「……的人們」，動詞用複數。"]],
+ null,null,"🙋|出席","陷阱：attend + 活動（出席）；attend to + 事（處理）。名詞 attendance 出席人數、attendee 出席者。"],
+["attendance","n.","出席；出席人數",[
+ ["Attendance at the seminar was higher than expected.","研討會的出席人數比預期還多。","attendance 不可數，用 high/low 形容多寡；than expected 是常見的比較用法。"],
+ ["Please record your attendance on the sign-in sheet.","請在簽到表上登記出席。","sign-in sheet 是「簽到表」；祈使句以原形動詞 record 開頭。"],
+ ["Attendance is mandatory for all new employees.","所有新進員工都必須出席。","mandatory 表示「強制的」。"]],
+ null,null,"👥|出席人數","詞性家族：attend（v.）→ attendance（n. 出席）→ attendee（n. 出席者）。"],
+["postpone","v.","延期",[
+ ["The meeting has been postponed until next Monday.","會議已延到下週一。","has been postponed 是現在完成式被動；postpone A until/to B 表示「把 A 延到 B」。"],
+ ["We decided to postpone the launch because of the bad weather.","因為天氣不好，我們決定延後發表。","decide to V；because of + 名詞。"],
+ ["Ms. Chen suggested postponing the trip.","陳小姐建議延後這趟出差。","suggest 後面接動名詞：suggest + V-ing，不接 to V。"]],
+ null,null,"⏭️|延期","同義字：put off、delay。postpone 後面接動名詞：postpone + V-ing。"],
+["reschedule","v.","重新安排時間",[
+ ["Could we reschedule our appointment for Thursday?","我們可以把約改到星期四嗎？","Could we ...? 是禮貌的請求；reschedule A for + 時間 表示「把 A 改到某時間」。"],
+ ["The interview was rescheduled due to a scheduling conflict.","面試因為時間衝突而改期。","due to + 名詞 表示「由於」，和 because of 一樣後面接名詞。"],
+ ["If you need to reschedule, please call us 24 hours in advance.","如果需要改時間，請提前 24 小時來電。","in advance 表示「事先、提前」。"]],
+ null,null,"🗓️|改時間","re-（再）+ schedule（安排）；scheduling conflict 是「時間衝突」。"],
+["conference","n.","會議；研討會",[
+ ["The annual conference will be held in Kaohsiung.","年度研討會將在高雄舉行。","will be held 是未來式被動；hold a conference 表示「舉辦會議」。"],
+ ["Mr. Wang is in a conference call right now.","王先生現在正在開電話會議。","conference call 是「電話會議」。"],
+ ["Registration for the conference closes on May 10.","研討會報名將於 5 月 10 日截止。","日期前面用介係詞 on。"]],
+ null,null,"🎤|研討會","常見搭配：attend a conference、conference room（會議室）、conference call（電話會議）。"],
+["deadline","n.","截止期限",[
+ ["The deadline for the report is Friday.","報告的截止期限是星期五。","the deadline for + 事 表示「某事的期限」。"],
+ ["We worked overtime to meet the deadline.","我們加班以趕上期限。","meet the deadline 是「趕上期限」；miss the deadline 是「錯過期限」。"],
+ ["The deadline has been extended by one week.","截止期限延長了一週。","by + 數量 表示差距：extend by one week 延長一週。"]],
+ null,null,"⏳|截止期限","常見搭配：meet / miss / extend the deadline。"],
+["submit","v.","提交",[
+ ["Please submit your expense report by Friday.","請在星期五前提交支出報告。","by + 時間 表示「在……之前（截止）」；until 表示「持續到……」，不能混用。"],
+ ["All applications must be submitted online.","所有申請都必須線上提交。","must be + p.p. 是助動詞加被動；申請書是被提交的。"],
+ ["Having submitted the proposal, the team waited for a response.","提交提案後，團隊等待回覆。","完成式分詞構句 Having + p.p. 表示先提交、後等待。"]],
+ null,null,"📤|提交","詞性家族：submit（v.）→ submission（n. 提交）。搭配 submit A to B（把 A 交給 B）。"],
+["approve","v.","批准",[
+ ["The manager approved the new budget.","經理批准了新預算。","approve 後面直接接受詞。"],
+ ["The plan must be approved by the board.","這項計畫必須經過董事會批准。","be approved by + 人 是被動語態；board 是「董事會」。"],
+ ["Most employees approve of the new policy.","大多數員工贊成新政策。","approve of 表示「贊成」，和 approve（正式批准）意思不同。"]],
+ null,null,"✅|批准","approve（批准）vs. approve of（贊成）。名詞 approval。"],
+["approval","n.","批准；核准",[
+ ["The project is waiting for final approval.","這個專案正在等最後的批准。","final approval 是「最終核准」。"],
+ ["You need your supervisor's approval to work overtime.","加班需要主管的核准。","所有格 supervisor's 修飾 approval。"],
+ ["With the director's approval, we can start next week.","有了主任的批准，我們下週就能開始。","With + 名詞 表示條件「有了……」。"]],
+ null,null,"👍|核准","Part 5 詞性題：所有格（your、the manager's）後面要接名詞 → approval，不是 approve。"],
+["proposal","n.","提案；企劃書",[
+ ["The committee rejected the proposal.","委員會否決了這份提案。","reject 表示「拒絕、否決」。"],
+ ["Ms. Kim is preparing a proposal for a new client.","金小姐正在為新客戶準備企劃書。","現在進行式表示正在進行的動作。"],
+ ["The proposal, which was submitted last week, has been approved.","上週提交的提案已經獲得批准。","which 引導非限定關係子句補充說明 The proposal；主要動詞是 has been approved。"]],
+ null,null,"📑|提案","動詞 propose（提議）；propose + V-ing 或 that 子句。"],
+["colleague","n.","同事",[
+ ["I had lunch with a colleague from the sales department.","我和業務部的一位同事一起吃午餐。","from + 部門 表示「來自某部門」。"],
+ ["She is respected by all her colleagues.","她受到所有同事的尊敬。","be respected by 是被動語態。"],
+ ["Please share this information with your colleagues.","請和你的同事分享這項資訊。","share A with B 表示「和 B 分享 A」；information 不可數。"]],
+ null,null,"🧑‍💼|同事","同義字：coworker。"],
+["supervisor","n.","主管",[
+ ["Report any problems to your supervisor immediately.","有任何問題請立即向主管報告。","report A to B 表示「向 B 報告 A」；immediately 是副詞。"],
+ ["My supervisor gave me useful feedback on my presentation.","我的主管對我的簡報給了有用的意見。","feedback on + 事 表示「對某事的意見」；feedback 不可數。"],
+ ["Each team is led by a supervisor.","每個團隊由一位主管帶領。","Each + 單數名詞，動詞用單數 is。"]],
+ null,null,"👔|主管","動詞 supervise（監督）、名詞 supervision（監督）。"],
+["department","n.","部門",[
+ ["Which department do you work in?","你在哪個部門工作？","work in + 部門。"],
+ ["The marketing department is on the third floor.","行銷部在三樓。","樓層前用 on。"],
+ ["Questions should be sent to the human resources department.","問題應寄給人資部門。","human resources 是人力資源，簡稱 HR。"]],
+ null,null,"🏢|部門","常見部門：accounting（會計）、sales（業務）、marketing（行銷）、human resources（人資）。"],
+["assign","v.","指派",[
+ ["The manager assigned the task to Kevin.","經理把這項任務指派給凱文。","assign A to B 表示「把 A 指派給 B」。"],
+ ["Each new employee is assigned a mentor.","每位新員工都會被分配一位導師。","be assigned + 物 是被動：被分配到某物。"],
+ ["Kevin was assigned to the new project last month.","凱文上個月被指派到新專案。","be assigned to + 專案 表示「被派到……」。"]],
+ null,null,"📌|指派","名詞 assignment（任務、工作分配）。"],
+["assignment","n.","任務；工作分配",[
+ ["This assignment must be completed by noon.","這項任務必須在中午前完成。","by noon 表示截止時間。"],
+ ["She accepted an overseas assignment in Singapore.","她接受了派駐新加坡的海外任務。","overseas 當形容詞，表示「海外的」。"],
+ ["The assignment of tasks will be discussed at the meeting.","工作分配將在會議中討論。","主詞是 The assignment（單數），動詞用 will be discussed。"]],
+ null,null,"🗂️|任務","Part 5 詞性題：the + ___ + of → 填名詞 assignment。"],
+["responsibility","n.","職責；責任",[
+ ["Training new staff is one of my responsibilities.","訓練新員工是我的職責之一。","one of + 複數名詞；動名詞片語當主詞，用單數 is。"],
+ ["It is the manager's responsibility to approve all expenses.","批准所有支出是經理的職責。","虛主詞 It 代替 to approve ...。"],
+ ["She took responsibility for the mistake.","她為這個錯誤負起責任。","take responsibility for 表示「負責、承擔責任」。"]],
+ null,null,"🧾|職責","形容詞 responsible：be responsible for（負責）。"],
+["coordinate","v.","協調",[
+ ["Ms. Park will coordinate the event with the hotel.","朴小姐會和飯店協調這場活動。","coordinate A with B 表示「和 B 協調 A」。"],
+ ["Coordinating three departments is not easy.","協調三個部門並不容易。","動名詞片語當主詞，用單數 is。"],
+ ["The schedule was coordinated by the project manager.","行程由專案經理協調安排。","被動語態 was coordinated by。"]],
+ null,null,"🔄|協調","名詞 coordination（協調）、coordinator（協調人）。"],
+["confirm","v.","確認",[
+ ["Please confirm your attendance by replying to this e-mail.","請回覆這封電子郵件以確認出席。","by + V-ing 表示方法「藉由……」；reply to + 名詞。"],
+ ["I am writing to confirm our meeting on Tuesday.","我寫信是為了確認我們星期二的會議。","I am writing to V 是商用書信常見開頭，說明寫信目的。"],
+ ["Once the date is confirmed, we will book the venue.","日期一確認，我們就預訂場地。","Once 表示「一旦」；時間和條件子句用現在式表示未來。"]],
+ null,null,"☑️|確認","名詞 confirmation；confirm + that 子句。"],
+["confirmation","n.","確認（通知）",[
+ ["You will receive a confirmation e-mail shortly.","你很快就會收到確認信。","shortly 表示「很快、不久」。"],
+ ["We are still waiting for confirmation from the client.","我們還在等客戶的確認。","wait for + 名詞。"],
+ ["Please keep your confirmation number for future reference.","請保留確認編號以備日後查詢。","for future reference 表示「以備日後參考」。"]],
+ null,null,"📧|確認信","Part 5：a + ___ + e-mail，空格可以放名詞當形容詞用：confirmation e-mail。"],
+["notify","v.","通知",[
+ ["Please notify us of any changes to your address.","如果地址有任何變更請通知我們。","notify 人 of 事 表示「通知某人某事」。"],
+ ["Employees will be notified by e-mail.","員工將透過電子郵件收到通知。","will be notified 是未來式被動；by e-mail 表示方式。"],
+ ["The supervisor notified the staff that the office would close early.","主管通知員工辦公室會提早關門。","notify 人 that 子句；從過去的時間點說未來，用 would。"]],
+ null,null,"🔔|通知","名詞 notification。同義字 inform：inform 人 of 事。"],
+["reminder","n.","提醒（通知）",[
+ ["This is a reminder that the office will be closed on Friday.","提醒您，辦公室星期五不開放。","a reminder that + 子句 表示「提醒……這件事」。"],
+ ["I set a reminder on my phone for the meeting.","我在手機上設了會議提醒。","set a reminder 表示「設定提醒」。"],
+ ["Ms. Lin sent a reminder to everyone who hadn't replied.","林小姐寄了提醒給所有還沒回覆的人。","who 引導限定關係子句；hadn't replied 是過去完成式，表示寄提醒之前還沒回覆。"]],
+ null,null,"⏰|提醒","動詞 remind：remind 人 of 事、remind 人 to V。"],
+["memo","n.","備忘錄；內部公告",[
+ ["The memo was sent to all staff this morning.","這份公告今天早上已發給全體員工。","staff 是集合名詞，指全體員工。"],
+ ["According to the memo, the parking lot will be repaired.","根據公告，停車場將進行整修。","according to + 名詞 表示「根據……」。"],
+ ["Please read the memo carefully before the meeting.","開會前請仔細閱讀這份公告。","carefully 是副詞，修飾動詞 read。"]],
+ null,null,"🗒️|備忘錄","memo 是 memorandum 的縮寫，也是多益閱讀常見的文章類型。"],
+["minutes","n.","會議記錄",[
+ ["Mr. Ho took the minutes at the meeting.","何先生在會議中做記錄。","take the minutes 表示「做會議記錄」，minutes 固定用複數。"],
+ ["The minutes of the meeting will be posted online.","會議記錄將公布在網路上。","will be posted 是未來式被動。"],
+ ["Please check the minutes if you missed the meeting.","如果你錯過了會議，請查看會議記錄。","if 子句用過去式 missed，表示已經發生的事。"]],
+ null,null,"📝|會議記錄","小心：minutes 在商務情境常指「會議記錄」，不是「分鐘」。"],
+["presentation","n.","簡報",[
+ ["She gave an excellent presentation on sales trends.","她做了一場關於銷售趨勢的精彩簡報。","give a presentation on + 主題 表示「做關於……的簡報」。"],
+ ["The presentation, which lasted an hour, was very informative.","這場長達一小時的簡報內容很豐富。","which 引導非限定關係子句；informative 表示「資訊豐富的」。"],
+ ["Please send me the presentation slides after the meeting.","會後請把簡報投影片寄給我。","send 人 物 表示「寄某物給某人」。"]],
+ null,null,"📊|簡報","動詞 present（報告、呈現）；presenter 是簡報者。"],
+["handout","n.","講義",[
+ ["Handouts will be distributed at the beginning of the session.","講義會在課程開始時發放。","distribute 表示「分發」；will be distributed 是被動。"],
+ ["Please take a handout and pass the rest along.","請拿一份講義，剩下的往後傳。","pass along 表示「傳遞下去」。"],
+ ["The handout summarizes the main points of the talk.","講義總結了這場演講的重點。","主詞 handout 是單數，動詞加 s：summarizes。"]],
+ null,null,"📄|講義","常見搭配：distribute handouts（發講義）。"],
+["summarize","v.","總結",[
+ ["Could you summarize the results in one page?","你能把結果總結成一頁嗎？","in one page 表示「用一頁的篇幅」。"],
+ ["To summarize, sales increased by 10 percent.","總結來說，業績增加了百分之十。","To summarize 是報告結尾的常用語；increase by + 數量 表示「增加了多少」。"],
+ ["The report, summarized by the intern, was clear and short.","這份由實習生總結的報告清楚又簡短。","summarized by the intern 是過去分詞片語，修飾 The report，表示被動。"]],
+ null,null,"🧾|總結","名詞 summary：in summary（總之）。"],
+["brainstorm","v.","腦力激盪",[
+ ["Let's brainstorm some ideas for the new campaign.","我們來為新的宣傳活動腦力激盪一些點子。","Let's + 原形動詞；campaign 表示「（行銷）活動」。"],
+ ["We spent an hour brainstorming ways to cut costs.","我們花了一小時腦力激盪降低成本的方法。","spend + 時間 + V-ing 表示「花時間做某事」。"],
+ ["The ideas that were brainstormed yesterday will be reviewed today.","昨天腦力激盪出來的點子今天會進行審查。","that 引導限定關係子句，were brainstormed 是被動。"]],
+ null,null,"🧠|腦力激盪","brainstorming session 是「腦力激盪會議」。"],
+["suggestion","n.","建議",[
+ ["Do you have any suggestions for improving the process?","你對改善流程有任何建議嗎？","suggestion for + V-ing 表示「對……的建議」。"],
+ ["At Ms. Wu's suggestion, we changed the venue.","依照吳小姐的建議，我們更換了場地。","at 人's suggestion 表示「依照某人的建議」。"],
+ ["All suggestions will be considered carefully.","所有建議都會被仔細考慮。","will be considered 是被動；carefully 修飾 considered。"]],
+ null,null,"💭|建議","動詞 suggest + V-ing 或 that 子句（that 子句的動詞用原形）。"],
+["recommend","v.","推薦；建議",[
+ ["I highly recommend this hotel for business travelers.","我強力推薦這家飯店給商務旅客。","highly recommend 是常見搭配，表示「強力推薦」。"],
+ ["The consultant recommended that the company hire more staff.","顧問建議公司多雇用一些員工。","recommend that + 主詞 + 原形動詞：that 子句裡用原形 hire，不加 s，是多益常考句型。"],
+ ["Recommended by a colleague, the restaurant was excellent.","這家餐廳是同事推薦的，非常棒。","過去分詞分詞構句表示被動。"]],
+ null,null,"👉|推薦","recommend / suggest / require + that + 主詞 + 原形動詞。名詞 recommendation。"],
+["feedback","n.","意見回饋",[
+ ["We welcome your feedback on our new service.","我們歡迎您對新服務提供意見。","feedback on + 事；feedback 不可數，不加 s，也不加 a。"],
+ ["Based on customer feedback, we redesigned the website.","根據顧客的意見，我們重新設計了網站。","Based on + 名詞 表示「根據……」。"],
+ ["The manager asked for feedback from every team member.","經理請每位組員提供意見。","ask for + 名詞 表示「要求、索取」。"]],
+ null,null,"🗨️|回饋","不可數：give feedback、positive feedback，不說 a feedback。"],
+["negotiate","v.","協商；談判",[
+ ["We are negotiating a new contract with the supplier.","我們正在和供應商協商新合約。","negotiate + 事 + with 人。"],
+ ["After negotiating for weeks, the two companies reached an agreement.","協商了好幾週後，兩家公司達成協議。","After + V-ing；reach an agreement 表示「達成協議」。"],
+ ["The price is still open to negotiation.","價格仍有商量空間。","open to negotiation 表示「可以協商」；名詞是 negotiation。"]],
+ null,null,"🤝|協商","名詞 negotiation、negotiator（談判者）。"],
+["agreement","n.","協議；同意",[
+ ["Both sides signed the agreement yesterday.","雙方昨天簽署了協議。","sign an agreement 表示「簽協議」。"],
+ ["We are in agreement on the main points.","我們在主要論點上意見一致。","be in agreement on 表示「在……上意見一致」。"],
+ ["Under the agreement, the supplier must deliver within five days.","根據協議，供應商必須在五天內交貨。","under the agreement 表示「根據協議的規定」；within 表示「在……之內」。"]],
+ null,null,"📃|協議","reach / sign an agreement。動詞 agree with 人、agree to 提議、agree on 事。"],
+["contract","n.","合約",[
+ ["Please read the contract carefully before you sign it.","簽約前請仔細閱讀合約。","before 引導時間副詞子句，用現在式 sign。"],
+ ["The contract will expire at the end of the year.","這份合約將在年底到期。","expire 表示「到期」，是不及物動詞。"],
+ ["The company that won the contract is based in Taichung.","得到這份合約的公司總部設在台中。","that 引導限定關係子句；be based in 表示「總部設在……」。"]],
+ null,null,"✍️|合約","renew a contract（續約）、terminate a contract（終止合約）。"],
+["client","n.","客戶",[
+ ["I have a meeting with an important client at three.","我三點要和一位重要客戶開會。","at + 時間點。"],
+ ["Our clients, most of whom live overseas, prefer video calls.","我們的客戶大多住在國外，比較喜歡視訊通話。","most of whom 引導非限定關係子句，whom 是介係詞 of 的受詞。"],
+ ["We must respond to client inquiries within 24 hours.","我們必須在 24 小時內回覆客戶的詢問。","respond to + 名詞；client 可以當形容詞修飾 inquiries。"]],
+ null,null,"🤵|客戶","同義字 customer；client 多指接受專業服務的客戶。"],
+["representative","n.","代表；專員",[
+ ["A sales representative will contact you soon.","業務代表很快會與您聯絡。","contact 是及物動詞，後面直接接人，不加 with。"],
+ ["Please speak to a customer service representative.","請與客服專員聯繫。","customer service representative 是「客服人員」。"],
+ ["She was chosen as the representative of our department.","她被選為我們部門的代表。","be chosen as 表示「被選為……」。"]],
+ null,null,"🎧|客服代表","動詞 represent（代表）。"],
+["participant","n.","參與者",[
+ ["Each participant will receive a name tag.","每位參與者都會拿到名牌。","Each + 單數名詞，動詞用單數。"],
+ ["The workshop is limited to 20 participants.","工作坊名額限 20 人。","be limited to 表示「限制在……」。"],
+ ["Participants who arrive late may not enter the room.","遲到的參與者不能進入會場。","who 引導限定關係子句；may not 表示「不得」。"]],
+ null,null,"🙌|參與者","動詞 participate in（參加）；名詞 participation。"],
+["venue","n.","場地",[
+ ["The venue for the conference has not been decided yet.","研討會的場地還沒決定。","has not been decided yet 是現在完成式被動；yet 用在否定句。"],
+ ["We need a venue that can hold 200 people.","我們需要一個能容納 200 人的場地。","that 引導限定關係子句；hold 表示「容納」。"],
+ ["The new venue is easy to reach by MRT.","新場地搭捷運很方便到達。","by + 交通工具，中間不加 the。"]],
+ null,null,"🏨|場地","多益常見：book / reserve a venue。"],
+["reserve","v.","預訂；保留",[
+ ["I'd like to reserve a meeting room for Friday afternoon.","我想預訂星期五下午的會議室。","I'd like to V 是禮貌地表達需求。"],
+ ["These seats are reserved for guests.","這些座位是保留給來賓的。","be reserved for 表示「保留給……」。"],
+ ["Having reserved the room, Ms. Tsai sent out the invitations.","預訂好會議室後，蔡小姐寄出了邀請函。","完成式分詞構句：先訂會議室，再寄邀請。"]],
+ null,null,"🔖|預訂","同義字 book。名詞 reservation。"],
+["reservation","n.","預約；預訂",[
+ ["I have a reservation under the name Chen.","我用陳的名字訂了位。","under the name + 姓名 表示「以……的名義」。"],
+ ["Reservations can be made online or by phone.","可以線上或電話預約。","make a reservation 表示「預約」；can be made 是被動。"],
+ ["Please cancel your reservation at least one day in advance.","請至少提前一天取消預約。","at least 表示「至少」；in advance 表示「提前」。"]],
+ null,null,"🎫|預約","make / confirm / cancel a reservation。"],
+["available","adj.","有空的；可取得的",[
+ ["Are you available for a short meeting this afternoon?","你今天下午有空開個簡短的會嗎？","be available for + 名詞 表示「有空做……」。"],
+ ["The report is available on the company website.","這份報告可以在公司網站上取得。","available 修飾物時表示「可取得、可使用的」。"],
+ ["Unfortunately, no rooms are available on that date.","很遺憾，那天沒有空房。","available 常放在 be 動詞後面，表示「有空的、可用的」。"]],
+ null,null,"🟢|有空","名詞 availability（可用性；有空的時間）。"],
+["schedule","n./v.","行程；安排",[
+ ["The project is ahead of schedule.","這個專案進度超前。","ahead of schedule 超前；behind schedule 落後；on schedule 準時。"],
+ ["The meeting is scheduled for 2 p.m.","會議安排在下午兩點。","be scheduled for + 時間 表示「排定在……」。"],
+ ["Please check your schedule and let me know when you are free.","請查看你的行程，告訴我你什麼時候有空。","let me know + 間接問句（when you are free），語序是主詞在前、動詞在後。"]],
+ null,null,"📆|行程","be scheduled to V（預定做……）；ahead of / behind / on schedule。"],
+["extension","n.","分機；延長",[
+ ["Please call me at extension 215.","請撥分機 215 找我。","at extension + 號碼。"],
+ ["She asked for an extension on the deadline.","她要求延長期限。","an extension on the deadline 表示「期限的延長」。"],
+ ["The extension of the subway line will open next year.","捷運延伸線明年將通車。","extension 也可以指「延伸、擴建」。"]],
+ null,null,"☎️|分機","動詞 extend（延長）、形容詞 extensive（廣泛的）。"],
+["equipment","n.","設備",[
+ ["All office equipment must be turned off at night.","所有辦公設備晚上都必須關閉。","equipment 不可數，不加 s；turn off 表示「關掉」。"],
+ ["We need to buy new equipment for the meeting room.","我們需要為會議室購買新設備。","new equipment 前面不加 a。"],
+ ["Employees who use the equipment must be trained first.","使用這些設備的員工必須先接受訓練。","who 引導限定關係子句；must be trained 是被動。"]],
+ null,null,"🖨️|設備","不可數名詞：equipment、furniture、information、luggage，都不加 s。"],
+["projector","n.","投影機",[
+ ["The projector in Room B is not working.","B 會議室的投影機壞了。","be not working 表示「故障中」。"],
+ ["Could you help me connect my laptop to the projector?","你能幫我把筆電接到投影機上嗎？","connect A to B 表示「把 A 接到 B」；help 人 + 原形動詞。"],
+ ["A technician was called to fix the projector.","已經請技術人員來修理投影機了。","was called to V 是被動，表示「被叫來做某事」。"]],
+ null,null,"📽️|投影機","動詞 project（投射；預估）。"],
+["photocopy","v./n.","影印；影本",[
+ ["Please photocopy these documents for the meeting.","請幫會議影印這些文件。","photocopy 可以當動詞，也可以說 make photocopies。"],
+ ["Make ten photocopies of the report, please.","請把報告影印十份。","photocopy 當名詞是可數的，複數去 y 加 ies。"],
+ ["The photocopier on the second floor is out of order.","二樓的影印機故障了。","out of order 表示「故障」；photocopier 是影印機。"]],
+ null,null,"📠|影印","同義字 copy、make copies。"],
+["supplies","n.","用品",[
+ ["Office supplies are kept in the storage room.","辦公用品放在儲藏室。","office supplies 表示「辦公用品」，常用複數。"],
+ ["We are running low on printer paper and other supplies.","我們的影印紙和其他用品快用完了。","run low on 表示「快用完」。"],
+ ["Supplies should be ordered through the purchasing department.","用品應透過採購部訂購。","should be ordered 是被動；through 表示「透過」。"]],
+ null,null,"✏️|用品","動詞 supply：supply A with B（提供 B 給 A）；supplier 是供應商。"],
+["maintenance","n.","維修保養",[
+ ["The elevator is closed for maintenance today.","電梯今天因保養而停用。","closed for maintenance 表示「因維修而關閉」。"],
+ ["Regular maintenance helps prevent expensive repairs.","定期保養有助於避免昂貴的修理費用。","help + 原形動詞；prevent 表示「預防」。"],
+ ["Please contact the maintenance team if the air conditioner breaks down.","如果冷氣故障，請聯絡維修組。","break down 表示「故障」；if 子句用現在式。"]],
+ null,null,"🔧|維修","動詞 maintain（維持；保養）。"],
+["install","v.","安裝",[
+ ["New software will be installed on all computers this weekend.","這個週末所有電腦都會安裝新軟體。","will be installed 是未來式被動。"],
+ ["The technician installed a new printer in our office.","技術人員在我們辦公室安裝了一台新印表機。","install A in/on B 表示「把 A 安裝在 B」。"],
+ ["Once the system is installed, you will need a new password.","系統一安裝好，你就需要新密碼。","Once 引導條件子句，用現在式表示未來。"]],
+ null,null,"🛠️|安裝","名詞 installation（安裝）。"],
+["malfunction","n./v.","故障",[
+ ["A malfunction in the system caused the delay.","系統故障導致了延誤。","cause 表示「造成」；a malfunction in + 東西。"],
+ ["If the machine malfunctions, turn it off immediately.","如果機器故障，請立刻關掉。","malfunction 當動詞時是不及物動詞。"],
+ ["The flight was delayed because of an equipment malfunction.","班機因為設備故障而延誤。","because of + 名詞片語。"]],
+ null,null,"⚠️|故障","mal-（不好的）+ function（運作）＝運作不良。"],
+["replace","v.","更換；取代",[
+ ["We need to replace the old printer.","我們需要更換舊印表機。","replace + 受詞。"],
+ ["The old system will be replaced with a new one.","舊系統將被新系統取代。","replace A with B 表示「用 B 取代 A」；被動是 A is replaced with B。"],
+ ["Ms. Huang will replace Mr. Lin as sales manager.","黃小姐將接替林先生擔任業務經理。","replace 人 as + 職位 表示「接替某人擔任……」。"]],
+ null,null,"🔁|更換","名詞 replacement（替換品；接替者）。"],
+["technician","n.","技術人員",[
+ ["A technician will come to fix the copier this afternoon.","技術人員今天下午會來修影印機。","come to V 表示目的。"],
+ ["The technician, who has ten years of experience, solved the problem quickly.","那位有十年經驗的技術人員很快就解決了問題。","who 引導非限定關係子句；experience 指「經驗」時不可數。"],
+ ["Only trained technicians may repair this equipment.","只有受過訓練的技術人員可以修理這項設備。","trained 是過去分詞當形容詞；may 表示「可以（許可）」。"]],
+ null,null,"👨‍🔧|技術人員","相關字：technical（技術的）、technique（技巧）。"],
+["policy","n.","政策；規定",[
+ ["The company has a strict policy on overtime.","公司對加班有嚴格的規定。","a policy on + 主題 表示「關於……的政策」。"],
+ ["According to our return policy, items must be returned within 30 days.","根據我們的退貨規定，商品必須在 30 天內退回。","return policy 是「退貨政策」；within 表示「在……之內」。"],
+ ["The new policy will take effect next month.","新政策下個月生效。","take effect 表示「生效」。"]],
+ null,null,"📜|政策","take effect / go into effect（生效）。"],
+["procedure","n.","程序",[
+ ["Please follow the safety procedures at all times.","請隨時遵守安全程序。","follow procedures 表示「遵守程序」；at all times 表示「隨時、始終」。"],
+ ["The procedure for requesting leave has changed.","請假的程序已經改了。","the procedure for + V-ing 表示「做……的程序」；主詞單數用 has。"],
+ ["New employees learn the standard procedures during training.","新員工在訓練期間學習標準程序。","during + 名詞（期間）；while + 子句。"]],
+ null,null,"🪜|程序","動詞 proceed（進行）。"],
+["regulation","n.","規定；法規",[
+ ["All staff must follow the safety regulations.","所有員工都必須遵守安全規定。","follow / obey regulations 表示「遵守規定」。"],
+ ["Under the new regulations, smoking is not allowed in the building.","根據新規定，大樓內禁止吸菸。","under the regulations 表示「根據規定」；be allowed 是被動。"],
+ ["The regulations, which were updated last year, are posted on the wall.","去年更新的規定貼在牆上。","which 引導非限定關係子句；are posted 是被動。"]],
+ null,null,"📏|規定","動詞 regulate（管理、調節）。"],
+["comply","v.","遵守",[
+ ["All employees must comply with the dress code.","所有員工都必須遵守服裝規定。","comply with + 規定，一定要加 with。"],
+ ["Failing to comply with the rules may result in a fine.","不遵守規定可能會被罰款。","Failing to V 是動名詞當主詞；result in 表示「導致」。"],
+ ["The factory was closed because it did not comply with safety standards.","這間工廠因為不符合安全標準而被關閉。","because 後面接完整子句。"]],
+ null,null,"👌|遵守","comply with = follow = obey；名詞 compliance（in compliance with 依照……）。"],
+["mandatory","adj.","強制的",[
+ ["Attendance at the safety training is mandatory.","安全訓練必須出席。","mandatory 放在 be 動詞後面。"],
+ ["It is mandatory for all visitors to sign in at the front desk.","所有訪客都必須在前台登記。","It is + 形容詞 + for 人 + to V。"],
+ ["A mandatory meeting will be held on Monday morning.","星期一早上將舉行一場必須出席的會議。","mandatory 放在名詞前面修飾。"]],
+ null,null,"❗|強制","同義字 required、compulsory；反義字 optional（選擇性的）。"],
+["update","v./n.","更新；最新消息",[
+ ["Please update your contact information in the system.","請在系統中更新你的聯絡資料。","contact information 不可數。"],
+ ["I'll give you an update on the project tomorrow.","我明天會向你報告專案的最新進度。","an update on + 事 表示「某事的最新消息」。"],
+ ["The website, updated every week, provides the latest news.","這個每週更新的網站提供最新消息。","updated every week 是過去分詞片語，修飾 The website。"]],
+ null,null,"🔃|更新","形容詞 up-to-date（最新的）。"],
+["revise","v.","修改",[
+ ["Please revise the report and send it back by noon.","請修改報告，並在中午前寄回。","send it back 中的 it 要放在 send 和 back 中間。"],
+ ["The schedule has been revised twice.","行程已經修改過兩次了。","has been revised 是現在完成式被動。"],
+ ["A revised version of the contract is attached.","附上修改後的合約版本。","revised 是過去分詞當形容詞，表示「修改過的」。"]],
+ null,null,"🖊️|修改","名詞 revision（修訂）。"],
+["draft","n./v.","草稿；起草",[
+ ["Here is the first draft of the proposal.","這是提案的初稿。","first draft 表示「初稿」；final draft 是「定稿」。"],
+ ["Ms. Lee is drafting a letter to the client.","李小姐正在起草給客戶的信。","draft 當動詞表示「起草」。"],
+ ["Could you look over my draft before I submit it?","在我提交之前，你能幫我看一下草稿嗎？","look over 表示「快速檢查」。"]],
+ null,null,"🖋️|草稿","rough draft（草稿）、final draft（定稿）。"],
+["document","n.","文件",[
+ ["Please sign the document and return it to me.","請在文件上簽名後交還給我。","return A to B 表示「把 A 歸還給 B」。"],
+ ["All documents must be stored in a safe place.","所有文件都必須存放在安全的地方。","must be stored 是被動。"],
+ ["The documents that you requested are attached.","附上您要求的文件。","that 引導限定關係子句；are attached 是被動。"]],
+ null,null,"📁|文件","動詞 document（記錄）；名詞 documentation（文件資料）。"],
+["file","v./n.","歸檔；檔案",[
+ ["Please file these invoices by date.","請依日期將這些發票歸檔。","file 當動詞表示「歸檔」；by date 表示「依照日期」。"],
+ ["The file is too large to send by e-mail.","這個檔案太大，無法用電子郵件寄送。","too + 形容詞 + to V 表示「太……而不能……」。"],
+ ["She filed a complaint with the manager.","她向經理提出了申訴。","file a complaint 表示「提出申訴」。"]],
+ null,null,"🗄️|歸檔","file a complaint（申訴）、file a report（提出報告）。"],
+["attach","v.","附加",[
+ ["Please attach your résumé to the application.","請將履歷附在申請表上。","attach A to B 表示「把 A 附在 B 上」。"],
+ ["Attached is the agenda for tomorrow's meeting.","附上明天會議的議程。","Attached is ... 是商用郵件常見的倒裝句：主詞 the agenda 放在 is 後面。"],
+ ["I forgot to attach the file, so I sent it again.","我忘了附檔案，所以又寄了一次。","forget to V 表示「忘記去做」。"]],
+ null,null,"📎|附加","Please find attached ...（隨信附上……）是商用信件常用句。"],
+["attachment","n.","附件",[
+ ["Please see the attachment for details.","詳情請見附件。","for details 表示「以了解詳情」。"],
+ ["I couldn't open the attachment you sent me.","我打不開你寄給我的附件。","you sent me 是省略關係代名詞 that 的形容詞子句。"],
+ ["Large attachments may be blocked by the e-mail system.","過大的附件可能會被電子郵件系統擋下。","may be blocked 是助動詞加被動。"]],
+ null,null,"🧷|附件","Part 5 詞性題：the + ___ → 名詞 attachment，不是動詞 attach。"],
+["forward","v.","轉寄",[
+ ["Could you forward this e-mail to the sales team?","你能把這封郵件轉寄給業務團隊嗎？","forward A to B 表示「把 A 轉寄給 B」。"],
+ ["All calls will be forwarded to my mobile phone.","所有來電都會轉接到我的手機。","will be forwarded 是被動。"],
+ ["We look forward to working with you.","我們期待與您合作。","look forward to + V-ing：to 是介係詞，後面接動名詞，是多益超常考的陷阱。"]],
+ null,null,"↪️|轉寄","look forward to + V-ing（期待……）；forwarding address 是轉寄地址。"],
+["respond","v.","回覆；回應",[
+ ["Please respond to this e-mail by Friday.","請在星期五前回覆這封郵件。","respond to + 名詞，一定要加 to。"],
+ ["The company responded quickly to the complaints.","公司很快地回應了投訴。","副詞 quickly 修飾動詞 responded。"],
+ ["Thank you for responding so promptly.","謝謝您這麼迅速地回覆。","Thank you for + V-ing；promptly 表示「迅速地」。"]],
+ null,null,"💌|回覆","名詞 response（in response to 回應……）。"],
+["inquiry","n.","詢問",[
+ ["Thank you for your inquiry about our services.","感謝您詢問我們的服務。","an inquiry about + 事 表示「關於……的詢問」。"],
+ ["All inquiries should be directed to the customer service center.","所有詢問請洽客服中心。","be directed to 表示「被轉給……」。"],
+ ["We received more than 100 inquiries after the advertisement.","廣告刊出後，我們收到超過 100 則詢問。","inquiry 的複數去 y 加 ies。"]],
+ null,null,"❔|詢問","動詞 inquire about（詢問）。"],
+["urgent","adj.","緊急的",[
+ ["I have an urgent message for Mr. Kao.","我有一則緊急訊息要給高先生。","urgent 開頭是母音，用 an。"],
+ ["Please call me back as soon as possible. It's urgent.","請盡快回電給我，這很緊急。","as soon as possible 表示「盡快」，縮寫 ASAP。"],
+ ["Urgent requests will be handled first.","緊急的要求會優先處理。","will be handled 是被動；handle 表示「處理」。"]],
+ null,null,"🚨|緊急","副詞 urgently；名詞 urgency。"],
+["priority","n.","優先事項",[
+ ["Customer satisfaction is our top priority.","顧客滿意是我們的首要任務。","top priority 表示「最優先的事」。"],
+ ["Please give priority to the most urgent tasks.","請優先處理最緊急的工作。","give priority to + 事 表示「優先處理……」。"],
+ ["Passengers with small children will be given priority boarding.","帶小孩的旅客可以優先登機。","be given + 物 是被動。"]],
+ null,null,"🥇|優先","動詞 prioritize（排定優先順序）。"],
+["efficient","adj.","有效率的",[
+ ["The new system is more efficient than the old one.","新系統比舊系統更有效率。","more efficient than 是比較級；the old one 的 one 代替 system。"],
+ ["We need to find a more efficient way to handle orders.","我們需要找到更有效率的方法處理訂單。","a way to V 表示「做……的方法」。"],
+ ["She works efficiently and never misses a deadline.","她工作很有效率，從不錯過期限。","副詞 efficiently 修飾動詞 works。Part 5 常考：修飾動詞用副詞。"]],
+ null,null,"⚡|有效率","詞性家族：efficient（adj.）、efficiently（adv.）、efficiency（n.）。"],
+["productivity","n.","生產力",[
+ ["The new software has increased our productivity.","新軟體提升了我們的生產力。","increase productivity 表示「提高生產力」。"],
+ ["Productivity drops when employees are tired.","員工疲累時，生產力會下降。","主詞 Productivity 不可數，動詞用單數 drops。"],
+ ["The manager is looking for ways to improve productivity.","經理正在尋找提高生產力的方法。","look for 表示「尋找」。"]],
+ null,null,"🚀|生產力","形容詞 productive（有生產力的）、動詞 produce。"],
+["workload","n.","工作量",[
+ ["My workload has doubled this month.","我這個月的工作量變成兩倍。","double 當動詞表示「變成兩倍」。"],
+ ["We hired an assistant to reduce Ms. Lin's workload.","我們雇了一位助理來減輕林小姐的工作量。","to V 表示目的。"],
+ ["With a heavy workload, it is hard to leave on time.","工作量很重的時候，很難準時下班。","heavy workload 表示「繁重的工作量」；on time 表示「準時」。"]],
+ null,null,"📚|工作量","heavy / light workload（工作量重或輕）。"],
+["overtime","n./adv.","加班",[
+ ["I had to work overtime last night.","我昨晚得加班。","work overtime 中的 overtime 是副詞。"],
+ ["Employees will be paid for overtime.","員工加班會有加班費。","be paid for 表示「為……拿到報酬」。"],
+ ["Overtime must be approved by your supervisor in advance.","加班必須事先經過主管核准。","must be approved by 是被動；in advance 表示「事先」。"]],
+ null,null,"🌙|加班","overtime pay（加班費）。"],
+["promote","v.","升職；推廣",[
+ ["Ms. Chen was promoted to sales director.","陳小姐升任業務總監。","be promoted to + 職位 表示「被升為……」。"],
+ ["The campaign is designed to promote our new product.","這個活動是為了推廣我們的新產品。","be designed to V 表示「目的是……」。"],
+ ["Having been promoted, he now manages a team of ten.","升職後，他現在管理一個十人團隊。","完成式被動的分詞構句：Having been + p.p.。"]],
+ null,null,"⬆️|升職","名詞 promotion（升遷；促銷）。"],
+["evaluate","v.","評估",[
+ ["Managers evaluate their staff twice a year.","經理每年評估員工兩次。","twice a year 表示「一年兩次」。"],
+ ["Each proposal will be evaluated carefully.","每份提案都會被仔細評估。","will be evaluated 是被動；carefully 修飾 evaluated。"],
+ ["We are evaluating whether the new system is worth the cost.","我們正在評估新系統是否值得這筆花費。","whether 引導名詞子句，表示「是否」；be worth + 名詞 表示「值得」。"]],
+ null,null,"📐|評估","名詞 evaluation（評估）。"],
+["performance","n.","表現；績效",[
+ ["Your performance this year has been excellent.","你今年的表現非常好。","現在完成式表示到目前為止的表現。"],
+ ["Bonuses are based on individual performance.","獎金依照個人績效發放。","be based on 表示「以……為根據」。"],
+ ["The performance review will take place next week.","績效考核將在下週進行。","performance review 是「績效考核」；take place 表示「舉行」。"]],
+ null,null,"🏅|績效","performance review / appraisal（績效考核）。"],
+["objective","n.","目標",[
+ ["Our main objective is to increase sales by 20 percent.","我們的主要目標是讓業績成長百分之二十。","主詞 + is to V 表示「目標是……」。"],
+ ["The objectives of the meeting are listed on the agenda.","會議目標列在議程上。","主詞 The objectives（複數）用 are。"],
+ ["We achieved all our objectives for this quarter.","我們達成了這一季的所有目標。","achieve an objective 表示「達成目標」。"]],
+ null,null,"🎯|目標","同義字 goal、target；objective 當形容詞是「客觀的」。"],
+["budget","n.","預算",[
+ ["The project was completed under budget.","這個專案在預算內完成，還有剩。","under budget 表示「低於預算」；over budget 是「超出預算」。"],
+ ["We have a limited budget for advertising.","我們的廣告預算有限。","a budget for + 用途。"],
+ ["The budget, which was approved last month, includes two new hires.","上個月通過的預算包括兩名新進人員。","which 引導非限定關係子句；hire 當名詞是「新雇員」。"]],
+ null,null,"💰|預算","on / under / over budget；budget 也可以當動詞「編列預算」。"],
+["quarterly","adj./adv.","每季的；每季",[
+ ["The quarterly report will be released next week.","季報將在下週發布。","quarterly 是形容詞，修飾 report；will be released 是被動。"],
+ ["Sales meetings are held quarterly.","業務會議每季舉行一次。","quarterly 也可以當副詞，表示「每季」。"],
+ ["Our quarterly sales were higher than expected.","我們這一季的業績比預期好。","sales 表示「業績」時用複數，搭配 were。"]],
+ null,null,"4️⃣|每季","quarter 是「一季（三個月）」；相關字 annual（每年的）、monthly（每月的）。"],
+["headquarters","n.","總部",[
+ ["Our headquarters is located in Taipei.","我們的總部位於台北。","headquarters 單複數同形，指一個總部時常用單數動詞；be located in 表示「位於」。"],
+ ["The CEO works at the company headquarters.","執行長在公司總部上班。","at + 地點。"],
+ ["The headquarters, where 500 people work, is being renovated.","有 500 人上班的總部正在整修。","where 引導非限定關係子句；is being renovated 是現在進行式被動。"]],
+ null,null,"🏙️|總部","headquarters 字尾的 s 不能省略，常縮寫為 HQ。"]
+];
+
+const T1_GRAMMAR = [
+{ id:"g1", title:"詞性判斷",
+  intro:"Part 5 約有三成是詞性題：四個選項是同一個字的不同詞性。只要看空格前後，不必讀懂整句就能作答。",
+  table:[["空格位置","要選的詞性","例子"],["冠詞、所有格、形容詞後面","名詞","the approval、your application、final decision"],["be 動詞後面、名詞前面","形容詞","is efficient、an efficient system"],["修飾動詞、形容詞或整句","副詞","respond promptly、extremely useful"],["主詞後面、助動詞後面","動詞","must submit、will approve"]],
+  points:[
+   "先看選項：如果是同一個字的不同詞性（apply、application、applicable），就是詞性題。",
+   "名詞字尾：-tion、-sion、-ment、-ance、-ence、-ity、-ness；指人的常見字尾：-er、-or、-ee、-ant。",
+   "形容詞字尾：-ful、-ous、-ive、-able、-ible、-al、-ic。",
+   "副詞多半是形容詞加 -ly：efficient → efficiently；副詞也能修飾形容詞：highly qualified。",
+   "選項有兩個名詞時看語意：attendee 是出席的人，attendance 是出席人數。",
+   "名詞也能修飾名詞：confirmation e-mail、safety regulations。"],
+  ex:[
+   ["You need your supervisor's approval to work overtime.","加班需要主管的核准。","所有格 supervisor's 後面接名詞 approval。"],
+   ["She works efficiently and never misses a deadline.","她工作很有效率，從不錯過期限。","修飾動詞 works 用副詞 efficiently。"],
+   ["The new system is more efficient than the old one.","新系統比舊系統更有效率。","be 動詞後面接形容詞 efficient。"],
+   ["The assignment of tasks will be discussed at the meeting.","工作分配將在會議中討論。","the ___ of 中間放名詞。"]]},
+{ id:"g2", title:"動詞時態與語態",
+  intro:"動詞題看兩件事：時間線索決定時態，主詞和動作的關係決定主動或被動。",
+  table:[["時間線索","時態"],["yesterday、last week、ago","過去式"],["since、for + 期間、already、yet","現在完成式"],["tomorrow、next month、soon","未來式 will"],["every day、usually、always","現在式"],["by the time + 過去式","過去完成式"]],
+  points:[
+   "被動語態是 be + p.p.，主詞是「被做」的一方：The report was submitted.",
+   "快速判斷：主詞是物，而且空格後面沒有受詞，多半選被動。",
+   "時間和條件子句（when、if、once、as soon as）用現在式表示未來：Once the date is confirmed, we will book the venue.",
+   "主詞動詞一致：Each employee has ...；The number of ... is ...；A number of ... are ...。",
+   "recommend / suggest / require + that + 主詞 + 原形動詞：We recommend that he submit the form.",
+   "look forward to、be committed to、be used to 的 to 是介係詞，後面接 V-ing。"],
+  ex:[
+   ["The meeting has been postponed until next Monday.","會議已延到下週一。","會議是被延期的，用被動。"],
+   ["Once the date is confirmed, we will book the venue.","日期一確認，我們就預訂場地。","Once 子句用現在式表示未來。"],
+   ["The consultant recommended that the company hire more staff.","顧問建議公司多雇用一些員工。","recommend that 子句用原形動詞 hire。"],
+   ["We look forward to working with you.","我們期待與您合作。","look forward to + V-ing。"]]},
+{ id:"g3", title:"連接詞與介係詞",
+  intro:"選項同時有連接詞和介係詞時，看空格後面：接完整子句（主詞加動詞）用連接詞，只接名詞片語用介係詞。",
+  table:[["意思","連接詞（＋子句）","介係詞（＋名詞）"],["因為","because、since、as","because of、due to"],["雖然","although、though、even though","despite、in spite of"],["當……的時候／期間","while、when","during"],["如果／除非","if、unless","in case of、without"]],
+  points:[
+   "Although it rained, the event was held. = Despite the rain, the event was held.",
+   "during + 名詞（during the meeting）；while + 子句（while I was in the meeting）。",
+   "by 表示期限（submit it by Friday）；until 表示持續（work until six）。",
+   "配對連接詞：both A and B、either A or B、neither A nor B、not only A but also B。",
+   "Either A or B、Neither A nor B 的動詞跟 B 一致。",
+   "however、therefore 是副詞，不能直接連接兩個句子，前面要用分號或句號。"],
+  ex:[
+   ["Ms. Lee could not attend because she was on a business trip.","李小姐因為出差無法出席。","because 後面接完整子句。"],
+   ["The flight was delayed because of an equipment malfunction.","班機因為設備故障而延誤。","because of 後面接名詞片語。"],
+   ["New employees learn the standard procedures during training.","新員工在訓練期間學習標準程序。","during 後面接名詞。"],
+   ["Please submit your expense report by Friday.","請在星期五前提交支出報告。","by 表示截止期限。"]]},
+{ id:"g4", title:"代名詞與關係代名詞",
+  intro:"代名詞題考「格」：主格、所有格、受格、反身代名詞。關係代名詞題先看先行詞是人或物，再看後面缺什麼。",
+  table:[["主格","所有格","受格","反身"],["I","my","me","myself"],["he","his","him","himself"],["she","her","her","herself"],["it","its","it","itself"],["we","our","us","ourselves"],["they","their","them","themselves"]],
+  points:[
+   "名詞前面用所有格：their reports、its policy（its 不是 it's）。",
+   "動詞或介係詞後面用受格：contact them、with us。",
+   "主詞和受詞是同一個人用反身代名詞：She introduced herself.；by oneself 表示「獨自」。",
+   "關係代名詞：人用 who（主格）、whom（受格），物用 which，限定用法人和物都可以用 that。",
+   "whose + 名詞 表示所有格：a supplier whose products are reliable。",
+   "what = the thing that，前面沒有先行詞：What we need is more time."],
+  ex:[
+   ["Those who attended the workshop received a certificate.","參加工作坊的人都拿到了證書。","who 指人，後面缺主詞。"],
+   ["The documents that you requested are attached.","附上您要求的文件。","that 指物，requested 後面缺受詞。"],
+   ["Our clients, most of whom live overseas, prefer video calls.","我們的客戶大多住在國外，比較喜歡視訊通話。","whom 是介係詞 of 的受詞。"],
+   ["The company changed its policy on remote work.","公司改變了遠距工作的政策。","名詞 policy 前面用所有格 its。"]]}
+];
+
+const T1_QUIZ = [
+ ["Please send your ___ to the HR department by Friday.",["apply","application","applicable","applied"],1,"your（所有格）後面要接名詞：application。","g1"],
+ ["The new copier is much more ___ than the old one.",["efficiency","efficiently","efficient","efficiencies"],2,"more ___ than 是比較級，be 動詞後面要接形容詞：efficient。","g1"],
+ ["Ms. Kim responded ___ to the client's inquiry.",["prompt","promptly","promptness","prompted"],1,"修飾動詞 responded 要用副詞：promptly。","g1"],
+ ["All ___ must register at the front desk.",["attend","attendance","attendees","attending"],2,"空格是主詞，要放名詞；會去登記的是「人」，選 attendees。attendance 是出席人數，不能去登記。","g1"],
+ ["The manager gave final ___ for the project.",["approve","approval","approved","approving"],1,"形容詞 final 後面接名詞：approval。","g1"],
+ ["The training session was ___ useful for new employees.",["extreme","extremely","extremity","more extreme"],1,"修飾形容詞 useful 要用副詞：extremely。","g1"],
+ ["Mr. Lin is ___ for organizing the company trip.",["responsibility","responsible","responsibly","respond"],1,"be 動詞後面接形容詞；be responsible for 是固定搭配。","g1"],
+ ["We need to make a ___ about the venue by tomorrow.",["decide","decisive","decision","decisively"],2,"冠詞 a 後面接名詞：decision。","g1"],
+ ["The ___ of the new software took three days.",["install","installation","installed","installing"],1,"the ___ of 中間要放名詞：installation。","g1"],
+ ["Customer feedback has been ___ positive this year.",["overwhelming","overwhelmingly","overwhelm","overwhelmed"],1,"修飾形容詞 positive 要用副詞：overwhelmingly。","g1"],
+ ["The meeting ___ until next Monday.",["postponed","has been postponed","has postponed","postponing"],1,"會議是「被延期」的，而且空格後面沒有受詞，要用被動：has been postponed。","g2"],
+ ["Ms. Chen ___ for the company since 2018.",["works","worked","has worked","will work"],2,"since + 過去時間點，用現在完成式。","g2"],
+ ["The report ___ to all managers yesterday.",["sent","was sent","has sent","sends"],1,"報告是被寄出的，yesterday 用過去式被動：was sent。","g2"],
+ ["Once the contract ___, we will start the project.",["signs","is signed","will be signed","signed"],1,"Once 引導的條件子句用現在式表示未來；合約是被簽的：is signed。","g2"],
+ ["We look forward to ___ with you again.",["work","working","worked","be working"],1,"look forward to 的 to 是介係詞，後面接 V-ing。","g2"],
+ ["The consultant recommended that the company ___ more staff.",["hires","hired","hire","hiring"],2,"recommend that + 主詞 + 原形動詞：hire。","g2"],
+ ["Each employee ___ a laptop on the first day.",["receive","receives","are receiving","have received"],1,"Each + 單數名詞，動詞用單數：receives。","g2"],
+ ["By the time the manager arrived, the meeting ___.",["already started","had already started","has already started","will start"],1,"By the time + 過去式，表示在那之前已經發生，用過去完成式。","g2"],
+ ["A number of employees ___ working from home this week.",["is","are","was","has been"],1,"A number of + 複數名詞 表示「許多……」，動詞用複數 are；The number of 才用單數。","g2"],
+ ["The new policy ___ effect next month.",["took","takes","will take","has taken"],2,"next month 表示未來，用 will take；take effect 表示「生效」。","g2"],
+ ["___ the heavy rain, the conference was held as planned.",["Although","Despite","Because","Even though"],1,"空格後面是名詞片語 the heavy rain，要用介係詞 Despite。","g3"],
+ ["The flight was delayed ___ a technical problem.",["because","because of","although","since"],1,"空格後面是名詞片語，用 because of。","g3"],
+ ["Please do not use your phone ___ the presentation.",["while","during","when","as"],1,"the presentation 是名詞，用介係詞 during；while 後面要接子句。","g3"],
+ ["___ the budget is limited, we will hire two more people.",["Despite","Although","Because of","In spite of"],1,"後面是完整子句（主詞 the budget＋動詞 is），用連接詞 Although。","g3"],
+ ["Please submit the form ___ Friday at 5 p.m.",["until","by","since","for"],1,"by 表示截止期限；until 表示持續到某時間。","g3"],
+ ["Neither the manager nor the assistants ___ available today.",["is","are","was","has been"],1,"Neither A nor B 的動詞跟 B（the assistants，複數）一致：are。","g3"],
+ ["The seminar was ___ informative but also fun.",["both","either","not only","neither"],2,"not only A but also B 是配對連接詞。","g3"],
+ ["Sales increased last quarter; ___, profits fell.",["however","although","despite","because"],0,"分號後面接副詞 however 表示轉折。although 是連接詞，不能這樣用。","g3"],
+ ["You can contact us ___ by phone or by e-mail.",["both","either","neither","whether"],1,"either A or B 表示「A 或 B」。","g3"],
+ ["___ you have any questions, please call extension 215.",["Unless","If","Despite","During"],1,"If 引導條件子句：如果有問題，請來電。","g3"],
+ ["The employees submitted ___ reports on time.",["they","their","them","themselves"],1,"名詞 reports 前面用所有格：their。","g4"],
+ ["Ms. Park introduced ___ to the new clients.",["her","hers","herself","she"],2,"主詞和受詞是同一個人，用反身代名詞 herself。","g4"],
+ ["Please contact ___ if you need further information.",["we","our","us","ourselves"],2,"動詞 contact 後面接受格：us。","g4"],
+ ["The company changed ___ policy on remote work.",["it's","its","it","itself"],1,"名詞 policy 前面用所有格 its；it's 是 it is 的縮寫。","g4"],
+ ["Applicants ___ have experience in sales are preferred.",["who","which","whose","whom"],0,"先行詞 Applicants 是人，後面缺主詞，用 who。","g4"],
+ ["The printer ___ we bought last month is already broken.",["who","which","whose","what"],1,"先行詞 The printer 是物，bought 後面缺受詞，用 which（或 that）。","g4"],
+ ["We work with a supplier ___ products are very reliable.",["who","which","whose","that"],2,"空格後面接名詞 products，表示「它的產品」，用所有格 whose。","g4"],
+ ["___ we need now is a larger meeting room.",["That","Which","What","It"],2,"What = the thing that，前面沒有先行詞，引導名詞子句當主詞。","g4"],
+ ["Mr. Lee finished the project by ___.",["he","him","his","himself"],3,"by oneself 表示「獨自」：by himself。","g4"],
+ ["The manager, ___ office is on the fifth floor, will meet you at noon.",["who","whom","whose","which"],2,"空格後面接名詞 office（他的辦公室），用所有格 whose。","g4"]
+];
+
+/* ---------- 4 堂解題技巧課（安安老師・教練語氣） ---------- */
+const T1_CLASS = {
+g1:[
+ {say:"大家好，我是安安。多益 Part 5 大約有三成是詞性題。這類題目不用讀懂整句，只要看空格前後，五秒內就能作答。今天就教你這個技巧。", board:[["Please send your ___ by Friday.",["___"]],["(A) apply (B) application (C) applicable (D) applied",[]]]},
+ {say:"第一步是看選項。如果四個選項是同一個字的不同詞性，像 apply、application、applicable，那就是詞性題，接下來只看空格前後。", board:[["apply / application / applicable / applied",["application"]]]},
+ {say:"名詞的位置：冠詞 a、the 後面，所有格 your、their 後面，以及形容詞後面。例如 {your application}、{final approval}。", board:[["your application",["application"]],["final approval",["approval"]],["the installation of",["installation"]]]},
+ {say:"這個規則請記下來。", chant:"冠詞、所有格、形容詞後面，放名詞。"},
+ {ask:{q:"Please send your ___ to HR by Friday.", opts:["apply","application","applicable"], ans:1,
+   ok:"正確。your 是所有格，後面接名詞 application。", bad:{0:"apply 是動詞，所有格 your 後面要接名詞。",2:"applicable 是形容詞，所有格 your 後面要接名詞。"},
+   again:{q:"The manager gave final ___ for the plan.", opts:["approve","approval","approving"], ans:1, exp:"形容詞 final 後面接名詞 approval。"}}},
+ {say:"形容詞的位置：be 動詞後面，或名詞前面，例如 {The new system is efficient.}。副詞用來修飾動詞、形容詞或整個句子，例如 {respond promptly}、{extremely useful}。", board:[["The new system is efficient.",["efficient"]],["respond promptly",["promptly"]],["extremely useful",["extremely"]]]},
+ {say:"第二條規則。", chant:"修飾名詞用形容詞，修飾動詞和形容詞用副詞。"},
+ {ask:{q:"Ms. Kim responded ___ to the inquiry.", opts:["prompt","promptly","promptness"], ans:1,
+   ok:"沒錯，修飾動詞 responded 要用副詞 promptly。", bad:{0:"prompt 是形容詞，修飾動詞要用副詞。",2:"promptness 是名詞，這裡要修飾動詞，用副詞 promptly。"},
+   again:{q:"The training was ___ useful.", opts:["extreme","extremely","extremity"], ans:1, exp:"修飾形容詞 useful 要用副詞 extremely。"}}},
+ {say:"最後一個常見陷阱：選項有兩個名詞時，要看語意。{attendee} 是出席的人，{attendance} 是出席人數。All ___ must register，會去登記的是人，所以選 attendees。", board:[["attendee → 人",["attendee"]],["attendance → 出席人數",["attendance"]]]},
+ {ask:{say:"最後一題。", q:"All ___ must register at the front desk.", opts:["attendance","attendees","attending"], ans:1,
+   ok:"很好。會去登記的是人，選 attendees。", bad:{0:"attendance 是出席人數，人數不會去登記，要選指人的 attendees。",2:"空格是主詞，要放名詞。"},
+   again:{q:"We need to make a ___ by tomorrow.", opts:["decide","decision","decisive"], ans:1, exp:"冠詞 a 後面接名詞 decision。"}}},
+ {say:"詞性題重點整理：先確認選項是同一個字的不同詞性；冠詞、所有格、形容詞後面放名詞；修飾名詞用形容詞，修飾動詞和形容詞用副詞；兩個名詞時看語意是人還是事。", end:true}
+],
+g2:[
+ {say:"動詞題要看兩件事：時態和語態。先講時態，時態由句子裡的時間線索決定，找到線索就能作答。", board:[["yesterday / last week → 過去式",["yesterday"]],["since / for / already → 現在完成式",["since"]],["next month / soon → will",["next month"]]]},
+ {ask:{q:"Ms. Chen ___ for the company since 2018.", opts:["worked","has worked","will work"], ans:1,
+   ok:"正確。since 加過去時間點，用現在完成式。", bad:{0:"有 since，表示從 2018 年到現在，要用現在完成式。",2:"since 2018 是從過去到現在，不是未來。"},
+   again:{q:"The new policy ___ effect next month.", opts:["took","will take","has taken"], ans:1, exp:"next month 用 will。"}}},
+ {say:"接著是語態。主詞是「被做」的一方，就用被動，也就是 be 加過去分詞。快速判斷法：主詞是物，而且空格後面沒有受詞，八成是被動，例如 {The meeting has been postponed.}", board:[["The meeting has been postponed.",["has been postponed"]],["The report was sent to all managers.",["was sent"]]]},
+ {say:"這條規則很好用。", chant:"主詞是物、後面沒受詞，先考慮被動。"},
+ {ask:{q:"The report ___ to all managers yesterday.", opts:["sent","was sent","has sent"], ans:1,
+   ok:"對，報告是被寄出的，用 was sent。", bad:{0:"報告不會自己寄出去，而且後面沒有受詞，要用被動。",2:"has sent 是主動，而且 yesterday 要用過去式。"},
+   again:{q:"The meeting ___ until next Monday.", opts:["postponed","has been postponed","postponing"], ans:1, exp:"會議是被延期的，用被動 has been postponed。"}}},
+ {say:"第三個重點：時間和條件子句，像 when、if、once、as soon as，要用現在式表示未來。例如 {Once the contract is signed, we will start.}", board:[["Once the contract is signed, we will start.",["is signed"]]]},
+ {ask:{q:"Once the contract ___, we will start the project.", opts:["is signed","will be signed","signed"], ans:0,
+   ok:"正確。Once 子句用現在式表示未來。", bad:{1:"時間或條件子句不用 will，用現在式表示未來。",2:"signed 是主動過去式，合約是被簽的，而且要用現在式。"},
+   again:{q:"As soon as the manager ___, the meeting will begin.", opts:["arrives","will arrive","arrived"], ans:0, exp:"as soon as 引導時間子句，用現在式表示未來。"}}},
+ {say:"兩個常考句型：第一，{look forward to} 後面接 V-ing，因為這裡的 to 是介係詞。第二，recommend、suggest、require 加 that，子句裡用原形動詞，例如 {recommend that he submit}。", board:[["look forward to working",["working"]],["recommend that he submit",["submit"]]]},
+ {ask:{say:"最後一題。", q:"We look forward to ___ with you.", opts:["work","working","worked"], ans:1,
+   ok:"很好。to 是介係詞，後面接 working。", bad:{0:"這裡的 to 是介係詞，不是不定詞，後面要接 V-ing。",2:"介係詞 to 後面要接動名詞 working。"},
+   again:{q:"The consultant recommended that the company ___ more staff.", opts:["hires","hire","hired"], ans:1, exp:"recommend that + 主詞 + 原形動詞。"}}},
+ {say:"動詞題重點整理：找時間線索決定時態；主詞是物、後面沒受詞先考慮被動；時間和條件子句用現在式表示未來；look forward to 接 V-ing；recommend that 子句用原形動詞。", end:true}
+],
+g3:[
+ {say:"這類題目的選項會同時出現連接詞和介係詞，例如 although 和 despite。判斷方法只有一個：看空格後面是完整子句，還是名詞片語。", board:[["Although it rained, ...",["Although","it rained"]],["Despite the rain, ...",["Despite","the rain"]]]},
+ {say:"判斷規則。", chant:"後面有主詞加動詞用連接詞，只有名詞用介係詞。"},
+ {say:"常考的對照組：because 和 because of、although 和 despite、while 和 during。前者接子句，後者接名詞。", board:[["because ↔ because of / due to",["because"]],["although ↔ despite",["although","despite"]],["while ↔ during",["while","during"]]]},
+ {ask:{q:"___ the heavy rain, the conference was held as planned.", opts:["Although","Despite","Because"], ans:1,
+   ok:"正確。the heavy rain 是名詞片語，用介係詞 Despite。", bad:{0:"Although 是連接詞，後面要接完整子句。",2:"Because 是連接詞，而且語意也不對：雖然下雨，還是照常舉行。"},
+   again:{q:"Please do not use your phone ___ the presentation.", opts:["while","during"], ans:1, exp:"the presentation 是名詞，用 during。"}}},
+ {say:"再來是 by 和 until：by 是期限，表示在某時間之前完成；until 是持續到某時間。例如 {Submit it by Friday.}、{The office is open until six.}", board:[["Submit it by Friday.",["by"]],["The office is open until six.",["until"]]]},
+ {ask:{q:"Please submit the form ___ Friday.", opts:["until","by","since"], ans:1,
+   ok:"對，by 表示截止期限。", bad:{0:"until 是持續到某時間，交件要用表示期限的 by。",2:"since 表示「自從」，不適合這裡。"},
+   again:{q:"The store is open ___ 9 p.m.", opts:["by","until","since"], ans:1, exp:"營業持續到晚上九點，用 until。"}}},
+ {say:"配對連接詞：both A and B、either A or B、neither A nor B、not only A but also B。注意 either 和 neither 的句型，動詞跟著 B。", board:[["Neither the manager nor the assistants are ...",["assistants","are"]]]},
+ {ask:{q:"Neither the manager nor the assistants ___ available.", opts:["is","are"], ans:1,
+   ok:"正確。動詞跟著 B，也就是複數的 the assistants。", bad:{0:"Neither A nor B 的動詞跟 B 一致，the assistants 是複數。"},
+   again:{q:"The seminar was ___ informative but also fun.", opts:["both","not only","either"], ans:1, exp:"not only A but also B。"}}},
+ {say:"最後一個陷阱：however 和 therefore 是副詞，不能直接連接兩個句子，前面要用分號或句號，例如 {Sales increased; however, profits fell.}", board:[["Sales increased; however, profits fell.",["however"]]]},
+ {ask:{say:"最後一題。", q:"Sales increased; ___, profits fell.", opts:["however","although","despite"], ans:0,
+   ok:"很好，分號後面接副詞 however。", bad:{1:"although 是連接詞，不能放在分號後當轉折副詞。",2:"despite 是介係詞，後面要接名詞。"},
+   again:{q:"___ you have questions, please call me.", opts:["If","Despite","During"], ans:0, exp:"If 引導條件子句。"}}},
+ {say:"連接詞與介係詞重點整理：子句用連接詞，名詞用介係詞；by 是期限，until 是持續；either 和 neither 的動詞看 B；however 前面要用分號或句號。", end:true}
+],
+g4:[
+ {say:"代名詞題考的是「格」，看空格的位置就能決定：名詞前面用所有格，動詞或介係詞後面用受格，主詞和受詞是同一人時用反身代名詞。", board:[["their reports",["their"]],["contact them",["them"]],["She introduced herself.",["herself"]]]},
+ {ask:{q:"The employees submitted ___ reports on time.", opts:["they","their","them"], ans:1,
+   ok:"正確。名詞 reports 前面用所有格 their。", bad:{0:"they 是主格，名詞前面要用所有格。",2:"them 是受格，名詞前面要用所有格 their。"},
+   again:{q:"Please contact ___ if you have questions.", opts:["we","our","us"], ans:2, exp:"動詞後面用受格 us。"}}},
+ {say:"兩個常見陷阱：its 是所有格，it's 是 it is；by oneself 表示「獨自」，例如 {by himself}。", board:[["its policy",["its"]],["it's = it is",[]],["by himself",["himself"]]]},
+ {ask:{q:"The company changed ___ policy.", opts:["it's","its","itself"], ans:1,
+   ok:"對，名詞前面用所有格 its。", bad:{0:"it's 是 it is，名詞前面要用所有格 its。",2:"itself 是反身代名詞，不能放在名詞前面。"},
+   again:{q:"Mr. Lee finished the project by ___.", opts:["him","his","himself"], ans:2, exp:"by oneself 表示獨自。"}}},
+ {say:"關係代名詞：先看先行詞是人還是物，再看後面缺什麼。人用 who，物用 which；後面缺主詞用主格，缺受詞可以用 whom、which 或 that。", board:[["Applicants who have experience ...",["who"]],["The printer which we bought ...",["which"]]]},
+ {say:"解題順序。", chant:"先看人或物，再看後面缺什麼。"},
+ {ask:{q:"Applicants ___ have experience are preferred.", opts:["who","which","whose"], ans:0,
+   ok:"正確。先行詞是人，後面缺主詞，用 who。", bad:{1:"which 指物，Applicants 是人。",2:"whose 後面要接名詞，這裡接的是動詞 have。"},
+   again:{q:"The printer ___ we bought is broken.", opts:["who","which","whose"], ans:1, exp:"先行詞是物，用 which。"}}},
+ {say:"whose 後面一定接名詞，表示「誰的」，例如 {a supplier whose products are reliable}。what 等於 the thing that，前面沒有先行詞，例如 {What we need is more time.}", board:[["a supplier whose products are reliable",["whose"]],["What we need is more time.",["What"]]]},
+ {ask:{say:"最後一題。", q:"We work with a supplier ___ products are reliable.", opts:["which","whose","who"], ans:1,
+   ok:"很好。後面接名詞 products，用所有格 whose。", bad:{0:"which 後面不能直接接名詞表示「它的」，要用 whose。",2:"who 後面不能直接接名詞，要用 whose。"},
+   again:{q:"___ we need now is a larger room.", opts:["That","What","Which"], ans:1, exp:"前面沒有先行詞，用 What 引導名詞子句。"}}},
+ {say:"代名詞重點整理：名詞前用所有格，動詞後用受格，同一人用反身；its 不是 it's；關係代名詞先看人或物，再看缺什麼；whose 接名詞；what 前面沒有先行詞。四堂解題技巧都上完了，接下來用 Part 5 練習和聽力把技巧練熟。", end:true}
+]};
+
+/* ---------- Part 2 聽力應答題庫（原創；第一個選項為正解，播放時會打亂順序） ---------- */
+const T1_LISTEN = [
+ ["When does the meeting start?",["At ten o'clock.","In the conference room.","Yes, it started."],"When 問時間，要回答時間。B 回答地點；C 用 Yes 回答 Wh- 問句，是常見陷阱。"],
+ ["Where is the projector?",["It's in the storage room.","At three p.m.","I project the sales."],"Where 問地點。C 用了發音相近的 project，是重複字陷阱。"],
+ ["Who is leading the presentation?",["Ms. Wang from marketing.","It was very interesting.","On the second floor."],"Who 問人，要回答人。"],
+ ["Why was the meeting postponed?",["Because the manager is sick.","Until next Monday.","In Room B."],"Why 問原因。B 說延到什麼時候，不是原因。"],
+ ["How long will the workshop last?",["About two hours.","It was very useful.","Yes, at the hotel."],"How long 問時間長度。"],
+ ["Could you send me the agenda?",["Sure, I'll e-mail it now.","It's on the agenda.","He sent it to them."],"請求要回答同意或拒絕。B 重複 agenda 是陷阱。"],
+ ["Have you finished the report yet?",["Not yet, I need one more day.","The report is long.","Yes, at the meeting."],"Have you ...? 問有沒有完成，Not yet 是自然的回答。B 重複 report 是陷阱。"],
+ ["Would you like some coffee before the meeting?",["Yes, that would be nice.","The meeting was long.","I like the café downstairs."],"對方提供東西，回答接受或婉拒。"],
+ ["Isn't Mr. Lin attending the conference?",["No, he's on vacation.","The conference room is large.","Yes, I attend school."],"否定疑問句照事實回答：他沒有參加，就說 No。"],
+ ["Should we book a larger room?",["Yes, more people are coming.","He wrote a book.","It's a good book."],"book 在問句裡是動詞「預訂」，B、C 把它當成名詞「書」，是一字多義陷阱。"],
+ ["The printer isn't working again.",["I'll call the technician.","It's on the desk.","He works there."],"直述句說出問題，最自然的回應是提出解決方法。C 的 works 是重複字陷阱。"],
+ ["Which room is the training in?",["Room 305.","It's raining outside.","Yes, the training."],"Which 問哪一個。B 的 raining 和 training 發音相似，是陷阱。"],
+ ["Do you want to meet on Tuesday or Wednesday?",["Wednesday works better for me.","Yes, I do.","I met him yesterday."],"選擇疑問句不能用 Yes 或 No 回答，要選其中一個。"],
+ ["How did the client meeting go?",["It went very well.","By taxi.","At noon."],"How did ... go? 問進行得如何。B 回答交通方式是陷阱。"],
+ ["Who should I send the invoice to?",["The accounting department.","Yes, please send it.","It was sent yesterday."],"Who 問人或單位。"],
+ ["Why don't we take a short break?",["Good idea.","Because it's broken.","In the break room."],"Why don't we ...? 是提議，不是問原因。B 用 Because 回答是陷阱。"],
+ ["When is the deadline for the proposal?",["This Friday.","A new proposal.","In the office."],"When 問時間。"],
+ ["Where should I put these handouts?",["On the table by the door.","Hand them out later.","At two o'clock."],"Where 問地點。B 的 hand 和 handouts 部分重複，是陷阱。"],
+ ["Has the budget been approved?",["Not yet, it's still under review.","A large budget.","He approves of it."],"問是否已核准，回答「還沒，正在審查」。"],
+ ["Can you help me set up the projector?",["Sure, give me a minute.","It's a big project.","He set it."],"請求協助，回答同意。B 的 project 是發音相似陷阱。"],
+ ["How many people will attend the seminar?",["About fifty.","Yes, I'll attend.","Next week."],"How many 問數量。"],
+ ["Didn't you get my e-mail?",["Sorry, I haven't checked it yet.","Yes, I'll mail it.","The e-mail address."],"否定疑問句；A 間接回答「還沒看到」很自然。"],
+ ["Let's review the contract tomorrow morning.",["OK, I'll bring a copy.","It was a good review.","Yes, I contacted him."],"對方提議，回答同意並補充。"],
+ ["Who's in charge of ordering office supplies?",["Kevin usually does it.","In the supply room.","Yes, it's charged."],"Who 問負責人。C 的 charged 是重複字陷阱。"],
+ ["What time does the office close today?",["At six thirty.","It's very close.","On Main Street."],"What time 問時間。B 的 close 當形容詞「近的」，是一字多義陷阱。"],
+ ["Would you mind sharing your notes?",["Not at all. Here you are.","Yes, I share an office.","The notes are long."],"Would you mind ...? 回答 Not at all，表示「不介意、可以」。"],
+ ["Why is the elevator closed?",["It's under maintenance.","On the fifth floor.","Close the door, please."],"Why 問原因，回答「正在維修」。"],
+ ["Is the new manager starting this week or next week?",["Next week, I believe.","Yes, he is.","He's very new."],"選擇疑問句，要選其中一個。"],
+ ["Where can I find the meeting minutes?",["They're on the shared drive.","About ten minutes.","Yes, I found them."],"minutes 這裡是「會議記錄」。B 把 minutes 當成「分鐘」，是一字多義陷阱。"],
+ ["I'm afraid I can't make it to the meeting.",["That's OK. I'll send you the notes.","I made it myself.","The meeting room is large."],"對方說無法出席，回應體諒並提供協助。B 的 made 是重複字陷阱。"]
+];
+
+registerUnit("toeic-office", {
+  name:"多益 單元 1：辦公室與會議",
+  sub:"Part 5 解題技巧：詞性判斷、動詞時態語態、連接詞與介係詞、代名詞與關係詞；Part 2 聽力應答",
+  words:T1_WORDS, grammar:T1_GRAMMAR, quiz:T1_QUIZ, classes:T1_CLASS, listen:T1_LISTEN,
+  noSpell:true, quizName:"Part 5 練習", memoLabel:"🎯 多益重點", bossName:"多益魔王", grammarName:"解題技巧"
+});
+})();
