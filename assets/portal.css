@@ -1,0 +1,91 @@
+/* 入口頁專用樣式（雜誌拼貼風）。許願池 wish/ 不載入這個檔案 */
+:root{--bg:#FBF7EE;--ink:#111111;--muted:#555555;--y:#FFD60A;--panel:#FFFFFF;--sh:#111111;--grid:rgba(17,17,17,.06);--link:#7A5C00}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#141414;--ink:#F5F1E6;--muted:#B5B0A2;--panel:#1E1E1E;--sh:#FFD60A;--grid:rgba(245,241,230,.06);--link:#FFD60A;color-scheme:dark}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--bg);color:var(--ink);font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;line-height:1.6;overflow-x:hidden;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px}
+a{color:var(--link)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+@media(prefers-color-scheme:dark){:focus-visible{outline-color:var(--y)}}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 56px}
+
+.hero{padding:44px 0 22px}
+.hero h1{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;font-size:clamp(34px,10vw,64px);line-height:1.08;margin:0 0 14px;letter-spacing:.5px}
+.hero h1 mark{background:var(--y);color:#111;padding:0 8px;display:inline-block;transform:rotate(-1.5deg)}
+.hero p{font-size:18px;font-weight:700;margin:0;max-width:24em}
+
+.box{background:var(--panel);border:3px solid var(--ink);border-radius:12px;box-shadow:6px 6px 0 var(--sh)}
+@media(prefers-color-scheme:dark){.box{border-color:var(--y)}}
+
+h2{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;font-size:22px;margin:40px 0 14px}
+
+/* 網站卡片 */
+.sites{display:grid;grid-template-columns:1fr;gap:18px;margin-top:8px}
+@media(min-width:600px){.sites{grid-template-columns:1fr 1fr}}
+.site{display:flex;flex-direction:column;gap:2px;padding:16px;text-decoration:none;color:#111;min-height:110px;transition:transform .1s,box-shadow .1s;overflow:hidden}
+.site:hover,.site:focus-visible{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--sh)}
+.site:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--sh)}
+.site .lab{align-self:flex-start;font-size:12px;font-weight:900;border:2px solid currentColor;border-radius:99px;padding:0 10px;margin-bottom:6px}
+.site b{font-size:20px}
+.site .d{font-size:14px}
+.site .go{margin-top:auto;padding-top:8px;font-weight:900;font-size:14px}
+.site .pic{display:block;width:calc(100% + 32px);max-width:none;height:auto;margin:-16px -16px 12px;border-bottom:3px solid #00FF66;aspect-ratio:1200/630;object-fit:cover;background:#000}
+.l1{background:#FFB4A2}.l2{background:#B7E4C7}.l3{background:#A2D2FF}
+.l4{background:#111;color:#00FF66}
+.l4 .d{color:#D6F5E2}
+@media(prefers-color-scheme:dark){.l4{border-color:#00FF66}}
+@media(min-width:700px){
+  .sites{grid-template-columns:repeat(3,1fr)}
+  .l4{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1fr;grid-template-areas:"pic lab" "pic b" "pic d" "pic go";grid-template-rows:auto auto auto 1fr;column-gap:20px;align-items:start}
+  .l4 .pic{grid-area:pic;margin:-16px 0 -16px -16px;width:100%;height:calc(100% + 32px);aspect-ratio:auto;border-bottom:0;border-right:3px solid #00FF66;object-fit:cover}
+  .l4 .lab{grid-area:lab;justify-self:start;margin-top:6px}.l4 b{grid-area:b;font-size:26px}.l4 .d{grid-area:d}.l4 .go{grid-area:go;align-self:end;margin-top:0}
+}
+
+/* 願望牆 */
+.wall{display:grid;grid-template-columns:1fr;gap:20px;padding-top:6px}
+@media(min-width:600px){.wall{grid-template-columns:repeat(3,1fr)}}
+.note{position:relative;display:block;padding:20px 14px 14px;background:#FFF3A3;color:#111;text-decoration:none;border:3px solid #111;box-shadow:5px 5px 0 var(--sh);border-radius:6px;transition:transform .15s}
+.note:nth-child(2){background:#FFD6E0}
+.note:nth-child(3){background:#C7F0D8}
+@media(min-width:600px){
+  .note:nth-child(1){transform:rotate(-1.2deg)}.note:nth-child(2){transform:rotate(.8deg)}.note:nth-child(3){transform:rotate(-.6deg)}
+}
+.note:hover,.note:focus-visible{transform:translateY(-4px) rotate(0)}
+.note .v{position:absolute;right:-8px;top:-16px;background:#111;color:var(--y);border-radius:99px;min-width:48px;height:48px;padding:0 8px;display:flex;align-items:center;justify-content:center;font-family:"Archivo Black",sans-serif;font-size:20px;border:3px solid var(--y)}
+.note .t{font-weight:900;word-break:break-word;padding-right:30px}
+.note .m{font-size:13px;margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{font-size:12px;font-weight:900;border:2px solid #111;border-radius:99px;padding:0 8px;background:#fff;color:#111}
+.badge.next{background:var(--y)}
+.badge.doing{background:#A2D2FF}
+.badge.done{background:#B7E4C7}
+.skeleton{min-height:104px;background:transparent;border-style:dashed;box-shadow:none;color:#111;display:flex;align-items:center;justify-content:center;font-weight:700;transform:none!important;background:var(--panel);color:var(--muted);border-color:var(--ink)}
+.skeleton::after{content:"";width:60%;height:10px;border-radius:6px;background:var(--muted);opacity:.25;animation:pulse 1.2s ease-in-out infinite;position:absolute;bottom:18px}
+@keyframes pulse{50%{opacity:.5}}
+.empty{padding:22px 16px;text-align:center;font-weight:700;grid-column:1/-1}
+.empty a{font-weight:900}
+
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;font-weight:900;text-decoration:none;color:var(--ink);background:var(--panel);transition:transform .1s,box-shadow .1s}
+.btn:hover,.btn:focus-visible{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--sh)}
+.btn.acc{background:var(--y);color:#111}
+
+.done-list{padding:6px 16px}
+.done-item{padding:12px 0;border-bottom:2px dashed var(--muted)}
+.done-item:last-child{border:0}
+.done-item .t{font-weight:900;word-break:break-word}
+.done-item .m{font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.done-item .badge{border-color:var(--ink);color:#111}
+
+footer{margin-top:48px;text-align:center;color:var(--muted);font-size:14px}
+
+/* 進場動畫：只用在標題與卡片，使用者關掉動畫就不播 */
+@media(prefers-reduced-motion:no-preference){
+  .hero h1 mark{animation:drop .5s .1s both}
+  .pop{animation:pop .45s both;animation-delay:calc(var(--i,0) * 70ms + 150ms)}
+  @keyframes drop{from{transform:translateY(-14px) rotate(-6deg)}}
+  @keyframes pop{from{transform:translateY(14px)}}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

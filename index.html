@@ -3,51 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vera 的網頁工具箱</title>
+<title>薇拉的聽勸工具箱</title>
 <meta name="description" content="好玩又實用的小網站，想要什麼功能就來許願，票數最高的優先做。">
-<meta property="og:title" content="Vera 的網頁工具箱｜全網最聽勸">
+<meta property="og:title" content="薇拉的聽勸工具箱｜全網最聽勸">
 <meta property="og:description" content="好玩又實用的小網站，想要什麼功能就來許願，票數最高的優先做。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/portal.css">
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <h1>Vera 的網頁工具箱</h1>
-    <p class="lead">好玩又實用的小網站。想要什麼新功能？來許願，<b>票數最高的優先做</b>。</p>
+  <header class="hero">
+    <h1>想玩的<br>點進去，<br>想要的<mark>來許願</mark></h1>
+    <p>薇拉的聽勸工具箱。想要新功能？許個願，<b>票數最高的優先做</b>。</p>
   </header>
 
-  <h2>🙋 全網最聽勸：大家的願望</h2>
-  <div class="card">
-    <div id="topWishes" class="wishes"><div class="empty">載入中⋯⋯</div></div>
-    <div class="row" style="margin-top:14px">
-      <a class="btn acc" href="wish/#new">我要許願</a>
-      <a class="btn" href="wish/">看全部願望 →</a>
+  <main>
+    <div class="sites">
+      <a class="box site l1 pop" style="--i:0" href="restaurant/"><span class="lab">美食</span><b>🍽️ 餐廳推薦投票</b><span class="d">建立聚餐活動，大家一起推薦餐廳、投票決定去哪吃。</span><span class="go">開始揪團 →</span></a>
+      <a class="box site l2 pop" style="--i:1" href="wheel/"><span class="lab">工具</span><b>🎡 隨機大轉盤</b><span class="d">午餐吃什麼、誰去倒垃圾？轉一下就知道。</span><span class="go">轉一下 →</span></a>
+      <a class="box site l3 pop" style="--i:2" href="english/"><span class="lab">學習</span><b>📘 安安英文教室</b><span class="d">國中、高中段考和多益的單字、文法，跟著安安老師上課、闖關。</span><span class="go">進教室 →</span></a>
+      <a class="box site l4 pop" style="--i:3" href="nostrings/"><img class="pic" src="nostrings/og-image.png" alt="NOSTRINGS：黑底螢光綠的 Q 版潮流角色與剪斷的線" width="1200" height="630" loading="lazy"><span class="lab">測驗</span><b>🧵 NOSTRINGS</b><span class="d">測測你是哪一種反骨人格？</span><span class="go">剪斷那條線 →</span></a>
     </div>
-  </div>
-  <div id="recentDone"></div>
 
-  <h2>🧰 我的網站</h2>
-  <div class="sites">
-    <a class="card site" href="restaurant/">
-      <div class="ic">🍽️</div><b>餐廳推薦投票</b>
-      <span>建立聚餐活動，大家一起推薦餐廳、投票決定去哪吃。</span>
-    </a>
-    <a class="card site" href="wheel/">
-      <div class="ic">🎡</div><b>隨機大轉盤</b>
-      <span>午餐吃什麼、誰去倒垃圾？轉一下就知道。</span>
-    </a>
-    <a class="card site" href="english/">
-      <div class="ic">📘</div><b>安安英文教室</b>
-      <span>國中、高中段考和多益的單字、文法，跟著安安老師上課、闖關。</span>
-    </a>
-    <a class="card site" href="nostrings/">
-      <div class="ic">🧵</div><b>NOSTRINGS</b>
-      <span>測測你是哪一種反骨人格？</span>
-    </a>
-  </div>
+    <h2>🙋 全網最聽勸：願望牆</h2>
+    <div id="topWishes" class="wall" aria-live="polite"><div class="box note skeleton">載入中⋯⋯</div></div>
+    <div class="row">
+      <a class="box btn acc" href="wish/#new">我要許願</a>
+      <a class="box btn" href="wish/">看全部願望 →</a>
+    </div>
+
+    <div id="recentDone"></div>
+  </main>
 
   <footer>想要新網站或新功能？<a href="wish/#new">來許願</a></footer>
 </div>
@@ -59,29 +47,29 @@
 (async () => {
   const { esc, SITES, day } = Wish;
   const box = document.getElementById("topWishes");
+  const site = w => SITES[w.site] || { icon: "✨", name: "其他" };
   try {
     const { pending, done } = await Wish.listWishes();
     const top = pending.slice(0, 3);
+    const nextIdx = pending.findIndex(x => x.status === "open");
     box.innerHTML = top.length ? top.map((w, i) => `
-      <div class="wish">
-        <div class="vote" title="${w.votes} 人想要"><span class="n">${w.votes}</span><span class="p">+1</span></div>
-        <div class="body">
-          <div class="t">${esc(w.title)}</div>
-          <div class="meta">
-            ${w.status === "doing" ? '<span class="badge doing">製作中</span>' : i === pending.findIndex(x => x.status === "open") ? '<span class="badge next">下一個要做</span>' : ""}
-            <span>${SITES[w.site].icon} ${esc(SITES[w.site].name)}</span>
-          </div>
+      <a class="note" href="wish/" title="${w.votes} 人想要">
+        <div class="v" aria-label="${w.votes} 人想要">${w.votes}</div>
+        <div class="t">${esc(w.title)}</div>
+        <div class="m">
+          ${w.status === "doing" ? '<span class="badge doing">製作中</span>' : i === nextIdx ? '<span class="badge next">下一個要做</span>' : ""}
+          <span>${site(w).icon} ${esc(site(w).name)}</span>
         </div>
-      </div>`).join("") : `<div class="empty">還沒有人許願，<a href="wish/#new">當第一個吧！</a></div>`;
+      </a>`).join("") : `<div class="box empty">還沒有人許願，<a href="wish/#new">當第一個吧！</a></div>`;
     if (done.length) document.getElementById("recentDone").innerHTML = `
       <h2>🎉 最近完成</h2>
-      <div class="card"><div class="wishes">${done.slice(0, 3).map(w => `
-        <div class="wish"><div class="body">
+      <div class="box done-list">${done.slice(0, 3).map(w => `
+        <div class="done-item">
           <div class="t">${esc(w.title)} <span class="badge done">已完成</span></div>
-          <div class="meta"><span>${SITES[w.site].icon} ${esc(SITES[w.site].name)}</span><span>${day(w.done_at)} 完成</span>${w.done_url ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
-        </div></div>`).join("")}</div></div>`;
+          <div class="m"><span>${site(w).icon} ${esc(site(w).name)}</span><span>${day(w.done_at)} 完成</span>${/^https?:\/\//i.test(w.done_url || "") ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
+        </div>`).join("")}</div>`;
   } catch (e) {
-    box.innerHTML = `<div class="empty">願望暫時載入不了，<a href="wish/">到許願池看看</a></div>`;
+    box.innerHTML = `<div class="box empty">願望暫時載入不了，<a href="wish/">到許願池看看</a></div>`;
   }
 })();
 </script>

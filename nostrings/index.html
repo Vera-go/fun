@@ -156,19 +156,29 @@ input[type=range]{width:100%;accent-color:var(--green);height:28px}
 .bubbles.roll{animation:rollIn .45s cubic-bezier(.2,.8,.2,1)}
 @keyframes rollIn{from{transform:translateY(105%)}to{transform:none}}
 .bub{--hl:radial-gradient(circle at 34% 28%,rgba(255,255,255,.8) 0 9%,rgba(255,255,255,.2) 10% 26%,transparent 27%),radial-gradient(circle at 62% 72%,rgba(0,0,0,.28),transparent 60%);position:relative;aspect-ratio:1;border-radius:50%;border:none;padding:0;background:var(--hl),var(--bc,#00FF66);box-shadow:inset -3px -4px 8px rgba(0,0,0,.35),inset 2px 2px 6px rgba(255,255,255,.25),0 3px 6px rgba(0,0,0,.45);transition:transform .14s cubic-bezier(.3,1.6,.5,1);font-size:11px;font-weight:900;color:#0A0A0A;line-height:1.1;overflow:visible;-webkit-tap-highlight-color:transparent}
-.bub.press{transform:scale(.88,.78)}
+.bub.press{transform:scale(.9,.82);transition-duration:.3s;transition-timing-function:ease-out}
+/* 戳掉煩惱：每個煩惱一種顏色（同樣的明度與柔和度，避開金色和彩虹） */
+.w0{--bc:#6FD6C4}.w1{--bc:#84B4F5}.w2{--bc:#B79CF2}.w3{--bc:#F59CC0}.w4{--bc:#F5A58A}.w5{--bc:#9BE08F}
+.bubwrap.soft .w0{--bc:#86C5BB}.bubwrap.soft .w1{--bc:#94B0DA}.bubwrap.soft .w2{--bc:#B0A4DB}.bubwrap.soft .w3{--bc:#E0B0C4}.bubwrap.soft .w4{--bc:#E3B09F}.bubwrap.soft .w5{--bc:#A8CFA0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--bc);margin-right:4px;vertical-align:baseline}
 .bub.gold{--bc:#FFD23F;animation:shine 1.4s infinite}
 .bub.rainbow{background:var(--hl),conic-gradient(#ff4d6d,#ffe600,#00ff66,#3da5ff,#b026ff,#ff4d6d);animation:shine 1.4s infinite}
 @keyframes shine{50%{filter:brightness(1.35) saturate(1.2)}}
-.bub.pop{background:repeating-linear-gradient(35deg,#1b1b1b 0 3px,#242424 3px 6px);box-shadow:inset 0 0 0 2px #2b2b2b;transform:scale(.8);color:transparent;animation:popflat .2s ease-out}
-@keyframes popflat{0%{transform:scale(1.18)}100%{transform:scale(.8)}}
+.bub.pop{background:radial-gradient(circle at 50% 58%,#121212 0 50%,#1c1c1c 100%);box-shadow:inset 0 3px 8px rgba(0,0,0,.7),inset 0 -1px 0 rgba(255,255,255,.06);transform:scale(.82);color:transparent;animation:popjelly .5s ease-out}
+@keyframes popjelly{0%{transform:scale(.9,.82)}30%{transform:scale(1.1,1.12)}60%{transform:scale(.78,.76)}100%{transform:scale(.82)}}
 .fx{position:absolute;left:50%;top:50%;pointer-events:none;z-index:2}
-.fx.ring{width:100%;height:100%;border:3px solid var(--fxc);border-radius:50%;transform:translate(-50%,-50%) scale(.6);animation:ring .45s ease-out forwards}
-@keyframes ring{to{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
-.fx.bit{width:7px;height:7px;border-radius:2px;background:var(--fxc);transform:translate(-50%,-50%);animation:bit .55s ease-out forwards}
-@keyframes bit{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(200deg);opacity:0}}
-.fx.bye{font-size:15px;font-weight:900;color:#fff;white-space:nowrap;transform:translate(-50%,-50%);animation:bye .9s ease-out forwards}
+.fx.ring{width:100%;height:100%;border:2px solid var(--fxc);border-radius:50%;opacity:.6;transform:translate(-50%,-50%) scale(.7);animation:ring .8s ease-out forwards}
+@keyframes ring{to{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
+.fx.bit{width:5px;height:5px;border-radius:50%;background:var(--fxc);opacity:.85;transform:translate(-50%,-50%);animation:bit .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes bit{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)));opacity:0}}
+.fx.bye{font-size:15px;font-weight:900;color:#fff;white-space:nowrap;transform:translate(-50%,-50%);animation:bye 1.3s ease-out forwards}
 @keyframes bye{to{transform:translate(-50%,-190%);opacity:0}}
+/* 柔和模式：低飽和藍綠，特殊泡泡閃得更慢 */
+.bubwrap.soft{--bc:#7FD1C4;background:#141c24;border-color:#2a3a48}
+.bubwrap.soft .bub.gold,.bubwrap.soft .bub.rainbow{animation-duration:3s}
+.ftop .mute + .mute{margin-left:0}
+.bubbles.roll{animation-duration:.9s;animation-timing-function:cubic-bezier(.25,.7,.25,1)}
+.bubbles.roll.fast{animation-duration:.35s}
 .popcount{display:flex;gap:16px;font-size:13px;color:var(--muted);justify-content:center}
 .popcount b{color:var(--text);font-variant-numeric:tabular-nums}
 .worry{display:flex;gap:8px}
@@ -350,37 +360,46 @@ async function copyLink(){
 let actx = null, noiseBuf = null;
 function audio(){
   if(S.mute) return null;
-  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  if(!actx){
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    actx.master = actx.createGain(); actx.master.gain.value = .5;   // 整體音量調小，睡前也能玩
+    actx.master.connect(actx.destination);
+  }
   if(actx.state === "suspended") actx.resume();
   if(!noiseBuf){   // 一小段快速衰減的白噪音，當作塑膠破掉的「啵」
-    const len = Math.floor(actx.sampleRate * .06);
+    const len = Math.floor(actx.sampleRate * .08);
     noiseBuf = actx.createBuffer(1, len, actx.sampleRate);
     const d = noiseBuf.getChannelData(0);
     for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
   }
   return actx;
 }
+// 手指滑過連戳時，音高沿著五聲音階起伏；停下來超過 0.4 秒就從頭開始
+const SCALE = [0, 2, 4, 7, 9, 12, 9, 7, 4, 2];
+let scaleStep = 0, lastPopAt = 0;
 function popSound(special){
   try{
     const a = audio(); if(!a) return;
-    const t = a.currentTime;
-    // 啵：帶通濾波的噪音，每次音高都不太一樣
+    const t = a.currentTime, now = Date.now();
+    scaleStep = now - lastPopAt < 400 ? (scaleStep + 1) % SCALE.length : 0; lastPopAt = now;
+    const k = Math.pow(2, SCALE[scaleStep] / 12);
+    // 啵：低通濾波的噪音，圓潤一點，每次音高都不太一樣
     const n = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
     n.buffer = noiseBuf; n.playbackRate.value = .85 + Math.random() * .3;
-    f.type = "bandpass"; f.frequency.value = 1400 + Math.random() * 1600; f.Q.value = 1.4;
-    g.gain.setValueAtTime(.9, t); g.gain.exponentialRampToValueAtTime(.001, t + .06);
-    n.connect(f).connect(g).connect(a.destination); n.start(t);
-    // 底下一點點低音，聽起來比較「實」
+    f.type = "lowpass"; f.frequency.value = (900 + Math.random() * 600) * k; f.Q.value = 1.1;
+    g.gain.setValueAtTime(.7, t); g.gain.exponentialRampToValueAtTime(.001, t + .08);
+    n.connect(f).connect(g).connect(a.master); n.start(t);
+    // 底下的低音，聽起來比較「實」
     const o = a.createOscillator(), og = a.createGain();
-    o.frequency.setValueAtTime(170 + Math.random() * 60, t); o.frequency.exponentialRampToValueAtTime(60, t + .05);
-    og.gain.setValueAtTime(.3, t); og.gain.exponentialRampToValueAtTime(.001, t + .06);
-    o.connect(og).connect(a.destination); o.start(t); o.stop(t + .07);
+    o.frequency.setValueAtTime((150 + Math.random() * 40) * k, t); o.frequency.exponentialRampToValueAtTime(55 * k, t + .07);
+    og.gain.setValueAtTime(.35, t); og.gain.exponentialRampToValueAtTime(.001, t + .09);
+    o.connect(og).connect(a.master); o.start(t); o.stop(t + .1);
     // 特殊泡泡：再加一段叮叮叮
     if(special) [0, 4, 7, 12].forEach((s, i) => {
       const o2 = a.createOscillator(), g2 = a.createGain(), st = t + .04 + i * .07;
       o2.frequency.value = (special === "rainbow" ? 660 : 523) * Math.pow(2, s / 12);
       g2.gain.setValueAtTime(0, st); g2.gain.linearRampToValueAtTime(.16, st + .01); g2.gain.exponentialRampToValueAtTime(.001, st + .35);
-      o2.connect(g2).connect(a.destination); o2.start(st); o2.stop(st + .4);
+      o2.connect(g2).connect(a.master); o2.start(st); o2.stop(st + .4);
     });
   }catch(e){}
 }
@@ -579,18 +598,33 @@ function updateCalc(weekly){
 
 /* 泡泡紙：隨便戳／戳掉煩惱／30 秒挑戰／深呼吸 */
 const BUBS = 42;
+const WORRY_MAX = 6;   // 泡泡上的字數上限（兩行、每行 3 字）
 let ch = null, breath = null, pressEl = null, dragging = false;
 function popStats(){
   const p = S.pops || (S.pops = {date:"", today:0, total:0}), d = new Date().toDateString();
   if(p.date !== d){ p.date = d; p.today = 0; }
   return p;
 }
+// 泡泡上最多 6 個字；超過 3 個字就平均分成兩行
+function bubText(w){
+  const c = Array.from(w).slice(0, WORRY_MAX);
+  if(c.length <= 3) return esc(c.join(""));
+  const k = Math.ceil(c.length / 2);
+  return esc(c.slice(0, k).join("")) + "<br>" + esc(c.slice(k).join(""));
+}
 function sheetHtml(){
   const words = view.mode === "worry" ? (view.words || []) : [];
-  return Array.from({length:BUBS}, (_, i) => {
-    const r = Math.random(), sp = r < 1 / 45 ? " rainbow" : r < 1 / 22 ? " gold" : "";
-    const w = words.length ? words[i % words.length] : "";
-    return `<button class="bub${sp}" data-b="${i}" aria-label="泡泡">${w ? esc(w.slice(0, 4)) : ""}</button>`;
+  // 特殊泡泡：每張固定放幾顆（柔和模式較少），位置隨機，不寫字
+  const spec = new Map(), pick = () => { let i; do{ i = Math.floor(Math.random() * BUBS); }while(spec.has(i)); return i; };
+  for(let n = 0; n < (S.soft ? 1 : 2); n++) spec.set(pick(), "gold");
+  if(!S.soft || Math.random() < .5) spec.set(pick(), "rainbow");
+  // 煩惱平均分配後打亂，不要排成直條紋
+  const seq = Array.from({length:BUBS}, (_, i) => words.length ? i % words.length : -1);
+  for(let i = seq.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [seq[i], seq[j]] = [seq[j], seq[i]]; }
+  return seq.map((wi, i) => {
+    const sp = spec.get(i);
+    if(sp) return `<button class="bub ${sp}" data-b="${i}" aria-label="特殊泡泡"></button>`;
+    return `<button class="bub${wi >= 0 ? ` w${wi}` : ""}" data-b="${i}" aria-label="泡泡">${wi >= 0 ? bubText(words[wi]) : ""}</button>`;
   }).join("");
 }
 function renderFidget(){
@@ -603,52 +637,73 @@ function renderFidget(){
       <div id="bctl" style="text-align:center"><button class="btn acc" id="breathStart">開始</button></div>`;
   }else{
     if(mode === "worry") body += `<div class="card"><p style="margin-top:0">${esc(F.worryLead)}</p>
-      <div class="worry"><input id="worryIn" maxlength="12" placeholder="${esc(F.worryPlaceholder)}" aria-label="讓你煩的事"><button class="btn acc" id="worryAdd">寫上去</button></div>
+      <div class="worry"><input id="worryIn" maxlength="${WORRY_MAX}" placeholder="${esc(F.worryPlaceholder)}" aria-label="讓你煩的事"><button class="btn acc" id="worryAdd">寫上去</button></div>
       <div class="chips" style="margin-top:10px">${F.worryChips.map(w => `<button class="chip" data-worry="${esc(w)}">${esc(w)}</button>`).join("")}</div>
-      ${(view.words || []).length ? `<p class="small" style="margin-bottom:0">要戳掉的：${view.words.map(esc).join("、")}　<a href="#" id="worryClear">清空</a></p>` : ""}
+      ${(view.words || []).length ? `<p class="small" style="margin-bottom:0">要戳掉的：${view.words.map((w, i) => `<span class="w${i}" style="white-space:nowrap"><i class="dot"></i>${esc(w)}</span>`).join(" ")} <a href="#" id="worryClear" style="margin-left:6px">清空</a></p>` : ""}
       <p class="small muted" style="margin-bottom:0">${esc(F.worryNote)}</p></div>`;
     if(mode === "ch") body += `<div class="card"><p class="small muted" style="margin-top:0">${esc(F.challengeLead)}</p>
       <div class="timer"><i id="tbar" style="width:100%"></i></div>
       <div class="fscore"><b id="cnt">0</b><span class="muted">最佳紀錄 <b id="bestv" style="font-size:18px">${S.best || 0}</b></span></div>
       <div id="chCtl"><button class="btn acc big" id="chStart">開始</button></div></div>`;
-    body += `<div class="bubwrap"><div class="bubbles" id="bubbles">${sheetHtml()}</div></div>
+    body += `<div class="bubwrap${S.soft ? " soft" : ""}"><div class="bubbles" id="bubbles">${sheetHtml()}</div></div>
       <div class="popcount"><span>${esc(F.today)} <b id="ptoday">${p.today}</b></span><span>${esc(F.total)} <b id="ptotal">${p.total}</b></span></div>`;
   }
   app.innerHTML = `<h1>${esc(F.title)}</h1><p class="muted">${esc(F.lead)}</p>
     <div class="ftop">${modes.map(([k, n]) => `<button class="chip ${mode === k ? "on" : ""}" data-mode="${k}">${esc(n)}</button>`).join("")}
+      ${mode === "breath" ? "" : `<button class="mute" id="softBtn" aria-pressed="${!!S.soft}">${S.soft ? "🌙 柔和：開" : "🌙 柔和：關"}</button>`}
       <button class="mute" id="muteBtn" aria-label="音效開關">${S.mute ? "🔇 靜音" : "🔊 音效"}</button></div>
     ${body}`;
   if(mode === "ch") document.querySelectorAll(".bub").forEach(b => b.disabled = true);
 }
 function burst(el, special, word){
-  const fxc = special === "gold" ? "#FFD23F" : special === "rainbow" ? ["#ff4d6d", "#ffe600", "#3da5ff", "#b026ff"][Math.floor(Math.random() * 4)] : "#00FF66";
+  const soft = !!el.closest(".bubwrap.soft");
+  const own = /\bw\d\b/.test(el.className) ? getComputedStyle(el).getPropertyValue("--bc").trim() : "";   // 煩惱泡泡：碎片用自己的顏色
+  const fxc = special === "gold" ? "#FFD23F" : special === "rainbow" ? ["#ff4d6d", "#ffe600", "#3da5ff", "#b026ff"][Math.floor(Math.random() * 4)] : own || (soft ? "#A8EBE0" : "#00FF66");
   const add = (cls, style, text = "") => { const s = document.createElement("span"); s.className = "fx " + cls; s.style.cssText = `--fxc:${fxc};` + style; s.textContent = text; el.appendChild(s); setTimeout(() => s.remove(), 950); };
   add("ring", "");
-  const n = special ? 14 : 6;
+  const n = special ? 10 : 4;
   for(let i = 0; i < n; i++){
-    const a = Math.PI * 2 * i / n + Math.random() * .5, r = (special ? 46 : 28) + Math.random() * 20;
+    const a = Math.PI * 2 * i / n + Math.random() * .5, r = (special ? 40 : 24) + Math.random() * 16;
     add("bit", `--dx:${(Math.cos(a) * r).toFixed(0)}px;--dy:${(Math.sin(a) * r).toFixed(0)}px;${special === "rainbow" ? `background:${["#ff4d6d", "#ffe600", "#00ff66", "#3da5ff", "#b026ff"][i % 5]};` : ""}`);
   }
   if(word) add("bye", "", C.fidget.bye);
 }
-function popBubble(el){
+// 特殊泡泡的連鎖效果：金色＝周圍 8 顆依序破掉；彩虹＝整排像波浪一樣破掉
+function chainPop(el, special){
+  const all = [...document.querySelectorAll(".bub")], i = all.indexOf(el), cols = 6;
+  if(i < 0) return;
+  const r = Math.floor(i / cols), c = i % cols;
+  const near = special === "gold"
+    ? [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].map(([dr, dc]) => [r + dr, c + dc])
+    : Array.from({length:cols}, (_, cc) => [r, cc]);
+  near.filter(([rr, cc]) => rr >= 0 && cc >= 0 && cc < cols && rr * cols + cc < all.length && !(rr === r && cc === c))
+    .sort((a, b) => Math.abs(a[1] - c) + Math.abs(a[0] - r) - Math.abs(b[1] - c) - Math.abs(b[0] - r))
+    .forEach(([rr, cc], k) => setTimeout(() => { const b = all[rr * cols + cc]; if(b.isConnected) popBubble(b, true); }, 90 + k * 75));
+}
+function popBubble(el, chained){
   if(!el || el.disabled || el.classList.contains("pop")) return;
   const special = el.classList.contains("rainbow") ? "rainbow" : el.classList.contains("gold") ? "gold" : "";
   const word = el.textContent.trim();
   el.classList.remove("press", "gold", "rainbow"); el.classList.add("pop");
-  popSound(special); buzz(special ? [15, 30, 15] : 10);
+  popSound(special); buzz(special ? [10, 25, 10] : 6);
   burst(el, special, word);
-  if(special) toast(C.fidget[special]);
+  if(special && !S.soft) toast(C.fidget[special]);   // 柔和模式不彈提示
+  if(special && !chained && !(ch && ch.running)) chainPop(el, special);   // 挑戰模式不連鎖，計分才公平
   const p = popStats(); p.today++; p.total++; save();
   const td = $("#ptoday"), tt = $("#ptotal"); if(td){ td.textContent = p.today; tt.textContent = p.total; }
   if([100, 500, 1000, 5000, 10000].includes(p.total)) setTimeout(() => toast(fill(C.fidget.milestone, {n:p.total})), 300);
   if(ch && ch.running){ ch.n += special ? 3 : 1; $("#cnt").textContent = ch.n; }   // 挑戰時特殊泡泡算 3 個
   const all = document.querySelectorAll(".bub");
-  if([...all].every(b => b.classList.contains("pop"))) setTimeout(newSheet, ch && ch.running ? 80 : 450);
+  if([...all].every(b => b.classList.contains("pop"))){
+    const fast = ch && ch.running;
+    if(!fast && C.fidget.nextSheet) setTimeout(() => toast(C.fidget.nextSheet), 200);
+    setTimeout(newSheet, fast ? 80 : 900);   // 平常多停一下，讓人喘口氣；挑戰時維持很快
+  }
 }
 function newSheet(){   // 新的一張從下面捲上來
   const g = $("#bubbles"); if(!g) return;
-  g.innerHTML = sheetHtml(); g.classList.remove("roll"); void g.offsetWidth; g.classList.add("roll");
+  g.innerHTML = sheetHtml(); g.classList.remove("roll", "fast"); void g.offsetWidth;
+  g.classList.add("roll"); if(ch && ch.running) g.classList.add("fast");
 }
 function startChallenge(){
   newSheet();
@@ -670,7 +725,7 @@ function finishChallenge(){
     <div class="row"><button class="btn acc" id="shareScore" data-n="${n}">分享成績</button><button class="btn" id="chStart">再挑戰</button></div>`;
 }
 function addWorry(w){
-  w = String(w || "").trim(); if(!w) return;
+  w = Array.from(String(w || "").trim()).slice(0, WORRY_MAX).join(""); if(!w) return;
   view.words = [...(view.words || []).filter(x => x !== w), w].slice(-6);
   render();
 }
@@ -736,6 +791,12 @@ document.addEventListener("click", e => {
   if(t.id === "ctrReset"){ const c = S.counter, d = Math.floor((Date.now() - c.start) / 864e5); S.counter = {start:Date.now(), best:Math.max(c.best || 0, d)}; save(); toast("重新開始也是一種反抗"); return render(); }
   if(t.dataset.mode){ stopChallenge(); stopBreath(); view.mode = t.dataset.mode; return render(); }
   if(t.id === "muteBtn"){ S.mute = !S.mute; save(); t.textContent = S.mute ? "🔇 靜音" : "🔊 音效"; return; }
+  if(t.id === "softBtn"){
+    S.soft = !S.soft; save();
+    t.textContent = S.soft ? "🌙 柔和：開" : "🌙 柔和：關"; t.setAttribute("aria-pressed", String(!!S.soft));
+    const w = $(".bubwrap"); if(w) w.classList.toggle("soft", !!S.soft);
+    return;
+  }
   if(t.dataset.worry) return addWorry(t.dataset.worry);
   if(t.id === "worryAdd") return addWorry($("#worryIn").value);
   if(t.id === "worryClear"){ e.preventDefault(); view.words = []; return render(); }

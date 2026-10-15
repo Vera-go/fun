@@ -197,6 +197,7 @@ window.NS = {
     modeFree: "隨便戳",
     modeWorry: "戳掉煩惱",
     modeBreath: "深呼吸",
+    nextSheet: "深呼吸，再來一張",
     worryLead: "把讓你煩的事寫上去，一顆一顆戳掉。",
     worryPlaceholder: "例如：數學考卷",
     worryChips: ["考試", "作業", "被念", "早起", "壞運氣", "煩人的訊息"],
@@ -240,6 +241,6 @@ window.NS = {
       {name: "毒防中心諮詢專線", tel: "0800-770-885", note: "擔心碰到加料的東西，24 小時"}
     ],
     school: "也可以直接去學校輔導室，聊什麼都可以。",
-    disclaimer: "NOSTRINGS 是一個小工具，沒辦法取代輔導或醫療。"
+    disclaimer: "NOSTRINGS 是一個小工具，沒辦法取代輔導或醫療。如果內容有錯，歡迎到首頁的「許願池」告訴我，會立即修改。"
   }
 };
