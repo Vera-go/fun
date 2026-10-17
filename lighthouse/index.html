@@ -33,17 +33,13 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
 .wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:40px;display:block}
 .scene{overflow:visible}
 
-/* 放天燈：有個人把它舉起放手，燈才慢慢飄向夜空深處。
-   外層只負責平滑地飄遠＋縮小（單一緩動曲線，不分段），內層負責輕輕搖曳，兩層疊加才不會卡卡的 */
+/* 放紙飛機：有個人把它丟出去，紙飛機才慢慢飄向夜空深處。
+   外層只負責平滑地飄遠＋縮小（單一緩動曲線，不分段），內層負責輕輕搖晃機身，兩層疊加才不會卡卡的 */
 .lantern{position:absolute;bottom:92px;display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:5;
   animation:driftOut var(--dur,10s) ease-in-out forwards}
-.lantern .lwrap{position:relative;width:30px;height:38px;animation:sway var(--swayDur,1.9s) ease-in-out infinite alternate}
-.lantern .lglow{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,214,140,.75) 0%,rgba(255,170,90,.3) 55%,rgba(255,170,90,0) 100%);
-  filter:blur(3px);animation:flicker 1.1s ease-in-out infinite alternate}
-.lantern .balloon{position:absolute;left:0;top:0;width:30px;height:38px;
-  clip-path:polygon(50% 0%,92% 30%,80% 100%,20% 100%,8% 30%);
-  background:radial-gradient(ellipse at 50% 68%,#fff3c4 0%,#ffcf6b 32%,#ef7f52 66%,#b8463e 100%)}
+.lantern .lwrap{position:relative;width:42px;height:26px;animation:sway var(--swayDur,1.9s) ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.45))}
+.lantern .lwrap svg{width:100%;height:100%;display:block}
 .lantern .label{font-size:12px;color:#ffe9b8;white-space:normal;opacity:.92;max-width:100px;text-align:center;text-wrap:balance;text-shadow:0 1px 4px rgba(0,0,0,.4)}
 @keyframes driftOut{
   0%{transform:translate(0,0) scale(.55);opacity:0}
@@ -51,11 +47,10 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
   85%{opacity:1}
   100%{transform:translate(var(--mx,30vw),var(--my,-62px)) scale(.14);opacity:0}
 }
-@keyframes sway{from{transform:rotate(-5deg) translateY(0)}to{transform:rotate(5deg) translateY(-5px)}}
-@keyframes flicker{from{transform:scale(1);opacity:.9}to{transform:scale(1.12);opacity:1}}
+@keyframes sway{from{transform:rotate(-7deg) translateY(0)}to{transform:rotate(7deg) translateY(-4px)}}
 
-/* 放飛的人：手舉起來，陪燈起飛，然後慢慢淡出，讓燈自己繼續飄 */
-.releaser{position:absolute;bottom:26px;width:40px;height:62px;pointer-events:none;z-index:4;
+/* 放飛的人：把紙飛機丟出去，然後慢慢淡出，讓紙飛機自己繼續飄 */
+.releaser{position:absolute;bottom:26px;width:48px;height:62px;pointer-events:none;z-index:4;
   animation:releaserFade 5.5s ease-in-out forwards}
 .releaser svg{width:100%;height:100%;display:block}
 @keyframes releaserFade{
@@ -64,10 +59,6 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
   60%{opacity:1}
   100%{opacity:0;transform:translateY(-2px)}
 }
-
-.spark{position:absolute;width:4px;height:4px;border-radius:50%;background:#ffd877;pointer-events:none;z-index:6;
-  box-shadow:0 0 6px 2px rgba(255,216,119,.8);animation:sparkFly .75s ease-out forwards}
-@keyframes sparkFly{to{transform:translate(var(--sx,0),var(--sy,-30px)) scale(.2);opacity:0}}
 
 .lookup{position:fixed;left:50%;top:252px;transform:translateX(-50%);background:rgba(11,21,38,.6);color:#ffe9b8;
   padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;z-index:30;pointer-events:none;
@@ -86,6 +77,7 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
 .navbtn:active{transform:scale(.96)}
 .navbtn.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(242,165,60,.45)}
 .navicon{width:17px;height:17px;vertical-align:-3px;margin-right:2px}
+.navbtn[data-view="release"] .navicon{width:22px;height:13.5px;vertical-align:-1px}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px 22px 26px 24px;padding:22px;margin:16px 0;box-shadow:0 10px 30px rgba(44,59,78,.08)}
 
@@ -183,7 +175,13 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
 
 <div class="wrap">
   <div class="nav">
-    <button class="navbtn" data-view="release"><svg class="navicon" viewBox="0 0 18 22" aria-hidden="true"><defs><linearGradient id="navLanternGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf6b"/><stop offset="1" stop-color="#d8694f"/></linearGradient></defs><polygon points="9,0 16,5 14,22 4,22 2,5" fill="url(#navLanternGrad)" stroke="#fff8ef" stroke-width="1.4" stroke-linejoin="round"/></svg> 放飛煩惱</button>
+    <button class="navbtn" data-view="release"><svg class="navicon" viewBox="0 0 64 40" aria-hidden="true">
+      <polygon points="62,20 2,5 20,20" fill="#fefbf2"/>
+      <polygon points="62,20 20,20 2,33" fill="#cdbd9c"/>
+      <polygon points="62,20 20,20 42,13" fill="#e9dcc0"/>
+      <polygon points="62,20 2,5 20,20 2,33" fill="none" stroke="#8a7a5c" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M20,20 L42,13" fill="none" stroke="#8a7a5c" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg> 放飛煩惱</button>
     <button class="navbtn" data-view="breath"><svg class="navicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="7.2" opacity=".5"/><circle cx="12" cy="12" r="10.6" opacity=".25"/></svg> 深呼吸</button>
     <button class="navbtn" data-view="reframe"><svg class="navicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-4.9M20 15a8 8 0 0 1-14 4.9"/><path d="M18 2v4h-4M6 22v-4h4"/></svg> 換個角度看</button>
   </div>
@@ -266,31 +264,18 @@ function renderRelease(){
 function fillStr(s, o){ return String(s).replace(/\{(\w+)\}/g, (_, k) => o[k] ?? ""); }
 function showLookup(){
   const el = document.createElement("div");
-  el.className = "lookup"; el.textContent = "↑ 看看上面";
+  el.className = "lookup"; el.textContent = "↑ 抬頭看看";
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2850);
-}
-function spawnSparks(sky, leftPct){
-  for(let i = 0; i < 6; i++){
-    const s = document.createElement("div");
-    s.className = "spark";
-    s.style.left = leftPct + "%"; s.style.bottom = "98px";
-    const a = Math.PI * (0.9 + Math.random() * 1.2), r = 14 + Math.random() * 18;
-    s.style.setProperty("--sx", (Math.cos(a) * r).toFixed(0) + "px");
-    s.style.setProperty("--sy", (-Math.abs(Math.sin(a) * r) - 10).toFixed(0) + "px");
-    s.style.animationDelay = (Math.random() * .15).toFixed(2) + "s";
-    sky.appendChild(s);
-    setTimeout(() => s.remove(), 900);
-  }
 }
 function spawnReleaser(leftPct){
   const sky = document.querySelector(".sky");
   const el = document.createElement("div");
   el.className = "releaser";
   el.style.left = (leftPct - 3) + "%";
-  el.innerHTML = `<svg viewBox="0 0 40 62" aria-hidden="true">
-    <path d="M14 20 C7 13 4 5 2 1" stroke="#20314a" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M26 20 C33 13 36 5 38 1" stroke="#20314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+  el.innerHTML = `<svg viewBox="0 0 48 62" aria-hidden="true">
+    <path d="M14 20 C11 26 10 32 11 38" stroke="#20314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M26 20 C34 16 40 10 45 6" stroke="#20314a" stroke-width="4" fill="none" stroke-linecap="round"/>
     <ellipse cx="20" cy="12" rx="7" ry="8" fill="#20314a"/>
     <path d="M20 19 C11 22 8 38 10 61 L30 61 C32 38 29 22 20 19 Z" fill="#20314a"/>
   </svg>`;
@@ -311,10 +296,15 @@ function spawnLantern(text){
   el.style.setProperty("--mx", mx + "vw");
   el.style.setProperty("--my", my + "px");
   el.style.setProperty("--swayDur", swayDur + "s");
-  el.innerHTML = `<div class="lwrap"><div class="lglow"></div><div class="balloon"></div></div><div class="label">${esc(text)}</div>`;
+  el.innerHTML = `<div class="lwrap"><svg viewBox="0 0 64 40" aria-hidden="true">
+      <polygon points="62,20 2,5 20,20" fill="#fefbf2"/>
+      <polygon points="62,20 20,20 2,33" fill="#cdbd9c"/>
+      <polygon points="62,20 20,20 42,13" fill="#e9dcc0"/>
+      <polygon points="62,20 2,5 20,20 2,33" fill="none" stroke="#8a7a5c" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M20,20 L42,13" fill="none" stroke="#8a7a5c" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg></div><div class="label">${esc(text)}</div>`;
   sky.appendChild(el);
   spawnReleaser(leftPct);
-  spawnSparks(sky, leftPct);
   setTimeout(() => el.remove(), dur * 1000 + 150);
 }
 

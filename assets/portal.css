@@ -30,7 +30,7 @@ h2{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;font-si
 .site:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--sh)}
 .site .lab{align-self:flex-start;font-size:12px;font-weight:900;border:2px solid currentColor;border-radius:99px;padding:0 10px;margin-bottom:6px}
 .site b{font-size:20px}
-.siteicon{width:.85em;height:1.05em;vertical-align:-.2em;margin-right:.1em}
+.siteicon{width:.85em;height:.85em;vertical-align:-.1em;margin-right:.15em}
 .site .d{font-size:14px}
 .site .go{margin-top:auto;padding-top:8px;font-weight:900;font-size:14px}
 .site .pic{display:block;width:calc(100% + 32px);max-width:none;height:auto;margin:-16px -16px 12px;border-bottom:3px solid #00FF66;aspect-ratio:1200/630;object-fit:cover;background:#000}
