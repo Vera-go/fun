@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lighthouse｜不是你的錯</title>
+<meta name="description" content="不用說發生了什麼事，這裡只是讓你喘口氣的地方。">
+<meta property="og:title" content="Lighthouse｜不是你的錯">
+<meta property="og:description" content="你在這裡，不是一個人。先靠岸休息一下。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night1:#0b1526; --night2:#1c3049; --horizon:#3a4f68;
+  --shore:#fbf3e4; --ink:#2c3b4e; --muted:#73839a; --line:#e6dcc5;
+  --acc:#f2a53c; --acc2:#ff8a65; --acc-ink:#36220a; --card:#fffdf8;
+  --help1:#2f6f7e; --help2:#5aa0a8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--shore);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6}
+a{color:inherit}
+h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
+
+/* ---------- 夜空場景 ---------- */
+.sky{position:relative;height:300px;overflow:hidden;background:linear-gradient(180deg,var(--night1) 0%,var(--night2) 70%,var(--horizon) 100%)}
+.stars{position:absolute;inset:0}
+.stars i{position:absolute;display:block;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.5;animation:twinkle 3.6s ease-in-out infinite}
+.scene{position:absolute;left:0;right:0;bottom:26px;height:220px}
+.beamFan{animation:sweep 7s ease-in-out infinite alternate;transform-origin:92px 86px}
+@keyframes sweep{from{transform:rotate(-13deg)}to{transform:rotate(13deg)}}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.85}}
+.wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:40px;display:block}
+.scene{overflow:visible}
+
+/* 放天燈：有個人把它舉起放手，燈才慢慢飄向夜空深處。
+   外層只負責平滑地飄遠＋縮小（單一緩動曲線，不分段），內層負責輕輕搖曳，兩層疊加才不會卡卡的 */
+.lantern{position:absolute;bottom:92px;display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:5;
+  animation:driftOut var(--dur,10s) ease-in-out forwards}
+.lantern .lwrap{position:relative;width:30px;height:38px;animation:sway var(--swayDur,1.9s) ease-in-out infinite alternate}
+.lantern .lglow{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,214,140,.75) 0%,rgba(255,170,90,.3) 55%,rgba(255,170,90,0) 100%);
+  filter:blur(3px);animation:flicker 1.1s ease-in-out infinite alternate}
+.lantern .balloon{position:absolute;left:0;top:0;width:30px;height:38px;
+  clip-path:polygon(50% 0%,92% 30%,80% 100%,20% 100%,8% 30%);
+  background:radial-gradient(ellipse at 50% 68%,#fff3c4 0%,#ffcf6b 32%,#ef7f52 66%,#b8463e 100%)}
+.lantern .label{font-size:12px;color:#ffe9b8;white-space:normal;opacity:.92;max-width:100px;text-align:center;text-wrap:balance;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+@keyframes driftOut{
+  0%{transform:translate(0,0) scale(.55);opacity:0}
+  22%{transform:translate(1vw,-2px) scale(1);opacity:1}
+  85%{opacity:1}
+  100%{transform:translate(var(--mx,30vw),var(--my,-62px)) scale(.14);opacity:0}
+}
+@keyframes sway{from{transform:rotate(-5deg) translateY(0)}to{transform:rotate(5deg) translateY(-5px)}}
+@keyframes flicker{from{transform:scale(1);opacity:.9}to{transform:scale(1.12);opacity:1}}
+
+/* 放飛的人：手舉起來，陪燈起飛，然後慢慢淡出，讓燈自己繼續飄 */
+.releaser{position:absolute;bottom:26px;width:40px;height:62px;pointer-events:none;z-index:4;
+  animation:releaserFade 5.5s ease-in-out forwards}
+.releaser svg{width:100%;height:100%;display:block}
+@keyframes releaserFade{
+  0%{opacity:0;transform:translateY(5px)}
+  12%{opacity:1;transform:translateY(0)}
+  60%{opacity:1}
+  100%{opacity:0;transform:translateY(-2px)}
+}
+
+.spark{position:absolute;width:4px;height:4px;border-radius:50%;background:#ffd877;pointer-events:none;z-index:6;
+  box-shadow:0 0 6px 2px rgba(255,216,119,.8);animation:sparkFly .75s ease-out forwards}
+@keyframes sparkFly{to{transform:translate(var(--sx,0),var(--sy,-30px)) scale(.2);opacity:0}}
+
+.lookup{position:fixed;left:50%;top:252px;transform:translateX(-50%);background:rgba(11,21,38,.6);color:#ffe9b8;
+  padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;z-index:30;pointer-events:none;
+  animation:lookupBounce .9s ease-in-out infinite,lookupFade 2.8s ease forwards}
+@keyframes lookupBounce{0%,100%{margin-top:0}50%{margin-top:-6px}}
+@keyframes lookupFade{0%,75%{opacity:1}100%{opacity:0}}
+
+.hero-text{position:relative;text-align:center;padding:14px 18px 6px;max-width:640px;margin:-6px auto 0}
+.hero-text h1{color:var(--shore);font-size:25px;margin:0 0 8px;font-weight:700;letter-spacing:.02em}
+.hero-text p{color:#cfe0ee;margin:0;min-height:22px;font-size:14.5px;transition:opacity .4s}
+
+/* ---------- 岸上內容 ---------- */
+.wrap{max-width:640px;margin:0 auto;padding:10px 18px 70px;position:relative}
+.nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:22px 0 18px}
+.navbtn{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(60,40,10,.06);transition:transform .15s}
+.navbtn:active{transform:scale(.96)}
+.navbtn.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(242,165,60,.45)}
+.navicon{width:17px;height:17px;vertical-align:-3px;margin-right:2px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px 22px 26px 24px;padding:22px;margin:16px 0;box-shadow:0 10px 30px rgba(44,59,78,.08)}
+
+.btn{border:none;border-radius:999px;padding:11px 18px;font-weight:800;font-size:14px;cursor:pointer;background:var(--line);color:var(--ink)}
+.btn.acc{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 4px 14px rgba(242,165,60,.35)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.chip{border:1.5px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.relInput{display:flex;gap:8px;margin-top:12px}
+.relInput input{flex:1;border-radius:999px;border:1.5px solid var(--line);padding:10px 16px;background:transparent;color:inherit;font-size:15px;transition:border-color .2s}
+.relInput input.shake{animation:shake .4s ease;border-color:var(--acc2)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.relChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.relCount{margin-top:16px;font-size:13.5px;color:var(--muted)}
+.relBye{min-height:20px;margin-top:10px;font-size:14.5px;font-weight:700;color:var(--help1);opacity:0;transition:opacity .4s}
+.relBye.show{opacity:1}
+
+.brWrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 0 6px}
+.brBall{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6d8,#f2a53c 70%);box-shadow:0 0 30px rgba(242,165,60,.35);transition:transform 3.6s ease-in-out;transform:scale(.6)}
+.brBall.in{transform:scale(1.15)}
+.brWord{font-size:17px;font-weight:700}
+.brLeft{font-size:14px;color:var(--muted)}
+
+.reframe{position:relative;min-height:170px;padding-top:6px}
+.rtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.rquote{font-size:44px;color:var(--acc2);opacity:.55;line-height:1;position:relative;top:10px;font-family:Georgia,serif}
+.rfav{border:none;background:transparent;font-size:22px;cursor:pointer;line-height:1;padding:2px 4px;color:var(--acc2)}
+.rline{font-size:17px;font-weight:700;margin:0 0 12px;color:var(--ink)}
+.rreframe{color:var(--muted);margin:0}
+.rctl{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:8px}
+.rctl .mid{display:flex;align-items:center;gap:6px}
+.rdots{font-size:12px;color:var(--muted);letter-spacing:.05em}
+.rfade{animation:fadeUp .45s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.rfavlink{background:transparent;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+.favitem{border-top:1px solid var(--line);padding:12px 0}
+.favitem p{margin:4px 0}
+.favitem .fline{font-weight:700}
+.favitem .freframe{color:var(--muted);font-size:14px}
+.favitem .frow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px}
+
+.helpfab{position:fixed;right:16px;bottom:16px;border:none;border-radius:999px;padding:13px 20px;background:linear-gradient(135deg,var(--help1),var(--help2));color:#fff;font-weight:800;font-size:14px;box-shadow:0 4px 18px rgba(47,111,126,.5);cursor:pointer;z-index:20;animation:pulse 3.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 4px 18px rgba(47,111,126,.5)}50%{box-shadow:0 4px 26px rgba(47,111,126,.85)}}
+dialog{border:none;border-radius:22px;padding:24px;max-width:360px;width:90vw;color:var(--ink);background:var(--card)}
+dialog::backdrop{background:rgba(11,21,38,.6)}
+.hl{border-top:1px solid var(--line);padding:11px 0}
+.hl b{display:block;font-size:15px}
+.hl .tel a{font-weight:900;font-size:18px;color:var(--help1)}
+footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;padding:0 20px}
+</style>
+</head>
+<body>
+<div class="sky">
+  <div class="stars" id="stars"></div>
+  <svg class="scene" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <defs>
+      <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#ffe9b8" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#ffe9b8" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="lampGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff6d8"/>
+        <stop offset="100%" stop-color="#ffcf6b" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="soft" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+        <feGaussianBlur stdDeviation="9"/>
+      </filter>
+    </defs>
+    <g class="beamFan" filter="url(#soft)">
+      <polygon points="92,86 430,-10 430,150" fill="url(#beamGrad)"/>
+    </g>
+    <circle cx="92" cy="86" r="26" fill="url(#lampGlow)"/>
+    <!-- rock -->
+    <path d="M40 220 Q70 180 100 190 Q130 178 160 220 Z" fill="#24364a"/>
+    <!-- tower -->
+    <polygon points="78,210 106,210 100,100 84,100" fill="#f3ead8"/>
+    <polygon points="83,166 101,166 99,150 85,150" fill="#d8694f"/>
+    <rect x="86" y="178" width="5" height="9" rx="1" fill="#b99b6b"/>
+    <rect x="95" y="178" width="5" height="9" rx="1" fill="#b99b6b"/>
+    <!-- lamp room -->
+    <rect x="80" y="76" width="24" height="26" rx="3" fill="#1c3049" stroke="#f3ead8" stroke-width="2"/>
+    <circle cx="92" cy="89" r="7" fill="#ffd877"/>
+    <polygon points="78,76 106,76 92,58" fill="#d8694f"/>
+  </svg>
+  <svg class="wave" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 22 Q50 2 100 20 T200 18 T300 22 T400 16 V40 H0 Z" fill="#fbf3e4"/>
+  </svg>
+  <div class="hero-text">
+    <h1 id="tagline"></h1>
+    <p id="openline"></p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="nav">
+    <button class="navbtn" data-view="release"><svg class="navicon" viewBox="0 0 18 22" aria-hidden="true"><defs><linearGradient id="navLanternGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf6b"/><stop offset="1" stop-color="#d8694f"/></linearGradient></defs><polygon points="9,0 16,5 14,22 4,22 2,5" fill="url(#navLanternGrad)" stroke="#fff8ef" stroke-width="1.4" stroke-linejoin="round"/></svg> 放飛煩惱</button>
+    <button class="navbtn" data-view="breath"><svg class="navicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="7.2" opacity=".5"/><circle cx="12" cy="12" r="10.6" opacity=".25"/></svg> 深呼吸</button>
+    <button class="navbtn" data-view="reframe"><svg class="navicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-4.9M20 15a8 8 0 0 1-14 4.9"/><path d="M18 2v4h-4M6 22v-4h4"/></svg> 換個角度看</button>
+  </div>
+
+  <div id="app" class="card"></div>
+
+  <footer id="foot"></footer>
+</div>
+
+<button class="helpfab" id="helpBtn">🎧 找人聊聊</button>
+<dialog id="helpDlg"></dialog>
+<dialog id="favDlg"></dialog>
+
+<script src="content.js"></script>
+<script>
+const C = window.LH;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $ = s => document.querySelector(s);
+const app = $("#app");
+let view = "release", breath = null;
+let rIdx = (() => { try{ return parseInt(localStorage.getItem("lh_reframe_idx"), 10) || 0; }catch(e){ return 0; } })();
+let rFavs = (() => { try{ return new Set(JSON.parse(localStorage.getItem("lh_reframe_favs")) || []); }catch(e){ return new Set(); } })();
+function saveFavs(){ try{ localStorage.setItem("lh_reframe_favs", JSON.stringify([...rFavs])); }catch(e){} }
+function saveRIdx(){ try{ localStorage.setItem("lh_reframe_idx", rIdx); }catch(e){} }
+
+$("#tagline").textContent = C.site.tagline2;
+document.title = `Lighthouse｜${C.site.tagline}`;
+$("#foot").innerHTML = `<p>⚓ ${esc(C.site.disclaimer)}</p><p><a href="../">🧰 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></p>`;
+
+// 星星：隨機灑在夜空區，閃爍時間錯開
+(function scatterStars(){
+  const el = $("#stars"), n = 46;
+  let html = "";
+  for(let i = 0; i < n; i++){
+    const x = Math.random() * 100, y = Math.random() * 62, d = (Math.random() * 3).toFixed(2), s = (Math.random() * 1.6 + .6).toFixed(2);
+    html += `<i style="left:${x}%;top:${y}%;animation-delay:${d}s;transform:scale(${s})"></i>`;
+  }
+  el.innerHTML = html;
+})();
+
+// 開場語輪流顯示
+(function cycleOpen(){
+  const el = $("#openline"), lines = C.openLines;
+  let i = 0;
+  const show = () => { el.style.opacity = 0; setTimeout(() => { el.textContent = lines[i % lines.length]; el.style.opacity = 1; i++; }, 400); };
+  show(); setInterval(show, 3600);
+})();
+
+function renderNav(){
+  document.querySelectorAll(".navbtn").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+}
+
+function renderRelease(){
+  const R = C.release;
+  app.innerHTML = `<p class="muted small" style="margin-top:0">${esc(R.lead)}</p>
+    <div class="relInput"><input id="relIn" maxlength="14" placeholder="${esc(R.placeholder)}" aria-label="讓你難受的話">
+      <button class="btn acc" id="relSend">${esc(R.send)}</button></div>
+    <div class="relChips">${R.chips.map(w => `<button class="chip" data-rel="${esc(w)}">${esc(w)}</button>`).join("")}</div>
+    <p class="small muted" style="margin-bottom:0">${esc(R.note)}</p>
+    <p class="relBye" id="relBye"></p>`;
+  const send = v => {
+    v = String(v || "").trim();
+    if(!v){
+      const el = $("#relIn"); el.focus(); el.classList.add("shake");
+      setTimeout(() => el.classList.remove("shake"), 420);
+      return;
+    }
+    spawnLantern(v);
+    showLookup();
+    window.scrollTo({top: 0, behavior: "smooth"});
+    const bye = R.byes[Math.floor(Math.random() * R.byes.length)];
+    const byeEl = $("#relBye"); byeEl.textContent = bye; byeEl.classList.add("show");
+    setTimeout(() => byeEl.classList.remove("show"), 3200);
+    $("#relIn").value = "";
+  };
+  $("#relSend").onclick = () => send($("#relIn").value);
+  $("#relIn").addEventListener("keydown", e => { if(e.key === "Enter" && !e.isComposing){ e.preventDefault(); send(e.target.value); } });
+  app.querySelectorAll("[data-rel]").forEach(b => b.addEventListener("click", () => send(b.dataset.rel)));
+}
+function fillStr(s, o){ return String(s).replace(/\{(\w+)\}/g, (_, k) => o[k] ?? ""); }
+function showLookup(){
+  const el = document.createElement("div");
+  el.className = "lookup"; el.textContent = "↑ 看看上面";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2850);
+}
+function spawnSparks(sky, leftPct){
+  for(let i = 0; i < 6; i++){
+    const s = document.createElement("div");
+    s.className = "spark";
+    s.style.left = leftPct + "%"; s.style.bottom = "98px";
+    const a = Math.PI * (0.9 + Math.random() * 1.2), r = 14 + Math.random() * 18;
+    s.style.setProperty("--sx", (Math.cos(a) * r).toFixed(0) + "px");
+    s.style.setProperty("--sy", (-Math.abs(Math.sin(a) * r) - 10).toFixed(0) + "px");
+    s.style.animationDelay = (Math.random() * .15).toFixed(2) + "s";
+    sky.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+  }
+}
+function spawnReleaser(leftPct){
+  const sky = document.querySelector(".sky");
+  const el = document.createElement("div");
+  el.className = "releaser";
+  el.style.left = (leftPct - 3) + "%";
+  el.innerHTML = `<svg viewBox="0 0 40 62" aria-hidden="true">
+    <path d="M14 20 C7 13 4 5 2 1" stroke="#20314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M26 20 C33 13 36 5 38 1" stroke="#20314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="20" cy="12" rx="7" ry="8" fill="#20314a"/>
+    <path d="M20 19 C11 22 8 38 10 61 L30 61 C32 38 29 22 20 19 Z" fill="#20314a"/>
+  </svg>`;
+  sky.appendChild(el);
+  setTimeout(() => el.remove(), 5600);
+}
+function spawnLantern(text){
+  const sky = document.querySelector(".sky");
+  const leftPct = 14 + Math.random() * 8;
+  const dur = (15 + Math.random() * 4).toFixed(2);
+  const mx = (62 + Math.random() * 16).toFixed(0);
+  const my = -(55 + Math.random() * 20).toFixed(0);
+  const swayDur = (2.2 + Math.random() * 1).toFixed(2);
+  const el = document.createElement("div");
+  el.className = "lantern";
+  el.style.left = leftPct + "%";
+  el.style.setProperty("--dur", dur + "s");
+  el.style.setProperty("--mx", mx + "vw");
+  el.style.setProperty("--my", my + "px");
+  el.style.setProperty("--swayDur", swayDur + "s");
+  el.innerHTML = `<div class="lwrap"><div class="lglow"></div><div class="balloon"></div></div><div class="label">${esc(text)}</div>`;
+  sky.appendChild(el);
+  spawnReleaser(leftPct);
+  spawnSparks(sky, leftPct);
+  setTimeout(() => el.remove(), dur * 1000 + 150);
+}
+
+function renderBreath(){
+  const R = C.release;
+  app.innerHTML = `<p class="muted" style="margin-top:0">${esc(R.breathLead)}</p>
+    <div class="brWrap"><div class="brBall" id="brBall"></div><div class="brWord" id="brWord"></div><div class="brLeft" id="brLeft">3:00</div></div>
+    <div id="brCtl" style="text-align:center"><button class="btn acc" id="brStart">開始</button></div>`;
+  $("#brStart").onclick = startBreath;
+}
+function startBreath(){
+  stopBreath();
+  const R = C.release, ball = $("#brBall"), word = $("#brWord"), left = $("#brLeft");
+  breath = {end: Date.now() + 180000, phase: 0};
+  const step = () => { const inhale = breath.phase % 2 === 0; ball.classList.toggle("in", inhale); word.textContent = inhale ? R.inhale : R.exhale; breath.phase++; };
+  step(); breath.iv = setInterval(step, 3600);
+  breath.tick = setInterval(() => {
+    const s = Math.max(0, Math.ceil((breath.end - Date.now()) / 1000));
+    left.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    if(s <= 0) finishBreath();
+  }, 250);
+  $("#brCtl").innerHTML = `<button class="btn ghost" id="brStop">停止</button>`;
+  $("#brStop").onclick = () => { stopBreath(); renderBreath(); };
+}
+function stopBreath(){ if(breath){ clearInterval(breath.iv); clearInterval(breath.tick); breath = null; } }
+function finishBreath(){
+  stopBreath();
+  $("#brBall").classList.remove("in"); $("#brWord").textContent = C.release.breathDone;
+  $("#brCtl").innerHTML = `<button class="btn acc" id="brStart">再來一次</button>`;
+  $("#brStart").onclick = startBreath;
+}
+
+function renderReframe(){
+  const cards = C.reframe.cards, len = cards.length;
+  const idx = () => ((rIdx % len) + len) % len;
+  const draw = () => {
+    const i = idx(), c = cards[i], isFav = rFavs.has(i);
+    app.innerHTML = `<div class="rtop"><p class="muted small" style="margin:0">${esc(C.reframe.lead)}</p>
+        <button class="rfav" id="rFav" aria-label="收藏這句" title="收藏這句">${isFav ? "★" : "☆"}</button></div>
+      <div class="reframe rfade">
+        <div class="rquote">&ldquo;</div>
+        <p class="rline">${esc(c.line)}</p>
+        <p class="rreframe">${esc(c.reframe)}</p>
+      </div>
+      <div class="rctl">
+        <button class="btn ghost" id="rPrev">← 回去看看</button>
+        <span class="mid"><span class="rdots">${i + 1} / ${len}</span></span>
+        <button class="btn acc" id="rNext">繼續往前 →</button>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button class="rfavlink" id="rFavList">★ 看收藏的句子（${rFavs.size}）</button>
+      </div>`;
+    $("#rNext").onclick = () => { rIdx++; saveRIdx(); draw(); };
+    $("#rPrev").onclick = () => { rIdx--; saveRIdx(); draw(); };
+    $("#rFav").onclick = () => { isFav ? rFavs.delete(i) : rFavs.add(i); saveFavs(); draw(); };
+    $("#rFavList").onclick = () => openFavDlg();
+  };
+  draw();
+}
+
+function openFavDlg(){
+  const cards = C.reframe.cards;
+  const favIdx = [...rFavs].sort((a, b) => a - b);
+  $("#favDlg").innerHTML = `<h2 style="margin-top:0">★ 收藏的句子</h2>
+    ${favIdx.length ? favIdx.map(i => `<div class="favitem">
+        <p class="fline">${esc(cards[i].line)}</p>
+        <p class="freframe">${esc(cards[i].reframe)}</p>
+        <div class="frow"><button class="btn" data-goto="${i}">看這句 →</button><button class="rfavlink" data-unfav="${i}">取消收藏</button></div>
+      </div>`).join("") : `<p class="muted small">還沒有收藏的句子，看到喜歡的句子按 ☆ 就可以留下來。</p>`}
+    <button class="btn" id="favClose" style="width:100%;margin-top:14px">關閉</button>`;
+  $("#favDlg").showModal();
+}
+$("#favDlg").addEventListener("click", e => {
+  const t = e.target;
+  if(t.id === "favClose") return $("#favDlg").close();
+  if(t.dataset.goto !== undefined){ rIdx = +t.dataset.goto; saveRIdx(); $("#favDlg").close(); renderReframe(); }
+  if(t.dataset.unfav !== undefined){ rFavs.delete(+t.dataset.unfav); saveFavs(); openFavDlg(); }
+});
+
+function render(){
+  renderNav();
+  if(view !== "breath") stopBreath();
+  if(view === "release") renderRelease();
+  else if(view === "breath") renderBreath();
+  else renderReframe();
+}
+
+document.querySelectorAll(".navbtn").forEach(b => b.addEventListener("click", () => { view = b.dataset.view; render(); }));
+
+// 找人聊聊
+const h = C.help;
+$("#helpBtn").textContent = "🎧 " + h.button;
+$("#helpDlg").innerHTML = `<h2 style="margin-top:0">${esc(h.title)}</h2><p class="muted">${esc(h.lead)}</p>
+  ${h.lines.map(l => `<div class="hl"><b>${esc(l.name)}</b><div class="tel"><a href="tel:${l.tel.replace(/-/g, "")}" style="color:inherit;text-decoration:none">${esc(l.tel)}</a></div><div class="small muted">${esc(l.note)}</div></div>`).join("")}
+  <div class="hl small">${esc(h.school)}</div>
+  <p class="small muted">${esc(h.disclaimer)}</p>
+  <button class="btn" id="helpClose" style="width:100%">關閉</button>`;
+$("#helpBtn").addEventListener("click", () => $("#helpDlg").showModal());
+$("#helpDlg").addEventListener("click", e => { if(e.target.id === "helpClose") $("#helpDlg").close(); });
+
+render();
+</script>
+</body>
+</html>
