@@ -148,6 +148,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
         <feGaussianBlur stdDeviation="9"/>
       </filter>
     </defs>
+    <g transform="translate(-45 0)">
     <g class="beamFan" filter="url(#soft)">
       <polygon points="92,86 430,-10 430,150" fill="url(#beamGrad)"/>
     </g>
@@ -163,6 +164,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
     <rect x="80" y="76" width="24" height="26" rx="3" fill="#1c3049" stroke="#f3ead8" stroke-width="2"/>
     <circle cx="92" cy="89" r="7" fill="#ffd877"/>
     <polygon points="78,76 106,76 92,58" fill="#d8694f"/>
+    </g>
   </svg>
   <svg class="wave" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
     <path d="M0 22 Q50 2 100 20 T200 18 T300 22 T400 16 V40 H0 Z" fill="#fbf3e4"/>
@@ -284,7 +286,7 @@ function spawnReleaser(leftPct){
 }
 function spawnLantern(text){
   const sky = document.querySelector(".sky");
-  const leftPct = 14 + Math.random() * 8;
+  const leftPct = 21 + Math.random() * 8;
   const dur = (15 + Math.random() * 4).toFixed(2);
   const mx = (62 + Math.random() * 16).toFixed(0);
   const my = -(55 + Math.random() * 20).toFixed(0);
