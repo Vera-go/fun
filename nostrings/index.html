@@ -452,24 +452,27 @@ function renderQuiz(){
     app.innerHTML = `<h1>你的 MBTI 是？</h1><p class="muted">選你自己的類型。</p>
       ${Object.entries(fam).map(([k, list]) => `<div class="fam-label">${C.families[k].name}</div>
         <div class="mbti-grid">${list.map(c => `<button data-mbti="${c}" style="--fc:${C.families[k].color}">${c}</button>`).join("")}</div>`).join("")}
-      <div style="margin-top:18px"><button class="btn ghost" data-quick="start" style="width:100%">不知道？回答 4 題幫你判斷</button></div>`;
+      <div style="margin-top:18px"><button class="btn ghost" data-quick="start" style="width:100%">不知道？先答 ${C.mbtiQuick.length} 題判斷類型（之後還有 ${total} 題，共 ${C.mbtiQuick.length + total} 題）</button></div>`;
     return;
   }
   if(q.stage === "quick"){
     const it = C.mbtiQuick[q.i];
     app.innerHTML = `<div class="prog"><i style="width:${q.i / C.mbtiQuick.length * 100}%"></i></div>
-      <div class="small muted">先判斷你的類型 ${q.i + 1} / ${C.mbtiQuick.length}</div>
+      <div class="small muted">先判斷你的類型 ${q.i + 1} / ${C.mbtiQuick.length}（之後還有 ${total} 題，共 ${C.mbtiQuick.length + total} 題）</div>
       <div class="qtext">${esc(it.q)}</div>
-      <div class="opts">${it.a.map(([t, v]) => `<button class="opt" data-qk="${v}">${esc(t)}</button>`).join("")}</div>`;
+      <div class="opts">${it.a.map(([t, v]) => `<button class="opt" data-qk="${v}">${esc(t)}</button>`).join("")}</div>
+      <div style="margin-top:22px;text-align:center"><button class="btn ghost" data-go="home">離開測驗</button></div>`;
     return;
   }
   const it = C.rebelQuiz[q.i];
-  app.innerHTML = `<div class="prog"><i style="width:${q.i / total * 100}%"></i></div>
-    <div class="small muted">${q.code}・第 ${q.i + 1} / ${total} 題</div>
+  const off = q.offset || 0, all = off + total;
+  app.innerHTML = `<div class="prog"><i style="width:${(off + q.i) / all * 100}%"></i></div>
+    <div class="small muted">${q.code}・第 ${off + q.i + 1} / ${all} 題</div>
     <div class="qtext">${esc(it.q)}</div>
-    <div class="opts">${it.a.map(([t, v], k) => `<button class="opt" data-rq="${k}">${esc(t)}</button>`).join("")}</div>`;
+    <div class="opts">${it.a.map(([t, v], k) => `<button class="opt" data-rq="${k}">${esc(t)}</button>`).join("")}</div>
+    <div style="margin-top:22px;text-align:center"><button class="btn ghost" data-go="home">離開測驗</button></div>`;
 }
-function startRebel(code){ view.q = {stage:"rebel", code, i:0, sum:0}; view.code = code; render(); }
+function startRebel(code, offset = 0){ view.q = {stage:"rebel", code, i:0, sum:0, offset}; view.code = code; render(); }
 function answerRebel(k){
   const q = view.q, it = C.rebelQuiz[q.i];
   q.sum += it.a[k][1]; q.i++;
@@ -784,7 +787,7 @@ document.addEventListener("click", e => {
   if(t.dataset.last){ e.preventDefault(); return go("result", {code:S.last.code, score:S.last.score, relay:S.last.relay || []}); }
   if(t.dataset.mbti) return startRebel(t.dataset.mbti);
   if(t.dataset.quick){ view.q = {stage:"quick", i:0, code:""}; return render(); }
-  if(t.dataset.qk){ const q = view.q; q.code += t.dataset.qk; q.i++; if(q.i >= C.mbtiQuick.length){ toast(`你可能是 ${q.code}`); return startRebel(q.code); } return render(); }
+  if(t.dataset.qk){ const q = view.q; q.code += t.dataset.qk; q.i++; if(q.i >= C.mbtiQuick.length){ toast(`你可能是 ${q.code}`); return startRebel(q.code, C.mbtiQuick.length); } return render(); }
   if(t.dataset.rq !== undefined) return answerRebel(+t.dataset.rq);
   if(t.dataset.cardstyle){ S.cardStyle = t.dataset.cardstyle; save(); return render(); }
   if(t.id === "shareCard") return shareImage(C.types[view.code].me ? shareCard(view.code, S.cardStyle || "pop", siteUrl(), relayChain(), view.toName || "") : resultCardSvg(view.code, view.score), `nostrings-${view.code}.png`, fill(C.site.shareText, {code:view.code, name:C.types[view.code].name}));
