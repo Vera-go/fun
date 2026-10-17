@@ -30,6 +30,7 @@ h2{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;font-si
 .site:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--sh)}
 .site .lab{align-self:flex-start;font-size:12px;font-weight:900;border:2px solid currentColor;border-radius:99px;padding:0 10px;margin-bottom:6px}
 .site b{font-size:20px}
+.siteicon{width:.85em;height:1.05em;vertical-align:-.2em;margin-right:.1em}
 .site .d{font-size:14px}
 .site .go{margin-top:auto;padding-top:8px;font-weight:900;font-size:14px}
 .site .pic{display:block;width:calc(100% + 32px);max-width:none;height:auto;margin:-16px -16px 12px;border-bottom:3px solid #00FF66;aspect-ratio:1200/630;object-fit:cover;background:#000}
@@ -37,11 +38,20 @@ h2{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;font-si
 .l4{background:#111;color:#00FF66}
 .l4 .d{color:#D6F5E2}
 @media(prefers-color-scheme:dark){.l4{border-color:#00FF66}}
+.l5{background:#1c3049;color:#f2a53c}
+.l5 .d{color:#cfe0ee}
+.l5 .pic{border-bottom-color:#f2a53c}
+@media(prefers-color-scheme:dark){.l5{border-color:#f2a53c}}
 @media(min-width:700px){
   .sites{grid-template-columns:repeat(3,1fr)}
-  .l4{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1fr;grid-template-areas:"pic lab" "pic b" "pic d" "pic go";grid-template-rows:auto auto auto 1fr;column-gap:20px;align-items:start}
-  .l4 .pic{grid-area:pic;margin:-16px 0 -16px -16px;width:100%;height:calc(100% + 32px);aspect-ratio:auto;border-bottom:0;border-right:3px solid #00FF66;object-fit:cover}
-  .l4 .lab{grid-area:lab;justify-self:start;margin-top:6px}.l4 b{grid-area:b;font-size:26px}.l4 .d{grid-area:d}.l4 .go{grid-area:go;align-self:end;margin-top:0}
+  .l4,.l5{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1fr;grid-template-areas:"pic lab" "pic b" "pic d" "pic go";grid-template-rows:auto auto auto 1fr;column-gap:20px;align-items:start}
+  .l4 .pic,.l5 .pic{grid-area:pic;margin:-16px 0 -16px -16px;width:100%;height:calc(100% + 32px);aspect-ratio:auto;object-fit:cover}
+  .l4 .pic{border-bottom:0;border-right:3px solid #00FF66}
+  .l5 .pic{border-bottom:0;border-right:3px solid #f2a53c}
+  .l4 .lab,.l5 .lab{grid-area:lab;justify-self:start;margin-top:6px}
+  .l4 b,.l5 b{grid-area:b;font-size:26px}
+  .l4 .d,.l5 .d{grid-area:d}
+  .l4 .go,.l5 .go{grid-area:go;align-self:end;margin-top:0}
 }
 
 /* 願望牆 */
