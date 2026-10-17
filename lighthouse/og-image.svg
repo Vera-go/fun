@@ -35,8 +35,11 @@
   <!-- 燈塔整組：往左一點、縮小一點，光束往上打 -->
   <g transform="translate(-70 0) translate(276 610) scale(.84) translate(-276 -610)">
   <!-- 光束 -->
-  <g filter="url(#soft)">
-    <polygon points="276,258 1500,-340 1500,80" fill="url(#beamGrad)"/>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" values="-9 276 258;9 276 258;-9 276 258" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="14s" repeatCount="indefinite"/>
+    <g filter="url(#soft)">
+      <polygon points="276,258 1500,-340 1500,80" fill="url(#beamGrad)"/>
+    </g>
   </g>
   <circle cx="276" cy="258" r="70" fill="url(#lampGlow)"/>
 
