@@ -75,3 +75,5 @@ footer{margin-top:48px;text-align:center;color:var(--muted);font-size:13px}
 details.admin{margin-top:10px}
 .admin-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .admin-bar input{width:auto;flex:1;min-width:140px;padding:5px 8px;font-size:13px}
+.wicon,.wbadge{flex:none;vertical-align:-.2em}
+.wish .meta .wbadge{vertical-align:-.3em}

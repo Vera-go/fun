@@ -21,18 +21,14 @@
 
   <main>
     <div class="sites">
-      <a class="box site l1 pop" style="--i:0" href="restaurant/"><span class="lab">美食</span><b>🍽️ 餐廳推薦投票</b><span class="d">建立聚餐活動，大家一起推薦餐廳、投票決定去哪吃。</span><span class="go">開始揪團 →</span></a>
-      <a class="box site l2 pop" style="--i:1" href="wheel/"><span class="lab">工具</span><b>🐷 暈頭轉向小豬轉盤</b><span class="d">午餐吃什麼、誰去倒垃圾？小豬暈一暈幫你選。</span><span class="go">請小豬轉 →</span></a>
-      <a class="box site l3 pop" style="--i:2" href="english/"><span class="lab">學習</span><b>📘 安安英文教室</b><span class="d">國中、高中段考和多益的單字、文法，跟著安安老師上課、闖關。</span><span class="go">進教室 →</span></a>
-      <a class="box site l4 pop" style="--i:3" href="nostrings/"><img class="pic" src="nostrings/og-image.png" alt="NOSTRINGS：黑底螢光綠的 Q 版潮流角色與剪斷的線" width="1200" height="630" loading="lazy"><span class="lab">測驗</span><b>🧵 NOSTRINGS</b><span class="d">測測你是哪一種反骨人格？</span><span class="go">剪斷那條線 →</span></a>
-      <a class="box site l5 pop" style="--i:4" href="lighthouse/"><img class="pic" src="lighthouse/og-image.svg" alt="Lighthouse：夜空中的燈塔與光束" width="1200" height="630" loading="lazy"><span class="lab">陪伴</span><b><svg class="siteicon" viewBox="0 0 20 20" aria-hidden="true">
-        <polygon points="1,10 10,2 19,10" fill="#d8694f"/>
-        <rect x="4" y="10" width="12" height="8" fill="#f3ead8"/>
-        <rect x="8" y="12" width="4" height="4" fill="#ffd877"/>
-      </svg> Lighthouse</b><span class="d">不是你的錯。這裡很安靜，先靠岸歇一會兒吧。</span><span class="go">靠岸休息 →</span></a>
+      <a class="box site l1 pop" style="--i:0" href="restaurant/"><span class="lab">美食</span><b><span data-badge="restaurant"></span>餐廳推薦投票</b><span class="d">建立聚餐活動，大家一起推薦餐廳、投票決定去哪吃。</span><span class="go">開始揪團 →</span></a>
+      <a class="box site l2 pop" style="--i:1" href="wheel/"><span class="lab">工具</span><b><span data-badge="wheel"></span>暈頭轉向小豬轉盤</b><span class="d">午餐吃什麼、誰去倒垃圾？小豬暈一暈幫你選。</span><span class="go">請小豬轉 →</span></a>
+      <a class="box site l3 pop" style="--i:2" href="english/"><span class="lab">學習</span><b><span data-badge="english"></span>安安英文教室</b><span class="d">國中、高中段考和多益的單字、文法，跟著安安老師上課、闖關。</span><span class="go">進教室 →</span></a>
+      <a class="box site l4 pop" style="--i:3" href="nostrings/"><img class="pic" src="nostrings/og-image.png" alt="NOSTRINGS：黑底螢光綠的 Q 版潮流角色與剪斷的線" width="1200" height="630" loading="lazy"><span class="lab">測驗</span><b><span data-badge="nostrings"></span>NOSTRINGS</b><span class="d">測測你是哪一種反骨人格？</span><span class="go">剪斷那條線 →</span></a>
+      <a class="box site l5 pop" style="--i:4" href="lighthouse/"><img class="pic" src="lighthouse/og-image.svg" alt="Lighthouse：夜空中的燈塔與光束" width="1200" height="630" loading="lazy"><span class="lab">陪伴</span><b><span data-badge="lighthouse"></span>Lighthouse</b><span class="d">不是你的錯。這裡很安靜，先靠岸歇一會兒吧。</span><span class="go">靠岸休息 →</span></a>
     </div>
 
-    <h2>🙋 全網最聽勸：願望牆</h2>
+    <h2><span data-icon="wish" data-size="34"></span>全網最聽勸：願望牆</h2>
     <div id="wishNews" class="wishnews" aria-live="polite"></div>
     <div id="topWishes" class="wall" aria-live="polite"><div class="box note skeleton">載入中⋯⋯</div></div>
     <div class="row">
@@ -47,21 +43,27 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="assets/wish-core.js"></script>
+<script src="assets/icons.js?v=20261018"></script>
+<script src="assets/wish-core.js?v=20261018"></script>
+<script>
+document.querySelectorAll("[data-badge]").forEach(el => { el.innerHTML = SiteIcons.badge(el.dataset.badge, 36); });
+document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcons.icon(el.dataset.icon, +el.dataset.size || 24); });
+</script>
 <script>
 // 入口頁只顯示前 3 個願望和最近完成的 3 個；完整功能在 wish/
 (async () => {
   const { esc, SITES, day } = Wish;
   const box = document.getElementById("topWishes");
-  const site = w => SITES[w.site] || { icon: "✨", name: "其他" };
+  const site = w => SITES[w.site] || { badge: "idea", name: "其他" };
+  const siteTag = w => `${SiteIcons.badge(site(w).badge, 18)} ${esc(site(w).name)}`;
   try {
     const { pending, done, rejected } = await Wish.listWishes();
     // 沒辦法通知提出願望的人，所以回來時提示：自己的願望有新消息、最近有願望完成
     const news = [];
     const mineNews = Wish.authorNews([...pending, ...done, ...rejected]);
-    if (mineNews.length) news.push(`<a class="mine" href="wish/">${Wish.icon("news", 30)}<span>你提出的願望有 ${mineNews.length} 則新消息，去看看 →</span></a>`);
+    if (mineNews.length) news.push(`<a class="mine" href="wish/">${SiteIcons.icon("news", 30)}<span>你提出的願望有 ${mineNews.length} 則新消息，去看看 →</span></a>`);
     const recent = Wish.recentDoneCount(done);
-    if (recent) news.push(`<a href="wish/#doneSection">${Wish.icon("done", 30)}<span>最近 14 天完成了 ${recent} 個願望 →</span></a>`);
+    if (recent) news.push(`<a href="wish/#doneSection">${SiteIcons.icon("done", 30)}<span>最近 14 天完成了 ${recent} 個願望 →</span></a>`);
     document.getElementById("wishNews").innerHTML = news.join("");
     const top = pending.slice(0, 3);
     const nextIdx = pending.findIndex(x => x.status === "open");
@@ -71,15 +73,15 @@
         <div class="t">${esc(w.title)}</div>
         <div class="m">
           ${w.status === "doing" ? '<span class="badge doing">製作中</span>' : i === nextIdx ? '<span class="badge next">下一個要做</span>' : ""}
-          <span>${site(w).icon} ${esc(site(w).name)}</span>
+          <span>${siteTag(w)}</span>
         </div>
       </a>`).join("") : `<div class="box empty">還沒有人許願，<a href="wish/#new">當第一個吧！</a></div>`;
     if (done.length) document.getElementById("recentDone").innerHTML = `
-      <h2>🌸 最近完成</h2>
+      <h2>${SiteIcons.icon("flower", 30)}最近完成</h2>
       <div class="box done-list">${done.slice(0, 3).map(w => `
         <div class="done-item">
           <div class="t">${esc(w.title)} <span class="badge done">已完成</span></div>
-          <div class="m"><span>${site(w).icon} ${esc(site(w).name)}</span><span>${day(w.done_at)} 完成</span>${/^https?:\/\//i.test(w.done_url || "") ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
+          <div class="m"><span>${siteTag(w)}</span><span>${day(w.done_at)} 完成</span>${/^https?:\/\//i.test(w.done_url || "") ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
         </div>`).join("")}</div>`;
   } catch (e) {
     box.innerHTML = `<div class="box empty">願望暫時載入不了，<a href="wish/">到許願池看看</a></div>`;

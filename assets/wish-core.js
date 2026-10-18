@@ -7,14 +7,16 @@
     auth: { persistSession: true, autoRefreshToken: true, storageKey: "restaurant-auth" },
   });
 
+  // badge：網站徽章的名字（見 assets/icons.js）
   const SITES = {
-    restaurant: { name: "餐廳推薦投票", icon: "🍽️" },
-    wheel: { name: "暈頭轉向小豬轉盤", icon: "🐷" },
-    english: { name: "安安英文教室", icon: "📘" },
-    nostrings: { name: "NOSTRINGS 反骨人格", icon: "🧵" },
-    portal: { name: "這個入口／許願池", icon: "🙋" },
-    new: { name: "全新網站點子", icon: "✨" },
+    restaurant: { name: "餐廳推薦投票", badge: "restaurant" },
+    wheel: { name: "暈頭轉向小豬轉盤", badge: "wheel" },
+    english: { name: "安安英文教室", badge: "english" },
+    nostrings: { name: "NOSTRINGS 反骨人格", badge: "nostrings" },
+    portal: { name: "這個入口／許願池", badge: "portal" },
+    new: { name: "全新網站點子", badge: "idea" },
   };
+
   // 需要額外付費才做得出來的功能不收：送出前偵測這些字眼提醒
   const PAID_HINTS = ["付費", "收費", "訂閱", "金流", "刷卡", "信用卡", "簡訊", "發票", "會員費", "廣告費", "買斷", "主機費", "app store", "google play"];
   const paidHint = text => PAID_HINTS.find(w => text.toLowerCase().includes(w));
@@ -62,15 +64,6 @@
   }
   /** 最近 days 天內完成的願望數 */
   const recentDoneCount = (done, days = 14) => done.filter(w => w.done_at && Date.now() - new Date(w.done_at).getTime() < days * 864e5).length;
-
-  // 自己畫的小圖示（粗黑邊貼紙風，向量圖，不同手機看起來一樣）：news＝信封豬、done＝豬鼻旗
-  const ICON_STROKE = 'stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"';
-  const pigSnout = (cx, cy, rx, ry) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#FF86B8" ${ICON_STROKE}/><ellipse cx="${cx - rx * .38}" cy="${cy}" rx="1.1" ry="1.7" fill="#111"/><ellipse cx="${cx + rx * .38}" cy="${cy}" rx="1.1" ry="1.7" fill="#111"/>`;
-  const ICONS = {
-    news: `<path d="M5 12 L7 4 L13 9 M27 12 L25 4 L19 9" fill="#FF9CC6" ${ICON_STROKE}/><rect x="3.5" y="8" width="25" height="18" rx="3" fill="#FFF3A3" ${ICON_STROKE}/><path d="M4 10 L16 19 L28 10" fill="none" ${ICON_STROKE}/>${pigSnout(16, 21, 5, 3.4)}`,
-    done: `<path d="M7 29 V3" fill="none" ${ICON_STROKE}/><path d="M7 5 H27 L22 11 L27 17 H7 Z" fill="#FFC2DA" ${ICON_STROKE}/><path d="M9 3 L11 0.5 L13 4 M16 3 L18 0.5 L20 4" fill="#FF9CC6" ${ICON_STROKE} transform="translate(0,4)"/>${pigSnout(16, 11, 4.2, 3)}`,
-  };
-  const icon = (name, size = 24) => `<svg class="wicon" viewBox="0 0 32 32" width="${size}" height="${size}" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 
   function friendly(error) {
     if (!error) return "發生錯誤，請稍後再試";
@@ -121,5 +114,5 @@
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const day = iso => { const d = new Date(iso); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
 
-  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, icon, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
+  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
 })();

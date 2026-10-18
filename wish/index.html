@@ -16,7 +16,7 @@
 <div class="wrap">
   <header class="top">
     <a href="../" class="small">← 回工具箱</a>
-    <h1>🙋 全網最聽勸</h1>
+    <h1><span data-icon="wish" data-size="38"></span> 全網最聽勸</h1>
     <p class="lead">想要什麼新功能、新網站？許個願，或幫喜歡的願望 +1。<b>票數最高的優先做</b>。</p>
   </header>
 
@@ -47,14 +47,14 @@
     </form>
   </div>
 
-  <h2>🌱 待處理<span class="small muted" style="font-weight:500">依 +1 數排序，最上面的最先做</span></h2>
+  <h2><span data-icon="sprout" data-size="28"></span> 待處理<span class="small muted" style="font-weight:500">依 +1 數排序，最上面的最先做</span></h2>
   <div id="pending" class="wishes"><div class="empty">載入中⋯⋯</div></div>
 
-  <h2 id="doneSection">🌸 已完成</h2>
+  <h2 id="doneSection"><span data-icon="flower" data-size="28"></span> 已完成</h2>
   <div id="done" class="wishes"></div>
 
   <div id="rejectedBox" hidden>
-    <h2 id="rejectedTitle">🚫 不採納（只有你看得到）</h2>
+    <h2 id="rejectedTitle"><span data-icon="moon" data-size="28"></span> <span id="rejectedTitleText">不採納（只有你看得到）</span></h2>
     <p class="muted small" id="rejectedHint" hidden style="margin-top:-6px">原因寫在回覆裡。只有提出願望的這個瀏覽器看得到，換裝置或清除瀏覽資料就看不到了。</p>
     <div id="rejected" class="wishes"></div>
   </div>
@@ -72,8 +72,10 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="../assets/wish-core.js"></script>
+<script src="../assets/icons.js?v=20261018"></script>
+<script src="../assets/wish-core.js?v=20261018"></script>
 <script>
+document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcons.icon(el.dataset.icon, +el.dataset.size || 24); });
 const { esc, SITES, day } = Wish;
 const $ = s => document.querySelector(s);
 let admin = false, busy = false, freshIds = null;   // freshIds：這次進來時，自己的願望有新消息的編號
@@ -81,7 +83,7 @@ function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("sh
 const safeUrl = u => /^https?:\/\//i.test(u) ? u : "";
 
 // 表單
-$("#site").innerHTML = Object.entries(SITES).map(([k, s]) => `<option value="${k}">${s.icon} ${esc(s.name)}</option>`).join("");
+$("#site").innerHTML = Object.entries(SITES).map(([k, s]) => `<option value="${k}">${esc(s.name)}</option>`).join("");
 try { $("#name").value = localStorage.getItem("wishName") || ""; } catch (e) {}
 const checkPaid = () => {
   const w = Wish.paidHint($("#title").value + " " + $("#detail").value);
@@ -121,8 +123,8 @@ function wishHtml(w, opts = {}) {
     <div class="body">
       <div class="t">${esc(w.title)}</div>
       ${w.detail ? `<div class="d">${esc(w.detail)}</div>` : ""}
-      ${w.admin_note ? `<div class="note">💬 薇拉小姐：${esc(w.admin_note)}</div>` : ""}
-      <div class="meta">${fresh ? `<span class="badge new">${Wish.icon("news", 16)}有新消息</span>` : ""}${badge}<span>${site.icon} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
+      ${w.admin_note ? `<div class="note">${SiteIcons.icon("chat", 18)} 薇拉小姐：${esc(w.admin_note)}</div>` : ""}
+      <div class="meta">${fresh ? `<span class="badge new">${SiteIcons.icon("news", 16)}有新消息</span>` : ""}${badge}<span>${SiteIcons.badge(site.badge, 18)} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
         ${w.status === "done" && w.done_at ? `<span>${day(w.done_at)} 完成</span>` : ""}
         ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}
         ${w.is_author && w.status === "open" && !admin ? `<a href="#" data-del="${w.id}">刪除</a>` : ""}</div>
@@ -151,7 +153,7 @@ async function load() {
     $("#pending").innerHTML = pending.length ? pending.map((w, i) => wishHtml(w, { next: i === firstOpen })).join("") : '<div class="empty">還沒有待處理的願望，<a href="#new">許第一個願吧！</a></div>';
     $("#done").innerHTML = done.length ? done.map(w => wishHtml(w)).join("") : '<div class="empty">還沒有完成的願望</div>';
     $("#rejectedBox").hidden = !admin && !rejected.length;   // 一般人只會看到自己被不採納的願望
-    $("#rejectedTitle").textContent = admin ? "🚫 不採納（只有你看得到）" : "🚫 你的願望中不採納的";
+    $("#rejectedTitleText").textContent = admin ? "不採納（只有你看得到）" : "你的願望中不採納的";
     $("#rejectedHint").hidden = admin;
     $("#rejected").innerHTML = rejected.map(w => wishHtml(w)).join("") || '<div class="empty">沒有</div>';
     if (!admin) Wish.markSeen(mine);   // 看過了：下次進來就不再標
