@@ -13,6 +13,7 @@
     wheel: { name: "暈頭轉向小豬轉盤", badge: "wheel" },
     english: { name: "安安英文教室", badge: "english" },
     nostrings: { name: "NOSTRINGS 反骨人格", badge: "nostrings" },
+    lighthouse: { name: "Lighthouse 陪伴", badge: "lighthouse" },
     portal: { name: "這個入口／許願池", badge: "portal" },
     new: { name: "全新網站點子", badge: "idea" },
   };
