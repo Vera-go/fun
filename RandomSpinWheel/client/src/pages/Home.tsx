@@ -75,7 +75,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+            <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-md p-3 sm:p-6 flex flex-col items-center justify-center">
               <h2 className="text-xl font-semibold text-gray-800 mb-2">{wheelTitle}</h2>
               
               <div ref={wheelBoxRef} className="relative w-full max-w-md aspect-square my-6">

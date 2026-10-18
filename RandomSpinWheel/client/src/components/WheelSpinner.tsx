@@ -314,10 +314,11 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         
         ctx.restore();
         
-        // 繪製選項文字：選項少時沿著弧線橫排，選項多時改成朝圓心方向直排，字太長就自動縮小
+        // 繪製選項文字：選項少時沿著弧線橫排，選項多時改成朝圓心方向直排
+        // 字太長就先拆成兩行（字才不會縮到看不清楚），還是放不下才縮小
         const n = options.length;
         const radial = n >= 7;
-        const textRadius = radial ? radius * 0.66 : radius * 0.75;
+        const textRadius = radial ? radius * 0.62 : radius * 0.75;
         const textAngle = startAngle + sliceAngle / 2;
         const textX = center + textRadius * Math.cos(textAngle);
         const textY = center + textRadius * Math.sin(textAngle);
@@ -334,22 +335,43 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         ctx.textBaseline = "middle";
 
         const maxLength = 12;
-        const displayText = option.length > maxLength ? option.slice(0, maxLength) + "…" : option;
-        const available = radial ? radius * 0.56 : 2 * textRadius * Math.sin(sliceAngle / 2) * 0.88;
-        let fontSize = n <= 6 ? 22 : n <= 9 ? 19 : 17;
-        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        while (fontSize > 11 && ctx.measureText(displayText).width > available) {
-          fontSize -= 1;
-          ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        const full = option.length > maxLength ? option.slice(0, maxLength) + "…" : option;
+        // 文字方向上可用的長度、垂直方向上可用的高度
+        const along = radial ? radius * 0.68 : 2 * textRadius * Math.sin(sliceAngle / 2) * 0.9;
+        const across = radial ? 2 * textRadius * Math.sin(sliceAngle / 2) * 0.9 : radius * 0.4;
+        const baseSize = n <= 6 ? 24 : n <= 9 ? 22 : 20;
+        const minSize = 13;
+
+        const measure = (t: string) => { ctx.font = `bold ${baseSize}px Arial, sans-serif`; return ctx.measureText(t).width; };
+        const fitSize = (lines: string[]) => {
+          const widest = Math.max(...lines.map(measure));
+          const byWidth = baseSize * Math.min(1, along / widest);
+          const byHeight = across / (lines.length === 1 ? 1.4 : 2.5);
+          return Math.floor(Math.min(byWidth, byHeight));
+        };
+
+        let lines = [full];
+        let fontSize = fitSize(lines);
+        if (fontSize < 17 && full.length > 3) {
+          const cut = Math.ceil(full.length / 2);
+          const two = [full.slice(0, cut), full.slice(cut)];
+          const twoSize = fitSize(two);
+          if (twoSize > fontSize) { lines = two; fontSize = twoSize; }
         }
+        fontSize = Math.max(minSize, fontSize);
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        const lineGap = fontSize * 1.15;
 
         // 白色描邊讓字在淡色扇形上也清楚；字用較深的玫瑰紅
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 5;
         ctx.lineJoin = 'round';
-        ctx.strokeText(displayText, 0, 0);
         ctx.fillStyle = '#B3125A';
-        ctx.fillText(displayText, 0, 0);
+        lines.forEach((line, li) => {
+          const y = (li - (lines.length - 1) / 2) * lineGap;
+          ctx.strokeText(line, 0, y);
+          ctx.fillText(line, 0, y);
+        });
 
         ctx.restore();
       });
