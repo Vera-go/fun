@@ -87,8 +87,13 @@ export default function WheelConfiguration({
             <Save className="h-5 w-5 mr-1" />
             {current ? '更新這個轉盤' : '儲存目前的轉盤'}
           </Button>
-          <p className="mt-2 text-xs text-gray-500" role="status" aria-live="polite">
-            {notice || '只存在這支手機的瀏覽器，不會上傳；換裝置或清除瀏覽資料就會不見。'}
+          {notice && (
+            <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-gray-800" role="status" aria-live="polite">
+              {notice}
+            </p>
+          )}
+          <p className="mt-2 text-[13px] leading-snug text-gray-600">
+            只存在這個瀏覽器，不會上傳。換手機、用無痕模式，或用別的瀏覽器（例如 LINE 內建瀏覽器）開，都會看不到。
           </p>
         </div>
 

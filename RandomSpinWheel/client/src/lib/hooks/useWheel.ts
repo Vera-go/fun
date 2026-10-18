@@ -14,6 +14,7 @@ export interface SavedWheel {
 // 存在這支手機的瀏覽器裡（不登入、不上傳）；換裝置或清除瀏覽資料就會不見
 const STORAGE_KEY = 'wheel_saved_sets_v1';
 export const MAX_SAVED = 10;
+const FIRST_SAVE_KEY = 'wheel_saved_notice_seen_v1';
 
 function loadSaved(): SavedWheel[] {
   try {
@@ -49,10 +50,10 @@ export default function useWheel() {
   const [notice, setNotice] = useState<string>('');
   const noticeTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const showNotice = useCallback((text: string) => {
+  const showNotice = useCallback((text: string, ms = 3000) => {
     setNotice(text);
     clearTimeout(noticeTimer.current);
-    noticeTimer.current = setTimeout(() => setNotice(''), 3000);
+    noticeTimer.current = setTimeout(() => setNotice(''), ms);
   }, []);
   useEffect(() => () => clearTimeout(noticeTimer.current), []);
 
@@ -110,7 +111,17 @@ export default function useWheel() {
     setCurrentId(id);
     setWheelTitle(title);
     setOptions(cleaned);
-    showNotice(existing ? '已更新「' + title + '」' : '已儲存「' + title + '」');
+    // 第一次儲存時，提醒資料只存在這個瀏覽器（停留久一點，只出現一次）
+    let firstTime = false;
+    try {
+      firstTime = !localStorage.getItem(FIRST_SAVE_KEY);
+      if (firstTime) localStorage.setItem(FIRST_SAVE_KEY, '1');
+    } catch { /* 讀不到就當作不是第一次 */ }
+    if (firstTime) {
+      showNotice('已儲存「' + title + '」。提醒：資料只存在這個瀏覽器，換手機、用無痕模式，或用別的瀏覽器開，都會看不到。', 8000);
+    } else {
+      showNotice(existing ? '已更新「' + title + '」' : '已儲存「' + title + '」');
+    }
   }, [options, wheelTitle, savedWheels, currentId, showNotice]);
 
   const loadWheel = useCallback((id: string) => {
