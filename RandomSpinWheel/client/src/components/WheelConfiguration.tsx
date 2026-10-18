@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash, Plus, Eraser, Play, Save, FilePlus } from "lucide-react";
+import { Trash, Plus, Eraser, Play, Save, FilePlus, Check, Minus, RotateCcw } from "lucide-react";
 import { MAX_SAVED, type SavedWheel } from "@/lib/hooks/useWheel";
 
 export const MAX_OPTION_LENGTH = 12;
@@ -19,7 +19,15 @@ interface WheelConfigurationProps {
   onNewWheel: () => void;
   onSpinWheel: () => void;
   isSpinning: boolean;
+  canSpin: boolean;
   isDirty: boolean;
+  noRepeat: boolean;
+  onSetNoRepeat: (on: boolean) => void;
+  pickCount: number;
+  onSetPickCount: (n: number) => void;
+  drawn: number[];
+  finished: boolean;
+  onResetRound: () => void;
   savedWheels: SavedWheel[];
   currentId: string;
   notice: string;
@@ -42,7 +50,15 @@ export default function WheelConfiguration({
   onNewWheel,
   onSpinWheel,
   isSpinning,
+  canSpin,
   isDirty,
+  noRepeat,
+  onSetNoRepeat,
+  pickCount,
+  onSetPickCount,
+  drawn,
+  finished,
+  onResetRound,
   savedWheels,
   currentId,
   notice,
@@ -197,22 +213,31 @@ export default function WheelConfiguration({
                 還沒有選項
               </div>
             ) : (
-              options.map((option, index) => (
+              options.map((option, index) => {
+                const isDrawn = drawn.includes(index);
+                return (
                 <div key={index} className="flex items-center mb-2">
+                  {isDrawn && (
+                    <span className="mr-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white" title={`第 ${drawn.indexOf(index) + 1} 個抽出`}>
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                  )}
                   <Input
                     ref={el => { inputsRef.current[index] = el; }}
                     type="text"
                     value={option}
+                    disabled={isDrawn}
                     maxLength={MAX_OPTION_LENGTH}
                     enterKeyHint={index === options.length - 1 ? "next" : "next"}
                     onChange={(e) => onUpdateOption(index, e.target.value)}
                     onKeyDown={(e) => onOptionKeyDown(e, index)}
                     placeholder="輸入選項..."
-                    className="flex-grow px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    className={`flex-grow px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary ${isDrawn ? "bg-gray-100 text-gray-400 line-through" : ""}`}
                   />
                   <Button
                     variant="ghost"
                     size="icon"
+                    disabled={isDrawn}
                     aria-label="刪除這個選項"
                     onClick={() => onRemoveOption(index)}
                     className="ml-2 p-1 text-gray-500 hover:text-red-500"
@@ -220,7 +245,8 @@ export default function WheelConfiguration({
                     <Trash className="h-5 w-5" />
                   </Button>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -236,6 +262,50 @@ export default function WheelConfiguration({
             <Plus className="h-5 w-5 mr-1" />
             新增選項
           </Button>
+        </div>
+
+        {/* 抽選方式：抽過的就不再抽（例如 10 個選項抽 3 個） */}
+        <div className="mb-5 rounded-lg bg-gray-50 p-3">
+          <label className="flex items-center justify-between gap-3 cursor-pointer">
+            <span className="text-sm font-medium text-gray-700">抽過的就不再抽</span>
+            <input
+              type="checkbox"
+              role="switch"
+              checked={noRepeat}
+              onChange={(e) => onSetNoRepeat(e.target.checked)}
+              disabled={isSpinning}
+              className="h-5 w-5 accent-pink-500"
+            />
+          </label>
+          {noRepeat && (
+            <div className="mt-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm text-gray-700">要抽幾個</span>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" className="h-8 w-8" aria-label="少抽一個"
+                    disabled={isSpinning || pickCount <= 1} onClick={() => onSetPickCount(pickCount - 1)}>
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-8 text-center font-semibold" aria-live="polite">{pickCount}</span>
+                  <Button variant="outline" size="icon" className="h-8 w-8" aria-label="多抽一個"
+                    disabled={isSpinning || pickCount >= activeCount} onClick={() => onSetPickCount(pickCount + 1)}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-3 text-xs text-gray-600">
+                <span>
+                  {finished ? "抽完了！" : `已抽 ${drawn.length} / ${pickCount}`}
+                </span>
+                {drawn.length > 0 && (
+                  <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isSpinning} onClick={onResetRound}>
+                    <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                    重新來過
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 動作按鈕 */}
@@ -255,13 +325,13 @@ export default function WheelConfiguration({
             variant="default"
             className="flex items-center justify-center px-4 py-2 bg-primary hover:bg-primary/90"
             onClick={onSpinWheel}
-            disabled={isSpinning || activeCount < 2}
+            disabled={!canSpin}
           >
             <Play className="h-5 w-5 mr-1" />
-            旋轉
+            {finished ? "抽完了" : "旋轉"}
           </Button>
         </div>
-        {activeCount < 2 && (
+        {!finished && activeCount < 2 && (
           <p className="mt-2 text-xs text-gray-500 text-center">至少要有 2 個選項才能旋轉</p>
         )}
       </CardContent>

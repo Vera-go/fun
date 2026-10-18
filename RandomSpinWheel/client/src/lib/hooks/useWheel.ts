@@ -9,6 +9,8 @@ export interface SavedWheel {
   id: string;
   title: string;
   options: string[];
+  noRepeat?: boolean;   // 抽過的就不再抽
+  pickCount?: number;   // 要抽幾個（只有「不再抽」開著時才有意義）
 }
 
 // 存在這支手機的瀏覽器裡（不登入、不上傳）；換裝置或清除瀏覽資料就會不見
@@ -49,6 +51,12 @@ export default function useWheel() {
   const [currentId, setCurrentId] = useState<string>('');
   const [notice, setNotice] = useState<string>('');
   const [touched, setTouched] = useState(false);   // 使用者有動過標題或選項（用來判斷「未儲存」）
+  // 抽過不放回：drawn 是已抽出的選項（依 options 的位置，照抽出的順序）；
+  // lastPick 是剛抽到的那個，在下一次旋轉開始前還會留在轉盤上，這樣停下來時指針指的格子才對得上
+  const [noRepeat, setNoRepeatRaw] = useState(false);
+  const [pickCount, setPickCountRaw] = useState(1);
+  const [drawn, setDrawn] = useState<number[]>([]);
+  const [lastPick, setLastPick] = useState<number | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const showNotice = useCallback((text: string, ms = 3000) => {
@@ -68,25 +76,49 @@ export default function useWheel() {
     setTouched(true);
   }, []);
 
+  // 已經抽出的選項不能改、不能刪（畫面上也會停用），免得名單對不上
   const updateOption = useCallback((index: number, value: string) => {
+    if (drawn.includes(index)) return;
     setTouched(true);
     setOptions(prev => {
       const newOptions = [...prev];
       newOptions[index] = value;
       return newOptions;
     });
-  }, []);
+  }, [drawn]);
 
   const removeOption = useCallback((index: number) => {
+    if (drawn.includes(index)) return;
     setTouched(true);
     setOptions(prev => prev.filter((_, i) => i !== index));
+    const shift = (i: number) => (i > index ? i - 1 : i);
+    setDrawn(prev => prev.map(shift));
+    setLastPick(prev => (prev === null ? null : shift(prev)));
+  }, [drawn]);
+
+  // 重新來過：已抽出的全部放回轉盤
+  const resetRound = useCallback(() => {
+    setDrawn([]);
+    setLastPick(null);
+    setResult({ text: '', angle: 0 });
+    setSpinHistory([]);
   }, []);
 
   // 清空：只清掉選項，標題和目前選的已存轉盤都留著
   const clearOptions = useCallback(() => {
     setOptions([]);
-    setResult({ text: '', angle: 0 });
-    setSpinHistory([]);
+    resetRound();
+    setTouched(true);
+  }, [resetRound]);
+
+  const setNoRepeat = useCallback((on: boolean) => {
+    setNoRepeatRaw(on);
+    resetRound();
+    setTouched(true);
+  }, [resetRound]);
+
+  const setPickCount = useCallback((n: number) => {
+    setPickCountRaw(Math.max(1, Math.min(99, Math.floor(n) || 1)));
     setTouched(true);
   }, []);
 
@@ -95,18 +127,32 @@ export default function useWheel() {
     setWheelTitleRaw('新轉盤');
     setOptions(['', '']);
     setCurrentId('');
-    setResult({ text: '', angle: 0 });
-    setSpinHistory([]);
+    setNoRepeatRaw(false);
+    setPickCountRaw(1);
+    resetRound();
     setTouched(false);
-  }, []);
+  }, [resetRound]);
 
   // 空白的選項不會放進轉盤
   const activeOptions = options.map(o => o.trim()).filter(Boolean);
+  const nonBlank = options.map((o, i) => (o.trim() ? i : -1)).filter(i => i >= 0);
+  // 還沒被抽走的選項（沒開「不再抽」時就是全部）
+  const remaining = noRepeat ? nonBlank.filter(i => !drawn.includes(i)) : nonBlank;
+  // 轉盤上畫的格子：剛抽到的那一格在下一次旋轉前先留著
+  const wheelIdx = noRepeat ? nonBlank.filter(i => !drawn.includes(i) || i === lastPick) : nonBlank;
+  const wheelOptions = wheelIdx.map(i => options[i].trim());
+  const targetCount = Math.max(1, Math.min(pickCount, nonBlank.length));
+  const finished = noRepeat && drawn.length >= targetCount;
+  const canSpin = !isSpinning && !finished && remaining.length >= 2;
+  const drawnTexts = drawn.map(i => (options[i] ?? '').trim());
 
   // 有沒有還沒儲存的修改
   const saved = savedWheels.find(w => w.id === currentId);
   const isDirty = saved
-    ? wheelTitle.trim() !== saved.title || JSON.stringify(activeOptions) !== JSON.stringify(saved.options)
+    ? wheelTitle.trim() !== saved.title
+      || JSON.stringify(activeOptions) !== JSON.stringify(saved.options)
+      || noRepeat !== !!saved.noRepeat
+      || (noRepeat && pickCount !== (saved.pickCount ?? 1))
     : touched && activeOptions.length > 0;
 
   // 名字重複時自動加（2）、（3）…，不會悄悄蓋掉別組
@@ -131,14 +177,14 @@ export default function useWheel() {
     let id: string;
     if (target) {
       id = target.id;
-      next = savedWheels.map(w => (w.id === id ? { id, title, options: activeOptions } : w));
+      next = savedWheels.map(w => (w.id === id ? { id, title, options: activeOptions, noRepeat, pickCount } : w));
     } else {
       if (savedWheels.length >= MAX_SAVED) {
         showNotice(`最多存 ${MAX_SAVED} 組，請先刪掉一組`);
         return;
       }
       id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      next = [...savedWheels, { id, title, options: activeOptions }];
+      next = [...savedWheels, { id, title, options: activeOptions, noRepeat, pickCount }];
     }
     if (!persistSaved(next)) {
       showNotice('這個瀏覽器不讓我們儲存，請檢查是不是無痕模式');
@@ -148,6 +194,10 @@ export default function useWheel() {
     setCurrentId(id);
     setWheelTitleRaw(title);
     setOptions(activeOptions);
+    // 空白格被拿掉後位置會變，已抽出的位置也要跟著換算
+    const remap = (i: number) => nonBlank.indexOf(i);
+    setDrawn(prev => prev.map(remap).filter(i => i >= 0));
+    setLastPick(prev => (prev === null || remap(prev) < 0 ? null : remap(prev)));
     setTouched(false);
     // 第一次儲存時，提醒資料只存在這個瀏覽器（停留久一點，只出現一次）
     let firstTime = false;
@@ -161,7 +211,7 @@ export default function useWheel() {
     } else {
       showNotice((target ? '已更新「' : '已儲存「') + title + '」' + renamed);
     }
-  }, [activeOptions, wheelTitle, savedWheels, currentId, showNotice]);
+  }, [activeOptions, nonBlank, noRepeat, pickCount, wheelTitle, savedWheels, currentId, showNotice]);
 
   const loadWheel = useCallback((id: string) => {
     const found = savedWheels.find(w => w.id === id);
@@ -172,9 +222,11 @@ export default function useWheel() {
     setCurrentId(found.id);
     setWheelTitleRaw(found.title);
     setOptions([...found.options]);
-    setResult({ text: '', angle: 0 });
+    setNoRepeatRaw(!!found.noRepeat);
+    setPickCountRaw(found.pickCount ?? 1);
+    resetRound();
     setTouched(false);
-  }, [savedWheels]);
+  }, [savedWheels, resetRound]);
 
   const deleteWheel = useCallback((id: string) => {
     const found = savedWheels.find(w => w.id === id);
@@ -187,56 +239,61 @@ export default function useWheel() {
   }, [savedWheels, currentId, showNotice]);
 
   const spinWheel = useCallback(() => {
-    if (isSpinning || activeOptions.length < 2) return;
+    if (!canSpin) return;
 
+    // 這次要在哪些選項裡抽（位置都是 options 的位置）
+    const cand = remaining;
+    setLastPick(null);
     setIsSpinning(true);
-    
-    // Select a random winner
-    const randomIndex = Math.floor(Math.random() * activeOptions.length);
-    const selectedOption = activeOptions[randomIndex];
-    
-    // 全新的輪盤角度計算 - 完全不同的思路
-    const sliceAngle = 360 / activeOptions.length;
-    
-    // 基礎旋轉角度（保證至少轉動5圈）
-    const baseRotation = 360 * 5; 
-    
-    // 原始角度補償值
-    // 我們需要旋轉(360 - 當前選項位置)度，使選項到頂部
-    // 選項位置計算：randomIndex * sliceAngle
+
+    const randomIndex = Math.floor(Math.random() * cand.length);
+    const pickedIdx = cand[randomIndex];
+    const selectedOption = options[pickedIdx].trim();
+
+    // 轉盤角度：至少轉 5 圈，停在選中那一格的正中間（那一格轉到最上面、指針下方）
+    const sliceAngle = 360 / cand.length;
+    const baseRotation = 360 * 5;
     const offset = 360 - (randomIndex * sliceAngle);
-    
-    // 再加上半個扇形角度，使指針指向選項中間
     const adjustment = sliceAngle / 2;
-    
-    // 最終旋轉角度
     const targetAngle = baseRotation + offset - adjustment;
-    
-    console.log(`扇形角度: ${sliceAngle}度`);
-    console.log(`選中項: ${selectedOption} (索引 ${randomIndex})`);
-    console.log(`選中項角度: ${randomIndex * sliceAngle}度`);
-    console.log(`最終轉盤旋轉角度: ${targetAngle}度`);
-    
-    console.log(`隨機選中索引 ${randomIndex}: ${selectedOption}`);
-    console.log(`每個選項的角度: ${sliceAngle}度`);
-    console.log(`目標旋轉角度: ${targetAngle}度`);
-    
+
     setResult({ text: '', angle: targetAngle });
-    
-    // Show result after animation
+
+    // 轉完後顯示結果（動畫 9 秒）
     setTimeout(() => {
       setResult({ text: selectedOption, angle: targetAngle });
       setSpinHistory(prev => [selectedOption, ...prev]);
+      if (noRepeat) {
+        const left = cand.filter(i => i !== pickedIdx);
+        const after = [pickedIdx];
+        // 還要再抽、但只剩 1 個，就是它了：自動列入
+        if (left.length === 1 && drawn.length + 1 < targetCount) {
+          after.push(left[0]);
+          showNotice('只剩 1 個，就是「' + options[left[0]].trim() + '」了');
+        }
+        setDrawn(prev => [...prev, ...after]);
+        setLastPick(pickedIdx);
+      }
       setIsSpinning(false);
-    }, 9000); // 延長到9秒以匹配轉盤動畫時間
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSpinning, options]);
+    }, 9000);
+  }, [canSpin, remaining, options, noRepeat, drawn, targetCount, showNotice]);
 
   return {
     wheelTitle,
     setWheelTitle,
     options,
     activeOptions,
+    wheelOptions,
+    canSpin,
+    noRepeat,
+    setNoRepeat,
+    pickCount: targetCount,
+    setPickCount,
+    drawn,
+    drawnTexts,
+    finished,
+    remainingCount: remaining.length,
+    resetRound,
     addOption,
     updateOption,
     removeOption,
