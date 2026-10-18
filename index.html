@@ -55,7 +55,7 @@ document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcon
   const { esc, SITES, day } = Wish;
   const box = document.getElementById("topWishes");
   const site = w => SITES[w.site] || { badge: "idea", name: "其他" };
-  const siteTag = w => `${SiteIcons.badge(site(w).badge, 18)} ${esc(site(w).name)}`;
+  const siteTag = w => `<span class="sitetag">${SiteIcons.badge(site(w).badge, 18)}${esc(site(w).name)}</span>`;
   try {
     const { pending, done, rejected } = await Wish.listWishes();
     // 沒辦法通知提出願望的人，所以回來時提示：自己的願望有新消息、最近有願望完成
@@ -73,7 +73,7 @@ document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcon
         <div class="t">${esc(w.title)}</div>
         <div class="m">
           ${w.status === "doing" ? '<span class="badge doing">製作中</span>' : i === nextIdx ? '<span class="badge next">下一個要做</span>' : ""}
-          <span>${siteTag(w)}</span>
+          ${siteTag(w)}
         </div>
       </a>`).join("") : `<div class="box empty">還沒有人許願，<a href="wish/#new">當第一個吧！</a></div>`;
     if (done.length) document.getElementById("recentDone").innerHTML = `
@@ -81,7 +81,7 @@ document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcon
       <div class="box done-list">${done.slice(0, 3).map(w => `
         <div class="done-item">
           <div class="t">${esc(w.title)} <span class="badge done">已完成</span></div>
-          <div class="m"><span>${siteTag(w)}</span><span>${day(w.done_at)} 完成</span>${/^https?:\/\//i.test(w.done_url || "") ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
+          <div class="m">${siteTag(w)}<span>${day(w.done_at)} 完成</span>${/^https?:\/\//i.test(w.done_url || "") ? `<a href="${esc(w.done_url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}</div>
         </div>`).join("")}</div>`;
   } catch (e) {
     box.innerHTML = `<div class="box empty">願望暫時載入不了，<a href="wish/">到許願池看看</a></div>`;
