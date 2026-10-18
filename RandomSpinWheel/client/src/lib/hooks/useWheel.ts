@@ -118,7 +118,7 @@ export default function useWheel() {
       if (firstTime) localStorage.setItem(FIRST_SAVE_KEY, '1');
     } catch { /* 讀不到就當作不是第一次 */ }
     if (firstTime) {
-      showNotice('已儲存「' + title + '」。提醒：資料只存在這個瀏覽器，換手機、用無痕模式，或用別的瀏覽器開，都會看不到。', 8000);
+      showNotice('已儲存「' + title + '」。提醒：這份資料只存在這個瀏覽器裡，不是雲端，換個地方就看不到了。', 8000);
     } else {
       showNotice(existing ? '已更新「' + title + '」' : '已儲存「' + title + '」');
     }
