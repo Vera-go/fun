@@ -173,3 +173,17 @@
   padding: 2px 5px;
   z-index: 5;
 }
+
+/* 抽中後的慶祝特效：約 4 秒後整個淡掉；開了「減少動態效果」就不顯示 */
+@keyframes effects-fade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.wheel-effects {
+  animation: effects-fade 4s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wheel-effects {
+    display: none;
+  }
+}
