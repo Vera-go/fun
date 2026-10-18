@@ -33,6 +33,7 @@
     </div>
 
     <h2>🙋 全網最聽勸：願望牆</h2>
+    <div id="wishNews" class="wishnews" aria-live="polite"></div>
     <div id="topWishes" class="wall" aria-live="polite"><div class="box note skeleton">載入中⋯⋯</div></div>
     <div class="row">
       <a class="box btn acc" href="wish/#new">我要許願</a>
@@ -54,7 +55,14 @@
   const box = document.getElementById("topWishes");
   const site = w => SITES[w.site] || { icon: "✨", name: "其他" };
   try {
-    const { pending, done } = await Wish.listWishes();
+    const { pending, done, rejected } = await Wish.listWishes();
+    // 沒辦法通知提出願望的人，所以回來時提示：自己的願望有新消息、最近有願望完成
+    const news = [];
+    const mineNews = Wish.authorNews([...pending, ...done, ...rejected]);
+    if (mineNews.length) news.push(`<a class="mine" href="wish/">🔔 你提出的願望有 ${mineNews.length} 則新消息，去看看 →</a>`);
+    const recent = Wish.recentDoneCount(done);
+    if (recent) news.push(`<a href="wish/#doneSection">🎉 最近 14 天完成了 ${recent} 個願望 →</a>`);
+    document.getElementById("wishNews").innerHTML = news.join("");
     const top = pending.slice(0, 3);
     const nextIdx = pending.findIndex(x => x.status === "open");
     box.innerHTML = top.length ? top.map((w, i) => `

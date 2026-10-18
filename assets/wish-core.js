@@ -43,6 +43,26 @@
     return { pending, done, rejected };
   }
 
+  // 提出願望的人（匿名，沒有聯絡方式）沒辦法被通知，所以用「回來時看到提示」：
+  // 這個瀏覽器記住每個自己願望上次看到的狀態；狀態、回覆或連結有變，就算有新消息。
+  const SEEN_KEY = "wish_seen_v1";
+  const sig = w => [w.status, w.admin_note || "", w.done_url || ""].join("|");
+  const hasNews = w => w.status !== "open" || !!w.admin_note || !!w.done_url;
+  function readSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch (e) { return {}; } }
+  /** 自己提出的願望裡，有新消息（還沒看過）的 */
+  function authorNews(wishes) {
+    const seen = readSeen();
+    return wishes.filter(w => w.is_author && hasNews(w) && seen[w.id] !== sig(w));
+  }
+  /** 記下現在看到的狀態（只在許願池頁面看過之後才記，入口頁只提示不記） */
+  function markSeen(wishes) {
+    const seen = readSeen();
+    wishes.filter(w => w.is_author).forEach(w => { seen[w.id] = sig(w); });
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (e) { /* 不能存就算了 */ }
+  }
+  /** 最近 days 天內完成的願望數 */
+  const recentDoneCount = (done, days = 14) => done.filter(w => w.done_at && Date.now() - new Date(w.done_at).getTime() < days * 864e5).length;
+
   function friendly(error) {
     if (!error) return "發生錯誤，請稍後再試";
     if (error.code === "P0001") return error.message;
@@ -92,5 +112,5 @@
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const day = iso => { const d = new Date(iso); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
 
-  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
+  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
 })();

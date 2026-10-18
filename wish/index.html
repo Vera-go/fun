@@ -27,7 +27,8 @@
       <ul>
         <li>每人每天最多許 5 個願望，每個願望只能 +1 一次</li>
         <li><b>需要額外付費才做得出來的功能不收</b>，例如金流、簡訊、付費 API、上架 App Store</li>
-        <li>不適合的內容、做不到的功能會被標成「不採納」，原因寫在回覆裡，只有提出的那個瀏覽器看得到，不另外通知</li>
+        <li>不適合的內容、做不到的功能會被標成「不採納」，原因寫在回覆裡，只有提出的那個瀏覽器看得到</li>
+        <li>我們不會主動通知你（因為不蒐集聯絡方式）。用同一個瀏覽器回來時，你的願望有新狀態或回覆，會標出「🔔 有新消息」</li>
       </ul>
     </div>
     <form id="wishForm" novalidate>
@@ -49,7 +50,7 @@
   <h2>🌱 待處理<span class="small muted" style="font-weight:500">依 +1 數排序，最上面的最先做</span></h2>
   <div id="pending" class="wishes"><div class="empty">載入中⋯⋯</div></div>
 
-  <h2>🌸 已完成</h2>
+  <h2 id="doneSection">🌸 已完成</h2>
   <div id="done" class="wishes"></div>
 
   <div id="rejectedBox" hidden>
@@ -75,7 +76,7 @@
 <script>
 const { esc, SITES, day } = Wish;
 const $ = s => document.querySelector(s);
-let admin = false, busy = false;
+let admin = false, busy = false, freshIds = null;   // freshIds：這次進來時，自己的願望有新消息的編號
 function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200); }
 const safeUrl = u => /^https?:\/\//i.test(u) ? u : "";
 
@@ -114,13 +115,14 @@ function wishHtml(w, opts = {}) {
     : w.status === "rejected" ? '<span class="badge rej">不採納</span>'
     : opts.next ? '<span class="badge next">下一個要做</span>' : "";
   const url = safeUrl(w.done_url);
-  return `<div class="card wish" data-id="${w.id}">
+  const fresh = freshIds && freshIds.has(w.id);
+  return `<div class="card wish${fresh ? " fresh" : ""}" data-id="${w.id}">
     <button class="vote ${w.mine ? "mine" : ""}" data-vote="${w.id}" ${canVote ? "" : "disabled"} title="${canVote ? (w.mine ? "取消 +1" : "我也想要") : ""}"><span class="n">${w.votes}</span><span class="p">${w.mine ? "已 +1" : "+1"}</span></button>
     <div class="body">
       <div class="t">${esc(w.title)}</div>
       ${w.detail ? `<div class="d">${esc(w.detail)}</div>` : ""}
       ${w.admin_note ? `<div class="note">💬 薇拉小姐：${esc(w.admin_note)}</div>` : ""}
-      <div class="meta">${badge}<span>${site.icon} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
+      <div class="meta">${fresh ? '<span class="badge new">🔔 有新消息</span>' : ""}${badge}<span>${site.icon} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
         ${w.status === "done" && w.done_at ? `<span>${day(w.done_at)} 完成</span>` : ""}
         ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}
         ${w.is_author && w.status === "open" && !admin ? `<a href="#" data-del="${w.id}">刪除</a>` : ""}</div>
@@ -139,6 +141,12 @@ function wishHtml(w, opts = {}) {
 async function load() {
   try {
     const { pending, done, rejected } = await Wish.listWishes();
+    // 提出願望的人沒辦法被通知：回來看的時候，自己的願望有新狀態或回覆就標出來
+    const mine = [...pending, ...done, ...rejected];
+    if (freshIds === null) {
+      freshIds = new Set(admin ? [] : Wish.authorNews(mine).map(w => w.id));
+      if (freshIds.size) toast(`你的願望有 ${freshIds.size} 則新消息！`);
+    }
     const firstOpen = pending.findIndex(w => w.status === "open");
     $("#pending").innerHTML = pending.length ? pending.map((w, i) => wishHtml(w, { next: i === firstOpen })).join("") : '<div class="empty">還沒有待處理的願望，<a href="#new">許第一個願吧！</a></div>';
     $("#done").innerHTML = done.length ? done.map(w => wishHtml(w)).join("") : '<div class="empty">還沒有完成的願望</div>';
@@ -146,6 +154,8 @@ async function load() {
     $("#rejectedTitle").textContent = admin ? "🚫 不採納（只有你看得到）" : "🚫 你的願望中不採納的";
     $("#rejectedHint").hidden = admin;
     $("#rejected").innerHTML = rejected.map(w => wishHtml(w)).join("") || '<div class="empty">沒有</div>';
+    if (!admin) Wish.markSeen(mine);   // 看過了：下次進來就不再標
+    if (freshIds.size && !load.scrolled) { load.scrolled = true; document.querySelector(".wish.fresh")?.scrollIntoView({ block: "center", behavior: "smooth" }); }
   } catch (e) {
     $("#pending").innerHTML = `<div class="empty">${esc(e.message)}</div>`;
   }
