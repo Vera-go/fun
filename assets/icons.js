@@ -16,6 +16,7 @@
     chat: `<path d="M5 4 H27 Q30 4 30 7 V19 Q30 22 27 22 H17 L10 29 V22 H5 Q2 22 2 19 V7 Q2 4 5 4 Z" fill="#FFF3A3" ${S}/>${heart(16, 12.5, 1.7)}`,
     news: `<rect x="3.5" y="7" width="25" height="19" rx="3" fill="#FFF3A3" ${S}/><path d="M4 9 L16 18.5 L28 9" fill="none" ${S}/>${heart(16, 21.5, 1.5)}`,
     done: `<path d="M6 30 V3" fill="none" ${S}/><path d="M6 5 H28 L23.5 11.5 L28 18 H6 Z" fill="#FFC2DA" ${S}/><path d="M10.5 11.5 L13.5 14.5 L19 8.5" fill="none" stroke="${K}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    book: `<path d="M2.5 14 Q9 12 16 15 V30 Q9 27 2.5 29 Z" fill="#FFFFFF" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M29.5 14 Q23 12 16 15 V30 Q23 27 29.5 29 Z" fill="#FFF3A3" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 20 H12 M6 23.5 H12 M20 20 H26 M20 23.5 H26" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/><path d="M16.00 1.10L17.18 3.88L20.18 4.14L17.90 6.12L18.59 9.06L16.00 7.50L13.41 9.06L14.10 6.12L11.82 4.14L14.82 3.88Z" fill="#FFD60A" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 8 l.9 2.3 2.3 .9 -2.3 .9 -.9 2.3 -.9 -2.3 -2.3 -.9 2.3 -.9 Z M25 7 l.8 2 2 .8 -2 .8 -.8 2 -.8 -2 -2 -.8 2 -.8 Z" fill="#FF9CC6" stroke="#111" stroke-width="1.2" stroke-linejoin="round"/>`,
     toolbox: `<path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" ${S}/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" ${S}/><path d="M3 18 H29" fill="none" ${S}/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" ${S}/>`,
   };
 
@@ -54,7 +55,7 @@
 
   const wrap = (box, body, size, cls) => `<svg class="${cls}" viewBox="0 0 ${box} ${box}" width="${size}" height="${size}" aria-hidden="true" focusable="false">${body}</svg>`;
   window.SiteIcons = {
-    /** 功能小圖示：wish、sprout、flower、moon、chat、news、done、toolbox */
+    /** 功能小圖示：wish、sprout、flower、moon、chat、news、done、book、toolbox */
     icon: (name, size = 24) => wrap(32, ICONS[name] || "", size, "wicon"),
     /** 網站徽章：restaurant、wheel、english、nostrings、lighthouse、portal、idea */
     badge: (name, size = 32) => wrap(40, (BADGES[name] || (() => ""))(), size, "wbadge"),
