@@ -89,7 +89,7 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#FF6B6B";
-      ctx.fillText("添加選項以創建轉盤", center, center);
+      ctx.fillText("新增選項來建立轉盤", center, center);
       
     } else {
       // 繪製每個扇形 - 注意：我們反向繪製，這樣索引0的選項會在頂部
@@ -314,34 +314,43 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         
         ctx.restore();
         
-        // 繪製選項文字
-        const textRadius = radius * 0.75;
+        // 繪製選項文字：選項少時沿著弧線橫排，選項多時改成朝圓心方向直排，字太長就自動縮小
+        const n = options.length;
+        const radial = n >= 7;
+        const textRadius = radial ? radius * 0.66 : radius * 0.75;
         const textAngle = startAngle + sliceAngle / 2;
         const textX = center + textRadius * Math.cos(textAngle);
         const textY = center + textRadius * Math.sin(textAngle);
-        
+
         ctx.save();
         ctx.translate(textX, textY);
-        ctx.rotate(textAngle + Math.PI / 2);
-        
-        // 設置文字樣式 - 更可愛、更大的字體
-        ctx.font = "bold 22px Arial, sans-serif";
+        if (radial) {
+          // 朝外的字，在左半邊翻過來才不會倒著讀
+          ctx.rotate(textAngle + (Math.cos(textAngle) < 0 ? Math.PI : 0));
+        } else {
+          ctx.rotate(textAngle + Math.PI / 2);
+        }
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        
-        // 文字描邊 - 粗一點更明顯
+
+        const maxLength = 12;
+        const displayText = option.length > maxLength ? option.slice(0, maxLength) + "…" : option;
+        const available = radial ? radius * 0.56 : 2 * textRadius * Math.sin(sliceAngle / 2) * 0.88;
+        let fontSize = n <= 6 ? 22 : n <= 9 ? 19 : 17;
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        while (fontSize > 11 && ctx.measureText(displayText).width > available) {
+          fontSize -= 1;
+          ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        }
+
+        // 白色描邊讓字在淡色扇形上也清楚；字用較深的玫瑰紅
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 5;
-        ctx.strokeText(option, 0, 0);
-        
-        // 文字填充 - 可愛的深粉色
-        ctx.fillStyle = '#FF1493';
-        
-        // 繪製文字 (限制長度)
-        const maxLength = 8;
-        const displayText = option.length > maxLength ? option.slice(0, maxLength) + "..." : option;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(displayText, 0, 0);
+        ctx.fillStyle = '#B3125A';
         ctx.fillText(displayText, 0, 0);
-        
+
         ctx.restore();
       });
       
@@ -509,6 +518,14 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
       // 旋轉結束後保持在結果位置
       wheel.style.transition = 'none';
       wheel.style.transform = `rotate(${spinAngle % 360}deg)`;
+    } else if (spinAngle > 0) {
+      // 旋轉結束後保持在結果位置
+      wheel.style.transition = 'none';
+      wheel.style.transform = `rotate(${spinAngle % 360}deg)`;
+    } else {
+      // 換了一個轉盤（結果被清掉）就轉回原位，不要停在上一個轉盤的角度
+      wheel.style.transition = 'none';
+      wheel.style.transform = 'rotate(0deg)';
     }
   }, [isSpinning, spinAngle, isInitialized]);
   

@@ -9,9 +9,11 @@ export default function SpinResult({ result }: SpinResultProps) {
     <Card className="w-full max-w-md">
       <CardContent className="px-6 py-4 bg-gray-50 rounded-lg">
         <div className="text-sm text-gray-500 mb-1">結果：</div>
-        <div className="text-2xl font-bold text-primary">
-          {result || "旋轉轉盤！"}
-        </div>
+        {result ? (
+          <div className="text-3xl font-bold text-primary break-words">{result}</div>
+        ) : (
+          <div className="text-lg text-gray-400">按「旋轉」或點轉盤開始</div>
+        )}
       </CardContent>
     </Card>
   );

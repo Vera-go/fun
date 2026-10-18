@@ -38,7 +38,7 @@ function persistSaved(list: SavedWheel[]): boolean {
 }
 
 export default function useWheel() {
-  const [wheelTitle, setWheelTitle] = useState('午餐選擇');
+  const [wheelTitle, setWheelTitleRaw] = useState('午餐選擇');
   const [options, setOptions] = useState<string[]>([
     '披薩', '壽司', '沙拉', '漢堡', '義大利麵'
   ]);
@@ -48,6 +48,7 @@ export default function useWheel() {
   const [savedWheels, setSavedWheels] = useState<SavedWheel[]>(loadSaved);
   const [currentId, setCurrentId] = useState<string>('');
   const [notice, setNotice] = useState<string>('');
+  const [touched, setTouched] = useState(false);   // 使用者有動過標題或選項（用來判斷「未儲存」）
   const noticeTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const showNotice = useCallback((text: string, ms = 3000) => {
@@ -57,11 +58,18 @@ export default function useWheel() {
   }, []);
   useEffect(() => () => clearTimeout(noticeTimer.current), []);
 
+  const setWheelTitle = useCallback((title: string) => {
+    setWheelTitleRaw(title);
+    setTouched(true);
+  }, []);
+
   const addOption = useCallback(() => {
     setOptions(prev => [...prev, '']);
+    setTouched(true);
   }, []);
 
   const updateOption = useCallback((index: number, value: string) => {
+    setTouched(true);
     setOptions(prev => {
       const newOptions = [...prev];
       newOptions[index] = value;
@@ -70,38 +78,67 @@ export default function useWheel() {
   }, []);
 
   const removeOption = useCallback((index: number) => {
+    setTouched(true);
     setOptions(prev => prev.filter((_, i) => i !== index));
   }, []);
 
-  const resetWheel = useCallback(() => {
-    setWheelTitle('新轉盤');
+  // 清空：只清掉選項，標題和目前選的已存轉盤都留著
+  const clearOptions = useCallback(() => {
     setOptions([]);
+    setResult({ text: '', angle: 0 });
+    setSpinHistory([]);
+    setTouched(true);
+  }, []);
+
+  // 新增轉盤：一個全新的空白轉盤（不會動到已存的）
+  const newWheel = useCallback(() => {
+    setWheelTitleRaw('新轉盤');
+    setOptions(['', '']);
     setCurrentId('');
     setResult({ text: '', angle: 0 });
     setSpinHistory([]);
+    setTouched(false);
   }, []);
 
-  // 儲存目前的轉盤：標題當名字；同一組（或同名）會直接更新，不會重複
-  const saveWheel = useCallback(() => {
-    const cleaned = options.map(o => o.trim()).filter(Boolean);
-    if (cleaned.length < 2) {
+  // 空白的選項不會放進轉盤
+  const activeOptions = options.map(o => o.trim()).filter(Boolean);
+
+  // 有沒有還沒儲存的修改
+  const saved = savedWheels.find(w => w.id === currentId);
+  const isDirty = saved
+    ? wheelTitle.trim() !== saved.title || JSON.stringify(activeOptions) !== JSON.stringify(saved.options)
+    : touched && activeOptions.length > 0;
+
+  // 名字重複時自動加（2）、（3）…，不會悄悄蓋掉別組
+  const uniqueTitle = (title: string, list: SavedWheel[], excludeId = '') => {
+    const taken = new Set(list.filter(w => w.id !== excludeId).map(w => w.title));
+    if (!taken.has(title)) return title;
+    let n = 2;
+    while (taken.has(title + '（' + n + '）')) n++;
+    return title + '（' + n + '）';
+  };
+
+  // asNew=true：另存成新的一組；否則有選中的就更新它，沒有就新增
+  const saveWheel = useCallback((asNew = false) => {
+    if (activeOptions.length < 2) {
       showNotice('至少要有 2 個選項才能儲存');
       return;
     }
-    const title = wheelTitle.trim() || '未命名轉盤';
-    const existing = savedWheels.find(w => w.id === currentId) || savedWheels.find(w => w.title === title);
+    const baseTitle = wheelTitle.trim() || '未命名轉盤';
+    const target = asNew ? undefined : savedWheels.find(w => w.id === currentId);
+    const title = uniqueTitle(baseTitle, savedWheels, target?.id);
     let next: SavedWheel[];
     let id: string;
-    if (existing) {
-      id = existing.id;
-      next = savedWheels.map(w => (w.id === id ? { id, title, options: cleaned } : w));
+    if (target) {
+      id = target.id;
+      next = savedWheels.map(w => (w.id === id ? { id, title, options: activeOptions } : w));
     } else {
       if (savedWheels.length >= MAX_SAVED) {
         showNotice(`最多存 ${MAX_SAVED} 組，請先刪掉一組`);
         return;
       }
       id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      next = [...savedWheels, { id, title, options: cleaned }];
+      next = [...savedWheels, { id, title, options: activeOptions }];
     }
     if (!persistSaved(next)) {
       showNotice('這個瀏覽器不讓我們儲存，請檢查是不是無痕模式');
@@ -109,20 +146,22 @@ export default function useWheel() {
     }
     setSavedWheels(next);
     setCurrentId(id);
-    setWheelTitle(title);
-    setOptions(cleaned);
+    setWheelTitleRaw(title);
+    setOptions(activeOptions);
+    setTouched(false);
     // 第一次儲存時，提醒資料只存在這個瀏覽器（停留久一點，只出現一次）
     let firstTime = false;
     try {
       firstTime = !localStorage.getItem(FIRST_SAVE_KEY);
       if (firstTime) localStorage.setItem(FIRST_SAVE_KEY, '1');
     } catch { /* 讀不到就當作不是第一次 */ }
+    const renamed = title !== baseTitle ? '（名字重複，已改成「' + title + '」）' : '';
     if (firstTime) {
       showNotice('已儲存「' + title + '」。提醒：這份資料只存在這個瀏覽器裡，不是雲端，換個地方就看不到了。', 8000);
     } else {
-      showNotice(existing ? '已更新「' + title + '」' : '已儲存「' + title + '」');
+      showNotice((target ? '已更新「' : '已儲存「') + title + '」' + renamed);
     }
-  }, [options, wheelTitle, savedWheels, currentId, showNotice]);
+  }, [activeOptions, wheelTitle, savedWheels, currentId, showNotice]);
 
   const loadWheel = useCallback((id: string) => {
     const found = savedWheels.find(w => w.id === id);
@@ -131,9 +170,10 @@ export default function useWheel() {
       return;
     }
     setCurrentId(found.id);
-    setWheelTitle(found.title);
+    setWheelTitleRaw(found.title);
     setOptions([...found.options]);
     setResult({ text: '', angle: 0 });
+    setTouched(false);
   }, [savedWheels]);
 
   const deleteWheel = useCallback((id: string) => {
@@ -147,16 +187,16 @@ export default function useWheel() {
   }, [savedWheels, currentId, showNotice]);
 
   const spinWheel = useCallback(() => {
-    if (isSpinning || options.length < 2) return;
+    if (isSpinning || activeOptions.length < 2) return;
 
     setIsSpinning(true);
     
     // Select a random winner
-    const randomIndex = Math.floor(Math.random() * options.length);
-    const selectedOption = options[randomIndex];
+    const randomIndex = Math.floor(Math.random() * activeOptions.length);
+    const selectedOption = activeOptions[randomIndex];
     
     // 全新的輪盤角度計算 - 完全不同的思路
-    const sliceAngle = 360 / options.length;
+    const sliceAngle = 360 / activeOptions.length;
     
     // 基礎旋轉角度（保證至少轉動5圈）
     const baseRotation = 360 * 5; 
@@ -189,16 +229,20 @@ export default function useWheel() {
       setSpinHistory(prev => [selectedOption, ...prev]);
       setIsSpinning(false);
     }, 9000); // 延長到9秒以匹配轉盤動畫時間
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSpinning, options]);
 
   return {
     wheelTitle,
     setWheelTitle,
     options,
+    activeOptions,
     addOption,
     updateOption,
     removeOption,
-    resetWheel,
+    clearOptions,
+    newWheel,
+    isDirty,
     spinWheel,
     isSpinning,
     result,
