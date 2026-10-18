@@ -607,9 +607,9 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         </svg>
       </div>
 
-      {/* 中央固定指針 - 卡哇伊風格 */}
+      {/* 中央固定的小臉（不會跟著轉盤轉）。指向哪一格只靠頂端那一個指針，中間不再放指針，免得混淆 */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-        <svg width="120" height="150" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="84" height="84" viewBox="43 23 114 114" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* 強烈光暈效果 */}
           <filter id="kawaii-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="8" result="blur"/>
@@ -623,27 +623,6 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
           
           {/* 漂亮的指針底座 */}
           <circle cx="100" cy="80" r="35" fill="#FFDBF5" stroke="#FF96DB" strokeWidth="3" />
-          
-          {/* 明亮的大指針 */}
-          <path 
-            d="M100 0 L135 60 L65 60 Z" 
-            fill="#FF42A1" 
-            filter="url(#kawaii-glow)"
-            stroke="#FFFFFF"
-            strokeWidth="3"
-          />
-          <path 
-            d="M100 15 L125 55 L75 55 Z" 
-            fill="#FF96DB" 
-          />
-          
-          {/* 指針上的小星星 */}
-          <path
-            d="M100 30 L105 20 L110 30 L120 32 L110 40 L112 50 L100 45 L88 50 L90 40 L80 32 L90 30 Z"
-            fill="#FFFFFF"
-            stroke="#FF96DB"
-            strokeWidth="1"
-          />
           
           {/* 底座裝飾 */}
           <circle cx="100" cy="80" r="20" fill="#FFB6E8" />
