@@ -9,7 +9,7 @@
 
   const SITES = {
     restaurant: { name: "餐廳推薦投票", icon: "🍽️" },
-    wheel: { name: "隨機大轉盤", icon: "🎡" },
+    wheel: { name: "暈頭轉向小豬轉盤", icon: "🐷" },
     english: { name: "安安英文教室", icon: "📘" },
     nostrings: { name: "NOSTRINGS 反骨人格", icon: "🧵" },
     portal: { name: "這個入口／許願池", icon: "🙋" },

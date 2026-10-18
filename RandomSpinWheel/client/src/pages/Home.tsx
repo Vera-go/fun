@@ -41,14 +41,14 @@ export default function Home() {
   return (
     <>
       <Helmet>
-        <title>隨機轉盤</title>
-        <meta name="description" content="建立你的自訂轉盤，新增選項，按下旋轉就能得到隨機結果！" />
+        <title>暈頭轉向小豬轉盤</title>
+        <meta name="description" content="新增選項、按下旋轉，讓暈頭轉向的小豬幫你選！" />
       </Helmet>
       <div className="bg-gray-50 min-h-screen font-sans">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
-          <header className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">隨機轉盤</h1>
-            <p className="text-gray-600">建立你的自訂轉盤，新增選項，按下旋轉就能得到隨機結果！</p>
+          <header className="text-center mb-8 pt-12 sm:pt-0">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">暈頭轉向小豬轉盤</h1>
+            <p className="text-gray-600">新增選項、按下旋轉，讓暈頭轉向的小豬幫你選！</p>
           </header>
 
           <main className="flex flex-col lg:flex-row gap-8">
