@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getColorForIndex, isLightColor } from "@/lib/utils/colors";
+import { nextFaceIndex, renderFace } from "@/lib/centerFaces";
 
 interface WheelSpinnerProps {
   options: string[];
@@ -12,6 +13,14 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // 中間的小豬：每次按旋轉換下一個（洗牌，一輪內不重複）；第一次進頁面也隨機挑一個
+  const [faceIndex, setFaceIndex] = useState<number>(() => nextFaceIndex());
+  const wasSpinning = useRef(false);
+  useEffect(() => {
+    if (isSpinning && !wasSpinning.current) setFaceIndex(nextFaceIndex());
+    wasSpinning.current = isSpinning;
+  }, [isSpinning]);
   const showResult = !isSpinning && spinAngle > 0 && options.length > 0;
   const sparkles = useMemo(
     () => Array.from({ length: 12 }, (_, i) => ({
@@ -410,131 +419,6 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
       }
     }
     
-    // 繪製中心圓 - 卡哇伊風格
-    ctx.beginPath();
-    ctx.arc(center, center, 40, 0, 2 * Math.PI);
-    // 漸變填充
-    const centerGradient = ctx.createRadialGradient(center, center, 0, center, center, 40);
-    centerGradient.addColorStop(0, "#FFD1EC");
-    centerGradient.addColorStop(1, "#FF9AD5");
-    ctx.fillStyle = centerGradient;
-    ctx.fill();
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    
-    // 繪製花朵形邊緣
-    ctx.beginPath();
-    for (let i = 0; i < 10; i++) {
-      const petalAngle = i * (Math.PI / 5);
-      ctx.arc(
-        center + 35 * Math.cos(petalAngle),
-        center + 35 * Math.sin(petalAngle),
-        12, 0, 2 * Math.PI
-      );
-    }
-    ctx.fillStyle = isSpinning ? "#FF8AC4" : "#FFA6D2";
-    ctx.fill();
-    
-    // 繪製內圈
-    ctx.beginPath();
-    ctx.arc(center, center, 30, 0, 2 * Math.PI);
-    ctx.fillStyle = "#FFF7FB";
-    ctx.fill();
-    ctx.strokeStyle = "#FFBEE3";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // 繪製卡通臉
-    ctx.beginPath();
-    ctx.arc(center, center, 25, 0, 2 * Math.PI);
-    const faceGradient = ctx.createRadialGradient(center, center, 0, center, center, 25);
-    faceGradient.addColorStop(0, isSpinning ? "#FF9ED8" : "#FFB6E1");
-    faceGradient.addColorStop(1, isSpinning ? "#FF7BC9" : "#FF98D4");
-    ctx.fillStyle = faceGradient;
-    ctx.fill();
-    
-    // 眼睛
-    const eyeSize = 5;
-    const eyeOffset = 8;
-    
-    if (isSpinning) {
-      // 旋轉時變成星星眼睛
-      ctx.beginPath();
-      ctx.moveTo(center - eyeOffset - 4, center - 4);
-      ctx.lineTo(center - eyeOffset + 4, center - 4);
-      ctx.moveTo(center - eyeOffset, center - 8);
-      ctx.lineTo(center - eyeOffset, center);
-      ctx.moveTo(center + eyeOffset - 4, center - 4);
-      ctx.lineTo(center + eyeOffset + 4, center - 4);
-      ctx.moveTo(center + eyeOffset, center - 8);
-      ctx.lineTo(center + eyeOffset, center);
-      ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    } else {
-      // 正常時的可愛眼睛
-      ctx.beginPath();
-      ctx.arc(center - eyeOffset, center - 2, eyeSize, 0, 2 * Math.PI);
-      ctx.arc(center + eyeOffset, center - 2, eyeSize, 0, 2 * Math.PI);
-      ctx.fillStyle = "white";
-      ctx.fill();
-      
-      // 瞳孔
-      ctx.beginPath();
-      ctx.arc(center - eyeOffset + 1, center - 2, eyeSize/2, 0, 2 * Math.PI);
-      ctx.arc(center + eyeOffset - 1, center - 2, eyeSize/2, 0, 2 * Math.PI);
-      ctx.fillStyle = "#222";
-      ctx.fill();
-      
-      // 亮點
-      ctx.beginPath();
-      ctx.arc(center - eyeOffset - 1, center - 3, 1.5, 0, 2 * Math.PI);
-      ctx.arc(center + eyeOffset - 3, center - 3, 1.5, 0, 2 * Math.PI);
-      ctx.fillStyle = "white";
-      ctx.fill();
-    }
-    
-    // 嘴巴
-    ctx.beginPath();
-    if (isSpinning) {
-      // 旋轉時張開的嘴巴
-      ctx.arc(center, center + 8, 6, 0, Math.PI, false);
-      ctx.fillStyle = "#FF5C8D";
-      ctx.fill();
-    } else {
-      // 正常時的貓咪嘴
-      ctx.arc(center, center + 6, 4, 0, Math.PI, false);
-      ctx.strokeStyle = "#FF5C8D";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-    
-    // 腮紅
-    ctx.beginPath();
-    ctx.arc(center - 15, center + 5, 5, 0, 2 * Math.PI);
-    ctx.arc(center + 15, center + 5, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = "#FFABC4";
-    ctx.fill();
-    
-    // 裝飾星星
-    for (let i = 0; i < 6; i++) {
-      const angle = i * (Math.PI / 3);
-      const x = center + 38 * Math.cos(angle);
-      const y = center + 38 * Math.sin(angle);
-      
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, 2 * Math.PI);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fill();
-      
-      // 小亮點
-      ctx.beginPath();
-      ctx.arc(x + 1, y - 1, 1.5, 0, 2 * Math.PI);
-      ctx.fillStyle = isSpinning ? "#FFF6A9" : "#FFFCDA";
-      ctx.fill();
-    }
-
     setIsInitialized(true);
     
   }, [options, isSpinning]);
@@ -607,43 +491,16 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         </svg>
       </div>
 
-      {/* 中央固定的小臉（不會跟著轉盤轉）。指向哪一格只靠頂端那一個指針，中間不再放指針，免得混淆 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-        <svg width="84" height="84" viewBox="43 23 114 114" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* 強烈光暈效果 */}
-          <filter id="kawaii-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur"/>
-            <feFlood floodColor="#FF6BFF" floodOpacity="0.7" result="color"/>
-            <feComposite in="color" in2="blur" operator="in" result="glow"/>
-            <feMerge>
-              <feMergeNode in="glow"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-          
-          {/* 漂亮的指針底座 */}
-          <circle cx="100" cy="80" r="35" fill="#FFDBF5" stroke="#FF96DB" strokeWidth="3" />
-          
-          {/* 底座裝飾 */}
-          <circle cx="100" cy="80" r="20" fill="#FFB6E8" />
-          <circle cx="100" cy="80" r="12" fill="#FFFFFF" />
-          
-          {/* 可愛表情 */}
-          <circle cx="93" cy="76" r="3" fill="#FF5CA8" />
-          <circle cx="107" cy="76" r="3" fill="#FF5CA8" />
-          <path
-            d="M92 86 Q100 92 108 86"
-            stroke="#FF5CA8"
-            strokeWidth="3"
-            fill="none"
-          />
-          
-          {/* 小裝飾 */}
-          <circle cx="80" cy="60" r="6" fill="#FFD9F5" stroke="#FFFFFF" strokeWidth="1" />
-          <circle cx="120" cy="60" r="6" fill="#FFD9F5" stroke="#FFFFFF" strokeWidth="1" />
-        </svg>
+      {/* 中央固定的小豬角色（不會跟著轉盤轉）。指向哪一格只靠頂端那一個指針 */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none w-[27%]">
+        <svg
+          viewBox="0 0 120 120"
+          className="w-full h-auto"
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: renderFace(faceIndex, isSpinning) }}
+        />
       </div>
-      
+
       {/* 轉盤邊框裝飾 */}
       {!isSpinning && (
         <div className="absolute inset-0 rounded-full border-8 border-pink-200 pointer-events-none z-10 animate-spin-slow opacity-50"></div>
