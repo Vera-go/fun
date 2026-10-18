@@ -110,6 +110,7 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
 .rtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .rquote{font-size:44px;color:var(--acc2);opacity:.55;line-height:1;position:relative;top:10px;font-family:Georgia,serif}
 .rfav{border:none;background:transparent;font-size:22px;cursor:pointer;line-height:1;padding:2px 4px;color:var(--acc2)}
+.wline{vertical-align:-.2em;flex:none}.rfav .wline{vertical-align:middle}
 .rline{font-size:17px;font-weight:700;margin:0 0 12px;color:var(--ink)}
 .rreframe{color:var(--muted);margin:0}
 .rctl{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:8px}
@@ -196,10 +197,11 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
   <footer id="foot"></footer>
 </div>
 
-<button class="helpfab" id="helpBtn">🎧 找人聊聊</button>
+<button class="helpfab" id="helpBtn">找人聊聊</button>
 <dialog id="helpDlg"></dialog>
 <dialog id="favDlg"></dialog>
 
+<script src="../assets/icons.js?v=20261018"></script>
 <script src="content.js?v=20261017"></script>
 <script>
 const C = window.LH;
@@ -214,7 +216,7 @@ function saveRIdx(){ try{ localStorage.setItem("lh_reframe_idx", rIdx); }catch(e
 
 $("#tagline").textContent = C.site.tagline2;
 document.title = `Lighthouse｜${C.site.tagline}`;
-$("#foot").innerHTML = `<p>⚓ ${esc(C.site.disclaimer)}</p><p><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></p>`;
+$("#foot").innerHTML = `<p>${SiteIcons.line("anchor", 16)} ${esc(C.site.disclaimer)}</p><p><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></p>`;
 
 // 星星：隨機灑在夜空區，閃爍時間錯開
 (function scatterStars(){
@@ -379,7 +381,7 @@ function renderReframe(){
   const draw = () => {
     const i = idx(), c = cards[i], isFav = rFavs.has(i);
     app.innerHTML = `<div class="rtop"><p class="muted small" style="margin:0">${esc(C.reframe.lead)}</p>
-        <button class="rfav" id="rFav" aria-label="收藏這句" title="收藏這句">${isFav ? "★" : "☆"}</button></div>
+        <button class="rfav" id="rFav" aria-label="收藏這句" title="收藏這句">${SiteIcons.line("star", 24, isFav ? "currentColor" : "none")}</button></div>
       <div class="reframe rfade">
         <div class="rquote">&ldquo;</div>
         <p class="rline">${esc(c.line)}</p>
@@ -391,7 +393,7 @@ function renderReframe(){
         <button class="btn acc" id="rNext">繼續往前 →</button>
       </div>
       <div style="text-align:center;margin-top:10px">
-        <button class="rfavlink" id="rFavList">★ 看收藏的句子（${rFavs.size}）</button>
+        <button class="rfavlink" id="rFavList">${SiteIcons.line("star", 14, "currentColor")} 看收藏的句子（${rFavs.size}）</button>
       </div>`;
     $("#rNext").onclick = () => { rIdx++; saveRIdx(); draw(); };
     $("#rPrev").onclick = () => { rIdx--; saveRIdx(); draw(); };
@@ -404,12 +406,12 @@ function renderReframe(){
 function openFavDlg(){
   const cards = C.reframe.cards;
   const favIdx = [...rFavs].sort((a, b) => a - b);
-  $("#favDlg").innerHTML = `<h2 style="margin-top:0">★ 收藏的句子</h2>
+  $("#favDlg").innerHTML = `<h2 style="margin-top:0">${SiteIcons.line("star", 22, "currentColor")} 收藏的句子</h2>
     ${favIdx.length ? favIdx.map(i => `<div class="favitem">
         <p class="fline">${esc(cards[i].line)}</p>
         <p class="freframe">${esc(cards[i].reframe)}</p>
         <div class="frow"><button class="btn" data-goto="${i}">看這句 →</button><button class="rfavlink" data-unfav="${i}">取消收藏</button></div>
-      </div>`).join("") : `<p class="muted small">還沒有收藏的句子，看到喜歡的句子按 ☆ 就可以留下來。</p>`}
+      </div>`).join("") : `<p class="muted small">還沒有收藏的句子，看到喜歡的句子，按右上角的星星就可以留下來。</p>`}
     <button class="btn" id="favClose" style="width:100%;margin-top:14px">關閉</button>`;
   $("#favDlg").showModal();
 }
@@ -432,7 +434,7 @@ document.querySelectorAll(".navbtn").forEach(b => b.addEventListener("click", ()
 
 // 找人聊聊
 const h = C.help;
-$("#helpBtn").textContent = "🎧 " + h.button;
+$("#helpBtn").innerHTML = SiteIcons.line("headset", 18) + " " + esc(h.button);
 $("#helpDlg").innerHTML = `<h2 style="margin-top:0">${esc(h.title)}</h2><p class="muted">${esc(h.lead)}</p>
   ${h.lines.map(l => `<div class="hl"><b>${esc(l.name)}</b><div class="tel"><a href="tel:${l.tel.replace(/-/g, "")}" style="color:inherit;text-decoration:none">${esc(l.tel)}</a></div><div class="small muted">${esc(l.note)}</div></div>`).join("")}
   <div class="hl small">${esc(h.school)}</div>

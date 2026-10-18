@@ -71,7 +71,8 @@ h2{font-size:22px;font-weight:900;margin:28px 0 10px}
 .friend{border:2px dashed var(--green);border-radius:14px;padding:12px 14px;margin:16px 0;font-weight:700}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 .tile{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:16px;text-align:left;min-width:0}
-.tile .ic{font-size:30px;line-height:1}
+.tile .ic{font-size:30px;line-height:1;color:var(--acc);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--acc) 45%,transparent))}
+.wline{vertical-align:-.2em;flex:none}
 .tile b{display:block;font-size:17px;margin-top:8px}
 .tile span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
 .tile.wide{grid-column:1 / -1;display:flex;align-items:center;gap:14px}
@@ -224,6 +225,7 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 <dialog id="helpDlg"></dialog>
 <div class="toast" id="toast"></div>
 
+<script src="../assets/icons.js?v=20261018"></script>
 <script src="content.js?v=20261017"></script>
 <script src="card.js"></script>
 <script>
@@ -437,9 +439,9 @@ function renderHome(){
     <button class="btn acc big" data-go="quiz">測你的反骨人格（1 分鐘）</button>
     ${S.last ? `<p class="small muted" style="text-align:center">上次測出：<a href="#" data-last="1">${S.last.code}・${esc(C.types[S.last.code].name)}</a></p>` : ""}
     <div class="tiles">
-      <button class="tile" data-go="calc"><div class="ic">💸</div><b>自由財富換算器</b><span>這筆錢能換到什麼</span></button>
-      <button class="tile" data-go="fidget"><div class="ic">🫧</div><b>無限泡泡紙</b><span>手癢就戳</span></button>
-      <button class="tile wide locked" data-go="secret"><div class="ic">🔒</div><div><b>${esc(C.secret.title)}</b><span>${esc(C.secret.teaser)}</span></div></button>
+      <button class="tile" data-go="calc"><div class="ic">${SiteIcons.line("calc", 34)}</div><b>自由財富換算器</b><span>這筆錢能換到什麼</span></button>
+      <button class="tile" data-go="fidget"><div class="ic">${SiteIcons.line("bubbles", 34)}</div><b>無限泡泡紙</b><span>手癢就戳</span></button>
+      <button class="tile wide locked" data-go="secret"><div class="ic">${SiteIcons.line("lock", 34)}</div><div><b>${esc(C.secret.title)}</b><span>${esc(C.secret.teaser)}</span></div></button>
     </div>`;
 }
 
@@ -506,7 +508,7 @@ function renderResult(){
     </div>
     <p class="note">最佳拍檔 <b style="color:${famColor(t.partner)}">${t.partner}</b> ${esc(C.types[t.partner].name)}・天敵 <b style="color:${famColor(t.rival)}">${t.rival}</b> ${esc(C.types[t.rival].name)}</p>
     <div class="card hidden-r ${unlocked ? "open" : ""}" id="hiddenBox">
-      <h3 class="mini">${unlocked ? "🔓" : "🔒"} 隱藏結果：${esc(C.site.hiddenTitle)}</h3>
+      <h3 class="mini">${SiteIcons.line(unlocked ? "unlock" : "lock", 20)} 隱藏結果：${esc(C.site.hiddenTitle)}</h3>
       ${unlocked ? `<p class="lure">「${esc(t.lure)}」</p>
         <div class="small muted">${esc(C.site.hiddenWhere)}</div>
         <ul class="where">${t.where.map(w => `<li>${esc(w)}</li>`).join("")}</ul>
@@ -515,8 +517,8 @@ function renderResult(){
         <button class="hold" id="holdBtn"><i id="holdBar"></i><span>${esc(C.site.hiddenHold)}</span></button>`}
     </div>
     <div class="row" style="margin-top:18px">
-      <button class="btn ghost" data-go="calc">💸 換算器</button>
-      <button class="btn ghost" data-go="fidget">🫧 泡泡紙</button>
+      <button class="btn ghost" data-go="calc">${SiteIcons.line("calc", 16)} 換算器</button>
+      <button class="btn ghost" data-go="fidget">${SiteIcons.line("bubbles", 16)} 泡泡紙</button>
     </div>
     <div style="margin-top:10px"><button class="btn ghost" data-go="quiz" style="width:100%">重新測一次</button></div>`;
 }
@@ -565,8 +567,8 @@ function renderResultOld(){
     </div>
     <p class="note">卡片只有你的類型，不會出現任何個人資料。</p>
     <div class="row" style="margin-top:18px">
-      <button class="btn ghost" data-go="calc">💸 換算器</button>
-      <button class="btn ghost" data-go="secret">🔒 機密檔案</button>
+      <button class="btn ghost" data-go="calc">${SiteIcons.line("calc", 16)} 換算器</button>
+      <button class="btn ghost" data-go="secret">${SiteIcons.line("lock", 16)} 機密檔案</button>
     </div>
     <div style="margin-top:10px"><button class="btn ghost" data-go="quiz" style="width:100%">重新測一次</button></div>`;
 }
@@ -656,8 +658,8 @@ function renderFidget(){
   }
   app.innerHTML = `<h1>${esc(F.title)}</h1><p class="muted">${esc(F.lead)}</p>
     <div class="ftop">${modes.map(([k, n]) => `<button class="chip ${mode === k ? "on" : ""}" data-mode="${k}">${esc(n)}</button>`).join("")}
-      ${mode === "breath" ? "" : `<button class="mute" id="softBtn" aria-pressed="${!!S.soft}">${S.soft ? "🌙 柔和：開" : "🌙 柔和：關"}</button>`}
-      <button class="mute" id="muteBtn" aria-label="音效開關">${S.mute ? "🔇 靜音" : "🔊 音效"}</button></div>
+      ${mode === "breath" ? "" : `<button class="mute" id="softBtn" aria-pressed="${!!S.soft}">${SiteIcons.line("moon", 16)} ${S.soft ? "柔和：開" : "柔和：關"}</button>`}
+      <button class="mute" id="muteBtn" aria-label="音效開關">${SiteIcons.line(S.mute ? "mute" : "volume", 16)} ${S.mute ? "靜音" : "音效"}</button></div>
     ${body}`;
   if(mode === "ch") document.querySelectorAll(".bub").forEach(b => b.disabled = true);
 }
@@ -727,7 +729,7 @@ function finishChallenge(){
   document.querySelectorAll(".bub").forEach(b => b.disabled = true);
   const record = n > (S.best || 0);
   if(record){ S.best = n; save(); $("#bestv").textContent = n; }
-  $("#chCtl").innerHTML = `<p style="font-size:18px;font-weight:900">${esc(fill(C.fidget.resultLine, {n}))}${record ? "　🏆 新紀錄！" : ""}</p>
+  $("#chCtl").innerHTML = `<p style="font-size:18px;font-weight:900">${esc(fill(C.fidget.resultLine, {n}))}${record ? "　" + SiteIcons.line("trophy", 18) + " 新紀錄！" : ""}</p>
     <div class="row"><button class="btn acc" id="shareScore" data-n="${n}">分享成績</button><button class="btn" id="chStart">再挑戰</button></div>`;
 }
 function addWorry(w){
@@ -758,7 +760,7 @@ function finishBreath(){
 /* 機密檔案 */
 function renderSecret(){
   const open = view.open;
-  app.innerHTML = `<h1>${open ? "🔓" : "🔒"} ${esc(C.secret.title)}</h1>
+  app.innerHTML = `<h1>${SiteIcons.line(open ? "unlock" : "lock", 28)} ${esc(C.secret.title)}</h1>
     <div class="file">
       <span class="stamp">CLASSIFIED</span>
       ${open ? C.secret.body.map((p, i) => `<p style="animation-delay:${i * .7}s">${esc(p)}</p>`).join("")
@@ -770,7 +772,7 @@ function renderSecret(){
 /* 找人聊聊 */
 function renderHelp(){
   const h = C.help;
-  $("#helpBtn").textContent = "🎧 " + h.button;
+  $("#helpBtn").innerHTML = SiteIcons.line("headset", 16) + " " + esc(h.button);
   $("#helpDlg").innerHTML = `<h2 style="margin-top:0">${esc(h.title)}</h2><p class="muted">${esc(h.lead)}</p>
     ${h.lines.map(l => `<div class="hl"><b>${esc(l.name)}</b><div class="tel"><a href="tel:${l.tel.replace(/-/g, "")}" style="color:inherit;text-decoration:none">${esc(l.tel)}</a></div><div class="small muted">${esc(l.note)}</div></div>`).join("")}
     <div class="hl small">${esc(h.school)}</div>
@@ -796,10 +798,10 @@ document.addEventListener("click", e => {
   if(t.id === "ctrStart"){ S.counter = {start:Date.now(), best:(S.counter && S.counter.best) || 0}; save(); return render(); }
   if(t.id === "ctrReset"){ const c = S.counter, d = Math.floor((Date.now() - c.start) / 864e5); S.counter = {start:Date.now(), best:Math.max(c.best || 0, d)}; save(); toast("重新開始也是一種反抗"); return render(); }
   if(t.dataset.mode){ stopChallenge(); stopBreath(); view.mode = t.dataset.mode; return render(); }
-  if(t.id === "muteBtn"){ S.mute = !S.mute; save(); t.textContent = S.mute ? "🔇 靜音" : "🔊 音效"; return; }
+  if(t.id === "muteBtn"){ S.mute = !S.mute; save(); t.innerHTML = SiteIcons.line(S.mute ? "mute" : "volume", 16) + " " + (S.mute ? "靜音" : "音效"); return; }
   if(t.id === "softBtn"){
     S.soft = !S.soft; save();
-    t.textContent = S.soft ? "🌙 柔和：開" : "🌙 柔和：關"; t.setAttribute("aria-pressed", String(!!S.soft));
+    t.innerHTML = SiteIcons.line("moon", 16) + " " + (S.soft ? "柔和：開" : "柔和：關"); t.setAttribute("aria-pressed", String(!!S.soft));
     const w = $(".bubwrap"); if(w) w.classList.toggle("soft", !!S.soft);
     return;
   }

@@ -36,12 +36,30 @@
     idea: () => ring("#FFFDF5") + g(`<path d="M11 24 Q6 19 6 14 Q6 6 16 6 Q26 6 26 14 Q26 19 21 24 Z" fill="#FFF3A3" stroke="${K}" stroke-width="2" stroke-linejoin="round"/><rect x="11" y="24" width="10" height="5" rx="1.5" fill="#D9D9D9" stroke="${K}" stroke-width="2"/><path d="M16 1.5 V3.5 M4.5 8 L6.5 9.5 M27.5 8 L25.5 9.5" stroke="${K}" stroke-width="1.8" stroke-linecap="round"/>`),
   };
 
+
+  // 線條小圖示（viewBox 0 0 24 24，顏色跟著文字 currentColor）：給 NOSTRINGS（螢光線條）和 Lighthouse（奶油、琥珀細線）用
+  const LINE = {
+    calc: '<circle cx="11" cy="13" r="8"/><path d="M11 8.5 v9 M8.3 11.3 c0 -2 5.4 -2 5.4 .2 c0 2.2 -5.4 1.2 -5.4 3.4 c0 2 5.4 1.8 5.4 -.2"/><path d="M20.5 2.5 v3.5 M18.7 4.2 h3.6"/>',
+    bubbles: '<circle cx="9" cy="14" r="6"/><circle cx="18" cy="7.5" r="3.2"/><circle cx="17" cy="18.5" r="2.2"/><path d="M6.2 12 a3.4 3.4 0 0 1 2.4 -1.6"/>',
+    lock: '<rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8 10.5 V8 a4 4 0 0 1 8 0 V10.5"/><circle cx="12" cy="15.5" r="1.4"/>',
+    unlock: '<rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8 10.5 V8 a4 4 0 0 1 7.6 -1.7"/><circle cx="12" cy="15.5" r="1.4"/>',
+    moon: '<path d="M20 14.5 A8.5 8.5 0 1 1 9.5 4 a7 7 0 0 0 10.5 10.5 Z"/>',
+    volume: '<path d="M4 9.5 H8 L13 5 V19 L8 14.5 H4 Z"/><path d="M16 9 a4.5 4.5 0 0 1 0 6 M18.5 6.5 a8 8 0 0 1 0 11"/>',
+    mute: '<path d="M4 9.5 H8 L13 5 V19 L8 14.5 H4 Z"/><path d="M16.5 9.5 L21.5 14.5 M21.5 9.5 L16.5 14.5"/>',
+    trophy: '<path d="M7 4 H17 V10 a5 5 0 0 1 -10 0 Z"/><path d="M7 6 H4 a3 3 0 0 0 3 4 M17 6 H20 a3 3 0 0 1 -3 4"/><path d="M12 15 V20 M8.5 20.5 H15.5"/>',
+    headset: '<path d="M4 14 V12 a8 8 0 0 1 16 0 V14"/><rect x="3" y="13" width="4.5" height="7" rx="2"/><rect x="16.5" y="13" width="4.5" height="7" rx="2"/><path d="M19 20 a4 3 0 0 1 -4 2 h-2"/>',
+    anchor: '<circle cx="12" cy="5.5" r="2.3"/><path d="M12 8 V20 M7.5 11 H16.5 M5 13.5 a7 7 0 0 0 14 0 M5 13.5 l-1.8 -2.2 M19 13.5 l1.8 -2.2"/>',
+    star: '<path d="M12 3.5 l2.6 5.4 5.9 .8 -4.3 4.1 1 5.9 -5.2 -2.8 -5.2 2.8 1 -5.9 -4.3 -4.1 5.9 -.8 Z"/>',
+  };
+
   const wrap = (box, body, size, cls) => `<svg class="${cls}" viewBox="0 0 ${box} ${box}" width="${size}" height="${size}" aria-hidden="true" focusable="false">${body}</svg>`;
   window.SiteIcons = {
     /** 功能小圖示：wish、sprout、flower、moon、chat、news、done、toolbox */
     icon: (name, size = 24) => wrap(32, ICONS[name] || "", size, "wicon"),
     /** 網站徽章：restaurant、wheel、english、nostrings、lighthouse、portal、idea */
     badge: (name, size = 32) => wrap(40, (BADGES[name] || (() => ""))(), size, "wbadge"),
+    /** 線條圖示：calc、bubbles、lock、unlock、moon、volume、mute、trophy、headset、anchor、star（fill 填 "currentColor" 就是實心） */
+    line: (name, size = 18, fill = "none") => `<svg class="wline" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${fill}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${LINE[name] || ""}</svg>`,
     /** 純 SVG 字串（給不載入這個檔案的靜態頁面複製貼上用） */
     _raw: ICONS,
   };
