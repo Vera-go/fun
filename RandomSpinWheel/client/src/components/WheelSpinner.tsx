@@ -362,11 +362,11 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
         const lineGap = fontSize * 1.15;
 
-        // 白色描邊讓字在淡色扇形上也清楚；字用較深的玫瑰紅
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 5;
+        // 白色描邊讓字在淡色扇形上也清楚；字用深紫（和每個淡色扇形的對比都在 7.6 倍以上）
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 4;
         ctx.lineJoin = 'round';
-        ctx.fillStyle = '#B3125A';
+        ctx.fillStyle = '#4A1942';
         lines.forEach((line, li) => {
           const y = (li - (lines.length - 1) / 2) * lineGap;
           ctx.strokeText(line, 0, y);
