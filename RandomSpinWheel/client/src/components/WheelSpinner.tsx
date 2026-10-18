@@ -389,131 +389,6 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
       }
     }
     
-    // 繪製中心圓 - 卡哇伊風格
-    ctx.beginPath();
-    ctx.arc(center, center, 40, 0, 2 * Math.PI);
-    // 漸變填充
-    const centerGradient = ctx.createRadialGradient(center, center, 0, center, center, 40);
-    centerGradient.addColorStop(0, "#FFD1EC");
-    centerGradient.addColorStop(1, "#FF9AD5");
-    ctx.fillStyle = centerGradient;
-    ctx.fill();
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    
-    // 繪製花朵形邊緣
-    ctx.beginPath();
-    for (let i = 0; i < 10; i++) {
-      const petalAngle = i * (Math.PI / 5);
-      ctx.arc(
-        center + 35 * Math.cos(petalAngle),
-        center + 35 * Math.sin(petalAngle),
-        12, 0, 2 * Math.PI
-      );
-    }
-    ctx.fillStyle = isSpinning ? "#FF8AC4" : "#FFA6D2";
-    ctx.fill();
-    
-    // 繪製內圈
-    ctx.beginPath();
-    ctx.arc(center, center, 30, 0, 2 * Math.PI);
-    ctx.fillStyle = "#FFF7FB";
-    ctx.fill();
-    ctx.strokeStyle = "#FFBEE3";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // 繪製卡通臉
-    ctx.beginPath();
-    ctx.arc(center, center, 25, 0, 2 * Math.PI);
-    const faceGradient = ctx.createRadialGradient(center, center, 0, center, center, 25);
-    faceGradient.addColorStop(0, isSpinning ? "#FF9ED8" : "#FFB6E1");
-    faceGradient.addColorStop(1, isSpinning ? "#FF7BC9" : "#FF98D4");
-    ctx.fillStyle = faceGradient;
-    ctx.fill();
-    
-    // 眼睛
-    const eyeSize = 5;
-    const eyeOffset = 8;
-    
-    if (isSpinning) {
-      // 旋轉時變成星星眼睛
-      ctx.beginPath();
-      ctx.moveTo(center - eyeOffset - 4, center - 4);
-      ctx.lineTo(center - eyeOffset + 4, center - 4);
-      ctx.moveTo(center - eyeOffset, center - 8);
-      ctx.lineTo(center - eyeOffset, center);
-      ctx.moveTo(center + eyeOffset - 4, center - 4);
-      ctx.lineTo(center + eyeOffset + 4, center - 4);
-      ctx.moveTo(center + eyeOffset, center - 8);
-      ctx.lineTo(center + eyeOffset, center);
-      ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    } else {
-      // 正常時的可愛眼睛
-      ctx.beginPath();
-      ctx.arc(center - eyeOffset, center - 2, eyeSize, 0, 2 * Math.PI);
-      ctx.arc(center + eyeOffset, center - 2, eyeSize, 0, 2 * Math.PI);
-      ctx.fillStyle = "white";
-      ctx.fill();
-      
-      // 瞳孔
-      ctx.beginPath();
-      ctx.arc(center - eyeOffset + 1, center - 2, eyeSize/2, 0, 2 * Math.PI);
-      ctx.arc(center + eyeOffset - 1, center - 2, eyeSize/2, 0, 2 * Math.PI);
-      ctx.fillStyle = "#222";
-      ctx.fill();
-      
-      // 亮點
-      ctx.beginPath();
-      ctx.arc(center - eyeOffset - 1, center - 3, 1.5, 0, 2 * Math.PI);
-      ctx.arc(center + eyeOffset - 3, center - 3, 1.5, 0, 2 * Math.PI);
-      ctx.fillStyle = "white";
-      ctx.fill();
-    }
-    
-    // 嘴巴
-    ctx.beginPath();
-    if (isSpinning) {
-      // 旋轉時張開的嘴巴
-      ctx.arc(center, center + 8, 6, 0, Math.PI, false);
-      ctx.fillStyle = "#FF5C8D";
-      ctx.fill();
-    } else {
-      // 正常時的貓咪嘴
-      ctx.arc(center, center + 6, 4, 0, Math.PI, false);
-      ctx.strokeStyle = "#FF5C8D";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-    
-    // 腮紅
-    ctx.beginPath();
-    ctx.arc(center - 15, center + 5, 5, 0, 2 * Math.PI);
-    ctx.arc(center + 15, center + 5, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = "#FFABC4";
-    ctx.fill();
-    
-    // 裝飾星星
-    for (let i = 0; i < 6; i++) {
-      const angle = i * (Math.PI / 3);
-      const x = center + 38 * Math.cos(angle);
-      const y = center + 38 * Math.sin(angle);
-      
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, 2 * Math.PI);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fill();
-      
-      // 小亮點
-      ctx.beginPath();
-      ctx.arc(x + 1, y - 1, 1.5, 0, 2 * Math.PI);
-      ctx.fillStyle = isSpinning ? "#FFF6A9" : "#FFFCDA";
-      ctx.fill();
-    }
-
     setIsInitialized(true);
     
   }, [options, isSpinning]);
@@ -578,64 +453,81 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
         />
       </div>
       
-      {/* 中央固定指針 - 卡哇伊風格 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-        <svg width="120" height="150" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* 強烈光暈效果 */}
-          <filter id="kawaii-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur"/>
-            <feFlood floodColor="#FF6BFF" floodOpacity="0.7" result="color"/>
-            <feComposite in="color" in2="blur" operator="in" result="glow"/>
-            <feMerge>
-              <feMergeNode in="glow"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-          
-          {/* 漂亮的指針底座 */}
-          <circle cx="100" cy="80" r="35" fill="#FFDBF5" stroke="#FF96DB" strokeWidth="3" />
-          
-          {/* 明亮的大指針 */}
-          <path 
-            d="M100 0 L135 60 L65 60 Z" 
-            fill="#FF42A1" 
-            filter="url(#kawaii-glow)"
-            stroke="#FFFFFF"
-            strokeWidth="3"
-          />
-          <path 
-            d="M100 15 L125 55 L75 55 Z" 
-            fill="#FF96DB" 
-          />
-          
-          {/* 指針上的小星星 */}
+      {/* 頂端的指針：愛心撲克牌的尖角朝下，指著抽中的那一格（紅心皇后） */}
+      <div className={`absolute left-1/2 -translate-x-1/2 -top-3 z-30 pointer-events-none ${!isSpinning && spinAngle > 0 ? "animate-bounce-slow" : ""}`}>
+        <svg width="40" height="44" viewBox="0 0 40 44" aria-hidden="true">
           <path
-            d="M100 30 L105 20 L110 30 L120 32 L110 40 L112 50 L100 45 L88 50 L90 40 L80 32 L90 30 Z"
-            fill="#FFFFFF"
-            stroke="#FF96DB"
-            strokeWidth="1"
+            d="M20 41 C6 29 2 22 2 14 C2 7 7 3 12 3 C16 3 19 5 20 8 C21 5 24 3 28 3 C33 3 38 7 38 14 C38 22 34 29 20 41 Z"
+            fill="#E6325F" stroke="#FFFFFF" strokeWidth="3" strokeLinejoin="round"
           />
-          
-          {/* 底座裝飾 */}
-          <circle cx="100" cy="80" r="20" fill="#FFB6E8" />
-          <circle cx="100" cy="80" r="12" fill="#FFFFFF" />
-          
-          {/* 可愛表情 */}
-          <circle cx="93" cy="76" r="3" fill="#FF5CA8" />
-          <circle cx="107" cy="76" r="3" fill="#FF5CA8" />
-          <path
-            d="M92 86 Q100 92 108 86"
-            stroke="#FF5CA8"
-            strokeWidth="3"
-            fill="none"
-          />
-          
-          {/* 小裝飾 */}
-          <circle cx="80" cy="60" r="6" fill="#FFD9F5" stroke="#FFFFFF" strokeWidth="1" />
-          <circle cx="120" cy="60" r="6" fill="#FFD9F5" stroke="#FFFFFF" strokeWidth="1" />
+          <ellipse cx="12" cy="12" rx="4" ry="2.6" fill="#FFFFFF" opacity="0.55" transform="rotate(-30 12 12)" />
         </svg>
       </div>
-      
+
+      {/* 中央固定的角色：戴著瘋帽匠高帽的小豬（愛麗絲夢遊仙境）。轉盤轉的時候，牠會暈到眼睛打轉 */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[56%] z-20 pointer-events-none w-[27%]">
+        <svg viewBox="0 0 120 130" className="w-full h-auto" aria-hidden="true">
+          <defs>
+            <radialGradient id="pig-skin" cx="40%" cy="35%" r="75%">
+              <stop offset="0%" stopColor="#FFD6E8" />
+              <stop offset="100%" stopColor="#FF9CC6" />
+            </radialGradient>
+          </defs>
+
+          {/* 耳朵 */}
+          <path d="M30 60 C18 48 20 30 28 24 C38 30 46 42 46 56 Z" fill="#FF8DBD" stroke="#FFFFFF" strokeWidth="3" strokeLinejoin="round" />
+          <path d="M90 60 C102 48 100 30 92 24 C82 30 74 42 74 56 Z" fill="#FF8DBD" stroke="#FFFFFF" strokeWidth="3" strokeLinejoin="round" />
+
+          {/* 頭 */}
+          <circle cx="60" cy="78" r="38" fill="url(#pig-skin)" stroke="#FFFFFF" strokeWidth="4" />
+
+          {/* 眼睛：平常是有神的大眼，旋轉時變成打轉的漩渦 */}
+          {isSpinning ? (
+            <g fill="none" stroke="#4A1942" strokeWidth="2.4" strokeLinecap="round">
+              <path d="M42 72 m0 0 a2 2 0 1 1 4 0 a5 5 0 1 1 -8 0 a8 8 0 1 1 13 0" />
+              <path d="M78 72 m0 0 a2 2 0 1 0 -4 0 a5 5 0 1 0 8 0 a8 8 0 1 0 -13 0" />
+            </g>
+          ) : (
+            <g>
+              <circle cx="44" cy="72" r="6.5" fill="#FFFFFF" />
+              <circle cx="76" cy="72" r="6.5" fill="#FFFFFF" />
+              <circle cx="45.5" cy="73" r="3.4" fill="#4A1942" />
+              <circle cx="74.5" cy="73" r="3.4" fill="#4A1942" />
+              <circle cx="46.6" cy="71.6" r="1.1" fill="#FFFFFF" />
+              <circle cx="75.6" cy="71.6" r="1.1" fill="#FFFFFF" />
+            </g>
+          )}
+
+          {/* 腮紅 */}
+          <ellipse cx="34" cy="88" rx="7" ry="4.5" fill="#FF7FB0" opacity="0.55" />
+          <ellipse cx="86" cy="88" rx="7" ry="4.5" fill="#FF7FB0" opacity="0.55" />
+
+          {/* 豬鼻 */}
+          <ellipse cx="60" cy="90" rx="16" ry="11.5" fill="#FF86B8" stroke="#FFFFFF" strokeWidth="2.5" />
+          <ellipse cx="54" cy="90" rx="2.6" ry="4" fill="#4A1942" />
+          <ellipse cx="66" cy="90" rx="2.6" ry="4" fill="#4A1942" />
+
+          {/* 柴郡貓式的大笑：旋轉時張開 */}
+          {isSpinning ? (
+            <path d="M44 104 Q60 124 76 104 Z" fill="#4A1942" stroke="#FFFFFF" strokeWidth="2" strokeLinejoin="round" />
+          ) : (
+            <path d="M42 103 Q60 118 78 103" fill="none" stroke="#4A1942" strokeWidth="3" strokeLinecap="round" />
+          )}
+
+          {/* 瘋帽匠的高帽（微微歪一邊） */}
+          <g transform="rotate(-9 60 46)">
+            <path d="M38 48 L42 8 Q60 2 78 8 L82 48 Z" fill="#4A1942" stroke="#FFFFFF" strokeWidth="3" strokeLinejoin="round" />
+            <path d="M39.6 38 L80.4 38 L81.4 48 L38.6 48 Z" fill="#FF6FB5" />
+            <ellipse cx="60" cy="49" rx="30" ry="7" fill="#4A1942" stroke="#FFFFFF" strokeWidth="3" />
+            {/* 帽子上插的紙牌：10/6 */}
+            <g transform="rotate(8 69 36)">
+              <rect x="62" y="22" width="16" height="22" rx="2.5" fill="#FFFDF5" stroke="#4A1942" strokeWidth="1.4" />
+              <text x="70" y="36" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#E6325F" fontFamily="Georgia, serif">10/6</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
       {/* 轉盤邊框裝飾 */}
       {!isSpinning && (
         <div className="absolute inset-0 rounded-full border-8 border-pink-200 pointer-events-none z-10 animate-spin-slow opacity-50"></div>
@@ -664,9 +556,6 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
           <div className="absolute inset-0 z-50 pointer-events-none">
             {/* 特效扇形光芒 - 固定在12點方向 */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full">
-              {/* 閃亮金色光芒 */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-yellow-300 rounded-full opacity-30 animate-pulse-fast"></div>
-              
               {/* 多層光芒 */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32">
                 <div className="relative w-full h-full rotate-45">
@@ -677,26 +566,6 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
               
               {/* 超級顯眼的星星特效 */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full">
-                {/* 大型閃亮星星 */}
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2">
-                  <svg width="60" height="60" viewBox="0 0 50 50" className="animate-bounce-slow">
-                    <filter id="glow-star">
-                      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                    <path 
-                      d="M25 0 L30 17 L47 17 L33 28 L38 45 L25 35 L12 45 L17 28 L3 17 L20 17 Z" 
-                      fill="#FFDF00" 
-                      stroke="#FFFFFF" 
-                      strokeWidth="1"
-                      filter="url(#glow-star)"
-                    />
-                  </svg>
-                </div>
-                
                 {/* 輔助星星 */}
                 <div className="absolute top-10 -left-6">
                   <svg width="30" height="30" viewBox="0 0 20 20" className="animate-sparkle" style={{animationDelay: "0.2s"}}>
