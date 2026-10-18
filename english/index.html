@@ -1906,10 +1906,10 @@ function drawToast(){
 }
 /* gender：講中文時男老師改用男聲；pitch：講中文的音調 */
 const TEACHERS = {
-  anan:{name:"安安老師", gender:"f", pitch:1, draw:drawAnan, greet:"我是安安老師，不用急，我們一步一步慢慢來喔！"},
-  lily:{name:"莉莉老師", gender:"f", pitch:1.15, draw:drawLily, greet:"午安，我是莉莉。今天也優雅地背幾個單字吧～"},
-  kai:{name:"阿凱老師", gender:"m", pitch:1, draw:drawKai, greet:"嘿！我是阿凱！暖身完畢，今天衝一波單字！"},
-  toast:{name:"吐司老師", gender:"f", pitch:1.45, draw:drawToast, greet:"我是吐司老師！今天也要烤得酥脆喔！"}
+  anan:{name:"安安老師", gender:"f", pitch:1, draw:drawAnan, greet:"不用急，我們一步一步慢慢來喔！"},
+  lily:{name:"莉莉老師", gender:"f", pitch:1.15, draw:drawLily, greet:"午安～今天也優雅地背幾個單字吧！"},
+  kai:{name:"阿凱老師", gender:"m", pitch:1, draw:drawKai, greet:"嘿！暖身完畢，今天衝一波單字！"},
+  toast:{name:"吐司老師", gender:"f", pitch:1.45, draw:drawToast, greet:"今天也要烤得酥脆喔！"}
 };
 function curLook(){ const e = G().equip; return {teacher:TEACHERS[e.teacher] ? e.teacher : "anan", hair:e.hair, outfit:e.outfit, acc:e.acc}; }
 const curTeacher = () => TEACHERS[curLook().teacher];
