@@ -53,7 +53,7 @@ h2{font-size:21px;font-weight:900;margin:36px 0 12px;display:flex;align-items:ce
 .badge.doing{background:var(--doing-soft);color:var(--doing)}
 .badge.done{background:var(--ok-soft);color:var(--ok)}
 .badge.rej{background:var(--panel2);color:var(--bad)}
-.badge.new{background:#FFE3EF;color:#C2255C;animation:newpulse 1.8s ease-in-out infinite}
+.badge.new{display:inline-flex;align-items:center;gap:4px;background:#FFE3EF;color:#C2255C;animation:newpulse 1.8s ease-in-out infinite}
 @keyframes newpulse{0%,100%{box-shadow:0 0 0 0 rgba(194,37,92,.35)}50%{box-shadow:0 0 0 5px rgba(194,37,92,0)}}
 @media (prefers-reduced-motion:reduce){.badge.new{animation:none}}
 .wish.fresh{outline:2px solid #F783AC;outline-offset:2px}

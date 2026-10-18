@@ -28,7 +28,7 @@
         <li>每人每天最多許 5 個願望，每個願望只能 +1 一次</li>
         <li><b>需要額外付費才做得出來的功能不收</b>，例如金流、簡訊、付費 API、上架 App Store</li>
         <li>不適合的內容、做不到的功能會被標成「不採納」，原因寫在回覆裡，只有提出的那個瀏覽器看得到</li>
-        <li>我們不會主動通知你（因為不蒐集聯絡方式）。用同一個瀏覽器回來時，你的願望有新狀態或回覆，會標出「🔔 有新消息」</li>
+        <li>我們不會主動通知你（因為不蒐集聯絡方式）。用同一個瀏覽器回來時，你的願望有新狀態或回覆，會標出「有新消息」的小信封</li>
       </ul>
     </div>
     <form id="wishForm" novalidate>
@@ -122,7 +122,7 @@ function wishHtml(w, opts = {}) {
       <div class="t">${esc(w.title)}</div>
       ${w.detail ? `<div class="d">${esc(w.detail)}</div>` : ""}
       ${w.admin_note ? `<div class="note">💬 薇拉小姐：${esc(w.admin_note)}</div>` : ""}
-      <div class="meta">${fresh ? '<span class="badge new">🔔 有新消息</span>' : ""}${badge}<span>${site.icon} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
+      <div class="meta">${fresh ? `<span class="badge new">${Wish.icon("news", 16)}有新消息</span>` : ""}${badge}<span>${site.icon} ${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
         ${w.status === "done" && w.done_at ? `<span>${day(w.done_at)} 完成</span>` : ""}
         ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}
         ${w.is_author && w.status === "open" && !admin ? `<a href="#" data-del="${w.id}">刪除</a>` : ""}</div>

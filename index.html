@@ -59,9 +59,9 @@
     // 沒辦法通知提出願望的人，所以回來時提示：自己的願望有新消息、最近有願望完成
     const news = [];
     const mineNews = Wish.authorNews([...pending, ...done, ...rejected]);
-    if (mineNews.length) news.push(`<a class="mine" href="wish/">🔔 你提出的願望有 ${mineNews.length} 則新消息，去看看 →</a>`);
+    if (mineNews.length) news.push(`<a class="mine" href="wish/">${Wish.icon("news", 30)}<span>你提出的願望有 ${mineNews.length} 則新消息，去看看 →</span></a>`);
     const recent = Wish.recentDoneCount(done);
-    if (recent) news.push(`<a href="wish/#doneSection">🎉 最近 14 天完成了 ${recent} 個願望 →</a>`);
+    if (recent) news.push(`<a href="wish/#doneSection">${Wish.icon("done", 30)}<span>最近 14 天完成了 ${recent} 個願望 →</span></a>`);
     document.getElementById("wishNews").innerHTML = news.join("");
     const top = pending.slice(0, 3);
     const nextIdx = pending.findIndex(x => x.status === "open");

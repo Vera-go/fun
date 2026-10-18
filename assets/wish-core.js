@@ -63,6 +63,15 @@
   /** 最近 days 天內完成的願望數 */
   const recentDoneCount = (done, days = 14) => done.filter(w => w.done_at && Date.now() - new Date(w.done_at).getTime() < days * 864e5).length;
 
+  // 自己畫的小圖示（粗黑邊貼紙風，向量圖，不同手機看起來一樣）：news＝信封豬、done＝豬鼻旗
+  const ICON_STROKE = 'stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"';
+  const pigSnout = (cx, cy, rx, ry) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#FF86B8" ${ICON_STROKE}/><ellipse cx="${cx - rx * .38}" cy="${cy}" rx="1.1" ry="1.7" fill="#111"/><ellipse cx="${cx + rx * .38}" cy="${cy}" rx="1.1" ry="1.7" fill="#111"/>`;
+  const ICONS = {
+    news: `<path d="M5 12 L7 4 L13 9 M27 12 L25 4 L19 9" fill="#FF9CC6" ${ICON_STROKE}/><rect x="3.5" y="8" width="25" height="18" rx="3" fill="#FFF3A3" ${ICON_STROKE}/><path d="M4 10 L16 19 L28 10" fill="none" ${ICON_STROKE}/>${pigSnout(16, 21, 5, 3.4)}`,
+    done: `<path d="M7 29 V3" fill="none" ${ICON_STROKE}/><path d="M7 5 H27 L22 11 L27 17 H7 Z" fill="#FFC2DA" ${ICON_STROKE}/><path d="M9 3 L11 0.5 L13 4 M16 3 L18 0.5 L20 4" fill="#FF9CC6" ${ICON_STROKE} transform="translate(0,4)"/>${pigSnout(16, 11, 4.2, 3)}`,
+  };
+  const icon = (name, size = 24) => `<svg class="wicon" viewBox="0 0 32 32" width="${size}" height="${size}" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
+
   function friendly(error) {
     if (!error) return "發生錯誤，請稍後再試";
     if (error.code === "P0001") return error.message;
@@ -112,5 +121,5 @@
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const day = iso => { const d = new Date(iso); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
 
-  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
+  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, icon, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
 })();
