@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash, Plus, RotateCcw, Play } from "lucide-react";
+import { Trash, Plus, RotateCcw, Play, Save } from "lucide-react";
+import { MAX_SAVED, type SavedWheel } from "@/lib/hooks/useWheel";
 
 interface WheelConfigurationProps {
   wheelTitle: string;
@@ -13,6 +14,12 @@ interface WheelConfigurationProps {
   onResetWheel: () => void;
   onSpinWheel: () => void;
   isSpinning: boolean;
+  savedWheels: SavedWheel[];
+  currentId: string;
+  notice: string;
+  onSaveWheel: () => void;
+  onLoadWheel: (id: string) => void;
+  onDeleteWheel: (id: string) => void;
 }
 
 export default function WheelConfiguration({
@@ -24,14 +31,67 @@ export default function WheelConfiguration({
   onRemoveOption,
   onResetWheel,
   onSpinWheel,
-  isSpinning
+  isSpinning,
+  savedWheels,
+  currentId,
+  notice,
+  onSaveWheel,
+  onLoadWheel,
+  onDeleteWheel
 }: WheelConfigurationProps) {
+  const current = savedWheels.find(w => w.id === currentId);
+
   
   return (
     <Card className="bg-white shadow-md">
       <CardContent className="p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">轉盤設定</h2>
         
+        {/* Saved wheels（存在這支手機的瀏覽器裡） */}
+        <div className="mb-5 rounded-lg bg-gray-50 p-3">
+          <div className="flex justify-between items-center mb-2">
+            <label htmlFor="saved-wheels" className="block text-sm font-medium text-gray-700">我的轉盤</label>
+            <span className="text-xs text-gray-500">{savedWheels.length} / {MAX_SAVED}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              id="saved-wheels"
+              value={currentId}
+              onChange={(e) => onLoadWheel(e.target.value)}
+              disabled={savedWheels.length === 0}
+              className="flex-grow min-w-0 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white"
+            >
+              <option value="">{savedWheels.length === 0 ? '還沒有儲存的轉盤' : '選擇已儲存的轉盤…'}</option>
+              {savedWheels.map(w => (
+                <option key={w.id} value={w.id}>{w.title}（{w.options.length}）</option>
+              ))}
+            </select>
+            <Button
+              variant="ghost"
+              size="icon"
+              disabled={!current}
+              aria-label="刪除這個已儲存的轉盤"
+              onClick={() => {
+                if (current && window.confirm('要刪掉「' + current.title + '」嗎？')) onDeleteWheel(current.id);
+              }}
+              className="shrink-0 text-gray-500 hover:text-red-500"
+            >
+              <Trash className="h-5 w-5" />
+            </Button>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full mt-2 flex items-center justify-center px-4 py-2"
+            onClick={onSaveWheel}
+          >
+            <Save className="h-5 w-5 mr-1" />
+            {current ? '更新這個轉盤' : '儲存目前的轉盤'}
+          </Button>
+          <p className="mt-2 text-xs text-gray-500" role="status" aria-live="polite">
+            {notice || '只存在這支手機的瀏覽器，不會上傳；換裝置或清除瀏覽資料就會不見。'}
+          </p>
+        </div>
+
         {/* Wheel Title Input */}
         <div className="mb-5">
           <label htmlFor="wheel-title" className="block text-sm font-medium text-gray-700 mb-1">

@@ -18,6 +18,12 @@ export default function Home() {
     isSpinning,
     result,
     spinHistory,
+    savedWheels,
+    currentId,
+    notice,
+    saveWheel,
+    loadWheel,
+    deleteWheel,
   } = useWheel();
 
   return (
@@ -45,6 +51,12 @@ export default function Home() {
                 onResetWheel={resetWheel}
                 onSpinWheel={spinWheel}
                 isSpinning={isSpinning}
+                savedWheels={savedWheels}
+                currentId={currentId}
+                notice={notice}
+                onSaveWheel={saveWheel}
+                onLoadWheel={loadWheel}
+                onDeleteWheel={deleteWheel}
               />
             </div>
 

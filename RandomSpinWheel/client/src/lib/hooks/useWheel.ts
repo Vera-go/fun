@@ -1,8 +1,39 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface SpinResult {
   text: string;
   angle: number;
+}
+
+export interface SavedWheel {
+  id: string;
+  title: string;
+  options: string[];
+}
+
+// 存在這支手機的瀏覽器裡（不登入、不上傳）；換裝置或清除瀏覽資料就會不見
+const STORAGE_KEY = 'wheel_saved_sets_v1';
+export const MAX_SAVED = 10;
+
+function loadSaved(): SavedWheel[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter(w => w && typeof w.id === 'string' && typeof w.title === 'string' && Array.isArray(w.options))
+      .slice(0, MAX_SAVED);
+  } catch {
+    return [];
+  }
+}
+
+function persistSaved(list: SavedWheel[]): boolean {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default function useWheel() {
@@ -13,6 +44,17 @@ export default function useWheel() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState<SpinResult>({ text: '', angle: 0 });
   const [spinHistory, setSpinHistory] = useState<string[]>([]);
+  const [savedWheels, setSavedWheels] = useState<SavedWheel[]>(loadSaved);
+  const [currentId, setCurrentId] = useState<string>('');
+  const [notice, setNotice] = useState<string>('');
+  const noticeTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const showNotice = useCallback((text: string) => {
+    setNotice(text);
+    clearTimeout(noticeTimer.current);
+    noticeTimer.current = setTimeout(() => setNotice(''), 3000);
+  }, []);
+  useEffect(() => () => clearTimeout(noticeTimer.current), []);
 
   const addOption = useCallback(() => {
     setOptions(prev => [...prev, '']);
@@ -33,9 +75,65 @@ export default function useWheel() {
   const resetWheel = useCallback(() => {
     setWheelTitle('新轉盤');
     setOptions([]);
+    setCurrentId('');
     setResult({ text: '', angle: 0 });
     setSpinHistory([]);
   }, []);
+
+  // 儲存目前的轉盤：標題當名字；同一組（或同名）會直接更新，不會重複
+  const saveWheel = useCallback(() => {
+    const cleaned = options.map(o => o.trim()).filter(Boolean);
+    if (cleaned.length < 2) {
+      showNotice('至少要有 2 個選項才能儲存');
+      return;
+    }
+    const title = wheelTitle.trim() || '未命名轉盤';
+    const existing = savedWheels.find(w => w.id === currentId) || savedWheels.find(w => w.title === title);
+    let next: SavedWheel[];
+    let id: string;
+    if (existing) {
+      id = existing.id;
+      next = savedWheels.map(w => (w.id === id ? { id, title, options: cleaned } : w));
+    } else {
+      if (savedWheels.length >= MAX_SAVED) {
+        showNotice(`最多存 ${MAX_SAVED} 組，請先刪掉一組`);
+        return;
+      }
+      id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      next = [...savedWheels, { id, title, options: cleaned }];
+    }
+    if (!persistSaved(next)) {
+      showNotice('這個瀏覽器不讓我們儲存，請檢查是不是無痕模式');
+      return;
+    }
+    setSavedWheels(next);
+    setCurrentId(id);
+    setWheelTitle(title);
+    setOptions(cleaned);
+    showNotice(existing ? '已更新「' + title + '」' : '已儲存「' + title + '」');
+  }, [options, wheelTitle, savedWheels, currentId, showNotice]);
+
+  const loadWheel = useCallback((id: string) => {
+    const found = savedWheels.find(w => w.id === id);
+    if (!found) {
+      setCurrentId('');
+      return;
+    }
+    setCurrentId(found.id);
+    setWheelTitle(found.title);
+    setOptions([...found.options]);
+    setResult({ text: '', angle: 0 });
+  }, [savedWheels]);
+
+  const deleteWheel = useCallback((id: string) => {
+    const found = savedWheels.find(w => w.id === id);
+    if (!found) return;
+    const next = savedWheels.filter(w => w.id !== id);
+    persistSaved(next);
+    setSavedWheels(next);
+    if (currentId === id) setCurrentId('');
+    showNotice('已刪除「' + found.title + '」');
+  }, [savedWheels, currentId, showNotice]);
 
   const spinWheel = useCallback(() => {
     if (isSpinning || options.length < 2) return;
@@ -93,6 +191,12 @@ export default function useWheel() {
     spinWheel,
     isSpinning,
     result,
-    spinHistory
+    spinHistory,
+    savedWheels,
+    currentId,
+    notice,
+    saveWheel,
+    loadWheel,
+    deleteWheel
   };
 }
