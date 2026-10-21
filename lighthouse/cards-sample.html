@@ -102,7 +102,8 @@ const o = `stroke="${INK}" stroke-width="5" stroke-linejoin="round" stroke-linec
 
 /* 角色：全部是手繪塗鴉風 SVG，故意歪歪的、不對稱 */
 const eyeBig = (x,y,r=11,px=0) => `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${o}/><circle cx="${x+px}" cy="${y+2}" r="${r/2.4}" fill="${INK}"/></g>`;
-const eyeSpiral = (x,y,r=12) => `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${o}/><path d="M${x} ${y} m-1 0 a2 2 0 1 1 3 1 a4 4 0 1 1 -6 -1 a6.5 6.5 0 1 1 9 -2" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/></g>`;
+const eyeSpiral = (x,y,r=12) => { let d = ""; for(let i = 0; i <= 44; i++){ const t = i * .3, rr = .8 + i * (r - 3.6) / 44; d += `${i ? "L" : "M"}${(x + rr * Math.cos(t)).toFixed(1)} ${(y + rr * Math.sin(t)).toFixed(1)}`; }
+  return `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${INK}" stroke-width="3.2"/><path d="${d}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`; };
 const ART = {
   /* 吐司水獺：奶油融化中，三隻眼睛高低不一，手像麵條 */
   otter: `<svg viewBox="-14 -10 228 220"><g class="wob">
@@ -122,7 +123,7 @@ const ART = {
     <circle cx="82" cy="104" r="2" fill="${INK}"/><circle cx="90" cy="108" r="2" fill="${INK}"/><circle cx="118" cy="104" r="2" fill="${INK}"/><circle cx="110" cy="108" r="2" fill="${INK}"/>
     <path d="M70 96 L30 84 M68 104 L26 106 M72 112 L34 126 M130 96 L170 84 M132 104 L174 106 M128 112 L166 126" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
     <g class="sleepE"><circle cx="76" cy="80" r="13" fill="#f0dcb8" ${o}/><circle cx="124" cy="80" r="13" fill="#f0dcb8" ${o}/><path d="M67 80 Q76 88 85 80 M115 80 Q124 88 133 80" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g>
-    <g class="awakeE"><circle cx="76" cy="80" r="17" fill="#fff" ${o}/><circle cx="124" cy="80" r="17" fill="#fff" ${o}/><circle cx="76" cy="80" r="3.2" fill="${INK}"/><circle cx="124" cy="80" r="3.2" fill="${INK}"/><path d="M58 56 Q74 46 90 58 M110 58 Q126 46 142 56" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M148 60 Q156 72 148 78 Q140 72 148 60Z" fill="#7de3ff" ${o}/><path d="M40 70 L28 64 M42 56 L32 46 M160 70 L172 64 M158 56 L168 46" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/></g>
+    <g class="awakeE"><circle cx="76" cy="80" r="17" fill="#fff" ${o}/><circle cx="124" cy="80" r="17" fill="#fff" ${o}/><circle cx="76" cy="80" r="3.2" fill="${INK}"/><circle cx="124" cy="80" r="3.2" fill="${INK}"/><path d="M58 56 Q74 46 90 58 M110 58 Q126 46 142 56" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M148 60 Q156 72 148 78 Q140 72 148 60Z" fill="#7de3ff" ${o}/><path d="M40 70 L28 64 M42 56 L32 46" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/></g>
     <text class="oops" x="88" y="26" font-size="32" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text>
     </g>
     <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="116" y="34" font-size="22">Z</text></g>
@@ -149,15 +150,16 @@ const ART = {
   penguin: `<svg viewBox="0 -16 200 216"><g class="wob">
     <path d="M100 30 Q154 30 156 100 Q160 172 100 172 Q40 172 44 100 Q46 30 100 30Z" fill="#3c4a8a" ${o}/>
     <g transform="rotate(14 100 22)"><rect x="78" y="-4" width="44" height="34" rx="3" fill="#1a1a2e" ${o}/><rect x="68" y="26" width="64" height="8" rx="3" fill="#1a1a2e" ${o}/><rect x="78" y="16" width="44" height="7" fill="#ff4d6d"/></g>
-    ${eyeSpiral(78,62,11)}${eyeBig(122,56,17,-5)}
+    ${eyeSpiral(78,62,13)}${eyeBig(122,56,17,-5)}
     <path d="M88 78 L112 78 L100 92 Z" fill="#ff9f1c" ${o}/>
     <path d="M34 94 Q100 176 166 90 Q100 114 34 94Z" fill="#7a1f3a" ${o}/>
     <path d="M52 100 Q100 116 148 98 L144 108 Q100 124 56 110 Z" fill="#fff"/>
-    <path d="M78 134 Q100 108 122 134 Q100 150 78 134Z" fill="#ff6b8a" ${o}/>
-    <circle cx="100" cy="150" r="24" fill="#fff8e7" ${o}/>
+    <path d="M80 124 Q100 112 120 124 Q100 138 80 124Z" fill="#ff6b8a" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+    <g transform="translate(100 156) scale(.78) translate(-100 -150)"><circle cx="100" cy="150" r="24" fill="#fff8e7" ${o}/>
     <g class="clk" style="transform-origin:100px 150px"><path d="M100 150 L100 134" stroke="${INK}" stroke-width="4" stroke-linecap="round"/></g>
     <path d="M100 150 L112 156" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
     <g font-size="9" font-weight="900" fill="${INK}" font-family="sans-serif" text-anchor="middle"><text x="100" y="134">21</text><text x="118" y="153">9</text><text x="100" y="170">6</text><text x="82" y="153">3</text></g>
+    </g>
     <path d="M44 120 Q16 112 18 150 Q30 142 48 140Z" fill="#3c4a8a" ${o}/>
     <path d="M156 120 Q190 100 186 138 Q170 134 152 138Z" fill="#3c4a8a" ${o}/>
     <ellipse cx="72" cy="178" rx="26" ry="8" fill="#ff9f1c" ${o}/><ellipse cx="132" cy="180" rx="12" ry="6" fill="#ff9f1c" ${o}/>
@@ -168,7 +170,7 @@ const ART = {
   snail: `<svg viewBox="0 0 200 200"><g class="wob">
     <path d="M10 170 Q10 154 34 154 L176 154 Q194 156 190 172 Z" fill="#7ee0c3" ${o}/>
     <path d="M150 154 Q146 124 164 110 Q178 100 164 90 Q150 84 158 72" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    ${eyeSpiral(158,66,10)}
+    ${eyeSpiral(158,66,12)}
     <path d="M176 156 Q180 130 190 120" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
     <circle cx="190" cy="116" r="9" fill="#fff" ${o}/><circle cx="188" cy="118" r="3.5" fill="${INK}"/>
     <path d="M170 166 Q178 174 188 164" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
