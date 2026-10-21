@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>抽牌小鎮｜小樣本</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night1:#0b1526; --night2:#1c3049; --ink:#1a1a2e; --paper:#fff8e7; --acc:#f2a53c;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:linear-gradient(180deg,var(--night1),var(--night2));color:#fbf3e4;font-family:"Noto Sans TC",system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;padding:18px 16px 36px;min-height:100vh;overflow-x:hidden}
+.stars{position:fixed;inset:0;pointer-events:none}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.4;animation:tw 3.4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.12}50%{opacity:.8}}
+h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
+.sub{font-size:13px;opacity:.7;margin:0 0 14px;text-align:center}
+.stage{perspective:1000px;width:min(300px,82vw);aspect-ratio:3/4.1;position:relative;margin:6px 0 16px}
+.card{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,1.3,.5,1);cursor:pointer}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:22px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:4px solid var(--ink);
+  box-shadow:0 10px 0 rgba(0,0,0,.35)}
+.back{background:repeating-linear-gradient(45deg,#2b4a6b 0 12px,#33567a 12px 24px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.back .q{font-size:84px;font-weight:900;color:var(--acc);text-shadow:4px 4px 0 var(--ink);animation:bob 1.6s ease-in-out infinite}
+.back .hint{font-size:14px;font-weight:700;background:var(--ink);color:#fbf3e4;padding:4px 12px;border-radius:99px}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-4deg)}}
+.front{transform:rotateY(180deg);padding:12px 12px 14px;display:flex;flex-direction:column;color:var(--ink)}
+.front .rar{position:absolute;top:10px;right:12px;font-size:12px;font-weight:900;background:var(--ink);color:#ffe27a;padding:2px 10px;border-radius:99px;letter-spacing:.1em}
+.front .art{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.front .art svg{width:100%;height:100%}
+.front .name{font-size:24px;font-weight:900;text-align:center;margin:0}
+.front .trait{font-size:13px;font-weight:700;text-align:center;margin:2px 0 8px;opacity:.75}
+.front .say{background:rgba(255,255,255,.65);border:3px solid var(--ink);border-radius:14px;padding:8px 10px;font-size:14px;font-weight:700;text-align:center;line-height:1.5}
+.front.rare{color:#fff8e7}
+.front.rare .name{text-shadow:3px 3px 0 var(--ink)}
+.front.rare .trait{opacity:.95}
+.front.rare .say{color:var(--ink)}
+.front.rare{box-shadow:0 0 0 3px #ffe27a,0 0 30px 6px rgba(255,226,122,.7),0 10px 0 rgba(0,0,0,.35)}
+.front.rare::after{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.28) 48%,transparent 66%);background-size:250% 100%;animation:shine 2.4s linear infinite}
+@keyframes shine{from{background-position:130% 0}to{background-position:-130% 0}}
+.btn{font:inherit;font-weight:900;font-size:16px;background:var(--acc);color:#36220a;border:3px solid var(--ink);border-radius:14px;padding:10px 24px;
+  box-shadow:0 5px 0 var(--ink);cursor:pointer}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn[hidden]{display:none}
+.dex{font-size:13px;opacity:.75;margin-top:14px}
+.dex b{color:var(--acc)}
+.leave{position:fixed;right:12px;bottom:12px;font-size:12px;color:#fbf3e4;opacity:.65;text-decoration:none;border:1px solid rgba(255,255,255,.35);padding:4px 10px;border-radius:99px}
+.spark{position:absolute;width:10px;height:10px;border-radius:2px;pointer-events:none;animation:pop 900ms ease-out forwards}
+@keyframes pop{from{transform:translate(0,0) rotate(0);opacity:1}to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+.wob{animation:wob 2.2s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes wob{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.5deg)}}
+.blink{animation:blink 3.4s infinite;transform-origin:center;transform-box:fill-box}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.zz{animation:zz 2s ease-in-out infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,6px)}50%{opacity:1}100%{opacity:0;transform:translate(8px,-10px)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<h1>抽牌小鎮</h1>
+<p class="sub">小樣本・這次，你抽到的是⋯⋯</p>
+
+<div class="stage"><div class="card" id="card" role="button" tabindex="0" aria-label="翻牌">
+  <div class="face back"><div class="q">?</div><div class="hint">點一下，翻牌</div></div>
+  <div class="face front" id="front"></div>
+</div></div>
+
+<button class="btn" id="again" hidden>再抽一張</button>
+<div class="dex" id="dex"></div>
+<a class="leave" href="./">先離開，回 Lighthouse</a>
+
+<script>
+const $ = s => document.querySelector(s);
+const INK = "#1a1a2e";
+const o = `stroke="${INK}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"`;
+
+/* 角色：全部是手繪塗鴉風 SVG，故意歪歪的、不對稱 */
+const eyeBig = (x,y,r=11,px=0) => `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${o}/><circle cx="${x+px}" cy="${y+2}" r="${r/2.4}" fill="${INK}"/></g>`;
+const ART = {
+  otter: `<svg viewBox="0 0 200 200"><g class="wob">
+    <path d="M52 70 Q52 38 82 42 Q100 28 118 42 Q148 38 148 70 L152 150 Q152 172 130 172 L70 172 Q48 172 48 150 Z" fill="#f2b45a" ${o}/>
+    <path d="M62 62 Q100 48 138 62" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="100" cy="112" rx="34" ry="30" fill="#8a5a38" ${o}/>
+    <ellipse cx="100" cy="124" rx="20" ry="14" fill="#e6c9a0" ${o}/>
+    <ellipse cx="100" cy="116" rx="7" ry="5" fill="${INK}"/>
+    <path d="M76 98 Q84 92 92 98" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M110 98 Q118 92 126 98" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M94 130 Q100 136 106 130" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="170" cy="150" r="4" fill="#f2b45a"/><circle cx="30" cy="160" r="3" fill="#f2b45a"/><circle cx="178" cy="172" r="3" fill="#f2b45a"/>
+    </g>
+    <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="150" y="44" font-size="22">Z</text></g>
+    <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="168" y="28" font-size="16">z</text></g></svg>`,
+  hedgehog: `<svg viewBox="0 0 200 200"><g class="wob">
+    <path d="M30 140 L22 118 L40 112 L30 92 L50 90 L48 68 L68 74 L76 54 L92 66 L108 48 L120 68 L140 58 L146 80 L168 80 L160 102 L180 108 L166 128 L176 146 Q176 172 150 172 L56 172 Q30 172 30 140Z" fill="#7b5cff" ${o}/>
+    <ellipse cx="100" cy="124" rx="48" ry="40" fill="#ffd9a8" ${o}/>
+    ${eyeBig(82,116,13,-2)}${eyeBig(120,114,9,3)}
+    <ellipse cx="102" cy="136" rx="6" ry="5" fill="${INK}"/>
+    <path d="M86 150 L92 144 L98 150 L104 144 L110 150 L116 144" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M80 38 Q100 22 120 38"/><path d="M89 48 Q100 40 111 48"/></g>
+    <circle cx="100" cy="58" r="5" fill="#ff4d6d"/>
+    <text x="146" y="36" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!</text></svg>`,
+  penguin: `<svg viewBox="0 0 200 200"><g class="wob">
+    <path d="M100 26 Q154 26 156 100 Q160 172 100 172 Q40 172 44 100 Q46 26 100 26Z" fill="#3c4a8a" ${o}/>
+    <path d="M100 74 Q138 76 138 116 Q138 164 100 164 Q62 164 62 116 Q62 76 100 74Z" fill="#fff8e7" ${o}/>
+    ${eyeBig(80,64,10,0)}${eyeBig(118,60,15,-4)}
+    <path d="M84 84 L116 84 L100 102 Z" fill="#ff9f1c" ${o}/>
+    <path d="M70 118 Q100 150 132 114" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M66 118 L72 112 M134 112 L130 120" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <path d="M44 110 Q22 120 30 146 Q42 134 50 130Z" fill="#3c4a8a" ${o}/>
+    <path d="M156 110 Q180 112 172 140 Q160 130 150 126Z" fill="#3c4a8a" ${o}/>
+    <ellipse cx="76" cy="176" rx="18" ry="7" fill="#ff9f1c" ${o}/><ellipse cx="124" cy="176" rx="18" ry="7" fill="#ff9f1c" ${o}/>
+    </g>
+    <text x="14" y="52" font-size="20" font-weight="900" fill="${INK}" font-family="sans-serif">…</text>
+    <text x="150" y="40" font-size="20" font-weight="900" fill="${INK}" font-family="sans-serif">…</text></svg>`,
+  snail: `<svg viewBox="0 0 200 200"><g class="wob">
+    <path d="M18 168 Q18 148 44 148 L170 148 Q188 150 186 168 Z" fill="#7ee0c3" ${o}/>
+    <path d="M146 148 Q142 112 160 96" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="160" cy="94" r="9" fill="#fff" ${o}/><circle cx="162" cy="95" r="3.5" fill="${INK}"/>
+    <path d="M168 150 Q172 120 184 108" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="185" cy="105" r="9" fill="#fff" ${o}/><circle cx="187" cy="106" r="3.5" fill="${INK}"/>
+    <path d="M168 160 Q176 166 184 158" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <path d="M52 148 L60 70 L100 70 L108 148 Z" fill="#fff8e7" ${o}/>
+    <path d="M57 108 L104 108 M59 90 L102 90 M55 128 L106 128" stroke="#ff4d6d" stroke-width="12"/>
+    <path d="M52 148 L60 70 L100 70 L108 148 Z" fill="none" ${o}/>
+    <rect x="62" y="48" width="36" height="22" rx="4" fill="#ffe27a" ${o}/>
+    <path d="M56 48 L80 28 L104 48 Z" fill="#ff4d6d" ${o}/>
+    <rect x="42" y="150" width="76" height="8" rx="3" fill="${INK}"/>
+    </g>
+    <g class="beamB" opacity=".85"><path d="M62 58 L-10 28 L-10 88 Z" fill="#ffe27a" opacity=".55"/><path d="M98 58 L196 26 L196 90 Z" fill="#ffe27a" opacity=".55"/></g></svg>`
+};
+
+const CARDS = [
+  {id:"otter",   name:"吐司水獺",   trait:"特質：一直想睡，翻身會掉麵包屑", say:"今天的目標：不要睡著。（失敗率 99%）", bg:"#ffd479", rare:0},
+  {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好的時候很容易炸毛", say:"他不是生氣，只是在重新連線。", bg:"#c9b8ff", rare:0},
+  {id:"penguin", name:"冷場企鵝",   trait:"特質：一開口全場安靜，但自己覺得很好笑", say:"這個笑話下次一定會成功。", bg:"#a9d4ff", rare:0},
+  {id:"snail",   name:"燈塔蝸牛",   trait:"特質：慢慢來，但是會發光", say:"走得慢沒關係，你的光，有人看得見。", bg:"#7a5cff", rare:1}
+];
+
+/* 星空 */
+(function(){ let h=""; for(let i=0;i<40;i++) h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*3).toFixed(2)}s"></i>`; $("#stars").innerHTML=h; })();
+
+/* 圖鑑（只存在這支手機，不上傳） */
+let dex = new Set();
+try{ dex = new Set(JSON.parse(localStorage.getItem("lh_cards_dex")) || []); }catch(e){}
+function renderDex(){ $("#dex").innerHTML = `圖鑑：已收集 <b>${dex.size}</b> / ${CARDS.length}`; }
+renderDex();
+
+const card = $("#card"), front = $("#front"), again = $("#again");
+let last = -1, busy = false;
+
+function pick(){
+  // 閃卡約 15%，同一張不連抽
+  const wantRare = Math.random() < .15;
+  const pool = CARDS.map((c,i)=>i).filter(i => !!CARDS[i].rare === wantRare && i !== last);
+  const list = pool.length ? pool : CARDS.map((c,i)=>i).filter(i => i !== last);
+  return list[Math.floor(Math.random()*list.length)];
+}
+function burst(){
+  const st = document.querySelector(".stage"), cols = ["#ffe27a","#ff8a65","#7ee0c3","#c9b8ff","#a9d4ff"];
+  for(let i=0;i<22;i++){
+    const s = document.createElement("i"); s.className = "spark";
+    const a = Math.random()*Math.PI*2, d = 90 + Math.random()*90;
+    s.style.cssText = `left:50%;top:50%;background:${cols[i%cols.length]};--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d}px;--r:${Math.random()*540-270}deg`;
+    st.appendChild(s); setTimeout(()=>s.remove(), 950);
+  }
+}
+function draw(){
+  if(busy) return; busy = true;
+  if(card.classList.contains("flip")){
+    card.classList.remove("flip"); again.hidden = true;
+    setTimeout(() => { busy = false; draw(); }, 500); return;
+  }
+  const i = pick(); last = i; const c = CARDS[i];
+  front.style.background = c.bg; front.classList.toggle("rare", !!c.rare);
+  front.innerHTML = `${c.rare?'<span class="rar">閃卡</span>':''}<div class="art">${ART[c.id]}</div>
+    <p class="name">${c.name}</p><p class="trait">${c.trait}</p><div class="say">${c.say}</div>`;
+  card.classList.add("flip");
+  setTimeout(() => { burst(); if(c.rare) setTimeout(burst, 250); again.hidden = false; busy = false;
+    dex.add(c.id); try{ localStorage.setItem("lh_cards_dex", JSON.stringify([...dex])); }catch(e){} renderDex(); }, 650);
+}
+card.addEventListener("click", () => { if(!card.classList.contains("flip")) draw(); });
+card.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && !card.classList.contains("flip")) draw(); });
+again.addEventListener("click", draw);
+</script>
+</body>
+</html>
