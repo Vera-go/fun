@@ -94,6 +94,10 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 @keyframes floatH{50%{transform:translateY(-6px)}}
 .glitch .wob{animation:shiver .12s linear 8}
 @keyframes shiver{25%{transform:translateX(-3px) skewX(-3deg)}75%{transform:translateX(3px) skewX(3deg)}}
+.fB{display:none}
+.xf .fB{display:inline}
+.xf .fA{display:none}
+.xf .wob{animation:puff 1.2s ease-out 1}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -122,7 +126,7 @@ const eyeSpiral = (x,y,r=12) => { let d = ""; for(let i = 0; i <= 44; i++){ cons
   return `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${INK}" stroke-width="3.2"/><path d="${d}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`; };
 const ART = {
   /* 白日夢水獺：被功課和補習壓得好累，常常偷偷幻想飛出去（沒有任何道具） */
-  otter: `<svg viewBox="-6 -4 212 212"><g class="wob">
+  otter: `<svg viewBox="-6 -4 212 212"><g class="fA"><g class="wob">
     <path d="M124 150 Q166 172 188 148 Q198 130 184 118" fill="none" stroke="${INK}" stroke-width="14" stroke-linecap="round"/><path d="M124 150 Q166 172 188 148 Q198 130 184 118" fill="none" stroke="#8a5a38" stroke-width="7" stroke-linecap="round"/>
     <ellipse cx="100" cy="140" rx="40" ry="38" fill="#8a5a38" ${o}/>
     <ellipse cx="100" cy="150" rx="24" ry="24" fill="#f0dcb8" ${o}/>
@@ -143,9 +147,30 @@ const ART = {
     </g>
     <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="150" y="30" font-size="20">Z</text></g>
     <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="168" y="14" font-size="14">z</text></g>
-    <text class="oops" x="146" y="40" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text></svg>`,
+    <text class="oops" x="146" y="40" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text></g><g class="fB"><g class="wob"><g transform="translate(0 -14)"><path d="M66 124 Q16 120 6 66 Q24 74 32 62 Q36 80 48 78 Q52 92 62 92 Q74 100 74 124Z" fill="#fff" ${o}/><path d="M22 84 Q40 92 56 106 M34 96 Q46 104 62 116" fill="none" stroke="#cfd8e6" stroke-width="3" stroke-linecap="round"/><g transform="translate(200 0) scale(-1 1)"><path d="M66 124 Q16 120 6 66 Q24 74 32 62 Q36 80 48 78 Q52 92 62 92 Q74 100 74 124Z" fill="#fff" ${o}/><path d="M22 84 Q40 92 56 106 M34 96 Q46 104 62 116" fill="none" stroke="#cfd8e6" stroke-width="3" stroke-linecap="round"/></g><g>
+    <path d="M124 150 Q166 172 188 148 Q198 130 184 118" fill="none" stroke="${INK}" stroke-width="14" stroke-linecap="round"/><path d="M124 150 Q166 172 188 148 Q198 130 184 118" fill="none" stroke="#8a5a38" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="100" cy="140" rx="40" ry="38" fill="#8a5a38" ${o}/>
+    <ellipse cx="100" cy="150" rx="24" ry="24" fill="#f0dcb8" ${o}/>
+    <ellipse cx="78" cy="182" rx="15" ry="8" fill="#8a5a38" ${o}/><ellipse cx="122" cy="182" rx="15" ry="8" fill="#8a5a38" ${o}/>
+    <path d="M62 138 Q46 144 48 162" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="48" cy="164" r="7" fill="#c98a5a" ${o}/>
+    <circle cx="56" cy="62" r="7" fill="#8a5a38" ${o}/><circle cx="144" cy="62" r="7" fill="#8a5a38" ${o}/>
+    <ellipse cx="100" cy="86" rx="54" ry="36" fill="#8a5a38" ${o}/>
+    <ellipse cx="100" cy="102" rx="36" ry="22" fill="#f0dcb8" ${o}/>
+    <ellipse cx="100" cy="94" rx="11" ry="7" fill="${INK}"/>
+    
+    
+    <circle cx="82" cy="104" r="2" fill="${INK}"/><circle cx="90" cy="108" r="2" fill="${INK}"/><circle cx="118" cy="104" r="2" fill="${INK}"/><circle cx="110" cy="108" r="2" fill="${INK}"/>
+    <path d="M70 96 L30 84 M68 104 L26 106 M72 112 L34 126 M130 96 L170 84 M132 104 L174 106 M128 112 L166 126" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    
+    
+    
+    <path d="M138 130 Q156 134 152 148" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="152" cy="150" r="7" fill="#c98a5a" ${o}/>
+    </g>
+    
+    
+    <path d="M64 82 Q76 66 88 82 M112 82 Q124 66 136 82" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M84 108 Q100 134 116 108 Q100 116 84 108Z" fill="#7a1f3a" ${o}/><ellipse cx="100" cy="120" rx="8" ry="5" fill="#ff6b8a"/><circle cx="58" cy="100" r="7" fill="#ff8fb1" opacity=".9"/><circle cx="142" cy="100" r="7" fill="#ff8fb1" opacity=".9"/></g><path d="M26 40 L29 32 L32 40 L40 43 L32 46 L29 54 L26 46 L18 43Z" fill="#ffe66d" ${o}/><path d="M176 30 L178.5 24 L181 30 L187 32.5 L181 35 L178.5 41 L176 35 L170 32.5Z" fill="#fff" ${o}/></g></g></svg>`,
   /* 濾鏡變色龍：一直在換顏色，一隻眼睛看自己、一隻眼睛看別人；怕被看見原本的樣子 */
-  chameleon: `<svg viewBox="-10 -4 220 214"><g class="wob">
+  chameleon: `<svg viewBox="-10 -4 220 214"><g class="fA"><g class="wob">
     <path d="M140 150 Q196 160 192 118 Q188 86 164 98 Q150 108 164 124 Q172 130 178 120" fill="none" stroke="${INK}" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M140 150 Q196 160 192 118 Q188 86 164 98 Q150 108 164 124 Q172 130 178 120" fill="none" stroke="#7ee0a3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="skin"/>
     <g class="skin">
@@ -167,21 +192,47 @@ const ART = {
     </g>
     <g class="pops"><path d="M176 26 q-6 -9 -14 -3 q-6 6 2 14 l12 11 l12 -11 q8 -8 2 -14 q-8 -6 -14 3z" fill="#ff4d6d" ${o} transform="translate(0 0) scale(.9)"/><circle cx="187" cy="17" r="6" fill="#ffe66d" stroke="${INK}" stroke-width="2.5"/></g>
     <g class="pops2"><path d="M20 36 q-5 -8 -12 -2 q-5 5 2 12 l10 9 l10 -9 q7 -7 2 -12 q-7 -5 -12 2z" fill="#ff9ec4" ${o}/></g>
-    </svg>`,
-  /* 炸毛小怪：功課不好、常收不到別人傳來的訊息，有點自卑；一緊張就把自己炸得很大隻（保護色） */
-  hedgehog: `<svg viewBox="-14 -10 228 220"><g class="wob">
-    <g class="calmG" transform="translate(100 182) scale(1.25) translate(-100 -182)">
-      <path d="M78 112 Q52 98 40 128" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="132" r="9" fill="#fff" ${o}/><circle cx="36" cy="135" r="3.2" fill="${INK}"/>
-      <path d="M122 112 Q150 100 162 130" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="163" cy="134" r="9" fill="#fff" ${o}/><circle cx="165" cy="137" r="3.2" fill="${INK}"/>
-      <path d="M100 104 Q98 84 112 82 Q122 84 120 94" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="121" cy="98" r="8" fill="#fff" ${o}/><circle cx="123" cy="101" r="3" fill="${INK}"/>
-      <path d="M40 156 Q34 116 70 108 Q100 100 130 108 Q166 116 160 156 Q158 180 100 180 Q42 180 40 156Z" fill="#8f7dff" ${o}/>
-      <circle cx="100" cy="140" r="26" fill="#ffd9a8" ${o}/><circle cx="100" cy="140" r="16" fill="#fff" ${o}/><circle cx="94" cy="146" r="5" fill="${INK}"/><circle cx="92" cy="144" r="1.6" fill="#fff"/>
-      <path d="M86 168 Q93 163 100 168 Q107 173 114 168" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M62 184 L58 194 M138 184 L142 194" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-      <path d="M150 112 Q158 124 150 130 Q142 124 150 112Z" fill="#7de3ff" ${o}/>
-      <g fill="none" stroke="#9aa7bd" stroke-width="5" stroke-linecap="round"><path d="M10 92 Q22 82 34 92"/></g><path d="M16 104 L28 116 M28 104 L16 116" stroke="#9aa7bd" stroke-width="4" stroke-linecap="round"/>
+    </g><g class="fB"><defs><radialGradient id="chGlow" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#fff2a8"/><stop offset=".6" stop-color="#ffb3d9"/><stop offset="1" stop-color="#ff8fb1"/></radialGradient></defs><g class="wob">
+    <path d="M140 150 Q196 160 192 118 Q188 86 164 98 Q150 108 164 124 Q172 130 178 120" fill="none" stroke="${INK}" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M140 150 Q196 160 192 118 Q188 86 164 98 Q150 108 164 124 Q172 130 178 120" fill="none" stroke="#7ee0a3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="skin"/>
+    <g class="skin">
+    <ellipse cx="100" cy="140" rx="48" ry="40" fill="#7ee0a3" ${o}/>
+    <clipPath id="chBody"><ellipse cx="100" cy="140" rx="45" ry="37"/></clipPath>
+    <ellipse cx="100" cy="140" rx="45" ry="37" fill="url(#chGlow)" clip-path="url(#chBody)"/>
+    <ellipse cx="100" cy="140" rx="48" ry="40" fill="none" ${o}/>
+    <path d="M62 170 Q52 182 66 184 Q76 184 74 174Z" fill="#7ee0a3" ${o}/><path d="M138 170 Q148 182 134 184 Q124 184 126 174Z" fill="#7ee0a3" ${o}/>
+    <path d="M58 140 Q42 146 46 162" fill="none" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M58 140 Q42 146 46 162" fill="none" stroke="#7ee0a3" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="100" cy="86" rx="50" ry="40" fill="#7ee0a3" ${o}/>
+    <path d="M58 56 L64 42 L74 54 L82 38 L92 52 L102 36 L112 52 L122 38 L130 54 L140 42 L144 58" fill="#7ee0a3" ${o}/>
+    <circle cx="62" cy="78" r="17" fill="#7ee0a3" ${o}/><circle cx="138" cy="78" r="17" fill="#7ee0a3" ${o}/>
     </g>
-    <g class="angryG">
+    
+    
+    <ellipse cx="82" cy="106" rx="8" ry="5" fill="#ff8fb1" opacity=".85"/><ellipse cx="118" cy="106" rx="8" ry="5" fill="#ff8fb1" opacity=".85"/>
+    <path d="M72 106 Q100 134 128 106 Q100 114 72 106Z" fill="#fff" ${o}/>
+    <path d="M160 52 Q168 66 160 72 Q152 66 160 52Z" fill="#7de3ff" ${o}/>
+    </g>
+    <g class="pops"><path d="M176 26 q-6 -9 -14 -3 q-6 6 2 14 l12 11 l12 -11 q8 -8 2 -14 q-8 -6 -14 3z" fill="#ff4d6d" ${o} transform="translate(0 0) scale(.9)"/><circle cx="187" cy="17" r="6" fill="#ffe66d" stroke="${INK}" stroke-width="2.5"/></g>
+    <g class="pops2"><path d="M20 36 q-5 -8 -12 -2 q-5 5 2 12 l10 9 l10 -9 q7 -7 2 -12 q-7 -5 -12 2z" fill="#ff9ec4" ${o}/></g>
+    <circle cx="62" cy="78" r="12" fill="#fff" ${o}/><path d="M62.0 69.0 L64.4 74.7 L70.6 75.2 L65.9 79.3 L67.3 85.3 L62.0 82.0 L56.7 85.3 L58.1 79.3 L53.4 75.2 L59.6 74.7Z" fill="#ff4d6d"/><circle cx="138" cy="78" r="12" fill="#fff" ${o}/><path d="M138.0 69.0 L140.4 74.7 L146.6 75.2 L141.9 79.3 L143.3 85.3 L138.0 82.0 L132.7 85.3 L134.1 79.3 L129.4 75.2 L135.6 74.7Z" fill="#ff4d6d"/><ellipse cx="82" cy="104" rx="9" ry="6" fill="#ff6b9a" opacity=".9"/><ellipse cx="118" cy="104" rx="9" ry="6" fill="#ff6b9a" opacity=".9"/><path d="M20 100 q-4 -7 -10 -2 q-4 5 2 10 l8 7 l8 -7 q6 -5 2 -10 q-6 -5 -10 2z" fill="#ff4d6d" ${o}/><path d="M186 70 q-3 -6 -8 -2 q-3 4 1 8 l7 6 l7 -6 q4 -4 1 -8 q-5 -4 -8 2z" fill="#ff9ec4" ${o}/><path d="M40 30 L43 22 L46 30 L54 33 L46 36 L43 44 L40 36 L32 33Z" fill="#fff" ${o}/><path d="M150 40 L152 34 L154 40 L160 42 L154 44 L152 50 L150 44 L144 42Z" fill="#ffe66d" stroke="${INK}" stroke-width="2"/></g></svg>`,
+  /* 炸毛小怪：功課不好、常收不到別人傳來的訊息，有點自卑；一緊張就把自己炸得很大隻（保護色） */
+  hedgehog: `<svg viewBox="-13.2 -10.1 220 220"><g class="fA"><g class="wob"><g class="ants">
+    <path d="M60 100 L34 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="36" r="9" fill="#fff" ${o}/><circle cx="34" cy="38" r="3.5" fill="${INK}"/>
+    <path d="M84 84 L76 22" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="76" cy="18" r="9" fill="#fff" ${o}/><circle cx="74" cy="20" r="3.5" fill="${INK}"/>
+    <path d="M112 82 Q104 54 122 40" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="124" cy="36" r="9" fill="#fff" ${o}/><circle cx="127" cy="36" r="3.5" fill="${INK}"/>
+    <path d="M138 96 L172 58" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="175" cy="54" r="9" fill="#fff" ${o}/><circle cx="173" cy="57" r="3.5" fill="${INK}"/>
+    </g>
+    <path d="M30 144 Q24 100 62 92 Q100 76 138 92 Q178 100 172 144 Q172 176 100 176 Q30 176 30 144Z" fill="#7b5cff" ${o}/>
+    <path d="M44 120 L36 112 M52 100 L42 90 M150 98 L160 88 M160 124 L170 118" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="100" cy="118" r="32" fill="#ffd9a8" ${o}/>
+    <circle cx="100" cy="112" r="20" fill="#fff" ${o}/>
+    <circle cx="100" cy="112" r="10" fill="#ff4d6d" ${o}/><circle cx="100" cy="112" r="4" fill="${INK}"/>
+    <path d="M54 146 Q100 190 148 142 Q100 156 54 146Z" fill="#7a1f3a" ${o}/>
+    <path d="M62 148 L68 156 L76 150 L84 160 L92 152 L100 162 L108 152 L116 160 L124 150 L132 156 L140 146" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M60 176 L56 190 M92 178 L96 186 M140 174 L150 190" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g class="wifi" fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M10 82 Q22 70 36 82"/><path d="M16 90 Q22 85 30 90"/></g>
+    <text x="150" y="30" font-size="26" font-weight="900" fill="#ff4d6d" font-family="sans-serif">?!</text></g><g class="fB"><g class="wob">
       <path d="M68 96 L42 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="40" cy="36" r="9" fill="#fff" ${o}/><circle cx="40" cy="36" r="2.6" fill="${INK}"/>
       <path d="M96 84 L90 22" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="90" cy="18" r="9" fill="#fff" ${o}/><circle cx="90" cy="18" r="2.6" fill="${INK}"/>
       <path d="M126 86 L140 26" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="141" cy="22" r="9" fill="#fff" ${o}/><circle cx="141" cy="22" r="2.6" fill="${INK}"/>
@@ -192,11 +243,9 @@ const ART = {
       <path d="M62 160 Q100 192 138 160 Q100 170 62 160Z" fill="#7a1f3a" ${o}/><path d="M72 163 L78 168 L84 163 L90 169 L96 163 L102 169 L108 163 L114 169 L120 163 L126 168 L132 162" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
       <path d="M156 100 Q164 114 156 120 Q148 114 156 100Z" fill="#7de3ff" ${o}/>
       <g class="wifi" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"><path d="M0 70 Q14 54 30 70"/><path d="M8 78 Q14 72 22 78"/></g>
-    </g>
-    </g>
-    <text class="angryG" x="164" y="96" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text></svg>`,
+    </g><text x="164" y="96" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text></g></svg>`,
   /* 倒帶企鵝：肚子的時鐘倒著走，總是回頭看昨天 */
-  penguin: `<svg viewBox="-14.7 -20.2 220 220"><g class="wob">
+  penguin: `<svg viewBox="-14.7 -20.2 220 220"><g class="fA"><g class="wob">
     <path d="M100 30 Q154 30 156 100 Q160 172 100 172 Q40 172 44 100 Q46 30 100 30Z" fill="#3c4a8a" ${o}/>
     <g transform="translate(0 0) rotate(5 100 28)"><rect x="78" y="-4" width="44" height="34" rx="3" fill="#1a1a2e" ${o}/><rect x="68" y="26" width="64" height="8" rx="3" fill="#1a1a2e" ${o}/><rect x="78" y="16" width="44" height="7" fill="#ff4d6d"/></g>
     <path d="M100 98 Q150 98 148 138 Q146 172 100 172 Q54 172 52 138 Q50 98 100 98Z" fill="#fff8e7" ${o}/>
@@ -223,9 +272,22 @@ const ART = {
     <clipPath id="memClip"><circle cx="46" cy="38" r="22"/></clipPath>
     <g clip-path="url(#memClip)" style="filter:blur(4px)"><circle class="mb1" cx="38" cy="32" r="14" fill="#ffb3d1"/><circle class="mb2" cx="56" cy="34" r="14" fill="#ffe27a"/><circle class="mb3" cx="46" cy="50" r="15" fill="#a9d4ff"/></g>
     </g>
-    </svg>`,
+    </g><g class="fB"><g class="wob">
+    <path d="M52 146 Q22 128 30 98 Q52 110 58 134Z" fill="#cdbfae" ${o}/><path d="M148 146 Q178 128 170 98 Q148 110 142 134Z" fill="#cdbfae" ${o}/>
+    <path d="M156.0 132.0 L149.5 138.8 L153.7 147.0 L145.5 151.7 L147.1 160.8 L137.8 163.1 L136.7 172.2 L127.0 172.0 L123.3 180.4 L114.1 177.6 L108.0 184.7 L100.0 179.5 L92.0 184.7 L85.9 177.6 L76.7 180.4 L73.0 172.0 L63.3 172.2 L62.2 163.1 L52.9 160.8 L54.5 151.7 L46.3 147.0 L50.5 138.8 L44.0 132.0 L50.5 125.2 L46.3 117.0 L54.5 112.3 L52.9 103.2 L62.2 100.9 L63.3 91.8 L73.0 92.0 L76.7 83.6 L85.9 86.4 L92.0 79.3 L100.0 84.5 L108.0 79.3 L114.1 86.4 L123.3 83.6 L127.0 92.0 L136.7 91.8 L137.8 100.9 L147.1 103.2 L145.5 112.3 L153.7 117.0 L149.5 125.2Z" fill="#cdbfae" ${o}/>
+    <ellipse cx="100" cy="148" rx="32" ry="34" fill="#fff8e7" ${o}/>
+    <path d="M92 74 Q86 56 78 62 M100 74 Q100 52 108 58 M108 74 Q116 58 124 66" fill="none" stroke="#a59482" stroke-width="5" stroke-linecap="round"/>
+    <g class="blink"><circle cx="76" cy="116" r="16" fill="#fff" ${o}/><circle cx="78" cy="118" r="9" fill="${INK}"/><circle cx="82" cy="113" r="3.6" fill="#fff"/></g>
+    <g class="blink"><circle cx="124" cy="116" r="16" fill="#fff" ${o}/><circle cx="122" cy="118" r="9" fill="${INK}"/><circle cx="126" cy="113" r="3.6" fill="#fff"/></g>
+    <path d="M84 134 Q100 126 116 134 Q108 152 100 152 Q92 152 84 134Z" fill="#ff9f1c" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M90 140 Q100 146 110 140" fill="none" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="58" cy="136" r="7" fill="#ff8fb1" opacity=".85"/><circle cx="142" cy="136" r="7" fill="#ff8fb1" opacity=".85"/>
+    <ellipse cx="78" cy="188" rx="17" ry="7" fill="#ff9f1c" ${o}/><ellipse cx="122" cy="188" rx="17" ry="7" fill="#ff9f1c" ${o}/>
+    <g transform="rotate(24 112 66)"><rect x="76" y="12" width="68" height="52" rx="4" fill="#1a1a2e" ${o}/><rect x="76" y="44" width="68" height="9" fill="#ff4d6d"/><rect x="62" y="60" width="96" height="11" rx="5" fill="#1a1a2e" ${o}/></g>
+    </g>
+    <path d="M30 40 L12 52 L30 64Z" fill="#ff8fb1" ${o}/><path d="M52 40 L34 52 L52 64Z" fill="#ff8fb1" ${o}/>
+    <path d="M168 150 L174 142 L180 150 L188 153 L180 156 L174 164 L168 156 L160 153Z" fill="#ffe66d" stroke="${INK}" stroke-width="2"/></g></svg>`,
   /* 燈塔蝸牛（閃卡）：茶杯裡長出歪歪的燈塔，眼睛長在打結的觸角上 */
-  snail: `<svg viewBox="-8.7 -20.7 220 220"><g class="wob">
+  snail: `<svg viewBox="-8.7 -20.7 220 220"><g class="fA"><g class="wob">
     <path d="M10 170 Q10 154 34 154 L176 154 Q194 156 190 172 Z" fill="#7ee0c3" ${o}/>
     <path d="M150 154 Q146 124 164 110 Q178 100 164 90 Q150 84 158 72" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
     ${eyeSpiral(158,66,12)}
@@ -244,13 +306,32 @@ const ART = {
     </g></g>
     <g class="beamB" opacity=".8"><path d="M54 40 Q10 30 8 10 Q40 16 50 34Z" fill="#ffe27a" opacity=".7"/><path d="M96 40 Q150 26 160 6 Q120 8 100 32Z" fill="#ffe27a" opacity=".7"/></g>
     <circle cx="26" cy="64" r="11" fill="#fff8e7" ${o}/><path d="M26 64 L26 57 M26 64 L32 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
-    <path d="M168 40 L172 30 L176 40 L186 44 L176 48 L172 58 L168 48 L158 44Z" fill="#ffe27a" ${o}/></svg>`
+    <path d="M168 40 L172 30 L176 40 L186 44 L176 48 L172 58 L168 48 L158 44Z" fill="#ffe27a" ${o}/></g><g class="fB"><g><path d="M65 45 L195.0 47.6 L190.6 78.4Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L176.3 112.2 L157.1 136.7Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L127.8 158.8 L98.9 170.5Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L62.4 175.0 L31.6 170.6Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L-2.2 156.3 L-26.7 137.1Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L-48.8 107.8 L-60.5 78.9Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L-65.0 42.4 L-60.6 11.6Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L-46.3 -22.2 L-27.1 -46.7Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L2.2 -68.8 L31.1 -80.5Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L67.6 -85.0 L98.4 -80.6Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L132.2 -66.3 L156.7 -47.1Z" fill="#ffe27a" opacity=".55"/><path d="M65 45 L178.8 -17.8 L190.5 11.1Z" fill="#ffe27a" opacity=".55"/></g><g class="wob">
+    <path d="M10 170 Q10 154 34 154 L176 154 Q194 156 190 172 Z" fill="#7ee0c3" ${o}/>
+    <path d="M150 154 Q146 124 164 110 Q178 100 164 90 Q150 84 158 72" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    ${eyeSpiral(158,66,12)}
+    <path d="M176 156 Q180 130 190 120" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="190" cy="116" r="9" fill="#fff" ${o}/><circle cx="188" cy="118" r="3.5" fill="${INK}"/>
+    <path d="M166 162 Q177 178 190 160" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round"/><circle cx="168" cy="158" r="4.5" fill="#ff8fb1" opacity=".9"/>
+    <g transform="rotate(-9 80 150)">
+      <path d="M36 112 L128 112 L120 148 Q116 158 100 158 L64 158 Q48 158 44 148 Z" fill="#fff" ${o}/>
+      <circle cx="58" cy="132" r="4" fill="#ff7aa8"/><circle cx="82" cy="140" r="4" fill="#ff7aa8"/><circle cx="104" cy="130" r="4" fill="#ff7aa8"/>
+      <path d="M128 118 Q150 114 148 134 Q146 148 126 140" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M58 112 L66 54 L98 54 L106 112 Z" fill="#fff8e7" ${o}/>
+      <path d="M62 92 L102 92 M64 74 L100 74" stroke="#ff4d6d" stroke-width="12"/>
+      <path d="M58 112 L66 54 L98 54 L106 112 Z" fill="none" ${o}/>
+      <rect x="68" y="34" width="28" height="20" rx="4" fill="#ffe27a" ${o}/>
+      <path d="M62 34 L82 16 L102 34 Z" fill="#ff4d6d" ${o}/>
+    </g></g>
+    
+    <circle cx="26" cy="64" r="11" fill="#fff8e7" ${o}/><path d="M26 64 L26 57 M26 64 L32 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M168 40 L172 30 L176 40 L186 44 L176 48 L172 58 L168 48 L158 44Z" fill="#ffe27a" ${o}/><circle cx="65" cy="45" r="16" fill="#fff" opacity=".95"/><circle cx="65" cy="45" r="26" fill="#fff6c2" opacity=".5"/><circle cx="158" cy="66" r="12" fill="#fff8e7" ${o}/><path d="M150 68 Q158 58 166 68" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/><circle cx="190" cy="116" r="10" fill="#fff8e7" ${o}/><path d="M183 118 Q190 108 197 118" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/><path d="M164 160 Q177 182 192 158" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M30 80 L33 71 L36 80 L45 83 L36 86 L33 95 L30 86 L21 83Z" fill="#fff" ${o}/><path d="M168 28 L171 20 L174 28 L182 31 L174 34 L171 42 L168 34 L160 31Z" fill="#fff" ${o}/></g></svg>`,
 };
 
 const CARDS = [
   {id:"otter",   name:"白日夢水獺",   trait:"特質：被功課和補習壓得好累，腦袋常常偷偷飛走（戳他一下）", say:"他不是在發呆，他正在飛出去。", bg:"#ffb3d1", rare:0},
   {id:"chameleon",name:"濾鏡變色龍", trait:"特質：一隻眼睛看自己，一隻眼睛看別人，顏色換個不停（戳他一下）", say:"他不是愛換顏色，他只是怕被看見原本的樣子。", bg:"#ffd479", rare:0},
-  {id:"hedgehog",name:"炸毛小怪", trait:"特質：常常收不到別人傳來的訊息，一緊張就把自己炸得很大隻（戳他一下）", say:"他不是想兇你，他只是怕你發現他沒聽懂。", bg:"#b8f27c", rare:0},
+  {id:"hedgehog",name:"外星刺蝟", trait:"特質：常常收不到別人傳來的訊息，一緊張就炸毛（戳他一下）", say:"他不是想兇你，他只是怕你發現他沒聽懂。", bg:"#b8f27c", rare:0},
   {id:"penguin", name:"倒帶企鵝",   trait:"特質：肚子的時鐘倒著走，常常回頭看昨天", say:"他不是困住了，只是還想再看一眼昨天。", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
 ];
@@ -261,7 +342,7 @@ const CARDS = [
 /* 圖鑑（只存在這支手機，不上傳） */
 let dex = new Set();
 try{ dex = new Set(JSON.parse(localStorage.getItem("lh_cards_dex")) || []); }catch(e){}
-function renderDex(){ $("#dex").innerHTML = `圖鑑：已收集 <b>${dex.size}</b> / ${CARDS.length}`; }
+function renderDex(){ $("#dex").innerHTML = `圖鑑：已收集 <b>${dex.size}</b> / ${CARDS.length}<br>戳戳牌上的角色，牠會變身`; }
 renderDex();
 
 const card = $("#card"), front = $("#front"), again = $("#again");
@@ -297,14 +378,16 @@ function draw(){
   setTimeout(() => { burst(); if(c.rare) setTimeout(burst, 250); again.hidden = false; busy = false;
     dex.add(c.id); try{ localStorage.setItem("lh_cards_dex", JSON.stringify([...dex])); }catch(e){} renderDex(); }, 650);
 }
-card.addEventListener("click", () => {
-  if(!card.classList.contains("flip")) return draw();
-  const id = CARDS[last] && CARDS[last].id;
-  if(id === "hedgehog"){ front.classList.remove("fluff"); void front.offsetWidth; front.classList.add("fluff"); setTimeout(() => front.classList.remove("fluff"), 1400); }
-  if(id === "chameleon"){ front.classList.remove("glitch"); void front.offsetWidth; front.classList.add("glitch"); setTimeout(() => front.classList.remove("glitch"), 1500); }
-  if(id === "otter"){ front.classList.remove("woke"); void front.offsetWidth; front.classList.add("woke"); clearTimeout(window.__sl); window.__sl = setTimeout(() => front.classList.remove("woke"), 2200); }
-});
-card.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && !card.classList.contains("flip")) draw(); });
+function transform(){
+  const id = CARDS[last] && CARDS[last].id, ms = {otter:2600, chameleon:2600, hedgehog:2200, penguin:2600, snail:2600}[id] || 2200;
+  clearTimeout(window.__xf); front.classList.remove("xf", "woke", "glitch");
+  void front.offsetWidth;
+  if(id === "otter"){ front.classList.add("woke"); window.__xf = setTimeout(() => { front.classList.remove("woke"); front.classList.add("xf"); window.__xf = setTimeout(() => front.classList.remove("xf"), ms); }, 900); return; }
+  if(id === "chameleon") front.classList.add("glitch");
+  front.classList.add("xf");
+  window.__xf = setTimeout(() => front.classList.remove("xf", "glitch"), ms);
+}
+card.addEventListener("click", () => { if(!card.classList.contains("flip")) return draw(); transform(); });
 again.addEventListener("click", draw);
 </script>
 </body>
