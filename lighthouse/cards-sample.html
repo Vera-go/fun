@@ -30,6 +30,10 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(10deg)}}
 .clk{animation:rev 3s linear infinite}
 .clk2{animation:rev 18s linear infinite}
+.mb1{animation:mbx 5s ease-in-out infinite}
+.mb2{animation:mbx 6.5s ease-in-out -2s infinite reverse}
+.mb3{animation:mbx 7.5s ease-in-out -4s infinite}
+@keyframes mbx{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,-6px)}}
 .mem{animation:memp 3.2s ease-in-out infinite}
 @keyframes memp{0%,100%{opacity:.75}50%{opacity:1}}
 @keyframes rev{to{transform:rotate(-360deg)}}
@@ -174,8 +178,9 @@ const ART = {
     <ellipse cx="72" cy="178" rx="26" ry="8" fill="#ff9f1c" ${o}/><ellipse cx="132" cy="180" rx="12" ry="6" fill="#ff9f1c" ${o}/>
     </g>
     <g class="mem"><circle cx="46" cy="38" r="26" fill="#fff" ${o}/><circle cx="40" cy="70" r="5.5" fill="#fff" stroke="${INK}" stroke-width="3.5"/><circle cx="34" cy="82" r="3" fill="#fff" stroke="${INK}" stroke-width="3"/>
-    <rect x="32" y="40" width="28" height="13" rx="3" fill="#ffb3d1" stroke="${INK}" stroke-width="3"/><path d="M32 46 Q39 42 46 46 Q53 50 60 46" fill="none" stroke="#fff" stroke-width="3"/>
-    <rect x="45" y="29" width="3" height="11" fill="${INK}"/><path d="M46.5 20 Q51 26 46.5 28 Q42 26 46.5 20Z" fill="#ffd23f" stroke="${INK}" stroke-width="1.5"/></g>
+    <clipPath id="memClip"><circle cx="46" cy="38" r="22"/></clipPath>
+    <g clip-path="url(#memClip)" style="filter:blur(4px)"><circle class="mb1" cx="38" cy="32" r="14" fill="#ffb3d1"/><circle class="mb2" cx="56" cy="34" r="14" fill="#ffe27a"/><circle class="mb3" cx="46" cy="50" r="15" fill="#a9d4ff"/></g>
+    </g>
     </svg>`,
   /* 燈塔蝸牛（閃卡）：茶杯裡長出歪歪的燈塔，眼睛長在打結的觸角上 */
   snail: `<svg viewBox="0 0 200 200"><g class="wob">
