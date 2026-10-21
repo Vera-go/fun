@@ -67,6 +67,11 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 @keyframes fluff{0%{transform:rotate(-6deg) scale(1.04)}50%{transform:rotate(6deg) scale(1.08)}100%{transform:rotate(-6deg) scale(1.04)}}
 @keyframes flick{50%{opacity:0}}
 @keyframes puff{0%,100%{transform:scale(1)}20%{transform:scale(1.12,.9)}}
+.awakeE,.oops{display:none}
+.woke .awakeE,.woke .oops{display:inline}
+.woke .sleepE,.woke .zz{display:none}
+.woke .wob{animation:jolt .5s ease-out 1}
+@keyframes jolt{0%{transform:translateY(0)}25%{transform:translateY(-22px) rotate(-6deg) scale(1.08)}55%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-6px)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -107,10 +112,13 @@ const ART = {
     <path d="M100 100 L100 108 M88 110 Q100 120 112 110" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
     <circle cx="82" cy="104" r="2" fill="${INK}"/><circle cx="90" cy="108" r="2" fill="${INK}"/><circle cx="118" cy="104" r="2" fill="${INK}"/><circle cx="110" cy="108" r="2" fill="${INK}"/>
     <path d="M70 96 L30 84 M68 104 L26 106 M72 112 L34 126 M130 96 L170 84 M132 104 L174 106 M128 112 L166 126" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
-    ${eyeBig(76,80,10,2)}${eyeBig(124,80,10,-2)}
+    <g class="sleepE"><circle cx="76" cy="80" r="13" fill="#f0dcb8" ${o}/><circle cx="124" cy="80" r="13" fill="#f0dcb8" ${o}/><path d="M67 80 Q76 88 85 80 M115 80 Q124 88 133 80" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g>
+    <g class="awakeE">${eyeBig(76,80,13,0)}${eyeBig(124,80,13,0)}</g>
     <circle cx="100" cy="58" r="15" fill="#fff" ${o}/>
-    <path d="M88 58 Q100 68 112 58" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <path d="M90 62 L87 67 M100 65 L100 71 M110 62 L113 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <g class="sleepE"><path d="M88 58 Q100 68 112 58" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M90 62 L87 67 M100 65 L100 71 M110 62 L113 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>
+    <g class="awakeE"><circle cx="100" cy="58" r="9" fill="#ff4d6d" ${o}/><circle cx="100" cy="58" r="3.5" fill="${INK}"/></g>
+    <text class="oops" x="96" y="26" font-size="24" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text>
     </g>
     <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="116" y="34" font-size="22">Z</text></g>
     <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="134" y="18" font-size="15">z</text></g></svg>`,
@@ -175,7 +183,7 @@ const ART = {
 };
 
 const CARDS = [
-  {id:"otter",   name:"吐司水獺",   trait:"特質：額頭有第三隻眼睛，總是最先睡著", say:"他說自己一點都不睏。（額頭那隻已經睡了）", bg:"#ffb3d1", rare:0},
+  {id:"otter",   name:"吐司水獺",   trait:"特質：額頭有第三隻眼睛，總是最先睡著（戳他一下）", say:"他說自己一點都不睏。（額頭那隻已經睡了）", bg:"#ffb3d1", rare:0},
   {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好就炸毛（戳他一下試試）", say:"他不是在生氣，只是在轉圈圈載入中。", bg:"#b8f27c", rare:0},
   {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子的時鐘倒著走，笑話慢半拍才到", say:"全場安靜，是因為大家都在偷偷憋笑。（大概）", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
@@ -225,7 +233,9 @@ function draw(){
 }
 card.addEventListener("click", () => {
   if(!card.classList.contains("flip")) return draw();
-  if(CARDS[last] && CARDS[last].id === "hedgehog"){ front.classList.remove("fluff"); void front.offsetWidth; front.classList.add("fluff"); setTimeout(() => front.classList.remove("fluff"), 1400); }
+  const id = CARDS[last] && CARDS[last].id;
+  if(id === "hedgehog"){ front.classList.remove("fluff"); void front.offsetWidth; front.classList.add("fluff"); setTimeout(() => front.classList.remove("fluff"), 1400); }
+  if(id === "otter"){ front.classList.remove("woke"); void front.offsetWidth; front.classList.add("woke"); clearTimeout(window.__sl); window.__sl = setTimeout(() => front.classList.remove("woke"), 2200); }
 });
 card.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && !card.classList.contains("flip")) draw(); });
 again.addEventListener("click", draw);
