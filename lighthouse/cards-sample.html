@@ -104,7 +104,7 @@ const ART = {
     <path d="M56 118 Q100 108 144 118" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
     <g transform="rotate(-10 150 112)"><rect x="128" y="96" width="34" height="18" rx="4" fill="#ffe66d" ${o}/></g>
     <path d="M52 132 Q28 128 34 150 Q22 160 38 168" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="170" r="7" fill="#c98a5a" ${o}/>
-    <path d="M148 132 Q176 122 166 100 Q188 94 178 76" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="177" cy="73" r="7" fill="#c98a5a" ${o}/><path d="M166 66 Q177 40 190 66 Z" fill="#ffd1e8" ${o}/><path d="M172 64 L177 48 M178 64 L178 46 M184 64 L180 48" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M148 132 Q176 122 166 100 Q188 94 178 76" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="177" cy="73" r="7" fill="#c98a5a" ${o}/><ellipse cx="177" cy="52" rx="19" ry="16" fill="#b9c0cc" ${o} transform="rotate(-12 177 52)"/><circle cx="170" cy="49" r="2.6" fill="${INK}"/><circle cx="184" cy="47" r="2.6" fill="${INK}"/><path d="M171 57 Q177 62 183 55" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
     <circle cx="56" cy="62" r="7" fill="#8a5a38" ${o}/><circle cx="144" cy="62" r="7" fill="#8a5a38" ${o}/>
     <ellipse cx="100" cy="86" rx="54" ry="36" fill="#8a5a38" ${o}/>
     <ellipse cx="100" cy="102" rx="36" ry="22" fill="#f0dcb8" ${o}/>
@@ -114,10 +114,6 @@ const ART = {
     <path d="M70 96 L30 84 M68 104 L26 106 M72 112 L34 126 M130 96 L170 84 M132 104 L174 106 M128 112 L166 126" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
     <g class="sleepE"><circle cx="76" cy="80" r="13" fill="#f0dcb8" ${o}/><circle cx="124" cy="80" r="13" fill="#f0dcb8" ${o}/><path d="M67 80 Q76 88 85 80 M115 80 Q124 88 133 80" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g>
     <g class="awakeE">${eyeBig(76,80,13,0)}${eyeBig(124,80,13,0)}</g>
-    <circle cx="100" cy="58" r="15" fill="#fff" ${o}/>
-    <g class="sleepE"><path d="M88 58 Q100 68 112 58" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <path d="M90 62 L87 67 M100 65 L100 71 M110 62 L113 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>
-    <g class="awakeE"><circle cx="100" cy="58" r="9" fill="#ff4d6d" ${o}/><circle cx="100" cy="58" r="3.5" fill="${INK}"/></g>
     <text class="oops" x="96" y="26" font-size="24" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text>
     </g>
     <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="116" y="34" font-size="22">Z</text></g>
@@ -183,7 +179,7 @@ const ART = {
 };
 
 const CARDS = [
-  {id:"otter",   name:"吐司水獺",   trait:"特質：額頭有第三隻眼睛，總是最先睡著（戳他一下）", say:"他說自己一點都不睏。（額頭那隻已經睡了）", bg:"#ffb3d1", rare:0},
+  {id:"otter",   name:"吐司水獺",   trait:"特質：隨時都在睡，被戳到會嚇一大跳（戳他一下）", say:"他說自己一點都不睏。（說完就睡著了）", bg:"#ffb3d1", rare:0},
   {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好就炸毛（戳他一下試試）", say:"他不是在生氣，只是在轉圈圈載入中。", bg:"#b8f27c", rare:0},
   {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子的時鐘倒著走，笑話慢半拍才到", say:"全場安靜，是因為大家都在偷偷憋笑。（大概）", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
