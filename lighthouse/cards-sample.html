@@ -85,6 +85,14 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 @keyframes pulse{50%{transform:scale(1.25)}}
 .oops{transform-box:fill-box;transform-origin:center}
 @keyframes jolt{0%{transform:translateY(0)}20%{transform:translateY(-30px) rotate(-8deg) scale(1.12,1.18)}50%{transform:translateY(0) rotate(5deg) scale(1.08,.92)}70%{transform:translateY(-8px)}100%{transform:none}}
+.skin{animation:hueS 9s linear infinite}
+.glitch .skin{animation:hueS .7s linear 2}
+@keyframes hueS{to{filter:hue-rotate(360deg)}}
+.pops,.pops2{animation:floatH 3s ease-in-out infinite;transform-box:fill-box}
+.pops2{animation-delay:-1.4s}
+@keyframes floatH{50%{transform:translateY(-6px)}}
+.glitch .wob{animation:shiver .12s linear 8}
+@keyframes shiver{25%{transform:translateX(-3px) skewX(-3deg)}75%{transform:translateX(3px) skewX(3deg)}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -135,6 +143,30 @@ const ART = {
     <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="150" y="30" font-size="20">Z</text></g>
     <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="168" y="14" font-size="14">z</text></g>
     <text class="oops" x="146" y="40" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text></svg>`,
+  /* 濾鏡變色龍：一直在換顏色，一隻眼睛看自己、一隻眼睛看別人；怕被看見原本的樣子 */
+  chameleon: `<svg viewBox="-10 -4 220 214"><g class="wob">
+    <path d="M140 150 Q196 160 192 118 Q188 86 164 98 Q150 108 164 124 Q172 130 178 120" fill="none" stroke="${INK}" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M140 150 Q196 160 192 118 Q188 86 164 98 Q150 108 164 124 Q172 130 178 120" fill="none" stroke="#7ee0a3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="skin"/>
+    <g class="skin">
+    <ellipse cx="100" cy="140" rx="48" ry="40" fill="#7ee0a3" ${o}/>
+    <clipPath id="chBody"><ellipse cx="100" cy="140" rx="45" ry="37"/></clipPath>
+    <g clip-path="url(#chBody)"><circle cx="70" cy="140" r="17" fill="#ff9ec4"/><circle cx="116" cy="124" r="15" fill="#ffd966"/><circle cx="128" cy="160" r="17" fill="#7de3ff"/><circle cx="84" cy="168" r="12" fill="#c9b8ff"/></g>
+    <ellipse cx="100" cy="140" rx="48" ry="40" fill="none" ${o}/>
+    <path d="M62 170 Q52 182 66 184 Q76 184 74 174Z" fill="#7ee0a3" ${o}/><path d="M138 170 Q148 182 134 184 Q124 184 126 174Z" fill="#7ee0a3" ${o}/>
+    <path d="M58 140 Q42 146 46 162" fill="none" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M58 140 Q42 146 46 162" fill="none" stroke="#7ee0a3" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="100" cy="86" rx="50" ry="40" fill="#7ee0a3" ${o}/>
+    <path d="M58 56 L64 42 L74 54 L82 38 L92 52 L102 36 L112 52 L122 38 L130 54 L140 42 L144 58" fill="#7ee0a3" ${o}/>
+    <circle cx="62" cy="78" r="17" fill="#7ee0a3" ${o}/><circle cx="138" cy="78" r="17" fill="#7ee0a3" ${o}/>
+    </g>
+    <g class="blink"><circle cx="62" cy="78" r="11" fill="#fff" ${o}/><circle cx="68" cy="80" r="5" fill="${INK}"/><circle cx="70" cy="78" r="1.8" fill="#fff"/></g>
+    <g class="blink"><circle cx="138" cy="78" r="11" fill="#fff" ${o}/><circle cx="132" cy="74" r="5" fill="${INK}"/><circle cx="134" cy="72" r="1.8" fill="#fff"/></g>
+    <ellipse cx="82" cy="106" rx="8" ry="5" fill="#ff8fb1" opacity=".85"/><ellipse cx="118" cy="106" rx="8" ry="5" fill="#ff8fb1" opacity=".85"/>
+    <path d="M84 112 Q92 106 100 112 Q108 118 116 112" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M160 52 Q168 66 160 72 Q152 66 160 52Z" fill="#7de3ff" ${o}/>
+    </g>
+    <g class="pops"><path d="M176 26 q-6 -9 -14 -3 q-6 6 2 14 l12 11 l12 -11 q8 -8 2 -14 q-8 -6 -14 3z" fill="#ff4d6d" ${o} transform="translate(0 0) scale(.9)"/><circle cx="187" cy="17" r="6" fill="#ffe66d" stroke="${INK}" stroke-width="2.5"/></g>
+    <g class="pops2"><path d="M20 36 q-5 -8 -12 -2 q-5 5 2 12 l10 9 l10 -9 q7 -7 2 -12 q-7 -5 -12 2z" fill="#ff9ec4" ${o}/></g>
+    </svg>`,
   /* WiFi 刺蝟：刺是長眼睛的天線，一隻超大眼，嘴巴開到耳朵 */
   hedgehog: `<svg viewBox="-13.2 -10.1 220 220"><g class="wob"><g class="ants">
     <path d="M60 100 L34 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="36" r="9" fill="#fff" ${o}/><circle cx="34" cy="38" r="3.5" fill="${INK}"/>
@@ -207,6 +239,7 @@ const ART = {
 
 const CARDS = [
   {id:"otter",   name:"白日夢水獺",   trait:"特質：被功課和補習壓得好累，腦袋常常偷偷飛走（戳他一下）", say:"他不是在發呆，他正在飛出去。", bg:"#ffb3d1", rare:0},
+  {id:"chameleon",name:"濾鏡變色龍", trait:"特質：一隻眼睛看自己，一隻眼睛看別人，顏色換個不停（戳他一下）", say:"他不是愛換顏色，他只是怕被看見原本的樣子。", bg:"#ffd479", rare:0},
   {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好就炸毛（戳他一下試試）", say:"他不是在生氣，只是在轉圈圈載入中。", bg:"#b8f27c", rare:0},
   {id:"penguin", name:"倒帶企鵝",   trait:"特質：肚子的時鐘倒著走，常常回頭看昨天", say:"他不是困住了，只是還想再看一眼昨天。", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
@@ -258,6 +291,7 @@ card.addEventListener("click", () => {
   if(!card.classList.contains("flip")) return draw();
   const id = CARDS[last] && CARDS[last].id;
   if(id === "hedgehog"){ front.classList.remove("fluff"); void front.offsetWidth; front.classList.add("fluff"); setTimeout(() => front.classList.remove("fluff"), 1400); }
+  if(id === "chameleon"){ front.classList.remove("glitch"); void front.offsetWidth; front.classList.add("glitch"); setTimeout(() => front.classList.remove("glitch"), 1500); }
   if(id === "otter"){ front.classList.remove("woke"); void front.offsetWidth; front.classList.add("woke"); clearTimeout(window.__sl); window.__sl = setTimeout(() => front.classList.remove("woke"), 2200); }
 });
 card.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && !card.classList.contains("flip")) draw(); });
