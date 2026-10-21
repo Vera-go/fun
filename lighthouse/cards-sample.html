@@ -70,8 +70,14 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 .awakeE,.oops{display:none}
 .woke .awakeE,.woke .oops{display:inline}
 .woke .sleepE,.woke .zz{display:none}
-.woke .wob{animation:jolt .5s ease-out 1}
-@keyframes jolt{0%{transform:translateY(0)}25%{transform:translateY(-22px) rotate(-6deg) scale(1.08)}55%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-6px)}100%{transform:none}}
+.woke .wob{animation:jolt .55s ease-out 1}
+.rock{transform-box:fill-box;transform-origin:50% 100%}
+.woke .rock{animation:rockhop .5s ease-out 1}
+@keyframes rockhop{0%{transform:translateY(0)}30%{transform:translateY(-18px) rotate(14deg)}60%{transform:translateY(0) rotate(-8deg)}80%{transform:translateY(-5px)}100%{transform:none}}
+.woke .oops{animation:pulse .18s ease-in-out 5}
+@keyframes pulse{50%{transform:scale(1.25)}}
+.oops{transform-box:fill-box;transform-origin:center}
+@keyframes jolt{0%{transform:translateY(0)}20%{transform:translateY(-30px) rotate(-8deg) scale(1.12,1.18)}50%{transform:translateY(0) rotate(5deg) scale(1.08,.92)}70%{transform:translateY(-8px)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -99,22 +105,25 @@ const eyeBig = (x,y,r=11,px=0) => `<g class="blink"><circle cx="${x}" cy="${y}" 
 const eyeSpiral = (x,y,r=12) => `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${o}/><path d="M${x} ${y} m-1 0 a2 2 0 1 1 3 1 a4 4 0 1 1 -6 -1 a6.5 6.5 0 1 1 9 -2" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/></g>`;
 const ART = {
   /* 吐司水獺：奶油融化中，三隻眼睛高低不一，手像麵條 */
-  otter: `<svg viewBox="0 0 200 200"><g class="wob">
+  otter: `<svg viewBox="-14 -10 228 220"><g class="wob">
     <path d="M44 120 Q40 104 60 104 L140 104 Q160 104 156 120 L160 150 Q164 160 150 160 Q146 182 136 160 Q124 158 120 170 Q116 188 106 164 Q92 160 86 172 Q80 184 74 162 Q56 164 50 154 Z" fill="#f2b45a" ${o}/>
     <path d="M56 118 Q100 108 144 118" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
     <g transform="rotate(-10 150 112)"><rect x="128" y="96" width="34" height="18" rx="4" fill="#ffe66d" ${o}/></g>
     <path d="M52 132 Q28 128 34 150 Q22 160 38 168" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="170" r="7" fill="#c98a5a" ${o}/>
-    <path d="M148 132 Q176 122 166 100 Q188 94 178 76" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="177" cy="73" r="7" fill="#c98a5a" ${o}/><ellipse cx="177" cy="52" rx="19" ry="16" fill="#b9c0cc" ${o} transform="rotate(-12 177 52)"/><circle cx="170" cy="49" r="2.6" fill="${INK}"/><circle cx="184" cy="47" r="2.6" fill="${INK}"/><path d="M171 57 Q177 62 183 55" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M148 132 Q176 122 166 100 Q188 94 178 76" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="177" cy="73" r="7" fill="#c98a5a" ${o}/><g class="rock"><g transform="translate(174 46) scale(1.3) translate(-177 -52)"><ellipse cx="177" cy="52" rx="19" ry="16" fill="#b9c0cc" ${o} transform="rotate(-12 177 52)"/>
+    <g class="sleepE"><path d="M166 50 Q170 54 174 50 M180 48 Q184 52 188 48" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M171 58 Q177 63 183 56" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>
+    <g class="awakeE"><circle cx="169" cy="49" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="185" cy="46" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="169" cy="49" r="1.5" fill="${INK}"/><circle cx="185" cy="46" r="1.5" fill="${INK}"/><ellipse cx="178" cy="60" rx="4" ry="5" fill="#7a1f3a" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M156 36 L150 30 M198 34 L204 28 M200 54 L208 54" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/></g></g></g>
     <circle cx="56" cy="62" r="7" fill="#8a5a38" ${o}/><circle cx="144" cy="62" r="7" fill="#8a5a38" ${o}/>
     <ellipse cx="100" cy="86" rx="54" ry="36" fill="#8a5a38" ${o}/>
     <ellipse cx="100" cy="102" rx="36" ry="22" fill="#f0dcb8" ${o}/>
     <ellipse cx="100" cy="94" rx="11" ry="7" fill="${INK}"/>
-    <path d="M100 100 L100 108 M88 110 Q100 120 112 110" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <g class="sleepE"><path d="M100 100 L100 108 M88 110 Q100 120 112 110" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/></g>
+    <g class="awakeE"><path d="M100 100 L100 104" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><ellipse cx="100" cy="116" rx="10" ry="12" fill="#7a1f3a" ${o}/><ellipse cx="100" cy="122" rx="6" ry="4" fill="#ff6b8a"/></g>
     <circle cx="82" cy="104" r="2" fill="${INK}"/><circle cx="90" cy="108" r="2" fill="${INK}"/><circle cx="118" cy="104" r="2" fill="${INK}"/><circle cx="110" cy="108" r="2" fill="${INK}"/>
     <path d="M70 96 L30 84 M68 104 L26 106 M72 112 L34 126 M130 96 L170 84 M132 104 L174 106 M128 112 L166 126" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
     <g class="sleepE"><circle cx="76" cy="80" r="13" fill="#f0dcb8" ${o}/><circle cx="124" cy="80" r="13" fill="#f0dcb8" ${o}/><path d="M67 80 Q76 88 85 80 M115 80 Q124 88 133 80" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g>
-    <g class="awakeE">${eyeBig(76,80,13,0)}${eyeBig(124,80,13,0)}</g>
-    <text class="oops" x="96" y="26" font-size="24" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text>
+    <g class="awakeE"><circle cx="76" cy="80" r="17" fill="#fff" ${o}/><circle cx="124" cy="80" r="17" fill="#fff" ${o}/><circle cx="76" cy="80" r="3.2" fill="${INK}"/><circle cx="124" cy="80" r="3.2" fill="${INK}"/><path d="M58 56 Q74 46 90 58 M110 58 Q126 46 142 56" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M148 60 Q156 72 148 78 Q140 72 148 60Z" fill="#7de3ff" ${o}/><path d="M40 70 L28 64 M42 56 L32 46 M160 70 L172 64 M158 56 L168 46" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/></g>
+    <text class="oops" x="88" y="26" font-size="32" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text>
     </g>
     <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="116" y="34" font-size="22">Z</text></g>
     <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="134" y="18" font-size="15">z</text></g></svg>`,
