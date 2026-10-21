@@ -67,13 +67,14 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
 .zz{animation:zz 2s ease-in-out infinite}
 @keyframes zz{0%{opacity:0;transform:translate(0,6px)}50%{opacity:1}100%{opacity:0;transform:translate(8px,-10px)}}
-.ants{transform-origin:100px 118px;transform-box:view-box}
-.fluff .ants{animation:fluff .18s linear 7}
+.angryG{display:none}
+.fluff .angryG{display:inline}
+.fluff .calmG{display:none}
+.fluff .wob{animation:puff 1.4s ease-out 1}
+.fluff .angryG .trem{animation:flick .1s steps(2) 14}
 .fluff .wifi{animation:flick .18s steps(2) 7}
-.fluff .wob{animation:puff 1.3s ease-out 1}
-@keyframes fluff{0%{transform:rotate(-6deg) scale(1.04)}50%{transform:rotate(6deg) scale(1.08)}100%{transform:rotate(-6deg) scale(1.04)}}
-@keyframes flick{50%{opacity:0}}
-@keyframes puff{0%,100%{transform:scale(1)}20%{transform:scale(1.12,.9)}}
+@keyframes flick{50%{transform:translate(1.5px,0);opacity:.35}}
+@keyframes puff{0%{transform:scale(.8)}25%{transform:scale(1.12)}100%{transform:scale(1)}}
 .awakeE,.oops{display:none}
 .woke .awakeE,.woke .oops{display:inline}
 .woke .sleepE,.woke .zz{display:none}
@@ -167,24 +168,33 @@ const ART = {
     <g class="pops"><path d="M176 26 q-6 -9 -14 -3 q-6 6 2 14 l12 11 l12 -11 q8 -8 2 -14 q-8 -6 -14 3z" fill="#ff4d6d" ${o} transform="translate(0 0) scale(.9)"/><circle cx="187" cy="17" r="6" fill="#ffe66d" stroke="${INK}" stroke-width="2.5"/></g>
     <g class="pops2"><path d="M20 36 q-5 -8 -12 -2 q-5 5 2 12 l10 9 l10 -9 q7 -7 2 -12 q-7 -5 -12 2z" fill="#ff9ec4" ${o}/></g>
     </svg>`,
-  /* 轉圈圈小怪（原刺蝟）：刺是長眼睛的天線，一隻超大眼，嘴巴開到耳朵 */
-  hedgehog: `<svg viewBox="-13.2 -10.1 220 220"><g class="wob"><g class="ants">
-    <path d="M60 100 L34 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="36" r="9" fill="#fff" ${o}/><circle cx="34" cy="38" r="3.5" fill="${INK}"/>
-    <path d="M84 84 L76 22" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="76" cy="18" r="9" fill="#fff" ${o}/><circle cx="74" cy="20" r="3.5" fill="${INK}"/>
-    <path d="M112 82 Q104 54 122 40" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="124" cy="36" r="9" fill="#fff" ${o}/><circle cx="127" cy="36" r="3.5" fill="${INK}"/>
-    <path d="M138 96 L172 58" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="175" cy="54" r="9" fill="#fff" ${o}/><circle cx="173" cy="57" r="3.5" fill="${INK}"/>
+  /* 炸毛小怪：功課不好、常收不到別人傳來的訊息，有點自卑；一緊張就把自己炸得很大隻（保護色） */
+  hedgehog: `<svg viewBox="-14 -10 228 220"><g class="wob">
+    <g class="calmG" transform="translate(100 182) scale(1.25) translate(-100 -182)">
+      <path d="M78 112 Q52 98 40 128" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="132" r="9" fill="#fff" ${o}/><circle cx="36" cy="135" r="3.2" fill="${INK}"/>
+      <path d="M122 112 Q150 100 162 130" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="163" cy="134" r="9" fill="#fff" ${o}/><circle cx="165" cy="137" r="3.2" fill="${INK}"/>
+      <path d="M100 104 Q98 84 112 82 Q122 84 120 94" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="121" cy="98" r="8" fill="#fff" ${o}/><circle cx="123" cy="101" r="3" fill="${INK}"/>
+      <path d="M40 156 Q34 116 70 108 Q100 100 130 108 Q166 116 160 156 Q158 180 100 180 Q42 180 40 156Z" fill="#8f7dff" ${o}/>
+      <circle cx="100" cy="140" r="26" fill="#ffd9a8" ${o}/><circle cx="100" cy="140" r="16" fill="#fff" ${o}/><circle cx="94" cy="146" r="5" fill="${INK}"/><circle cx="92" cy="144" r="1.6" fill="#fff"/>
+      <path d="M86 168 Q93 163 100 168 Q107 173 114 168" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M62 184 L58 194 M138 184 L142 194" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M150 112 Q158 124 150 130 Q142 124 150 112Z" fill="#7de3ff" ${o}/>
+      <g fill="none" stroke="#9aa7bd" stroke-width="5" stroke-linecap="round"><path d="M10 92 Q22 82 34 92"/></g><path d="M16 104 L28 116 M28 104 L16 116" stroke="#9aa7bd" stroke-width="4" stroke-linecap="round"/>
     </g>
-    <path d="M30 144 Q24 100 62 92 Q100 76 138 92 Q178 100 172 144 Q172 176 100 176 Q30 176 30 144Z" fill="#7b5cff" ${o}/>
-    <path d="M44 120 L36 112 M52 100 L42 90 M150 98 L160 88 M160 124 L170 118" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="100" cy="118" r="32" fill="#ffd9a8" ${o}/>
-    <circle cx="100" cy="112" r="20" fill="#fff" ${o}/>
-    <circle cx="100" cy="112" r="10" fill="#ff4d6d" ${o}/><circle cx="100" cy="112" r="4" fill="${INK}"/>
-    <path d="M54 146 Q100 190 148 142 Q100 156 54 146Z" fill="#7a1f3a" ${o}/>
-    <path d="M62 148 L68 156 L76 150 L84 160 L92 152 L100 162 L108 152 L116 160 L124 150 L132 156 L140 146" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M60 176 L56 190 M92 178 L96 186 M140 174 L150 190" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <g class="angryG">
+      <path d="M68 96 L42 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="40" cy="36" r="9" fill="#fff" ${o}/><circle cx="40" cy="36" r="2.6" fill="${INK}"/>
+      <path d="M96 84 L90 22" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="90" cy="18" r="9" fill="#fff" ${o}/><circle cx="90" cy="18" r="2.6" fill="${INK}"/>
+      <path d="M126 86 L140 26" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="141" cy="22" r="9" fill="#fff" ${o}/><circle cx="141" cy="22" r="2.6" fill="${INK}"/>
+      <path d="M150 100 L186 56" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="189" cy="52" r="9" fill="#fff" ${o}/><circle cx="189" cy="52" r="2.6" fill="${INK}"/>
+      <path d="M100.0 83.2 L107.1 97.4 L118.6 85.5 L120.8 100.9 L135.7 92.3 L132.7 107.5 L149.9 102.8 L142.1 116.8 L160.0 116.4 L148.0 127.9 L165.3 131.9 L150.0 140.0 L165.3 148.1 L148.0 152.1 L160.0 163.6 L142.1 163.2 L149.9 177.2 L132.7 172.5 L135.7 187.7 L120.8 179.1 L118.6 194.5 L107.1 182.6 L100.0 196.8 L92.9 182.6 L81.4 194.5 L79.2 179.1 L64.3 187.7 L67.3 172.5 L50.1 177.2 L57.9 163.2 L40.0 163.6 L52.0 152.1 L34.7 148.1 L50.0 140.0 L34.7 131.9 L52.0 127.9 L40.0 116.4 L57.9 116.8 L50.1 102.8 L67.3 107.5 L64.3 92.3 L79.2 100.9 L81.4 85.5 L92.9 97.4Z" fill="#ff7a5c" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+      <circle cx="100" cy="132" r="28" fill="#ffd9a8" ${o}/><circle cx="100" cy="132" r="17" fill="#fff" ${o}/><circle cx="100" cy="132" r="2.8" fill="${INK}" class="trem"/>
+      <path d="M62 100 L92 114 M138 100 L108 114" stroke="${INK}" stroke-width="7" stroke-linecap="round"/>
+      <path d="M62 160 Q100 192 138 160 Q100 170 62 160Z" fill="#7a1f3a" ${o}/><path d="M72 163 L78 168 L84 163 L90 169 L96 163 L102 169 L108 163 L114 169 L120 163 L126 168 L132 162" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M156 100 Q164 114 156 120 Q148 114 156 100Z" fill="#7de3ff" ${o}/>
+      <g class="wifi" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"><path d="M0 70 Q14 54 30 70"/><path d="M8 78 Q14 72 22 78"/></g>
     </g>
-    <g class="wifi" fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M10 82 Q22 70 36 82"/><path d="M16 90 Q22 85 30 90"/></g>
-    <text x="150" y="30" font-size="26" font-weight="900" fill="#ff4d6d" font-family="sans-serif">?!</text></svg>`,
+    </g>
+    <text class="angryG" x="164" y="96" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!!</text></svg>`,
   /* 倒帶企鵝：肚子的時鐘倒著走，總是回頭看昨天 */
   penguin: `<svg viewBox="-14.7 -20.2 220 220"><g class="wob">
     <path d="M100 30 Q154 30 156 100 Q160 172 100 172 Q40 172 44 100 Q46 30 100 30Z" fill="#3c4a8a" ${o}/>
@@ -240,7 +250,7 @@ const ART = {
 const CARDS = [
   {id:"otter",   name:"白日夢水獺",   trait:"特質：被功課和補習壓得好累，腦袋常常偷偷飛走（戳他一下）", say:"他不是在發呆，他正在飛出去。", bg:"#ffb3d1", rare:0},
   {id:"chameleon",name:"濾鏡變色龍", trait:"特質：一隻眼睛看自己，一隻眼睛看別人，顏色換個不停（戳他一下）", say:"他不是愛換顏色，他只是怕被看見原本的樣子。", bg:"#ffd479", rare:0},
-  {id:"hedgehog",name:"轉圈圈小怪", trait:"特質：訊號不好就炸毛（戳他一下試試）", say:"他不是在生氣，只是在轉圈圈載入中。", bg:"#b8f27c", rare:0},
+  {id:"hedgehog",name:"炸毛小怪", trait:"特質：常常收不到別人傳來的訊息，一緊張就把自己炸得很大隻（戳他一下）", say:"他不是想兇你，他只是怕你發現他沒聽懂。", bg:"#b8f27c", rare:0},
   {id:"penguin", name:"倒帶企鵝",   trait:"特質：肚子的時鐘倒著走，常常回頭看昨天", say:"他不是困住了，只是還想再看一眼昨天。", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
 ];
