@@ -24,16 +24,18 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 .card.flip{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;border-radius:22px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:4px solid var(--ink);
   box-shadow:0 10px 0 rgba(0,0,0,.35)}
-.back{background:repeating-linear-gradient(45deg,#2b4a6b 0 12px,#33567a 12px 24px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
-.back .q{font-size:84px;font-weight:900;color:var(--acc);text-shadow:4px 4px 0 var(--ink);animation:bob 1.6s ease-in-out infinite}
+.back{background:repeating-conic-gradient(#2b1a4a 0 12deg,#4a2a7a 12deg 24deg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.back .q{font-size:84px;transform-origin:center;font-weight:900;color:var(--acc);text-shadow:4px 4px 0 var(--ink);animation:bob 1.6s ease-in-out infinite}
 .back .hint{font-size:14px;font-weight:700;background:var(--ink);color:#fbf3e4;padding:4px 12px;border-radius:99px}
-@keyframes bob{50%{transform:translateY(-8px) rotate(-4deg)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(10deg)}}
+.clk{animation:rev 6s linear infinite}
+@keyframes rev{to{transform:rotate(-360deg)}}
 .front{transform:rotateY(180deg);padding:12px 12px 14px;display:flex;flex-direction:column;color:var(--ink)}
 .front .rar{position:absolute;top:10px;right:12px;font-size:12px;font-weight:900;background:var(--ink);color:#ffe27a;padding:2px 10px;border-radius:99px;letter-spacing:.1em}
 .front .art{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
 .front .art svg{width:100%;height:100%}
-.front .name{font-size:24px;font-weight:900;text-align:center;margin:0}
-.front .trait{font-size:13px;font-weight:700;text-align:center;margin:2px 0 8px;opacity:.75}
+.front .name{font-size:23px;font-weight:900;text-align:center;margin:0}
+.front .trait{font-size:12.5px;font-weight:700;text-align:center;margin:2px 0 8px;opacity:.75}
 .front .say{background:rgba(255,255,255,.65);border:3px solid var(--ink);border-radius:14px;padding:8px 10px;font-size:14px;font-weight:700;text-align:center;line-height:1.5}
 .front.rare{color:#fff8e7}
 .front.rare .name{text-shadow:3px 3px 0 var(--ink)}
@@ -67,7 +69,7 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 <p class="sub">小樣本・這次，你抽到的是⋯⋯</p>
 
 <div class="stage"><div class="card" id="card" role="button" tabindex="0" aria-label="翻牌">
-  <div class="face back"><div class="q">?</div><div class="hint">點一下，翻牌</div></div>
+  <div class="face back"><div class="q">?</div><div class="hint">掉進兔子洞，翻牌</div></div>
   <div class="face front" id="front"></div>
 </div></div>
 
@@ -82,65 +84,89 @@ const o = `stroke="${INK}" stroke-width="5" stroke-linejoin="round" stroke-linec
 
 /* 角色：全部是手繪塗鴉風 SVG，故意歪歪的、不對稱 */
 const eyeBig = (x,y,r=11,px=0) => `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${o}/><circle cx="${x+px}" cy="${y+2}" r="${r/2.4}" fill="${INK}"/></g>`;
+const eyeSpiral = (x,y,r=12) => `<g class="blink"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${o}/><path d="M${x} ${y} m-1 0 a2 2 0 1 1 3 1 a4 4 0 1 1 -6 -1 a6.5 6.5 0 1 1 9 -2" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/></g>`;
 const ART = {
+  /* 吐司水獺：奶油融化中，三隻眼睛高低不一，手像麵條 */
   otter: `<svg viewBox="0 0 200 200"><g class="wob">
-    <path d="M52 70 Q52 38 82 42 Q100 28 118 42 Q148 38 148 70 L152 150 Q152 172 130 172 L70 172 Q48 172 48 150 Z" fill="#f2b45a" ${o}/>
-    <path d="M62 62 Q100 48 138 62" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
-    <ellipse cx="100" cy="112" rx="34" ry="30" fill="#8a5a38" ${o}/>
-    <ellipse cx="100" cy="124" rx="20" ry="14" fill="#e6c9a0" ${o}/>
-    <ellipse cx="100" cy="116" rx="7" ry="5" fill="${INK}"/>
-    <path d="M76 98 Q84 92 92 98" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <path d="M110 98 Q118 92 126 98" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <path d="M94 130 Q100 136 106 130" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="170" cy="150" r="4" fill="#f2b45a"/><circle cx="30" cy="160" r="3" fill="#f2b45a"/><circle cx="178" cy="172" r="3" fill="#f2b45a"/>
+    <path d="M50 76 Q44 40 80 44 Q100 26 120 44 Q156 40 150 76 L156 140 Q160 152 146 154 Q140 176 130 152 Q120 150 116 162 Q112 182 102 160 Q90 154 84 166 Q78 178 72 156 Q56 158 50 146 Z" fill="#f2b45a" ${o}/>
+    <path d="M60 58 Q100 44 140 58" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
+    <g transform="rotate(-14 98 34)"><rect x="76" y="22" width="44" height="22" rx="4" fill="#ffe66d" ${o}/><path d="M80 44 Q84 56 90 44" fill="#ffe66d" ${o}/></g>
+    <path d="M70 18 L96 6 L112 14 L96 24 Z" fill="#ff4d6d" ${o} transform="rotate(8 90 14)"/>
+    <ellipse cx="100" cy="108" rx="38" ry="32" fill="#8a5a38" ${o}/>
+    <ellipse cx="104" cy="124" rx="22" ry="14" fill="#e6c9a0" ${o}/>
+    ${eyeBig(78,96,13,3)}${eyeBig(116,88,9,-2)}${eyeBig(100,70,5,0)}
+    <path d="M84 126 Q104 150 126 124 Z" fill="#7a1f3a" ${o}/>
+    <path d="M108 132 Q118 160 134 150 Q128 138 120 132 Z" fill="#ff6b8a" ${o}/>
+    <rect x="94" y="124" width="8" height="10" rx="2" fill="#fff" ${o}/>
+    <path d="M52 112 Q30 100 36 128 Q24 140 42 150" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="42" cy="152" r="7" fill="#e6c9a0" ${o}/>
+    <path d="M148 110 Q176 90 160 70 Q182 62 170 44" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="170" cy="42" r="7" fill="#e6c9a0" ${o}/>
     </g>
-    <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="150" y="44" font-size="22">Z</text></g>
-    <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="168" y="28" font-size="16">z</text></g></svg>`,
+    <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="14" y="52" font-size="22">Z</text></g>
+    <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="30" y="34" font-size="16">z</text></g></svg>`,
+  /* WiFi 刺蝟：刺是長眼睛的天線，一隻超大眼，嘴巴開到耳朵 */
   hedgehog: `<svg viewBox="0 0 200 200"><g class="wob">
-    <path d="M30 140 L22 118 L40 112 L30 92 L50 90 L48 68 L68 74 L76 54 L92 66 L108 48 L120 68 L140 58 L146 80 L168 80 L160 102 L180 108 L166 128 L176 146 Q176 172 150 172 L56 172 Q30 172 30 140Z" fill="#7b5cff" ${o}/>
-    <ellipse cx="100" cy="124" rx="48" ry="40" fill="#ffd9a8" ${o}/>
-    ${eyeBig(82,116,13,-2)}${eyeBig(120,114,9,3)}
-    <ellipse cx="102" cy="136" rx="6" ry="5" fill="${INK}"/>
-    <path d="M86 150 L92 144 L98 150 L104 144 L110 150 L116 144" fill="none" stroke="${INK}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M60 100 L34 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="36" r="9" fill="#fff" ${o}/><circle cx="34" cy="38" r="3.5" fill="${INK}"/>
+    <path d="M84 84 L76 22" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="76" cy="18" r="9" fill="#fff" ${o}/><circle cx="74" cy="20" r="3.5" fill="${INK}"/>
+    <path d="M112 82 Q104 54 122 40" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="124" cy="36" r="9" fill="#fff" ${o}/><circle cx="127" cy="36" r="3.5" fill="${INK}"/>
+    <path d="M138 96 L172 58" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="175" cy="54" r="9" fill="#fff" ${o}/><circle cx="173" cy="57" r="3.5" fill="${INK}"/>
+    <path d="M30 144 Q24 100 62 92 Q100 76 138 92 Q178 100 172 144 Q172 176 100 176 Q30 176 30 144Z" fill="#7b5cff" ${o}/>
+    <path d="M44 120 L36 112 M52 100 L42 90 M150 98 L160 88 M160 124 L170 118" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="100" cy="118" r="32" fill="#ffd9a8" ${o}/>
+    <circle cx="100" cy="112" r="20" fill="#fff" ${o}/>
+    <circle cx="100" cy="112" r="10" fill="#ff4d6d" ${o}/><circle cx="100" cy="112" r="4" fill="${INK}"/>
+    <path d="M54 146 Q100 190 148 142 Q100 156 54 146Z" fill="#7a1f3a" ${o}/>
+    <path d="M62 148 L68 156 L76 150 L84 160 L92 152 L100 162 L108 152 L116 160 L124 150 L132 156 L140 146" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M60 176 L56 190 M92 178 L96 186 M140 174 L150 190" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
     </g>
-    <g fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M80 38 Q100 22 120 38"/><path d="M89 48 Q100 40 111 48"/></g>
-    <circle cx="100" cy="58" r="5" fill="#ff4d6d"/>
-    <text x="146" y="36" font-size="30" font-weight="900" fill="#ff4d6d" font-family="sans-serif">!</text></svg>`,
-  penguin: `<svg viewBox="0 0 200 200"><g class="wob">
-    <path d="M100 26 Q154 26 156 100 Q160 172 100 172 Q40 172 44 100 Q46 26 100 26Z" fill="#3c4a8a" ${o}/>
-    <path d="M100 74 Q138 76 138 116 Q138 164 100 164 Q62 164 62 116 Q62 76 100 74Z" fill="#fff8e7" ${o}/>
-    ${eyeBig(80,64,10,0)}${eyeBig(118,60,15,-4)}
-    <path d="M84 84 L116 84 L100 102 Z" fill="#ff9f1c" ${o}/>
-    <path d="M70 118 Q100 150 132 114" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <path d="M66 118 L72 112 M134 112 L130 120" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
-    <path d="M44 110 Q22 120 30 146 Q42 134 50 130Z" fill="#3c4a8a" ${o}/>
-    <path d="M156 110 Q180 112 172 140 Q160 130 150 126Z" fill="#3c4a8a" ${o}/>
-    <ellipse cx="76" cy="176" rx="18" ry="7" fill="#ff9f1c" ${o}/><ellipse cx="124" cy="176" rx="18" ry="7" fill="#ff9f1c" ${o}/>
+    <g fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M10 82 Q22 70 36 82"/><path d="M16 90 Q22 85 30 90"/></g>
+    <text x="150" y="30" font-size="26" font-weight="900" fill="#ff4d6d" font-family="sans-serif">?!</text></svg>`,
+  /* 冷場企鵝：肚子是倒著走的時鐘，笑容大到超出臉 */
+  penguin: `<svg viewBox="0 -16 200 216"><g class="wob">
+    <path d="M100 30 Q154 30 156 100 Q160 172 100 172 Q40 172 44 100 Q46 30 100 30Z" fill="#3c4a8a" ${o}/>
+    <g transform="rotate(14 100 22)"><rect x="78" y="-4" width="44" height="34" rx="3" fill="#1a1a2e" ${o}/><rect x="68" y="26" width="64" height="8" rx="3" fill="#1a1a2e" ${o}/><rect x="78" y="16" width="44" height="7" fill="#ff4d6d"/></g>
+    <circle cx="100" cy="128" r="36" fill="#fff8e7" ${o}/>
+    <g class="clk" style="transform-origin:100px 128px"><path d="M100 128 L100 104" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g>
+    <path d="M100 128 L118 138" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <text x="93" y="106" font-size="11" font-weight="900" fill="${INK}" font-family="sans-serif" transform="rotate(180 100 100)" style="display:none">12</text>
+    <g font-size="11" font-weight="900" fill="${INK}" font-family="sans-serif" text-anchor="middle"><text x="100" y="102">21</text><text x="130" y="132">9</text><text x="100" y="162">6</text><text x="70" y="132">3</text></g>
+    ${eyeSpiral(78,70,11)}${eyeBig(122,64,17,-5)}
+    <path d="M86 88 L114 88 L100 102 Z" fill="#ff9f1c" ${o}/>
+    <path d="M18 84 Q100 190 184 76 Q100 126 18 84Z" fill="#fff" ${o}/>
+    <path d="M30 96 L34 88 M48 108 L52 98 M70 116 L72 106 M96 120 L96 110 M122 116 L120 106 M146 106 L142 98 M166 94 L160 86" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M44 120 Q16 112 18 150 Q30 142 48 140Z" fill="#3c4a8a" ${o}/>
+    <path d="M156 120 Q190 100 186 138 Q170 134 152 138Z" fill="#3c4a8a" ${o}/>
+    <ellipse cx="72" cy="178" rx="26" ry="8" fill="#ff9f1c" ${o}/><ellipse cx="132" cy="180" rx="12" ry="6" fill="#ff9f1c" ${o}/>
     </g>
-    <text x="14" y="52" font-size="20" font-weight="900" fill="${INK}" font-family="sans-serif">…</text>
-    <text x="150" y="40" font-size="20" font-weight="900" fill="${INK}" font-family="sans-serif">…</text></svg>`,
+    <text x="8" y="40" font-size="18" font-weight="900" fill="#fff8e7" font-family="sans-serif">…</text>
+    <text x="150" y="30" font-size="14" font-weight="900" fill="#ff4d6d" font-family="sans-serif">遲到了！</text></svg>`,
+  /* 燈塔蝸牛（閃卡）：茶杯裡長出歪歪的燈塔，眼睛長在打結的觸角上 */
   snail: `<svg viewBox="0 0 200 200"><g class="wob">
-    <path d="M18 168 Q18 148 44 148 L170 148 Q188 150 186 168 Z" fill="#7ee0c3" ${o}/>
-    <path d="M146 148 Q142 112 160 96" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="160" cy="94" r="9" fill="#fff" ${o}/><circle cx="162" cy="95" r="3.5" fill="${INK}"/>
-    <path d="M168 150 Q172 120 184 108" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="185" cy="105" r="9" fill="#fff" ${o}/><circle cx="187" cy="106" r="3.5" fill="${INK}"/>
-    <path d="M168 160 Q176 166 184 158" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
-    <path d="M52 148 L60 70 L100 70 L108 148 Z" fill="#fff8e7" ${o}/>
-    <path d="M57 108 L104 108 M59 90 L102 90 M55 128 L106 128" stroke="#ff4d6d" stroke-width="12"/>
-    <path d="M52 148 L60 70 L100 70 L108 148 Z" fill="none" ${o}/>
-    <rect x="62" y="48" width="36" height="22" rx="4" fill="#ffe27a" ${o}/>
-    <path d="M56 48 L80 28 L104 48 Z" fill="#ff4d6d" ${o}/>
-    <rect x="42" y="150" width="76" height="8" rx="3" fill="${INK}"/>
-    </g>
-    <g class="beamB" opacity=".85"><path d="M62 58 L-10 28 L-10 88 Z" fill="#ffe27a" opacity=".55"/><path d="M98 58 L196 26 L196 90 Z" fill="#ffe27a" opacity=".55"/></g></svg>`
+    <path d="M10 170 Q10 154 34 154 L176 154 Q194 156 190 172 Z" fill="#7ee0c3" ${o}/>
+    <path d="M150 154 Q146 124 164 110 Q178 100 164 90 Q150 84 158 72" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    ${eyeSpiral(158,66,10)}
+    <path d="M176 156 Q180 130 190 120" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="190" cy="116" r="9" fill="#fff" ${o}/><circle cx="188" cy="118" r="3.5" fill="${INK}"/>
+    <path d="M170 166 Q178 174 188 164" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <g transform="rotate(-9 80 150)">
+      <path d="M36 112 L128 112 L120 148 Q116 158 100 158 L64 158 Q48 158 44 148 Z" fill="#fff" ${o}/>
+      <circle cx="58" cy="132" r="4" fill="#ff7aa8"/><circle cx="82" cy="140" r="4" fill="#ff7aa8"/><circle cx="104" cy="130" r="4" fill="#ff7aa8"/>
+      <path d="M128 118 Q150 114 148 134 Q146 148 126 140" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M58 112 L66 54 L98 54 L106 112 Z" fill="#fff8e7" ${o}/>
+      <path d="M62 92 L102 92 M64 74 L100 74" stroke="#ff4d6d" stroke-width="12"/>
+      <path d="M58 112 L66 54 L98 54 L106 112 Z" fill="none" ${o}/>
+      <rect x="68" y="34" width="28" height="20" rx="4" fill="#ffe27a" ${o}/>
+      <path d="M62 34 L82 16 L102 34 Z" fill="#ff4d6d" ${o}/>
+    </g></g>
+    <g class="beamB" opacity=".8"><path d="M54 40 Q10 30 8 10 Q40 16 50 34Z" fill="#ffe27a" opacity=".7"/><path d="M96 40 Q150 26 160 6 Q120 8 100 32Z" fill="#ffe27a" opacity=".7"/></g>
+    <circle cx="26" cy="64" r="11" fill="#fff8e7" ${o}/><path d="M26 64 L26 57 M26 64 L32 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M168 40 L172 30 L176 40 L186 44 L176 48 L172 58 L168 48 L158 44Z" fill="#ffe27a" ${o}/></svg>`
 };
 
 const CARDS = [
-  {id:"otter",   name:"吐司水獺",   trait:"特質：一直想睡，翻身會掉麵包屑", say:"今天的目標：不要睡著。（失敗率 99%）", bg:"#ffd479", rare:0},
-  {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好的時候很容易炸毛", say:"他不是生氣，只是在重新連線。", bg:"#c9b8ff", rare:0},
-  {id:"penguin", name:"冷場企鵝",   trait:"特質：一開口全場安靜，但自己覺得很好笑", say:"這個笑話下次一定會成功。", bg:"#a9d4ff", rare:0},
-  {id:"snail",   name:"燈塔蝸牛",   trait:"特質：慢慢來，但是會發光", say:"走得慢沒關係，你的光，有人看得見。", bg:"#7a5cff", rare:1}
+  {id:"otter",   name:"吐司水獺",   trait:"特質：奶油融化中，有三隻眼睛，但常常睡著三隻", say:"他說自己一點都不睏。（第三隻眼睛已經先睡了）", bg:"#ffb3d1", rare:0},
+  {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：頭上的天線都有眼睛，訊號不好會炸毛", say:"他不是生氣，只是你說的話，昨天才傳到。", bg:"#b8f27c", rare:0},
+  {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子上的時鐘倒著走，永遠早到昨天", say:"全場安靜，是因為大家都在偷偷憋笑。（大概）", bg:"#7de3ff", rare:0},
+  {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
 ];
 
 /* 星空 */
