@@ -60,6 +60,13 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
 .zz{animation:zz 2s ease-in-out infinite}
 @keyframes zz{0%{opacity:0;transform:translate(0,6px)}50%{opacity:1}100%{opacity:0;transform:translate(8px,-10px)}}
+.ants{transform-origin:100px 118px;transform-box:view-box}
+.fluff .ants{animation:fluff .18s linear 7}
+.fluff .wifi{animation:flick .18s steps(2) 7}
+.fluff .wob{animation:puff 1.3s ease-out 1}
+@keyframes fluff{0%{transform:rotate(-6deg) scale(1.04)}50%{transform:rotate(6deg) scale(1.08)}100%{transform:rotate(-6deg) scale(1.04)}}
+@keyframes flick{50%{opacity:0}}
+@keyframes puff{0%,100%{transform:scale(1)}20%{transform:scale(1.12,.9)}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -88,27 +95,32 @@ const eyeSpiral = (x,y,r=12) => `<g class="blink"><circle cx="${x}" cy="${y}" r=
 const ART = {
   /* 吐司水獺：奶油融化中，三隻眼睛高低不一，手像麵條 */
   otter: `<svg viewBox="0 0 200 200"><g class="wob">
-    <path d="M50 76 Q44 40 80 44 Q100 26 120 44 Q156 40 150 76 L156 140 Q160 152 146 154 Q140 176 130 152 Q120 150 116 162 Q112 182 102 160 Q90 154 84 166 Q78 178 72 156 Q56 158 50 146 Z" fill="#f2b45a" ${o}/>
-    <path d="M60 58 Q100 44 140 58" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
-    <g transform="rotate(-14 98 34)"><rect x="76" y="22" width="44" height="22" rx="4" fill="#ffe66d" ${o}/><path d="M80 44 Q84 56 90 44" fill="#ffe66d" ${o}/></g>
-    <path d="M70 18 L96 6 L112 14 L96 24 Z" fill="#ff4d6d" ${o} transform="rotate(8 90 14)"/>
-    <ellipse cx="100" cy="108" rx="38" ry="32" fill="#8a5a38" ${o}/>
-    <ellipse cx="104" cy="124" rx="22" ry="14" fill="#e6c9a0" ${o}/>
-    ${eyeBig(78,96,13,3)}${eyeBig(116,88,9,-2)}${eyeBig(100,70,5,0)}
-    <path d="M84 126 Q104 150 126 124 Z" fill="#7a1f3a" ${o}/>
-    <path d="M108 132 Q118 160 134 150 Q128 138 120 132 Z" fill="#ff6b8a" ${o}/>
-    <rect x="94" y="124" width="8" height="10" rx="2" fill="#fff" ${o}/>
-    <path d="M52 112 Q30 100 36 128 Q24 140 42 150" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="42" cy="152" r="7" fill="#e6c9a0" ${o}/>
-    <path d="M148 110 Q176 90 160 70 Q182 62 170 44" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="170" cy="42" r="7" fill="#e6c9a0" ${o}/>
+    <path d="M44 120 Q40 104 60 104 L140 104 Q160 104 156 120 L160 150 Q164 160 150 160 Q146 182 136 160 Q124 158 120 170 Q116 188 106 164 Q92 160 86 172 Q80 184 74 162 Q56 164 50 154 Z" fill="#f2b45a" ${o}/>
+    <path d="M56 118 Q100 108 144 118" fill="none" stroke="#c9822e" stroke-width="5" stroke-linecap="round"/>
+    <g transform="rotate(-10 150 112)"><rect x="128" y="96" width="34" height="18" rx="4" fill="#ffe66d" ${o}/></g>
+    <path d="M52 132 Q28 128 34 150 Q22 160 38 168" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="170" r="7" fill="#c98a5a" ${o}/>
+    <path d="M148 132 Q176 122 166 100 Q188 94 178 76" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="177" cy="73" r="7" fill="#c98a5a" ${o}/><path d="M166 66 Q177 40 190 66 Z" fill="#ffd1e8" ${o}/><path d="M172 64 L177 48 M178 64 L178 46 M184 64 L180 48" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="56" cy="62" r="7" fill="#8a5a38" ${o}/><circle cx="144" cy="62" r="7" fill="#8a5a38" ${o}/>
+    <ellipse cx="100" cy="86" rx="54" ry="36" fill="#8a5a38" ${o}/>
+    <ellipse cx="100" cy="102" rx="36" ry="22" fill="#f0dcb8" ${o}/>
+    <ellipse cx="100" cy="94" rx="11" ry="7" fill="${INK}"/>
+    <path d="M100 100 L100 108 M88 110 Q100 120 112 110" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="82" cy="104" r="2" fill="${INK}"/><circle cx="90" cy="108" r="2" fill="${INK}"/><circle cx="118" cy="104" r="2" fill="${INK}"/><circle cx="110" cy="108" r="2" fill="${INK}"/>
+    <path d="M70 96 L30 84 M68 104 L26 106 M72 112 L34 126 M130 96 L170 84 M132 104 L174 106 M128 112 L166 126" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    ${eyeBig(76,80,10,2)}${eyeBig(124,80,10,-2)}
+    <circle cx="100" cy="58" r="15" fill="#fff" ${o}/>
+    <path d="M88 58 Q100 68 112 58" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M90 62 L87 67 M100 65 L100 71 M110 62 L113 67" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
     </g>
-    <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="14" y="52" font-size="22">Z</text></g>
-    <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="30" y="34" font-size="16">z</text></g></svg>`,
+    <g class="zz" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="116" y="34" font-size="22">Z</text></g>
+    <g class="zz" style="animation-delay:.7s" fill="${INK}" font-weight="900" font-family="sans-serif"><text x="134" y="18" font-size="15">z</text></g></svg>`,
   /* WiFi 刺蝟：刺是長眼睛的天線，一隻超大眼，嘴巴開到耳朵 */
-  hedgehog: `<svg viewBox="0 0 200 200"><g class="wob">
+  hedgehog: `<svg viewBox="-14 -10 228 220"><g class="wob"><g class="ants">
     <path d="M60 100 L34 40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="36" r="9" fill="#fff" ${o}/><circle cx="34" cy="38" r="3.5" fill="${INK}"/>
     <path d="M84 84 L76 22" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="76" cy="18" r="9" fill="#fff" ${o}/><circle cx="74" cy="20" r="3.5" fill="${INK}"/>
     <path d="M112 82 Q104 54 122 40" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="124" cy="36" r="9" fill="#fff" ${o}/><circle cx="127" cy="36" r="3.5" fill="${INK}"/>
     <path d="M138 96 L172 58" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle cx="175" cy="54" r="9" fill="#fff" ${o}/><circle cx="173" cy="57" r="3.5" fill="${INK}"/>
+    </g>
     <path d="M30 144 Q24 100 62 92 Q100 76 138 92 Q178 100 172 144 Q172 176 100 176 Q30 176 30 144Z" fill="#7b5cff" ${o}/>
     <path d="M44 120 L36 112 M52 100 L42 90 M150 98 L160 88 M160 124 L170 118" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
     <circle cx="100" cy="118" r="32" fill="#ffd9a8" ${o}/>
@@ -118,21 +130,21 @@ const ART = {
     <path d="M62 148 L68 156 L76 150 L84 160 L92 152 L100 162 L108 152 L116 160 L124 150 L132 156 L140 146" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
     <path d="M60 176 L56 190 M92 178 L96 186 M140 174 L150 190" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
     </g>
-    <g fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M10 82 Q22 70 36 82"/><path d="M16 90 Q22 85 30 90"/></g>
+    <g class="wifi" fill="none" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"><path d="M10 82 Q22 70 36 82"/><path d="M16 90 Q22 85 30 90"/></g>
     <text x="150" y="30" font-size="26" font-weight="900" fill="#ff4d6d" font-family="sans-serif">?!</text></svg>`,
   /* 冷場企鵝：肚子是倒著走的時鐘，笑容大到超出臉 */
   penguin: `<svg viewBox="0 -16 200 216"><g class="wob">
     <path d="M100 30 Q154 30 156 100 Q160 172 100 172 Q40 172 44 100 Q46 30 100 30Z" fill="#3c4a8a" ${o}/>
     <g transform="rotate(14 100 22)"><rect x="78" y="-4" width="44" height="34" rx="3" fill="#1a1a2e" ${o}/><rect x="68" y="26" width="64" height="8" rx="3" fill="#1a1a2e" ${o}/><rect x="78" y="16" width="44" height="7" fill="#ff4d6d"/></g>
-    <circle cx="100" cy="128" r="36" fill="#fff8e7" ${o}/>
-    <g class="clk" style="transform-origin:100px 128px"><path d="M100 128 L100 104" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g>
-    <path d="M100 128 L118 138" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
-    <text x="93" y="106" font-size="11" font-weight="900" fill="${INK}" font-family="sans-serif" transform="rotate(180 100 100)" style="display:none">12</text>
-    <g font-size="11" font-weight="900" fill="${INK}" font-family="sans-serif" text-anchor="middle"><text x="100" y="102">21</text><text x="130" y="132">9</text><text x="100" y="162">6</text><text x="70" y="132">3</text></g>
-    ${eyeSpiral(78,70,11)}${eyeBig(122,64,17,-5)}
-    <path d="M86 88 L114 88 L100 102 Z" fill="#ff9f1c" ${o}/>
-    <path d="M18 84 Q100 190 184 76 Q100 126 18 84Z" fill="#fff" ${o}/>
-    <path d="M30 96 L34 88 M48 108 L52 98 M70 116 L72 106 M96 120 L96 110 M122 116 L120 106 M146 106 L142 98 M166 94 L160 86" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    ${eyeSpiral(78,62,11)}${eyeBig(122,56,17,-5)}
+    <path d="M88 78 L112 78 L100 92 Z" fill="#ff9f1c" ${o}/>
+    <path d="M34 94 Q100 176 166 90 Q100 114 34 94Z" fill="#7a1f3a" ${o}/>
+    <path d="M52 100 Q100 116 148 98 L144 108 Q100 124 56 110 Z" fill="#fff"/>
+    <path d="M78 134 Q100 108 122 134 Q100 150 78 134Z" fill="#ff6b8a" ${o}/>
+    <circle cx="100" cy="150" r="24" fill="#fff8e7" ${o}/>
+    <g class="clk" style="transform-origin:100px 150px"><path d="M100 150 L100 134" stroke="${INK}" stroke-width="4" stroke-linecap="round"/></g>
+    <path d="M100 150 L112 156" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    <g font-size="9" font-weight="900" fill="${INK}" font-family="sans-serif" text-anchor="middle"><text x="100" y="134">21</text><text x="118" y="153">9</text><text x="100" y="170">6</text><text x="82" y="153">3</text></g>
     <path d="M44 120 Q16 112 18 150 Q30 142 48 140Z" fill="#3c4a8a" ${o}/>
     <path d="M156 120 Q190 100 186 138 Q170 134 152 138Z" fill="#3c4a8a" ${o}/>
     <ellipse cx="72" cy="178" rx="26" ry="8" fill="#ff9f1c" ${o}/><ellipse cx="132" cy="180" rx="12" ry="6" fill="#ff9f1c" ${o}/>
@@ -163,9 +175,9 @@ const ART = {
 };
 
 const CARDS = [
-  {id:"otter",   name:"吐司水獺",   trait:"特質：奶油融化中，有三隻眼睛，但常常睡著三隻", say:"他說自己一點都不睏。（第三隻眼睛已經先睡了）", bg:"#ffb3d1", rare:0},
-  {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：頭上的天線都有眼睛，訊號不好會炸毛", say:"他不是生氣，只是你說的話，昨天才傳到。", bg:"#b8f27c", rare:0},
-  {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子上的時鐘倒著走，永遠早到昨天", say:"全場安靜，是因為大家都在偷偷憋笑。（大概）", bg:"#7de3ff", rare:0},
+  {id:"otter",   name:"吐司水獺",   trait:"特質：額頭有第三隻眼睛，總是最先睡著", say:"他說自己一點都不睏。（額頭那隻已經睡了）", bg:"#ffb3d1", rare:0},
+  {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好就炸毛（戳他一下試試）", say:"他不是在生氣，只是在轉圈圈載入中。", bg:"#b8f27c", rare:0},
+  {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子的時鐘倒著走，笑話慢半拍才到", say:"全場安靜，是因為大家都在偷偷憋笑。（大概）", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
 ];
 
@@ -211,7 +223,10 @@ function draw(){
   setTimeout(() => { burst(); if(c.rare) setTimeout(burst, 250); again.hidden = false; busy = false;
     dex.add(c.id); try{ localStorage.setItem("lh_cards_dex", JSON.stringify([...dex])); }catch(e){} renderDex(); }, 650);
 }
-card.addEventListener("click", () => { if(!card.classList.contains("flip")) draw(); });
+card.addEventListener("click", () => {
+  if(!card.classList.contains("flip")) return draw();
+  if(CARDS[last] && CARDS[last].id === "hedgehog"){ front.classList.remove("fluff"); void front.offsetWidth; front.classList.add("fluff"); setTimeout(() => front.classList.remove("fluff"), 1400); }
+});
 card.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && !card.classList.contains("flip")) draw(); });
 again.addEventListener("click", draw);
 </script>
