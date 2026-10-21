@@ -28,7 +28,10 @@ h1{font-size:20px;margin:6px 0 2px;letter-spacing:.08em}
 .back .q{font-size:84px;transform-origin:center;font-weight:900;color:var(--acc);text-shadow:4px 4px 0 var(--ink);animation:bob 1.6s ease-in-out infinite}
 .back .hint{font-size:14px;font-weight:700;background:var(--ink);color:#fbf3e4;padding:4px 12px;border-radius:99px}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(10deg)}}
-.clk{animation:rev 6s linear infinite}
+.clk{animation:rev 3s linear infinite}
+.clk2{animation:rev 18s linear infinite}
+.mem{animation:memp 3.2s ease-in-out infinite}
+@keyframes memp{0%,100%{opacity:.75}50%{opacity:1}}
 @keyframes rev{to{transform:rotate(-360deg)}}
 .front{transform:rotateY(180deg);padding:12px 12px 14px;display:flex;flex-direction:column;color:var(--ink)}
 .front .rar{position:absolute;top:10px;right:12px;font-size:12px;font-weight:900;background:var(--ink);color:#ffe27a;padding:2px 10px;border-radius:99px;letter-spacing:.1em}
@@ -151,22 +154,28 @@ const ART = {
     <path d="M100 30 Q154 30 156 100 Q160 172 100 172 Q40 172 44 100 Q46 30 100 30Z" fill="#3c4a8a" ${o}/>
     <g transform="rotate(14 100 22)"><rect x="78" y="-4" width="44" height="34" rx="3" fill="#1a1a2e" ${o}/><rect x="68" y="26" width="64" height="8" rx="3" fill="#1a1a2e" ${o}/><rect x="78" y="16" width="44" height="7" fill="#ff4d6d"/></g>
     <path d="M100 98 Q150 98 148 138 Q146 172 100 172 Q54 172 52 138 Q50 98 100 98Z" fill="#fff8e7" ${o}/>
-    <g class="blink"><circle cx="72" cy="68" r="12" fill="#fff" ${o}/><circle cx="74" cy="70" r="5.5" fill="${INK}"/><circle cx="76" cy="67.5" r="2" fill="#fff"/></g>
-    <g class="blink"><circle cx="128" cy="68" r="12" fill="#fff" ${o}/><circle cx="126" cy="70" r="5.5" fill="${INK}"/><circle cx="128" cy="67.5" r="2" fill="#fff"/></g>
+    <g class="blink"><circle cx="72" cy="68" r="12" fill="#fff" ${o}/><circle cx="69" cy="64" r="5.5" fill="${INK}"/><circle cx="71" cy="61.5" r="2" fill="#fff"/></g>
+    <g class="blink"><circle cx="128" cy="68" r="12" fill="#fff" ${o}/><circle cx="123" cy="62" r="5.5" fill="${INK}"/><circle cx="125" cy="59.5" r="2" fill="#fff"/></g>
     <circle cx="128" cy="68" r="19" fill="#ffffff" fill-opacity=".18" stroke="#ffd23f" stroke-width="4"/>
     <path d="M143 80 Q156 104 144 134" fill="none" stroke="#ffd23f" stroke-width="2.5" stroke-linecap="round"/>
     <circle cx="62" cy="96" r="6" fill="#ff8fb1" opacity=".85"/><circle cx="138" cy="98" r="6" fill="#ff8fb1" opacity=".85"/>
     <g transform="translate(100 82) scale(1.25) translate(-100 -82)"><path d="M88 86 Q100 98 112 86 Q100 90 88 86Z" fill="#ffc24d" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
     <path d="M84 76 Q100 64 116 76 Q110 90 100 92 Q90 90 84 76Z" fill="#ff9f1c" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
     <path d="M87 78 Q100 83 113 78" fill="none" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/></g>
-    <g transform="translate(100 150) scale(.62) translate(-100 -150)"><circle cx="100" cy="150" r="24" fill="#fff" ${o}/>
-    <g class="clk" style="transform-origin:100px 150px"><path d="M100 150 L100 134" stroke="${INK}" stroke-width="4" stroke-linecap="round"/></g>
-    <path d="M100 150 L112 156" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
-    <g font-size="9" font-weight="900" fill="${INK}" font-family="sans-serif" text-anchor="middle"><text x="100" y="134">21</text><text x="118" y="153">9</text><text x="100" y="170">6</text><text x="82" y="153">3</text></g></g>
+    <g transform="translate(100 141) scale(.95) translate(-100 -150)"><circle cx="100" cy="150" r="24" fill="#fff" ${o}/>
+    <g class="clk" style="transform-origin:100px 150px"><path d="M100 150 L100 131" stroke="${INK}" stroke-width="4" stroke-linecap="round"/></g>
+    <g class="clk2" style="transform-origin:100px 150px"><path d="M100 150 L110 154" stroke="#ff4d6d" stroke-width="4" stroke-linecap="round"/></g>
+    <circle cx="100" cy="150" r="3" fill="${INK}"/>
+    <g font-size="9" font-weight="900" fill="${INK}" font-family="sans-serif" text-anchor="middle"><text transform="translate(100 139) scale(-1 1)">12</text><text transform="translate(116 153) scale(-1 1)">9</text><text transform="translate(100 168) scale(-1 1)">6</text><text transform="translate(84 153) scale(-1 1)">3</text></g></g>
+    <path d="M126.8 124.5 A31 31 0 1 0 80.1 163.7" fill="none" stroke="#ff4d6d" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M85.5 168.2 L76.9 167.5 L83.3 159.9Z" fill="#ff4d6d" stroke="#ff4d6d" stroke-width="2" stroke-linejoin="round"/>
     <path d="M44 120 Q16 112 18 150 Q30 142 48 140Z" fill="#3c4a8a" ${o}/>
     <path d="M156 120 Q190 100 186 138 Q170 134 152 138Z" fill="#3c4a8a" ${o}/>
     <ellipse cx="72" cy="178" rx="26" ry="8" fill="#ff9f1c" ${o}/><ellipse cx="132" cy="180" rx="12" ry="6" fill="#ff9f1c" ${o}/>
     </g>
+    <g class="mem"><circle cx="46" cy="38" r="26" fill="#fff" ${o}/><circle cx="40" cy="70" r="5.5" fill="#fff" stroke="${INK}" stroke-width="3.5"/><circle cx="34" cy="82" r="3" fill="#fff" stroke="${INK}" stroke-width="3"/>
+    <rect x="32" y="40" width="28" height="13" rx="3" fill="#ffb3d1" stroke="${INK}" stroke-width="3"/><path d="M32 46 Q39 42 46 46 Q53 50 60 46" fill="none" stroke="#fff" stroke-width="3"/>
+    <rect x="45" y="29" width="3" height="11" fill="${INK}"/><path d="M46.5 20 Q51 26 46.5 28 Q42 26 46.5 20Z" fill="#ffd23f" stroke="${INK}" stroke-width="1.5"/></g>
     </svg>`,
   /* 燈塔蝸牛（閃卡）：茶杯裡長出歪歪的燈塔，眼睛長在打結的觸角上 */
   snail: `<svg viewBox="0 0 200 200"><g class="wob">
@@ -194,7 +203,7 @@ const ART = {
 const CARDS = [
   {id:"otter",   name:"吐司水獺",   trait:"特質：隨時都在睡，被戳到會嚇一大跳（戳他一下）", say:"他說自己一點都不睏。（說完就睡著了）", bg:"#ffb3d1", rare:0},
   {id:"hedgehog",name:"WiFi 刺蝟", trait:"特質：訊號不好就炸毛（戳他一下試試）", say:"他不是在生氣，只是在轉圈圈載入中。", bg:"#b8f27c", rare:0},
-  {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子的時鐘倒著走，笑話慢半拍才到", say:"全場安靜，是因為大家都在偷偷憋笑。（大概）", bg:"#7de3ff", rare:0},
+  {id:"penguin", name:"冷場企鵝",   trait:"特質：肚子的時鐘倒著走，常常回頭看昨天", say:"他不是困住了，只是還想再看一眼昨天。", bg:"#7de3ff", rare:0},
   {id:"snail",   name:"茶杯燈塔蝸牛", trait:"特質：慢慢來，迷路也沒關係，而且會發光", say:"仙境本來就沒有直線，你走歪的那一步，也算數。", bg:"#7a5cff", rare:1}
 ];
 
