@@ -230,31 +230,7 @@ function RestaurantList() {
 
   return (
     <div className="space-y-6">
-      {/* 添加按鈕 */}
-      <div className="flex justify-center">
-        <Button 
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground font-serif text-lg px-8 py-6 rounded-sm transition-all transform hover:translate-y-[-2px] shadow-sm border border-primary/30"
-          disabled={!currentUser || !recommendOpen} // 未登入或已過推薦截止日
-        >
-          <PlusCircle className="mr-2 h-5 w-5 opacity-90" />
-          推薦{T.item}
-        </Button>
-        {!recommendOpen && event ? (
-          <div className="ml-2 text-amber-600 text-sm flex items-center">
-            <span className="italic">推薦已於 {shortDate(event.recommendDeadline)} 截止</span>
-          </div>
-        ) : !currentUser && (
-          <div className="ml-2 text-amber-600 text-sm flex items-center">
-            <span className="italic">請先登入以推薦{T.item}</span>
-          </div>
-        )}
-      </div>
-      
-      {/* 裝飾分隔線 */}
-      <div className="japanese-divider !my-6"></div>
-      
-      {/* 餐廳排名提示 */}
+      {/* 投票排名放最上面；推薦按鈕放在排名說明下面 */}
       <div className="text-center mb-6">
         <div className="relative inline-block">
           <h2 className="text-3xl font-serif text-primary font-medium mb-3 relative">
@@ -266,21 +242,35 @@ function RestaurantList() {
             )}
           </h2>
         </div>
-        <div className="h-1 w-24 bg-yellow-500/50 mx-auto mb-4"></div>
+        <div className="h-1 w-24 bg-yellow-500/50 mx-auto mb-3"></div>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          以下{T.item}根據投票數量進行排名，票數越多排名越前。
-          目前共有 <span className="font-medium text-primary">{uniqueVotersData?.count || 0}</span> 人參與投票。
-          <span className="block mt-2 text-amber-600 text-xs font-medium">
+          票數越多排名越前，目前共有 <span className="font-medium text-primary">{uniqueVotersData?.count || 0}</span> 人參與投票。
+          <span className="block mt-1 text-amber-600 text-xs font-medium">
             投票規則：一人有 {event?.votesPerPerson ?? 2} 票，同一{T.unit}{T.item}限投一票
           </span>
         </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-serif rounded-sm shadow-sm border border-primary/30"
+            disabled={!currentUser || !recommendOpen} // 未登入或已過推薦截止日
+          >
+            <PlusCircle className="mr-1.5 h-4 w-4 opacity-90" />
+            推薦{T.item}
+          </Button>
+          {!recommendOpen && event ? (
+            <span className="italic text-amber-600 text-sm">推薦已於 {shortDate(event.recommendDeadline)} 截止</span>
+          ) : !currentUser && (
+            <span className="italic text-amber-600 text-sm">請先登入以推薦{T.item}</span>
+          )}
+        </div>
       </div>
       
       {restaurants.length === 0 ? (
         <div className="text-center py-16 bg-card border border-border/40 rounded-sm shadow-sm">
           <h3 className="text-xl font-serif tracking-wide font-medium mb-3 text-primary">{T.emptyTitle}</h3>
           <div className="h-[1px] w-20 bg-primary/20 mx-auto mb-4"></div>
-          <p className="text-muted-foreground mb-10 font-serif">點擊上方按鈕開始新增您推薦的{T.item}</p>
+          <p className="text-muted-foreground mb-10 font-serif">點上方「推薦{T.item}」開始新增您推薦的{T.item}</p>
           <div className="max-w-md mx-auto opacity-60">
             {/* 原本的外部插圖網站已失效，改用內建圖示 */}
             {event?.kind === "trip"

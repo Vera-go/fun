@@ -92,10 +92,12 @@ export default function EventPage({ code }: { code: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const T = termsFor(event?.kind);
   const hostOpen = useHostToolsOpen();
+  const [descOpen, setDescOpen] = useState(false);
 
   // 換活動時清掉上一個活動的資料
   useEffect(() => {
     queryClient.clear();
+    closeHostTools();   // 換活動時主辦人工具先收起
     loadEvent(code);
     return () => { leaveEvent(); queryClient.clear(); };
   }, [code]);
@@ -126,8 +128,16 @@ export default function EventPage({ code }: { code: string }) {
       {/* 重要日期提醒橫幅 */}
       <div className="relative bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 py-3 shadow-sm">
         <div className="container mx-auto px-6">
-          <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-12 text-amber-800">
-            <div className="flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
+          {/* 活動說明：太長只顯示兩行，點一下展開 */}
+          {event.description && (
+            <div role="button" tabIndex={0} onClick={() => setDescOpen(!descOpen)} onKeyDown={e => { if (e.key === "Enter") setDescOpen(!descOpen); }}
+              title={descOpen ? "收起" : "顯示完整說明"}
+              className="max-w-3xl mx-auto mb-2 text-center text-sm text-amber-900 font-serif whitespace-pre-line cursor-pointer">
+              <span className={descOpen ? "" : "line-clamp-2"}>{event.description}</span>
+            </div>
+          )}
+          <div className="relative flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-12 text-amber-800">
+            <div className="hidden sm:flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
             <DateBadge label="推薦截止日期" deadline={event.recommendDeadline} today={event.today} icon={<CalendarClock className="h-4 w-4 mr-2 text-amber-500" />} />
             <DateBadge label="最後投票日期" deadline={event.voteDeadline} today={event.today} icon={<Clock className="h-4 w-4 mr-2 text-amber-500" />} />
             <div className="flex gap-2">
@@ -146,11 +156,6 @@ export default function EventPage({ code }: { code: string }) {
       </div>
 
       <main className="container mx-auto px-6 pt-6 pb-12">
-        {/* 活動名稱在標題列；這裡只放說明 */}
-        {event.description && (
-          <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-6 font-serif text-sm md:text-base tracking-wide whitespace-pre-line">{event.description}</p>
-        )}
-
         {/* 主辦人工具：只有主辦人看得到，點標題列的「主辦人」才展開 */}
         {event.isAdmin && hostOpen && (
           <div className="max-w-2xl mx-auto mb-6 border border-amber-300 bg-amber-50/60 rounded-sm p-4 text-sm">
@@ -176,7 +181,6 @@ export default function EventPage({ code }: { code: string }) {
           <p className="text-center text-amber-700 mb-4">投票已經在 {shortDate(event.voteDeadline)} 截止，以下是最後結果。</p>
         )}
 
-        <div className="japanese-divider !my-6"></div>
         <RestaurantList />
       </main>
       {event.isAdmin && <EditEventDialog ev={event} open={editing} onClose={() => setEditing(false)} />}

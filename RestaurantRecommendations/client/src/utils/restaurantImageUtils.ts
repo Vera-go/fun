@@ -110,9 +110,17 @@ export const typeBasedImages: Record<string, string[]> = {
  * @param type 餐廳類型
  * @returns 該類型對應的照片URL
  */
+// 聚餐類型快捷鍵裡沒有自己照片的，對應到相近的照片類型
+const TYPE_ALIASES: Record<string, string> = {
+  "吃到飽": "自助餐", "火鍋": "麻辣鍋", "熱炒": "中式", "合菜": "中式", "台菜": "中式", "飲茶": "港式",
+  "美式": "西式", "漢堡": "西式", "義大利": "義式料理", "烤肉": "燒烤",
+};
+
 export function getImageByType(type: string): string {
   // 旅遊地點活動：不用美食照片，改用類型對應的圖示封面
   if (getEvent()?.kind === "trip") return tripImage(type);
+  // 沒有自己照片的類型，借用相近類型的照片
+  for (const [k, v] of Object.entries(TYPE_ALIASES)) if (type.includes(k)) { type = v; break; }
   // 記錄最佳匹配的類型關鍵字和其長度（優先使用最長匹配，更精確）
   let bestMatchKey = "";
   let bestMatchLength = 0;
