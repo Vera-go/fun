@@ -35,7 +35,7 @@ canvas{display:block}
 .hint i,.tierh i{font-style:normal;padding:1px 7px;border-radius:99px;color:#fff;font-size:12px}
 .toasts{display:flex;flex-direction:column;gap:6px}
 .toasts .empty{font-size:13px;color:var(--muted);border:2px dashed #E6D6C2;border-radius:14px;padding:10px 12px}
-@media(max-width:760px){.game{flex-direction:column;align-items:stretch;gap:8px}.side{display:contents}.side header{order:0;margin:2px 0 0}.side .hud{order:1;margin-bottom:0}.hint{order:2;margin:0}.stage{order:3}.side h3{display:none}.toasts{order:4;min-height:58px}.toasts .toast.old{display:none}.side .tip{order:5;text-align:center;margin-top:4px}}
+@media(max-width:760px){.game{flex-direction:column;align-items:stretch;gap:8px}.side{display:contents}.side header{order:0;margin:2px 0 0}.side .hud{order:1;margin-bottom:0}.hint{order:2;margin:0}.side .rec{display:none}.stage{order:3}.side h3{display:none}.toasts{order:4;min-height:58px}.toasts .toast.old{display:none}.side .tip{order:5;text-align:center;margin-top:4px}}
 .toast{background:#fff;border:2px solid var(--line);border-radius:14px;padding:7px 12px;font-size:14px;font-weight:800;animation:tin .25s ease-out;box-shadow:2px 2px 0 var(--line);transition:opacity .4s}
 .toast.old{opacity:.5;box-shadow:none}
 .toast small{display:block;font-weight:600;color:var(--muted);font-size:12.5px;margin-top:1px}
@@ -58,7 +58,11 @@ canvas{display:block}
 .pick button.on{border-color:var(--acc);background:#FFE7D3;box-shadow:0 0 0 2px var(--acc)}
 .pick canvas{width:100%;max-width:64px;height:auto}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
-.stats div{background:#FFF6EA;border-radius:12px;padding:6px}
+.stats div{background:#FFF6EA;border-radius:12px;padding:6px;position:relative}
+.newrec{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--acc2);color:#fff;font-style:normal;font-size:11px;font-weight:900;border-radius:99px;padding:1px 7px;white-space:nowrap}
+.rec{margin:0 0 12px;font-size:13px;background:#fff;border:2px solid #E6D6C2;border-radius:12px;padding:6px 10px;display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
+.rec b{font-size:15px}
+.rec .t{grid-column:1/-1;font-weight:900;color:var(--muted)}
 .stats b{display:block;font-size:22px}
 .stats span{font-size:12px;color:var(--muted);font-weight:700}
 .fact{background:#EEF8F0;border-radius:12px;padding:8px 10px;font-size:13.5px;text-align:left;line-height:1.6;margin-top:8px}
@@ -106,6 +110,7 @@ canvas{display:block}
         <button class="ibtn" id="bHelp">說明</button>
       </div>
       <p class="hint" id="rareHint"></p>
+      <div class="rec" id="recBox"></div>
       <h3>列車廣播</h3>
       <div class="toasts" id="toasts" aria-live="polite"><div class="empty">收編了什麼貓、吃了什麼，都會顯示在這裡。</div></div>
       <p class="tip">方向鍵、WASD、在畫面上滑動，或按下面的按鈕都可以轉彎。空白鍵暫停。</p>
@@ -188,8 +193,11 @@ const GOOD_FOODS = ["fish", "chicken", "grass"], BAD_FOODS = ["fries", "cake", "
 
 // ---------- 存檔（最高分、圖鑑、上次選的列車長、音樂開關） ----------
 const SAVE_KEY = "meowtrain.v1";
-let save = {best:0, seen:{}, leader:"orange", music:true};
+let save = {best:0, seen:{}, leader:"orange", music:true, rec:{}};
 try{ Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || "{}")); }catch(e){}
+// 最高紀錄：score 最高分、len 最長隊伍（含列車長幾隻貓）、kinds 一局最多花色、tier 收編過最稀有的、games 玩過幾局、total 總共收編幾隻
+save.rec = Object.assign({score:save.best || 0, len:0, kinds:0, tier:-1, games:0, total:0}, save.rec || {});
+if(!BY[save.leader]) save.leader = "orange";
 const persist = () => { try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} };
 
 // ---------- 畫布 ----------
@@ -534,7 +542,8 @@ function newGame(){
     train: [{x:cx, y:cy, px:cx, py:cy, breed:leader, fat:0, happy:0, scared:0}],
     dir:"right", queue:[], score:0, lives:1, eatenGood:0, eatenBad:0,
     stray:null, foods:[], can:null,
-    tickMs:260, acc:0, t:0, started:false,
+    tickMs:speedOf(1), acc:0, t:0, started:false, moveDir:"right", bestLenRun:1, recorded:false,
+    sinceRare:0, sinceLegend:0, forceTier:-1,
     canTimer:18000, readyUntil:0, topTier:0, crash:null, collected:{},
     lastScaredMeow:0,
   };
@@ -561,9 +570,15 @@ function freeCell(){
 function unlockedTier(){ const n = G.train.length; return TIERS.reduce((m, t, i) => n >= t.need ? i : m, 0); }
 function spawnStray(){
   const p = freeCell(); if(!p) return;
-  const tw = TIERS.slice(0, unlockedTier() + 1).map(t => t.weight);
+  const top = unlockedTier(), n = G.train.length;
+  const tw = TIERS.slice(0, top + 1).map((t, i) => i === 3 ? t.weight + (n - t.need) * 1.5 : t.weight);
   let roll = Math.random() * tw.reduce((a, b) => a + b, 0), tier = 0;
   while(roll >= tw[tier]){ roll -= tw[tier]; tier++; }
+  if(G.forceTier >= 0){ tier = G.forceTier; G.forceTier = -1; }
+  else if(top >= 3 && G.sinceLegend >= 5) tier = 3;
+  else if(top >= 2 && G.sinceRare >= 5 && tier < 2) tier = 2;
+  G.sinceRare = tier >= 2 ? 0 : G.sinceRare + (top >= 2 ? 1 : 0);
+  G.sinceLegend = tier >= 3 ? 0 : G.sinceLegend + (top >= 3 ? 1 : 0);
   const pool = BREEDS.filter(b => b.tier === tier).flatMap(b => G.collected[b.id] ? [b.id] : [b.id, b.id, b.id]);
   const breed = pool[Math.floor(Math.random() * pool.length)];
   G.stray = {...p, breed, tier, born: G.t, until: TIERS[tier].leave ? G.t + TIERS[tier].leave : 0};
@@ -583,8 +598,10 @@ function turn(d){
   if(state === "paused") return;
   if(state === "ready" && !G.started){
     if(G.train.length > 1 && d === OPP[G.dir]) return;
-    G.dir = d; G.started = true; state = "play"; G.acc = 0; setMusic(true); return;
+    G.dir = d; G.moveDir = d; G.started = true; state = "play"; G.acc = 0; setMusic(true); return;
   }
+  // 這一格才剛開始走：直接改方向，反應比較快
+  if(state === "play" && !G.queue.length && G.acc / G.tickMs < .35 && d !== G.dir && d !== OPP[G.moveDir]){ G.dir = d; return; }
   const last = G.queue.length ? G.queue[G.queue.length - 1] : G.dir;
   if(d === last || d === OPP[last]) return;
   if(G.queue.length < 2) G.queue.push(d);
@@ -614,8 +631,16 @@ function resume(){ if(state !== "paused") return; state = pausedFrom; hideOverla
 document.addEventListener("visibilitychange", () => { if(document.hidden && state === "play") togglePause(); });
 
 // ---------- 每一步 ----------
+// 下一格會不會撞到（撞牆、撞到同伴；尾巴這一步會讓開，所以不算）
+function blockedAhead(){
+  const [dx, dy] = DIRS[G.dir], h = G.train[0], nx = h.x + dx, ny = h.y + dy;
+  if(nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return true;
+  const willGrow = G.stray && G.stray.x === nx && G.stray.y === ny;
+  return (willGrow ? G.train : G.train.slice(0, -1)).some(c => c.x === nx && c.y === ny);
+}
+// 速度：隊伍越長越快，但慢慢變快，最快每格 0.15 秒
+const speedOf = n => Math.max(150, 250 - (n - 1) * 4);
 function step(){
-  if(G.queue.length) G.dir = G.queue.shift();
   const [dx, dy] = DIRS[G.dir], h = G.train[0];
   const nx = h.x + dx, ny = h.y + dy;
   G.train.forEach(c => { c.px = c.x; c.py = c.y; });
@@ -629,6 +654,9 @@ function step(){
   const tail = G.train[G.train.length - 1], tx = tail.x, ty = tail.y;
   for(let i = G.train.length - 1; i > 0; i--){ G.train[i].x = G.train[i - 1].x; G.train[i].y = G.train[i - 1].y; }
   h.x = nx; h.y = ny;
+  G.moveDir = G.dir;
+  // 下一格要走的方向（玩家先按好的轉彎）
+  while(G.queue.length){ const d = G.queue.shift(); if(d !== OPP[G.moveDir]){ G.dir = d; break; } }
   // 收編流浪貓
   if(willGrow){
     const b = BY[G.stray.breed];
@@ -640,10 +668,12 @@ function step(){
     G.score += T.score;
     toast(`收編了一隻${b.tier ? T.name + "的" : ""}${b.name}！${first ? "（圖鑑新登場）" : ""}`, b.fact, first || b.tier >= 2 ? "gold" : "");
     const now = unlockedTier();
-    if(now > G.topTier){ G.topTier = now; toast(`隊伍有 ${G.train.length} 隻了！`, `開始會遇到「${TIERS[now].name}」的貓咪。`, "gold"); }
+    if(now > G.topTier){ G.topTier = now; G.forceTier = now; toast(`隊伍有 ${G.train.length} 隻了！`, `開始會遇到「${TIERS[now].name}」的貓咪。`, "gold"); }
     meow("happy");
     G.stray = null; spawnStray();
-    G.tickMs = Math.max(115, 260 - (G.train.length - 1) * 7);
+    G.tickMs = speedOf(G.train.length);
+    G.bestLenRun = Math.max(G.bestLenRun, G.train.length);
+    updateRecordBox();
   }
   // 吃東西
   const fi = G.foods.findIndex(f => f.x === nx && f.y === ny);
@@ -723,7 +753,7 @@ function rebuildTrain(){
   const cats = G.train.slice();
   for(let i = 0; i < n; i++){ const p = path[n - 1 - i]; const c = cats[i]; c.x = c.px = p.x; c.y = c.py = p.y; c.scared = 0; }
   const h = path[n - 1], nx = path[n];
-  G.dir = nx.x > h.x ? "right" : nx.x < h.x ? "left" : "up";
+  G.dir = G.moveDir = nx.x > h.x ? "right" : nx.x < h.x ? "left" : "up";
   // 清掉被壓到的東西
   const onTrain = (o) => o && G.train.some(c => c.x === o.x && c.y === o.y);
   if(onTrain(G.stray)){ G.stray = null; spawnStray(); }
@@ -731,13 +761,27 @@ function rebuildTrain(){
   if(onTrain(G.can)) G.can = null;
 }
 function gameOver(){
-  const len = G.train.length - 1, best = G.score > save.best;
-  if(best){ save.best = G.score; persist(); }
-  const kinds = Object.keys(G.collected).length;
-  const fact = STREET_FACTS[Math.floor(Math.random() * STREET_FACTS.length)];
-  showOverlay(`<h2>${best ? "新紀錄！" : "這趟列車到站了"}</h2>
-    <p class="muted">${len ? `你收編了 ${len} 隻流浪貓，${kinds} 種花色。` : "這次沒有收編到貓咪，再試一次吧！"}</p>
-    <div class="stats"><div><b>${G.score}</b><span>分數</span></div><div><b>${len}</b><span>收編的貓</span></div><div><b>${save.best}</b><span>最高分</span></div></div>
+  const len = G.bestLenRun, kinds = Object.keys(G.collected).length;
+  const tier = Math.max(-1, ...Object.keys(G.collected).map(id => BY[id].tier));
+  // 只在第一次結算時更新紀錄（從圖鑑回來會再顯示一次這個畫面）
+  if(!G.recorded){
+    const R = save.rec; G.recorded = true;
+    G.newRec = {score: G.score > R.score, len: len > R.len, kinds: kinds > R.kinds};
+    R.score = Math.max(R.score, G.score); R.len = Math.max(R.len, len); R.kinds = Math.max(R.kinds, kinds); R.tier = Math.max(R.tier, tier);
+    R.games++; R.total += Object.values(G.collected).reduce((a, b) => a + b, 0);
+    save.best = R.score; persist(); updateRecordBox();
+    G.fact = STREET_FACTS[Math.floor(Math.random() * STREET_FACTS.length)];
+  }
+  const R = save.rec, nr = G.newRec, any = nr.score || nr.len || nr.kinds;
+  const tag = on => on ? `<em class="newrec">新紀錄</em>` : "";
+  const fact = G.fact;
+  showOverlay(`<h2>${any ? "破紀錄了！" : "這趟列車到站了"}</h2>
+    <p class="muted">${len > 1 ? `這次的隊伍最長有 ${len} 隻貓，收編了 ${kinds} 種花色。` : "這次沒有收編到貓咪，再試一次吧！"}</p>
+    <div class="stats">
+      <div>${tag(nr.score)}<b>${G.score}</b><span>分數・最高 ${R.score}</span></div>
+      <div>${tag(nr.len)}<b>${len}</b><span>隊伍・最長 ${R.len}</span></div>
+      <div>${tag(nr.kinds)}<b>${kinds}</b><span>花色・最多 ${R.kinds}</span></div>
+    </div>
     <p class="muted" style="font-size:13px">健康食物 ${G.eatenGood} 次・不健康的 ${G.eatenBad} 次</p>
     <div class="fact"><b>貓咪小知識</b><br>${fact}</div>
     <div class="btns"><button class="btn acc" data-act="again">再玩一次</button><button class="btn" data-act="menu">換列車長</button><button class="btn" data-act="book">看圖鑑</button></div>`);
@@ -800,13 +844,17 @@ function draw(ts){
     ctx.fillStyle = INK; ctx.font = `900 ${s * .2}px system-ui,"Noto Sans TC",sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = TIER_BG[st.tier || 0] === TIER_BG[0] ? INK : TIER_BG[st.tier]; ctx.fillText(st.tier ? T.name : "喵？", bx, by - s * .02); ctx.restore();
   }
   // 隊伍
-  const k = state === "play" ? Math.min(1, G.acc / G.tickMs) : 1;
-  const ease = k;
+  const moving = state === "play" || (state === "paused" && pausedFrom === "play");
+  const k = moving ? Math.min(1, G.acc / G.tickMs) : 0;
+  const bump = k && blockedAhead();   // 前面是牆或同伴：只往前探一點點，走到那一刻就撞上
   if(state === "crash") drawCrash(t);
   else{
     for(let i = G.train.length - 1; i >= 0; i--){
       const c = G.train[i];
-      const x = (c.px + (c.x - c.px) * ease + .5) * s, y = (c.py + (c.y - c.py) * ease + .5) * s;
+      let tx2, ty2, kk = k;
+      if(i === 0){ const [dx, dy] = DIRS[G.dir]; tx2 = c.x + dx; ty2 = c.y + dy; if(bump) kk = k * .45; }
+      else { tx2 = G.train[i - 1].x; ty2 = G.train[i - 1].y; }
+      const x = (c.x + (tx2 - c.x) * kk + .5) * s, y = (c.y + (ty2 - c.y) * kk + .5) * s;
       const mood = c.scared ? "scared" : c.happy ? "happy" : "normal";
       const hop = state === "play" ? Math.abs(Math.sin((t / 140) + i * .9)) * s * .05 : 0;
       drawCat(ctx, x, y - hop, s * 1.02, c.breed, {mood, fat:c.fat, leader:i === 0, shake:!!c.scared});
@@ -856,9 +904,19 @@ function updateRareHint(){
   el.innerHTML = `會遇到：${TIERS.slice(0, unlockedTier() + 1).map((t, i) => `<i style="background:${TIER_BG[i]}">${t.name}</i>`).join(" ")}` +
     (next ? `<br><span class="muted">再收編 ${next.need - n} 隻，就會開始遇到「${next.name}」的貓</span>` : `<br><span class="muted">所有稀有度都開放了！</span>`);
 }
+// 側邊的最高紀錄（這一局的隊伍超過紀錄時會即時更新）
+function updateRecordBox(){
+  const el = document.getElementById("recBox"); if(!el) return;
+  const R = save.rec, cur = G && !G.recorded ? G.bestLenRun : 0, curScore = G && !G.recorded ? G.score : 0;
+  el.innerHTML = `<span class="t">最高紀錄</span>
+    <span>分數 <b>${Math.max(R.score, curScore)}</b></span><span>最長隊伍 <b>${Math.max(R.len, cur)}</b> 隻</span>
+    <span>一局花色 <b>${R.kinds}</b> 種</span><span>圖鑑 <b>${Object.keys(save.seen).length}</b> / ${BREEDS.length}</span>
+    <span>總共收編 <b>${R.total}</b> 隻</span><span>玩了 <b>${R.games}</b> 局</span>`;
+}
 function updateHud(){
   document.getElementById("hLen").textContent = G ? G.train.length : 1;
   document.getElementById("hScore").textContent = G ? G.score : 0;
+  if(G && G.score > save.rec.score) updateRecordBox();
   document.getElementById("hLives").textContent = G ? G.lives : 1;
 }
 function toast(msg, sub = "", cls = ""){
@@ -883,7 +941,7 @@ function showMenu(){
     <div class="pick" id="pick"></div>
     <p id="pickName" style="font-weight:900;margin:2px 0"></p>
     <div class="btns"><button class="btn acc" data-act="start">出發！</button><button class="btn" data-act="help">怎麼玩</button></div>
-    ${save.best ? `<p class="muted" style="font-size:13px">最高分 ${save.best}・圖鑑 ${Object.keys(save.seen).length} / ${BREEDS.length}</p>` : ""}`);
+    ${save.rec.games ? `<p class="muted" style="font-size:13px">最高分 ${save.rec.score}・最長隊伍 ${save.rec.len} 隻・圖鑑 ${Object.keys(save.seen).length} / ${BREEDS.length}</p>` : ""}`);
   const pick = document.getElementById("pick");
   BREEDS.forEach(b => {
     const open = b.tier === 0 || save.seen[b.id];
@@ -971,7 +1029,7 @@ document.getElementById("bHelp").onclick = () => {
 // ---------- 開始 ----------
 const logo = document.getElementById("logo").getContext("2d");
 logo.clearRect(0, 0, 88, 88); drawCat(logo, 44, 50, 80, "orange", {leader:true, mood:"happy"});
-musicLabel();
+musicLabel(); updateRecordBox();
 resize(); addEventListener("resize", () => { resize(); });
 showMenu();
 requestAnimationFrame(loop);
