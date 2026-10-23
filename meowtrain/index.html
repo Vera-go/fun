@@ -86,6 +86,10 @@ canvas{display:block}
 .lbrow .v{text-align:right;font-size:13px}
 .lbrow .v b{font-size:17px}
 .lbrow .v small{display:block;color:var(--muted);font-size:11px}
+.sh{font-size:15px;margin:12px 0 4px;text-align:left}
+table.score{width:100%;border-collapse:collapse;font-size:13.5px;text-align:left}
+table.score td{padding:4px 6px;border-bottom:1px solid #F0E3D0}
+table.score td:nth-child(even){font-weight:900;color:var(--acc);text-align:right;white-space:nowrap}
 .fact{background:#EEF8F0;border-radius:12px;padding:8px 10px;font-size:13.5px;text-align:left;line-height:1.6;margin-top:8px}
 .book{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:10px 0;text-align:left}
 .book .it{display:flex;gap:8px;align-items:center;background:#FFF9F0;border:2px solid #EADBC8;border-radius:12px;padding:6px}
@@ -1084,6 +1088,14 @@ function showHelp(back){
       <li>手累了隨時按<b>暫停</b>（空白鍵），休息一下再繼續。</li>
     </ol>
     <div class="legend" id="legend"></div>
+    <h3 class="sh">怎麼算分數</h3>
+    <table class="score"><tbody>
+      <tr><td>收編普通的貓</td><td>+${TIERS[0].score}</td><td>收編少見的貓</td><td>+${TIERS[1].score}</td></tr>
+      <tr><td>收編稀有的貓</td><td>+${TIERS[2].score}</td><td>收編傳說的貓</td><td>+${TIERS[3].score}</td></tr>
+      <tr><td>健康食物</td><td>+5</td><td>不健康的食物</td><td>+1</td></tr>
+      <tr><td>金色貓罐罐</td><td>+15</td><td>撞到用掉復活</td><td>不扣分</td></tr>
+    </tbody></table>
+    <p class="muted small">不健康的食物分數少，還會讓貓變胖；吃健康的食物可以瘦回來。</p>
     <div class="btns"><button class="btn acc" data-act="back">知道了</button></div>`);
   const lg = document.getElementById("legend");
   [["fish", "魚、水煮雞肉、貓草：健康，大家開心，胖貓會瘦回來"], ["fries", "薯條、蛋糕、炸雞：不健康，會有貓變胖"], ["can", "金色貓罐罐：復活次數 +1（會消失）"]].forEach(([k, txt]) => {
