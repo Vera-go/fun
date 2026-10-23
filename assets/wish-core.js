@@ -112,8 +112,24 @@
     if (error || !data.length) throw new Error(error ? friendly(error) : "沒有權限");
   }
 
+  // 管理中心：揪團投票的所有活動（資料庫只回傳給 admins 名單裡的人）、刪除活動、Lighthouse 紙飛機架數
+  async function adminEvents() {
+    const { data, error } = await sb.rpc("admin_list_events");
+    if (error) throw new Error(error.code === "PGRST202" ? "資料庫還沒更新：請先執行 supabase/schema-v8-admin-console.sql" : "讀取活動失敗");
+    return data.map(e => ({ ...e, items: Number(e.items), voters: Number(e.voters) }));
+  }
+  async function adminDeleteEvent(code) {
+    const { error } = await sb.rpc("delete_event", { p_code: code });
+    if (error) throw new Error(error.message || "刪除失敗");
+  }
+  async function planeStats() {
+    const { data, error } = await sb.rpc("lighthouse_plane_stats");
+    if (error) throw new Error("讀取紙飛機數失敗");
+    return { today: Number(data.today) || 0, total: Number(data.total) || 0 };
+  }
+
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const day = iso => { const d = new Date(iso); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
 
-  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, esc, day };
+  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, adminEvents, adminDeleteEvent, planeStats, esc, day };
 })();

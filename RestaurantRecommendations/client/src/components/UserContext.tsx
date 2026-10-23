@@ -8,13 +8,22 @@ import { useEvent, reloadEvent, ensureSession } from "@/lib/event";
 interface UserContextType {
   currentUser: User | null;
   isAdmin: boolean;
-  // 一般使用者只要名字（匿名登入，綁定這台裝置）；管理員要 email 和密碼
-  login: (username: string, isAdmin: boolean, email?: string, password?: string) => Promise<void>;
+  // 只要名字（匿名登入，綁定這台裝置）。網站管理員是在許願池的管理中心用 email 登入，這裡自動認得
+  login: (username: string) => Promise<void>;
   logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 const SAVED = "currentUser";
+
+// 目前的登入身分是不是網站管理員（在許願池管理中心用 email 登入的；和這裡共用同一個登入）
+async function sessionIsSiteAdmin(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  const u = data.session?.user;
+  if (!u || u.is_anonymous) return null;
+  const { data: ok } = await supabase.rpc("is_admin");
+  return ok ? u.id : null;
+}
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -27,7 +36,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const saved = JSON.parse(localStorage.getItem(SAVED) || "null");
         const { data } = await supabase.auth.getSession();
         const { data: u, error } = data.session ? await supabase.auth.getUser() : { data: { user: null }, error: null };
-        if (saved && !error && u.user && u.user.id === saved.id) setCurrentUser(saved);
+        // 在管理中心登入過：直接當網站管理員（最大權限），名字沿用上次的或資料庫裡的
+        const adminId = !error && u.user ? await sessionIsSiteAdmin() : null;
+        if (adminId) {
+          let name = saved?.id === adminId ? saved.name : "";
+          if (!name) {
+            const { data: p } = await supabase.from("profiles").select("name").eq("id", adminId).maybeSingle();
+            name = p?.name || "網站管理員";
+          }
+          const user: User = { id: adminId as any, name, isAdmin: 1, createdAt: new Date().toISOString() };
+          setCurrentUser(user);
+          localStorage.setItem(SAVED, JSON.stringify(user));
+          await reloadEvent();
+          return;
+        }
+        if (saved && !error && u.user && u.user.id === saved.id) setCurrentUser({ ...saved, isAdmin: 0 });
         else localStorage.removeItem(SAVED);
       } catch {
         localStorage.removeItem(SAVED);
@@ -35,40 +58,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const login = async (username: string, asAdmin: boolean, email?: string, password?: string) => {
+  const login = async (username: string) => {
     try {
       const name = username.trim();
       if (!name) throw new Error("用戶名不能為空");
 
-      if (asAdmin) {
-        const { error } = await supabase.auth.signInWithPassword({ email: email || "", password: password || "" });
-        if (error) throw new Error("email 或密碼不正確");
-      } else {
-        // 已經有這台裝置的匿名身分就沿用，投過的票才不會不見；之前是管理員登入、或身分已失效就換新的匿名身分
-        await ensureSession({ anonymousOnly: true });
-      }
+      // 網站管理員（在管理中心登入過）沿用管理員身分；其他人沿用這台裝置的匿名身分，投過的票才不會不見
+      const admin = !!(await sessionIsSiteAdmin());
+      if (!admin) await ensureSession({ anonymousOnly: true });
 
       const { data: s } = await supabase.auth.getSession();
       const uid = s.session!.user.id;
       const { error: pe } = await supabase.from("profiles").upsert({ id: uid, name });
       if (pe) throw new Error("無法儲存名字");
 
-      let admin = false;
-      if (asAdmin) {
-        const { data: isAdm } = await supabase.rpc("is_admin");
-        admin = !!isAdm;
-        if (!admin) {
-          await supabase.auth.signOut();
-          throw new Error("這個帳號不是管理員");
-        }
-      }
-
       const user: User = { id: uid as any, name, isAdmin: admin ? 1 : 0, createdAt: new Date().toISOString() };
       setCurrentUser(user);
       localStorage.setItem(SAVED, JSON.stringify(user));
       await reloadEvent();          // 換了身分，重新確認是不是這個活動的主辦人
       queryClient.invalidateQueries();
-      toast({ title: "登入成功", description: `歡迎 ${name}${admin ? "（管理員）" : ""}` });
+      toast({ title: "登入成功", description: `歡迎 ${name}${admin ? "（網站管理員）" : ""}` });
     } catch (error: any) {
       toast({ title: "登入失敗", description: error?.message || "無法登入", variant: "destructive" });
       throw error;
@@ -76,8 +85,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    // 管理員真的登出；一般使用者保留這台裝置的匿名身分，下次登入投過的票還在
-    if (currentUser?.isAdmin === 1) await supabase.auth.signOut();
+    // 網站管理員真的登出（許願池的管理中心也會一起登出）；一般使用者保留這台裝置的匿名身分，下次登入投過的票還在
+    if (await sessionIsSiteAdmin()) await supabase.auth.signOut();
     setCurrentUser(null);
     localStorage.removeItem(SAVED);
     await reloadEvent();

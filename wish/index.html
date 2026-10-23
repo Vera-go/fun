@@ -11,6 +11,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css">
+<style>
+/* 管理中心（只有管理員登入後才出現） */
+.ac h3{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px}
+.ac .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.ac .stat{flex:1 1 120px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.ac .stat b{display:block;font-size:24px;line-height:1.2}
+.ev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)}
+.ev:first-of-type{border-top:0}
+.ev .info{flex:1 1 240px;min-width:0}
+.ev .info .t{font-weight:700;overflow-wrap:anywhere}
+.ev .acts{display:flex;gap:6px;flex-wrap:wrap}
+.ac-filter{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+.ac-filter button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -19,6 +33,23 @@
     <h1><span data-icon="wish" data-size="38"></span> 全網最聽勸</h1>
     <p class="lead">想要什麼新功能、新網站？許個願，或幫喜歡的願望 +1。<b>票數最高的優先做</b>。</p>
   </header>
+
+  <section id="adminCenter" hidden>
+    <h2>管理中心<span class="small muted" style="font-weight:500">只有你看得到</span></h2>
+    <p class="small muted" style="margin:-6px 0 12px">願望的管理（狀態、回覆）在下面每個願望裡。</p>
+    <div class="card ac" style="margin-bottom:14px">
+      <h3>揪團投票：所有活動</h3>
+      <p class="small muted" style="margin:0">每個活動的建立者用自己的「管理連結」管理自己的活動；你在這裡登入後，打開任何活動都有最大權限。</p>
+      <div class="ac-filter" id="evFilter">
+        <button class="btn small on" data-evf="all">全部</button><button class="btn small" data-evf="open">進行中</button><button class="btn small" data-evf="closed">已截止</button>
+      </div>
+      <div id="evList"><div class="empty">載入中⋯⋯</div></div>
+    </div>
+    <div class="card ac">
+      <h3>Lighthouse：紙飛機</h3>
+      <div class="stats" id="planeStats"><div class="empty">載入中⋯⋯</div></div>
+    </div>
+  </section>
 
   <h2 id="new">許個願</h2>
   <div class="card">
@@ -73,7 +104,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../assets/icons.js?v=20261018"></script>
-<script src="../assets/wish-core.js?v=20261018"></script>
+<script src="../assets/wish-core.js?v=20261023"></script>
 <script>
 document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcons.icon(el.dataset.icon, +el.dataset.size || 24); });
 const { esc, SITES, day } = Wish;
@@ -164,7 +195,7 @@ async function load() {
 }
 
 document.addEventListener("click", async e => {
-  const t = e.target.closest("[data-vote],[data-del],[data-save],#adminOpen,#adLogin,#adCancel,#adLogout");
+  const t = e.target.closest("[data-vote],[data-del],[data-save],[data-evf],[data-evdel],#adminOpen,#adLogin,#adCancel,#adLogout");
   if (!t || busy) return;
   if (t.dataset.vote) {
     busy = true;
@@ -186,6 +217,14 @@ document.addEventListener("click", async e => {
     } catch (err) { toast(err.message); }
     return;
   }
+  if (t.dataset.evf) { evFilter = t.dataset.evf; renderEvents(); return; }
+  if (t.dataset.evdel) {
+    const code = t.dataset.evdel;
+    if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "確定刪除？所有推薦和投票都會刪掉"; return; }   // 點兩次才刪
+    busy = true;
+    try { await Wish.adminDeleteEvent(code); toast("活動已刪除"); await loadAdminCenter(); } catch (err) { toast(err.message); }
+    busy = false; return;
+  }
   if (t.id === "adminOpen") { e.preventDefault(); $("#adminLogin").hidden = false; $("#adEmail").focus(); return; }
   if (t.id === "adCancel") { $("#adminLogin").hidden = true; return; }
   if (t.id === "adLogin") {
@@ -197,8 +236,42 @@ document.addEventListener("click", async e => {
 });
 async function setAdmin(on) {
   admin = on;
-  $("#adminArea").innerHTML = on ? '管理模式中・<a href="#" id="adLogout">登出</a>' : '<a href="#" id="adminOpen">管理</a>';
+  $("#adminArea").innerHTML = on ? '管理模式中・<a href="#adminCenter">管理中心</a>・<a href="#" id="adLogout">登出</a>' : '<a href="#" id="adminOpen">管理</a>';
+  $("#adminCenter").hidden = !on;
+  if (on) loadAdminCenter();
   await load();
+}
+
+// 管理中心：揪團投票的所有活動、Lighthouse 紙飛機
+let events = [], evFilter = "all";
+const KIND = { trip: "✈️ 旅遊地點", restaurant: "🍽️ 聚餐餐廳" };
+const md = d => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
+function renderEvents() {
+  document.querySelectorAll("[data-evf]").forEach(b => b.classList.toggle("on", b.dataset.evf === evFilter));
+  const list = events.filter(e => evFilter === "all" || (evFilter === "open") === (e.today <= e.vote_deadline));
+  $("#evList").innerHTML = list.length ? list.map(e => {
+    const open = e.today <= e.vote_deadline;
+    return `<div class="ev">
+      <div class="info">
+        <div class="t">${esc(e.title)}</div>
+        <div class="small muted">${KIND[e.kind] || esc(e.kind)}・${day(e.created_at)} 建立・${e.items} 個推薦・${e.voters} 人投票</div>
+        <div class="small muted">推薦截止 ${md(e.recommend_deadline)}・投票截止 ${md(e.vote_deadline)} ${open ? '<span class="badge doing">進行中</span>' : '<span class="badge done">已截止</span>'}</div>
+      </div>
+      <div class="acts">
+        <a class="btn small" href="../vote/#/e/${encodeURIComponent(e.code)}" target="_blank" rel="noopener">打開</a>
+        <button class="btn small" data-evdel="${esc(e.code)}" style="color:var(--bad)">刪除</button>
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty">${events.length ? "沒有符合的活動" : "還沒有人建立活動"}</div>`;
+}
+async function loadAdminCenter() {
+  try { events = await Wish.adminEvents(); renderEvents(); }
+  catch (err) { $("#evList").innerHTML = `<div class="empty">${esc(err.message)}</div>`; }
+  try {
+    const p = await Wish.planeStats();
+    $("#planeStats").innerHTML = `<div class="stat"><span class="small muted">今天</span><b>${p.today.toLocaleString()}</b><span class="small muted">架</span></div>
+      <div class="stat"><span class="small muted">累計</span><b>${p.total.toLocaleString()}</b><span class="small muted">架</span></div>`;
+  } catch (err) { $("#planeStats").innerHTML = `<div class="empty">${esc(err.message)}</div>`; }
 }
 
 (async () => { admin = await Wish.isAdmin(); await setAdmin(admin); })();
