@@ -35,10 +35,11 @@ canvas{display:block}
 .side h3{margin:0 0 6px;font-size:14px;color:var(--muted)}
 .hint{margin:0 0 12px;font-size:13px;font-weight:800;background:#fff;border:2px solid #E6D6C2;border-radius:12px;padding:6px 10px;line-height:1.7}
 .hint:empty{display:none}
+.hint.adopt{background:#FFF0F5;border-color:#F5B5CB}
 .hint i,.tierh i{font-style:normal;padding:1px 7px;border-radius:99px;color:#fff;font-size:12px}
 .toasts{display:flex;flex-direction:column;gap:6px}
 .toasts .empty{font-size:13px;color:var(--muted);border:2px dashed #E6D6C2;border-radius:14px;padding:10px 12px}
-@media(max-width:760px){.game{flex-direction:column;align-items:stretch;gap:8px}.side{display:contents}.side header{order:0;margin:2px 0 0}.side .hud{order:1;margin-bottom:0}.hint{order:2;margin:0}.side .rec{display:none}.stage{order:3}.side h3{display:none}.toasts{order:4;min-height:58px}.toasts .toast.old{display:none}.side .tip{order:5;text-align:center;margin-top:4px}}
+@media(max-width:760px){.game{flex-direction:column;align-items:stretch;gap:8px}.side{display:contents}.side header{order:0;margin:2px 0 0}.side .hud{order:1;margin-bottom:0}.hint{order:2;margin:0}.hint.adopt{display:none}.side .rec{display:none}.stage{order:3}.side h3{display:none}.toasts{order:4;min-height:58px}.toasts .toast.old{display:none}.side .tip{order:5;text-align:center;margin-top:4px}}
 .toast{background:#fff;border:2px solid var(--line);border-radius:14px;padding:7px 12px;font-size:14px;font-weight:800;animation:tin .25s ease-out;box-shadow:2px 2px 0 var(--line);transition:opacity .4s}
 .toast.old{opacity:.5;box-shadow:none}
 .toast small{display:block;font-weight:600;color:var(--muted);font-size:12.5px;margin-top:1px}
@@ -137,6 +138,7 @@ table.score td:nth-child(even){font-weight:900;color:var(--acc);text-align:right
         <button class="ibtn" id="bHelp">說明</button>
       </div>
       <p class="hint" id="rareHint"></p>
+      <p class="hint adopt" id="adoptHint"></p>
       <div class="rec" id="recBox"></div>
       <h3>列車廣播</h3>
       <div class="toasts" id="toasts" aria-live="polite"><div class="empty">收編了什麼貓、吃了什麼，都會顯示在這裡。</div></div>
@@ -239,7 +241,8 @@ const SAVE_KEY = "meowtrain.v1";
 let save = {best:0, seen:{}, leader:"orange", music:true, rec:{}};
 try{ Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || "{}")); }catch(e){}
 // 最高紀錄：score 最高分、len 最長隊伍（含列車長幾隻貓）、kinds 一局最多花色、tier 收編過最稀有的、games 玩過幾局、total 總共收編幾隻
-save.rec = Object.assign({score:save.best || 0, len:0, kinds:0, tier:-1, games:0, total:0}, save.rec || {});
+save.rec = Object.assign({score:save.best || 0, len:0, kinds:0, tier:-1, games:0, total:0, adopted:0, adoptBest:0}, save.rec || {});
+save.adopt = save.adopt || {};   // 每個品種送養過幾隻（圖鑑顯示）
 if(!BY[save.leader]) save.leader = "orange";
 const persist = () => { try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} };
 
@@ -653,7 +656,7 @@ function newGame(){
   const cx = Math.floor(COLS / 2) - 1, cy = Math.floor(ROWS / 2);
   G = {
     train: [{x:cx, y:cy, px:cx, py:cy, breed:leader, fat:0, happy:0, scared:0}],
-    dir:"right", queue:[], score:0, lives:1, eatenGood:0, eatenBad:0,
+    dir:"right", queue:[], score:0, lives:1, eatenGood:0, eatenBad:0, adopted:0, adopter:null, adoptTimer:15000,
     stray:null, foods:[], can:null,
     tickMs:speedOf(1), acc:0, t:0, started:false, moveDir:"right", bestLenRun:1, recorded:false,
     sinceRare:0, sinceLegend:0, forceTier:-1,
@@ -661,12 +664,12 @@ function newGame(){
     lastScaredMeow:0,
   };
   spawnStray(); spawnFood(); spawnFood();
-  updateRareHint();
+  updateRareHint(); updateAdoptHint();
   state = "ready"; G.readyUntil = 0;
   hideOverlay(); updateHud();
 }
 const occupied = (x, y) => G.train.some(c => c.x === x && c.y === y) || (G.stray && G.stray.x === x && G.stray.y === y) ||
-  G.foods.some(f => f.x === x && f.y === y) || (G.can && G.can.x === x && G.can.y === y);
+  G.foods.some(f => f.x === x && f.y === y) || (G.can && G.can.x === x && G.can.y === y) || (G.adopter && G.adopter.x === x && G.adopter.y === y);
 function freeCell(){
   const h = G.train[0], [dx, dy] = DIRS[G.dir];
   for(let k = 0; k < 300; k++){
@@ -701,6 +704,70 @@ function spawnStray(){
   for(const b of cand){ r2 -= wt(b); if(r2 < 0){ breed = b.id; break; } }
   G.stray = {...p, breed, tier, born: G.t, until: TIERS[tier].leave ? G.t + TIERS[tier].leave : 0};
   if(tier >= 2) toast(`附近出現了${TIERS[tier].name}的${BY[breed].name}！`, `${TIERS[tier].leave / 1000} 秒內沒收編，牠就會跑走。`, "gold");
+}
+// 領養人：從隊伍裡現有的品種挑 1～2 種（隊伍越長挑越多），列車長不會被送養
+const ADOPTERS = [
+  {who:"一位奶奶", shirt:"#C77DD8", hair:"#E8E4E0"}, {who:"一個大學生", shirt:"#4C9BE0", hair:"#3A2A20"},
+  {who:"一家三口", shirt:"#F28B5B", hair:"#5A3C30"}, {who:"一位上班族", shirt:"#5A6C88", hair:"#2B2A2E"},
+  {who:"一位小朋友和媽媽", shirt:"#F2C230", hair:"#7A4A2A"}, {who:"一位爺爺", shirt:"#6BAE6B", hair:"#BFBFBF"},
+];
+function spawnAdopter(){
+  const p = freeCell(); if(!p) return;
+  const kinds = [...new Set(G.train.slice(1).map(c => c.breed))];
+  if(!kinds.length) return;
+  const n = Math.min(kinds.length, G.train.length >= 15 ? 2 + (Math.random() < .4 ? 1 : 0) : G.train.length >= 9 ? 2 : 1);
+  const want = [];
+  while(want.length < n){ const k = kinds.splice(Math.floor(Math.random() * kinds.length), 1)[0]; want.push(k); }
+  const A = ADOPTERS[Math.floor(Math.random() * ADOPTERS.length)];
+  G.adopter = {...p, ...A, want, until: G.t + 20000};
+  toast(`${A.who}想來領養貓！`, `想要：${want.map(id => BY[id].name).join("、")}。走到他那裡就能送養，20 秒後會離開。`, "gold");
+  updateAdoptHint();
+}
+// 送養：隊伍裡有的品種，各送出一隻（離尾巴最近的那隻）
+function adopt(){
+  const A = G.adopter; G.adopter = null; G.adoptTimer = 15000 + Math.random() * 8000;
+  const gone = [];
+  A.want.forEach(id => {
+    for(let i = G.train.length - 1; i > 0; i--) if(G.train[i].breed === id){ G.train.splice(i, 1); gone.push(id); break; }
+  });
+  if(!gone.length){ toast(`隊伍裡已經沒有${A.want.map(id => BY[id].name).join("、")}了`, `${A.who}說下次再來。`, "bad"); updateAdoptHint(); return; }
+  gone.forEach(id => { save.adopt[id] = (save.adopt[id] || 0) + 1; });
+  G.adopted += gone.length; G.score += gone.length * 20;
+  G.tickMs = speedOf(G.train.length);
+  persist(); SFX.can(); meow("happy");
+  updateRecordBox();
+  toast(`${gone.map(id => BY[id].name).join("、")}被${A.who}領養了！`, `送養 +${gone.length * 20} 分。隊伍變短了，速度也慢一點。這一局送養了 ${G.adopted} 隻。`, "gold");
+  updateRareHint(); updateAdoptHint(); updateHud();
+}
+function updateAdoptHint(){
+  const el = document.getElementById("adoptHint"); if(!el || !G) return;
+  const A = G.adopter;
+  if(!A){ el.innerHTML = G.train.length >= 6 ? `<span class="muted">等一下會有人來領養貓。</span>` : `<span class="muted">隊伍 6 隻以上，就會有人來領養貓。</span>`; return; }
+  el.innerHTML = `<b>${esc(A.who)}</b>想領養：${A.want.map(id => `${esc(BY[id].name)}${G.train.slice(1).some(c => c.breed === id) ? "" : "（隊伍裡沒有）"}`).join("、")}`;
+}
+function drawAdopter(t){
+  const A = G.adopter, s = CELL, x = (A.x + .5) * s, y = (A.y + .5) * s;
+  if(A.until - t < 3000 && Math.floor(t / 160) % 2) return;
+  const c = ctx, lw = Math.max(1.2, s * .045);
+  c.save(); c.translate(x, y + Math.sin(t / 300) * s * .03); c.lineWidth = lw; c.strokeStyle = INK;
+  // 腳下的光圈
+  const g = c.createRadialGradient(0, s * .1, s * .05, 0, s * .1, s * .62); g.addColorStop(0, "rgba(255,120,160,.55)"); g.addColorStop(1, "rgba(255,120,160,0)");
+  c.fillStyle = g; c.beginPath(); c.arc(0, s * .1, s * .62, 0, Math.PI * 2); c.fill();
+  // 身體、頭、頭髮、笑臉
+  c.beginPath(); c.roundRect(-s * .24, -s * .02, s * .48, s * .42, s * .14); c.fillStyle = A.shirt; c.fill(); c.stroke();
+  c.beginPath(); c.arc(0, -s * .2, s * .2, 0, Math.PI * 2); c.fillStyle = "#FFDCC2"; c.fill(); c.stroke();
+  c.beginPath(); c.arc(0, -s * .24, s * .2, Math.PI * 1.05, Math.PI * 1.95); c.fillStyle = A.hair; c.fill();
+  c.fillStyle = INK; c.beginPath(); c.arc(-s * .07, -s * .19, s * .025, 0, Math.PI * 2); c.arc(s * .07, -s * .19, s * .025, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.arc(0, -s * .14, s * .06, .15 * Math.PI, .85 * Math.PI); c.stroke();
+  heart(c, 0, s * .16, s * .12, "#FF5C8A");
+  c.restore();
+  // 對話框：畫出想要的貓
+  const n = A.want.length, bw = s * (.12 + n * .5), bx = x - bw / 2, by = y - s * 1.15;
+  c.save(); c.fillStyle = "#fff"; c.strokeStyle = INK; c.lineWidth = Math.max(1, s * .04);
+  c.beginPath(); c.roundRect(bx, by, bw, s * .52, s * .12); c.fill(); c.stroke();
+  c.beginPath(); c.moveTo(x - s * .08, by + s * .52); c.lineTo(x, by + s * .66); c.lineTo(x + s * .08, by + s * .52); c.fill(); c.stroke();
+  c.restore();
+  A.want.forEach((id, k) => drawCat(ctx, bx + s * (.31 + k * .5), by + s * .3, s * .5, id, {mood:"happy"}));
 }
 function spawnFood(){
   const p = freeCell(); if(!p) return;
@@ -783,7 +850,7 @@ function step(){
   if(willGrow){
     const b = BY[G.stray.breed];
     G.train.push({x:tx, y:ty, px:tx, py:ty, breed:b.id, fat:0, happy:1500, scared:0});
-    updateRareHint();
+    updateRareHint(); updateAdoptHint();
     const first = !save.seen[b.id];
     save.seen[b.id] = (save.seen[b.id] || 0) + 1; G.collected[b.id] = (G.collected[b.id] || 0) + 1; persist();
     const T = TIERS[b.tier];
@@ -797,6 +864,8 @@ function step(){
     G.bestLenRun = Math.max(G.bestLenRun, G.train.length);
     updateRecordBox();
   }
+  // 領養人
+  if(G.adopter && G.adopter.x === nx && G.adopter.y === ny) adopt();
   // 吃東西
   const fi = G.foods.findIndex(f => f.x === nx && f.y === ny);
   if(fi >= 0){
@@ -882,6 +951,7 @@ function rebuildTrain(){
   if(onTrain(G.stray)){ G.stray = null; spawnStray(); }
   G.foods = G.foods.filter(f => !onTrain(f)); while(G.foods.length < 2) spawnFood();
   if(onTrain(G.can)) G.can = null;
+  if(onTrain(G.adopter)) G.adopter = null;
 }
 function gameOver(){
   const len = G.bestLenRun, kinds = Object.keys(G.collected).length;
@@ -893,6 +963,7 @@ function gameOver(){
     if(G.score >= R.score) R.leader = G.train[0].breed;
     R.score = Math.max(R.score, G.score); R.len = Math.max(R.len, len); R.kinds = Math.max(R.kinds, kinds); R.tier = Math.max(R.tier, tier);
     R.games++; R.total += Object.values(G.collected).reduce((a, b) => a + b, 0);
+    R.adopted += G.adopted; G.newRec.adopt = G.adopted > R.adoptBest; R.adoptBest = Math.max(R.adoptBest, G.adopted);
     save.best = R.score; persist(); updateRecordBox();
     G.fact = STREET_FACTS[Math.floor(Math.random() * STREET_FACTS.length)];
   }
@@ -906,7 +977,7 @@ function gameOver(){
       <div>${tag(nr.len)}<b>${len}</b><span>隊伍・最長 ${R.len}</span></div>
       <div>${tag(nr.kinds)}<b>${kinds}</b><span>花色・最多 ${R.kinds}</span></div>
     </div>
-    <p class="muted" style="font-size:13px">健康食物 ${G.eatenGood} 次・不健康的 ${G.eatenBad} 次</p>
+    <p class="muted" style="font-size:13px">送養了 <b>${G.adopted}</b> 隻${nr.adopt ? "（新紀錄！）" : ""}・健康食物 ${G.eatenGood} 次・不健康的 ${G.eatenBad} 次</p>
     <div class="lbbox" id="lbBox"></div>
     <div class="fact"><b>貓咪小知識</b><br>${fact}</div>
     <div class="btns"><button class="btn acc" data-act="again">再玩一次</button><button class="btn" data-act="menu">換列車長</button><button class="btn" data-act="rank">排行榜</button><button class="btn" data-act="book">看圖鑑</button></div>`);
@@ -981,6 +1052,9 @@ function loop(ts){
       while(G.acc >= G.tickMs && state === "play"){ G.acc -= G.tickMs; step(); }
       // 稀有的貓過一陣子會跑走
       if(G.stray && G.stray.until && G.t > G.stray.until){ toast(`${BY[G.stray.breed].name}跑走了……`, "隊伍夠長，還會再遇到稀有的貓。", "bad"); G.stray = null; spawnStray(); }
+      // 領養人：隊伍 6 隻以上才會來，待 20 秒
+      if(G.adopter){ if(G.t > G.adopter.until){ toast(`${G.adopter.who}等不到，先離開了`, "下一位領養人很快就會來。", "bad"); G.adopter = null; G.adoptTimer = 8000; updateAdoptHint(); } }
+      else if(G.train.length >= 6){ G.adoptTimer -= dt; if(G.adoptTimer <= 0) spawnAdopter(); }
       // 罐罐定時出現
       if(!G.can){ G.canTimer -= dt; if(G.canTimer <= 0){ const p = freeCell(); if(p){ G.can = {...p, until:G.t + 9000}; toast("金色貓罐罐出現了！", "吃到可以多一次復活，9 秒後會消失。", "gold"); } G.canTimer = 22000 + Math.random() * 10000; } }
       else if(G.t > G.can.until){ G.can = null; }
@@ -1015,6 +1089,7 @@ function draw(ts){
   // 物品
   G.foods.forEach(f => drawItem(ctx, (f.x + .5) * s, (f.y + .5) * s, s, f.kind, t));
   if(G.can){ const left = G.can.until - t; if(left > 2500 || Math.floor(t / 150) % 2) drawItem(ctx, (G.can.x + .5) * s, (G.can.y + .5) * s, s, "can", t); }
+  if(G.adopter) drawAdopter(t);
   if(G.stray){
     const st = G.stray, bob = Math.sin(t / 250) * s * .04, T = TIERS[st.tier || 0];
     const leaving = st.until && st.until - t < 3000;
@@ -1040,6 +1115,7 @@ function draw(ts){
       const mood = c.scared ? "scared" : c.happy ? "happy" : "normal";
       const hop = state === "play" ? Math.abs(Math.sin((t / 140) + i * .9)) * s * .05 : 0;
       drawCat(ctx, x, y - hop, s * 1.02, c.breed, {mood, fat:c.fat, leader:i === 0, shake:!!c.scared, puff:c.puff});
+      if(i > 0 && G.adopter && G.adopter.want.includes(c.breed)) heart(ctx, x, y - s * .62 - Math.abs(Math.sin(t / 250)) * s * .08, s * .17, "#FF5C8A");
       if(c.happy > 1200 && i % 2 === 0) heart(ctx, x + s * .3, y - s * .5 - (1800 - c.happy) / 1800 * s * .4, s * .16);
     }
   }
@@ -1093,7 +1169,8 @@ function updateRecordBox(){
   el.innerHTML = `<span class="t">最高紀錄</span>
     <span>分數 <b>${Math.max(R.score, curScore)}</b></span><span>最長隊伍 <b>${Math.max(R.len, cur)}</b> 隻</span>
     <span>一局花色 <b>${R.kinds}</b> 種</span><span>圖鑑 <b>${Object.keys(save.seen).length}</b> / ${BREEDS.length}</span>
-    <span>總共收編 <b>${R.total}</b> 隻</span><span>玩了 <b>${R.games}</b> 局</span>`;
+    <span>總共收編 <b>${R.total}</b> 隻</span><span>總共送養 <b>${R.adopted + (G && !G.recorded ? G.adopted : 0)}</b> 隻</span>
+    <span>一局送養 <b>${Math.max(R.adoptBest, G && !G.recorded ? G.adopted : 0)}</b> 隻</span><span>玩了 <b>${R.games}</b> 局</span>`;
 }
 function updateHud(){
   document.getElementById("hLen").textContent = G ? G.train.length : 1;
@@ -1160,7 +1237,7 @@ function showBook(back){
     const it = document.createElement("div"); it.className = "it" + (got ? "" : " no");
     it.appendChild(miniCanvas(56, (c, px) => { if(got) drawCat(c, px / 2, px * .55, px * .9, b.id, {mood:"happy", glow:TIERS[b.tier].glow}); else { c.globalAlpha = .25; drawCat(c, px / 2, px * .55, px * .9, "black", {mood:"sleep"}); } }));
     const tx = document.createElement("div");
-    tx.innerHTML = got ? `<b>${b.name}</b> <span class="muted" style="font-size:12px">收編 ${got} 次</span><p>${esc(b.fact)}</p>` : `<b>？？？</b><p>還沒收編過。</p>`;
+    tx.innerHTML = got ? `<b>${b.name}</b> <span class="muted" style="font-size:12px">收編 ${got} 次${save.adopt[b.id] ? `・送養 ${save.adopt[b.id]} 次` : ""}</span><p>${esc(b.fact)}</p>` : `<b>？？？</b><p>還沒收編過。</p>`;
     it.appendChild(tx); book.appendChild(it);
   });
 }
@@ -1171,6 +1248,8 @@ function showHelp(back){
       <li>列車長會<b>一直往前走</b>，用方向鍵、WASD、滑動或下面的按鈕轉彎。</li>
       <li>走到<b>流浪貓</b>身上就收編牠，隊伍會變長、速度也會變快。</li>
       <li>隊伍越長，越會遇到稀有的貓：${TIERS.slice(1).map(t => `${t.need} 隻以上有「${t.name}」`).join("、")}。稀有以上的貓過一陣子就會跑走，要快！圖鑑還沒收集到的貓比較容易出現。</li>
+      <li><b>速度</b>：一開始每 0.25 秒走一格，隊伍每多一隻貓就快一點點，到 26 隻時最快（每 0.15 秒一格）。送養後隊伍變短，速度也會跟著變慢。</li>
+      <li>隊伍 6 隻以上會有人來<b>領養</b>，頭上的對話框畫著他想要的貓（隊伍裡被指定的貓頭上會有愛心）。走到他那裡，隊伍裡有的就會送養出去，隊伍變短，比較不會被自己困住。他 20 秒後會離開。</li>
       <li>撞到<b>牆壁</b>或<b>自己的隊伍</b>就會出事。快撞到的貓咪會嚇到發抖、喵喵叫。</li>
       <li>還有<b>復活次數</b>的話，大家會重新排好隊繼續走。</li>
       <li>手累了隨時按<b>暫停</b>（空白鍵），休息一下再繼續。</li>
@@ -1180,7 +1259,8 @@ function showHelp(back){
     <table class="score"><tbody>
       ${[0, 2, 4].map(i => `<tr><td>收編${TIERS[i].name}的貓</td><td>+${TIERS[i].score}</td><td>收編${TIERS[i + 1].name}的貓</td><td>+${TIERS[i + 1].score}</td></tr>`).join("")}
       <tr><td>健康食物</td><td>+5</td><td>不健康的食物</td><td>+1</td></tr>
-      <tr><td>金色貓罐罐</td><td>+15</td><td>撞到用掉復活</td><td>不扣分</td></tr>
+      <tr><td>金色貓罐罐</td><td>+15</td><td>送養一隻貓</td><td>+20</td></tr>
+      <tr><td>撞到用掉復活</td><td>不扣分</td><td></td><td></td></tr>
     </tbody></table>
     <p class="muted small">不健康的食物分數少，還會讓貓變胖；吃健康的食物可以瘦回來。</p>
     <div class="btns"><button class="btn acc" data-act="back">知道了</button></div>`);
