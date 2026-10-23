@@ -19,6 +19,8 @@ header h1{font-size:24px;margin:0;font-weight:900;letter-spacing:1px}
 header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .hud{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .pill{display:inline-flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--line);border-radius:99px;padding:3px 8px;font-weight:900;font-size:14px;line-height:1.3}
+.pill.fatp{background:#FFE3DC;border-color:#C2475E;color:#9B2C42}
+.pill[hidden]{display:none}
 .pill small{font-weight:700;color:var(--muted);font-size:12px}
 .hud .sp{flex:1}
 .ibtn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:4px 8px;font:inherit;font-weight:900;font-size:13px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:4px;box-shadow:2px 2px 0 var(--line)}
@@ -122,6 +124,7 @@ canvas{display:block}
         <span class="pill" title="隊伍裡的貓咪">貓咪 <span id="hLen">1</span></span>
         <span class="pill" title="分數">分數 <span id="hScore">0</span></span>
         <span class="pill" title="復活次數（吃金色貓罐罐可以增加）">復活 <span id="hLives">1</span></span>
+        <span class="pill fatp" id="hFat" title="變胖的貓（吃健康的食物會瘦回來）" hidden>胖貓 <span>0</span></span>
         <span class="sp"></span>
         <button class="ibtn" id="bPause" title="暫停（空白鍵）">暫停</button>
         <button class="ibtn" id="bMusic" title="背景音樂"></button>
@@ -246,11 +249,13 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   c.translate(x + (opt.shake ? (Math.random() - .5) * s * .12 : 0), y);
   if(opt.rot) c.rotate(opt.rot);
   if(opt.alpha != null) c.globalAlpha = opt.alpha;
+  const grow = 1 + fat * .07 + (opt.puff ? Math.sin(opt.puff / 600 * Math.PI) * .25 : 0);
+  if(grow !== 1) c.scale(grow, grow);
   const lw = Math.max(1.2, s * .045);
   c.lineWidth = lw; c.strokeStyle = INK; c.lineJoin = "round"; c.lineCap = "round";
   const r = s * .33, hy = -s * .07;            // 頭的半徑、位置
   if(opt.glow){ const gg = c.createRadialGradient(0, s * .05, s * .08, 0, s * .05, s * .62); gg.addColorStop(0, opt.glow); gg.addColorStop(1, "rgba(255,255,255,0)"); c.save(); c.fillStyle = gg; c.beginPath(); c.arc(0, s * .05, s * .62, 0, Math.PI * 2); c.fill(); c.restore(); }
-  const bw = s * (.3 + fat * .085), bh = s * (.2 + fat * .03), by = s * .2;
+  const bw = s * (.3 + fat * .13), bh = s * (.2 + fat * .06), by = s * (.2 + fat * .02);
   // 尾巴
   c.beginPath(); c.moveTo(bw * .7, by + bh * .3); c.quadraticCurveTo(bw * 1.45, by - bh * .2, bw * 1.15, by - bh * 1.3);
   c.strokeStyle = INK; c.lineWidth = s * .13; c.stroke();
@@ -292,10 +297,12 @@ function drawCat(c, x, y, s, breedId, opt = {}){
     c.restore();
   }
   // 頭（胖的時候臉頰鼓鼓的）
-  const hw = r * (1 + fat * .1 + (b.wide ? .12 : 0)), hh = r * .92;
+  const hw = r * (1 + fat * .17 + (b.wide ? .12 : 0)), hh = r * (.92 + fat * .03);
   c.beginPath(); c.ellipse(0, hy, hw, hh, 0, 0, Math.PI * 2); c.fillStyle = b.base; c.fill();
   c.save(); c.clip(); headPattern(c, b, hw, hh, hy); c.restore();
   c.beginPath(); c.ellipse(0, hy, hw, hh, 0, 0, Math.PI * 2); c.stroke();
+  // 胖胖的雙下巴
+  if(fat){ c.save(); c.lineWidth = lw * .8; c.strokeStyle = "rgba(58,42,32,.55)"; c.beginPath(); c.ellipse(0, hy + hh * .78, hw * (.35 + fat * .1), hh * .14, 0, .15 * Math.PI, .85 * Math.PI); c.stroke(); c.restore(); }
   // 臉
   const ey = hy - r * .05, ex = r * .4;
   const dark = ["tuxedo", "black", "tortie"].includes(b.id);
@@ -703,14 +710,14 @@ function step(){
       G.eatenGood++; G.score += 5; SFX.good();
       G.train.forEach(c => c.happy = 1800);
       const fatOne = G.train.find(c => c.fat > 0);
-      if(fatOne){ fatOne.fat--; toast(F.msg, `${BY[fatOne.breed].name}吃得健康，瘦回來一點了。`); }
+      if(fatOne){ fatOne.fat--; fatOne.puff = 0; toast(F.msg, `${BY[fatOne.breed].name}吃得健康，瘦回來一點了。`); }
       else toast(F.msg);
     }else{
       G.eatenBad++; G.score += 1; SFX.bad();
       const cand = G.train.filter(c => c.fat < 2);
       const n = Math.min(cand.length, 1 + Math.floor(Math.random() * 2));
       const names = [];
-      for(let k = 0; k < n; k++){ const c = cand.splice(Math.floor(Math.random() * cand.length), 1)[0]; c.fat++; names.push(BY[c.breed].name); }
+      for(let k = 0; k < n; k++){ const c = cand.splice(Math.floor(Math.random() * cand.length), 1)[0]; c.fat++; c.puff = 600; names.push(BY[c.breed].name); }
       toast(F.msg, names.length ? `${[...new Set(names)].join("、")}變胖了！吃健康的食物可以瘦回來。` : "大家都已經胖嘟嘟了，快吃點健康的吧！", "bad");
     }
     spawnFood();
@@ -872,7 +879,7 @@ function loop(ts){
   const dt = Math.min(100, ts - (lastTs || ts)); lastTs = ts;
   if(G && state !== "paused" && state !== "menu"){
     G.t += dt;
-    G.train.forEach(c => { c.happy = Math.max(0, c.happy - dt); c.scared = Math.max(0, c.scared - dt); });
+    G.train.forEach(c => { c.happy = Math.max(0, c.happy - dt); c.scared = Math.max(0, c.scared - dt); if(c.puff) c.puff = Math.max(0, c.puff - dt); });
     if(state === "play"){
       G.acc += dt;
       while(G.acc >= G.tickMs && state === "play"){ G.acc -= G.tickMs; step(); }
@@ -936,7 +943,7 @@ function draw(ts){
       const x = (c.x + (tx2 - c.x) * kk + .5) * s, y = (c.y + (ty2 - c.y) * kk + .5) * s;
       const mood = c.scared ? "scared" : c.happy ? "happy" : "normal";
       const hop = state === "play" ? Math.abs(Math.sin((t / 140) + i * .9)) * s * .05 : 0;
-      drawCat(ctx, x, y - hop, s * 1.02, c.breed, {mood, fat:c.fat, leader:i === 0, shake:!!c.scared});
+      drawCat(ctx, x, y - hop, s * 1.02, c.breed, {mood, fat:c.fat, leader:i === 0, shake:!!c.scared, puff:c.puff});
       if(c.happy > 1200 && i % 2 === 0) heart(ctx, x + s * .3, y - s * .5 - (1800 - c.happy) / 1800 * s * .4, s * .16);
     }
   }
@@ -997,6 +1004,8 @@ function updateHud(){
   document.getElementById("hScore").textContent = G ? G.score : 0;
   if(G && G.score > save.rec.score) updateRecordBox();
   document.getElementById("hLives").textContent = G ? G.lives : 1;
+  const fatN = G ? G.train.filter(c => c.fat).length : 0, fp = document.getElementById("hFat");
+  fp.hidden = !fatN; fp.querySelector("span").textContent = fatN;
 }
 function toast(msg, sub = "", cls = ""){
   const box = document.getElementById("toasts");
