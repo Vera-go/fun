@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Utensils, Plane, LogIn, LogOut, User, ImageIcon, Shield } from "lucide-react";
+import { Utensils, Plane, Vote, LogIn, LogOut, User, ImageIcon, Shield } from "lucide-react";
 import { useUser } from "./UserContext";
 import { LoginDialog } from "./LoginDialog";
 import { apiRequest } from "@/lib/queryClient";
@@ -8,14 +8,16 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useEvent } from "@/lib/event";
-import { termsFor } from "@/lib/terms";
+import { termsFor, HOME_TITLE } from "@/lib/terms";
 
 export function Header() {
   const { currentUser, isAdmin, logout } = useUser();
   const { event } = useEvent();
   const T = termsFor(event?.kind);
-  const AppIcon = event?.kind === "trip" ? Plane : Utensils;
-  useEffect(() => { document.title = `${T.app} - ${T.slogan}`; }, [T]);
+  // 標題列：進入活動後依活動類型顯示；首頁等還沒進入活動的頁面用通用標題
+  const title = event ? { app: T.app, slogan: T.slogan } : HOME_TITLE;
+  const AppIcon = !event ? Vote : event.kind === "trip" ? Plane : Utensils;
+  useEffect(() => { document.title = `${title.app} - ${title.slogan}`; }, [title.app, title.slogan]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isFixingImages, setIsFixingImages] = useState(false);
   const { toast } = useToast();
@@ -58,8 +60,8 @@ export function Header() {
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-medium tracking-wider flex items-center flex-wrap">
-              <span className="font-serif mr-2 font-semibold text-amber-100">{T.app}</span>
-              <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">{T.slogan}</span>
+              <span className="font-serif mr-2 font-semibold text-amber-100">{title.app}</span>
+              <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">{title.slogan}</span>
             </h1>
             <div className="h-[1px] w-[60%] mx-auto bg-gradient-to-r from-amber-500/0 via-amber-500/40 to-amber-500/0 mt-2"></div>
           </div>

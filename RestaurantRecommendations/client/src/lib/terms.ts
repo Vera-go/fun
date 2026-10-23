@@ -56,6 +56,9 @@ const trip: Terms = {
   eventTitlePh: "例如：三年二班畢業旅行", eventDescPh: "例如：預計 2027 年 5 月出發，三天兩夜，預算每人 8000 以內",
 };
 
+/** 還沒進入活動時（首頁、使用手冊）的網站標題：餐廳和旅遊都適用 */
+export const HOME_TITLE = { app: "推薦及投票", slogan: "一起揪團做決定" };
+
 export const termsFor = (kind?: string | null): Terms => (kind === "trip" ? trip : restaurant);
 /** 目前活動的用詞（不在 React 元件裡用） */
 export const currentTerms = () => termsFor(getEvent()?.kind);
