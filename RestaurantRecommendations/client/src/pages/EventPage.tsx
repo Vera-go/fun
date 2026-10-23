@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { CalendarClock, Clock, AlertTriangle, BookOpen, Link2, Pencil, Trash2, X } from "lucide-react";
+import { CalendarClock, Clock, AlertTriangle, BookOpen, Link2, Pencil, Trash2, X, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import RestaurantList from "@/components/RestaurantList";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export async function copyText(text: string, toast: ReturnType<typeof useToast>[
 function DateBadge({ label, deadline, today, icon }: { label: string; deadline: string; today: string; icon: JSX.Element }) {
   const d = daysLeft(deadline, today);
   return (
-    <div className="flex items-center">
+    <div className="flex items-center whitespace-nowrap">
       {icon}
       <span className="text-sm">
         <span className="font-medium">{label}:</span> {shortDate(deadline)}
@@ -92,7 +93,8 @@ export default function EventPage({ code }: { code: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const T = termsFor(event?.kind);
   const hostOpen = useHostToolsOpen();
-  const [descOpen, setDescOpen] = useState(false);
+  // 參與投票人數（和排名區共用同一份資料，投票後會一起更新）
+  const { data: voters } = useQuery<{ count: number }>({ queryKey: ["/api/votes/unique-voters-count"], enabled: !!event, refetchOnWindowFocus: false });
 
   // 換活動時清掉上一個活動的資料
   useEffect(() => {
@@ -126,20 +128,13 @@ export default function EventPage({ code }: { code: string }) {
       <Header />
 
       {/* 重要日期提醒橫幅 */}
-      <div className="relative bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 py-3 shadow-sm">
+      <div className="relative bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 py-2 shadow-sm">
         <div className="container mx-auto px-6">
-          {/* 活動說明：太長只顯示兩行，點一下展開 */}
-          {event.description && (
-            <div role="button" tabIndex={0} onClick={() => setDescOpen(!descOpen)} onKeyDown={e => { if (e.key === "Enter") setDescOpen(!descOpen); }}
-              title={descOpen ? "收起" : "顯示完整說明"}
-              className="max-w-3xl mx-auto mb-2 text-center text-sm text-amber-900 font-serif whitespace-pre-line cursor-pointer">
-              <span className={descOpen ? "" : "line-clamp-2"}>{event.description}</span>
-            </div>
-          )}
-          <div className="relative flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-12 text-amber-800">
-            <div className="hidden sm:flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
+          <div className="relative flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-x-6 gap-y-2 text-amber-800">
+            <div className="hidden xl:flex items-center whitespace-nowrap"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
             <DateBadge label="推薦截止日期" deadline={event.recommendDeadline} today={event.today} icon={<CalendarClock className="h-4 w-4 mr-2 text-amber-500" />} />
             <DateBadge label="最後投票日期" deadline={event.voteDeadline} today={event.today} icon={<Clock className="h-4 w-4 mr-2 text-amber-500" />} />
+            <div className="flex items-center text-sm whitespace-nowrap"><Users className="h-4 w-4 mr-2 text-amber-500" /><span className="font-medium">{voters?.count ?? 0}</span>&nbsp;人已投票</div>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" className="flex items-center text-amber-900 bg-amber-100/50 hover:bg-amber-100 border border-amber-200"
                 onClick={() => copyText(inviteUrl(event.code), toast, "邀請連結")}>

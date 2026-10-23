@@ -33,6 +33,7 @@ function RestaurantList() {
   const { currentUser } = useUser();
   const { event } = useEvent();
   const T = useTerms();
+  const [descOpen, setDescOpen] = useState(false);
   // 推薦截止後就不能新增（主辦人例外）；資料庫也會檢查
   const recommendOpen = !!event && (isOpen(event.recommendDeadline, event.today) || currentUser?.isAdmin === 1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -59,13 +60,7 @@ function RestaurantList() {
     staleTime: 10000
   });
 
-  // 獲取唯一投票用戶數量
-  const { data: uniqueVotersData } = useQuery<{ count: number }>({
-    queryKey: ['/api/votes/unique-voters-count'],
-    enabled: true,
-    refetchOnWindowFocus: false,
-    staleTime: 10000
-  });
+  // 參與投票人數改在活動頁上方的日期列顯示（EventPage）
 
   // 獲取用戶已投票的餐廳
   const { data: votes = [], isLoading: isVotesLoading } = useQuery<Vote[]>({
@@ -243,11 +238,16 @@ function RestaurantList() {
           </h2>
         </div>
         <div className="h-1 w-24 bg-yellow-500/50 mx-auto mb-3"></div>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          票數越多排名越前，目前共有 <span className="font-medium text-primary">{uniqueVotersData?.count || 0}</span> 人參與投票。
-          <span className="block mt-1 text-amber-600 text-xs font-medium">
-            投票規則：一人有 {event?.votesPerPerson ?? 2} 票，同一{T.unit}{T.item}限投一票
-          </span>
+        {/* 活動說明：太長只顯示兩行，點一下展開 */}
+        {event?.description && (
+          <div role="button" tabIndex={0} onClick={() => setDescOpen(!descOpen)} onKeyDown={e => { if (e.key === "Enter") setDescOpen(!descOpen); }}
+            title={descOpen ? "收起" : "顯示完整說明"}
+            className="max-w-2xl mx-auto text-muted-foreground font-serif whitespace-pre-line cursor-pointer">
+            <span className={descOpen ? "" : "line-clamp-2"}>{event.description}</span>
+          </div>
+        )}
+        <p className="mt-1 text-amber-600 text-xs font-medium">
+          投票規則：一人有 {event?.votesPerPerson ?? 2} 票，同一{T.unit}{T.item}限投一票
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <Button

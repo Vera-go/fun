@@ -101,7 +101,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
       ...data,
       rating,
       // 始終根據餐廳類型更新圖片，確保圖片與餐廳類型一致
-      imageUrl: getImageByType(data.type)
+      imageUrl: getImageByType(data.type, { id: restaurant.id, current: restaurant.imageUrl })
     };
     updateRestaurantMutation.mutate(formattedData);
   };
