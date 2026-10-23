@@ -221,6 +221,7 @@ dialog::backdrop{background:rgba(0,0,0,.35)}
 .g-magic{background:#ede9fe;color:#6d28d9}
 .g-silent{background:transparent;color:#9ca3af;border:2px dashed #cbd5e1}
 .g-team{background:#ccfbf1;color:#0f766e}
+.g-suffix{background:#fef9c3;color:#a16207}
 .g-rctl{background:#ffedd5;color:#c2410c}
 .g-digraph{background:#dcfce7;color:#15803d}
 .g-exc{background:#fce7f3;color:#be185d;border-color:#f9a8d4}
@@ -617,6 +618,32 @@ const RULES = {
   a_ah:["exc","a 唸 /ɑ/","a 在 father 裡唸 /ɑ/，像「啊」。","father"],
   o_uh:["exc","o 唸 /ʌ/","o 在 mother、brother 裡唸短 u /ʌ/。","mother"],
   i_ee:["exc","i 唸 /iː/","i 在 police 裡唸長 e /iː/，是例外。","police officer"],
+  // ---- 國一後面幾個單元用到的規則（2026/10 新增） ----
+  ai:["team","ai","ai 兩個母音手牽手，唸字母名 A /eɪ/。","rain"],
+  ay:["team","ay","ay 常在字尾，唸字母名 A /eɪ/。","play"],
+  oa:["team","oa","oa 唸字母名 O /oʊ/。","boat"],
+  ow_ou:["team","ow 唸 /aʊ/","ow 在 cow、down 裡唸 /aʊ/，像被嚇到的「啊嗚」。","down"],
+  ou:["team","ou","ou 常唸 /aʊ/，像「啊嗚」。","house"],
+  oi:["team","oi","oi 唸 /ɔɪ/，和 oy 一樣，oi 常在字中間。","coin"],
+  ie:["team","ie","ie 在字尾常唸字母名 I /aɪ/。","pie"],
+  igh:["team","igh","igh 唸字母名 I /aɪ/，gh 不發音。","night"],
+  aw:["team","aw / au","aw、au 唸 /ɔ/，嘴巴張圓。","draw"],
+  y_ai:["long","y 唸 /aɪ/","y 在短字的字尾，常唸字母名 I /aɪ/。","my"],
+  ear:["rctl","ear","ear 常唸 /ɪr/，像「一爾」。","ear"],
+  are:["rctl","are","are 在字尾常唸 /ɛr/，像「欸爾」。","care"],
+  ore:["rctl","ore","ore 唸 /ɔr/，和 or 一樣。","more"],
+  ph:["digraph","ph","ph 唸 /f/。","phone"],
+  kn:["silent","kn","kn 開頭的 k 不發音，只唸 /n/。","know"],
+  wr:["silent","wr","wr 開頭的 w 不發音，只唸 /r/。","write"],
+  tch:["digraph","tch","tch 唸 /tʃ/，跟 ch 一樣，常跟在短母音後面。","watch"],
+  qu:["cons","qu","q 後面一定跟著 u，qu 一起唸 /kw/。","quiet"],
+  x_ks:["cons","x","x 在字尾唸 /ks/。","box"],
+  es_iz:["cons","-es 唸 /ɪz/","字尾是 s、x、ch、sh 的字，加 -es 後唸 /ɪz/。","watches"],
+  ed_t:["cons","-ed 唸 /t/","前面是無聲的音（p、k、f、s、sh、ch），-ed 唸 /t/。","walked"],
+  ed_d:["cons","-ed 唸 /d/","前面是有聲的音，-ed 唸 /d/。","played"],
+  ed_id:["cons","-ed 唸 /ɪd/","前面是 t 或 d，-ed 唸 /ɪd/，多一個音節。","wanted"],
+  tion:["suffix","tion","字尾 tion 唸 /ʃən/，像「遜」。","station"],
+  ful:["suffix","ful","字尾 ful 唸 /fəl/，表示「充滿……的」。","beautiful"],
   exc:["exc","例外","不照一般規則唸，要特別記。",""],
   space:["space","","",""]
 };
@@ -786,7 +813,7 @@ const VOWEL_SRC = {
 };
 // 規則 → 對應的母音錄音
 const AUD = {short_a:"æ", short_e:"ɛ", short_i:"ɪ", short_o:"ɑ", short_u:"ʌ", schwa:"ə", long_e:"i", long_u:"u", y_i:"i",
-  ee:"i", ea:"i", oo_l:"u", oo_s:"ʊ", ue:"u", ew:"u", all:"ɔ", a_ah:"ɑ", o_uh:"ʌ", i_ee:"i"};
+  ee:"i", ea:"i", oo_l:"u", oo_s:"ʊ", ue:"u", ew:"u", all:"ɔ", a_ah:"ɑ", o_uh:"ʌ", i_ee:"i", aw:"ɔ"};
 // 口語講解；[A] 是播放母音錄音的位置，{ } 裡用英文唸
 const SPOKEN = {
   c:"唸它的基本音", blend:"兩個子音連在一起，兩個音都要唸出來", double:"兩個一樣的字母，只唸一個音",
@@ -806,6 +833,12 @@ const SPOKEN = {
   th_v:"舌頭輕輕咬住，喉嚨要震動，像 {this} 的開頭", ck:"唸 k 的音，常跟在短母音後面", ng:"鼻子發出的聲音，像 {sing} 的結尾",
   nk:"像 {pink} 的結尾", wh:"唸 w 的音，像 {what} 的開頭",
   ch_k:"例外！c h 在這裡唸 k 的音", a_ah:"a 在這裡嘴巴張大唸 [A]", o_uh:"o 在這裡唸短 u，[A]", i_ee:"例外！i 在這裡唸長長的一，[A]",
+  ai:"兩個母音手牽手，唸字母名 A", ay:"在字尾，也唸字母名 A", oa:"唸字母名 O", ow_ou:"唸啊嗚，像被嚇到", ou:"唸啊嗚",
+  oi:"唸歐伊，跟 {boy} 的 oy 一樣", ie:"在字尾唸字母名 I", igh:"唸字母名 I，後面的 g h 不發音", aw:"嘴巴張圓，唸 [A]",
+  y_ai:"在短字的字尾，唸字母名 I", ear:"唸一爾", are:"唸欸爾", ore:"唸歐爾", ph:"兩個字母一起唸 f 的音",
+  kn:"k 不發音，只唸 n", wr:"w 不發音，只唸 r", tch:"唸 ch 的音", qu:"q 和 u 一起唸 k w", x_ks:"唸 k s",
+  es_iz:"唸 i z，多一個音節", ed_t:"前面是無聲的音，唸 t", ed_d:"前面是有聲的音，唸 d", ed_id:"前面是 t 或 d，唸 i d，多一個音節",
+  tion:"唸遜", ful:"唸 f ㄜ l，輕輕帶過",
   exc:"這是例外，要特別記"
 };
 const CN_NUM = ["一","二","三","四","五","六","七","八","九","十","十一","十二"];
@@ -908,7 +941,7 @@ function narrateChunk(word, k){
 
 /* 程度與範圍 */
 const LEVELS = [
- {name:"國一", ranges:[["j1-1-1","上學期 第一次段考",true],["j1-1-2","上學期 第二次段考"],["j1-1-3","上學期 期末考"],["j1-2-1","下學期 第一次段考"],["j1-2-2","下學期 第二次段考"],["j1-2-3","下學期 期末考"]]},
+ {name:"國一", ranges:[["j1-1-1","上學期 第一次段考",true],["j1-1-2","上學期 第二次段考",true],["j1-1-3","上學期 期末考",true],["j1-2-1","下學期 第一次段考",true],["j1-2-2","下學期 第二次段考",true],["j1-2-3","下學期 期末考",true]]},
  {name:"國二", ranges:[["j2-1-1","上學期 第一次段考"],["j2-1-2","上學期 第二次段考"],["j2-1-3","上學期 期末考"]]},
  {name:"國三", ranges:[["j3-1-1","上學期 第一次段考"],["j3-x","會考總複習"]]},
  {name:"高一", ranges:[["s1-1-1","上學期 第一次段考"],["s1-v1","7000 單字 Level 1–2"]]},

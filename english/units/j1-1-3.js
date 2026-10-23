@@ -1,0 +1,796 @@
+/* 單元檔：由 index.html 在選到這個單元時載入，內容都會透過 registerUnit() 登記 */
+(function(){
+/* =========================================================
+   內容資料：國一上學期 期末考（通用範圍）
+   單字格式：[單字, 詞性, 中文, [[例句, 中文, 文法說明] x3], null, null, 概念卡]
+   ========================================================= */
+const J1_1_3_WORDS = [
+/* ---------- 日常作息 ---------- */
+["get up","v.","起床",[
+ ["I get up at six thirty every morning.","我每天早上六點半起床。","主詞是 I，動詞用原形 get。說幾點幾分用 at：at six thirty。"],
+ ["My brother gets up late on Sundays.","我哥哥星期天都很晚起床。","主詞 My brother 是第三人稱單數，get 要加 s 變成 gets。星期幾前面用 on。"],
+ ["What time do you get up?","你幾點起床？","問「幾點」用 What time。一般動詞的疑問句，要請 do 放在句首幫忙，後面的 get up 用原形。"]]],
+["wake up","v.","醒來；叫醒",[
+ ["I wake up at six, but I get up at six fifteen.","我六點醒來，但是六點十五分才起床。","wake up 是「醒來」（眼睛張開），get up 是「起床」（離開床）。兩個都是一般動詞，主詞 I 用原形。"],
+ ["My mom wakes me up every morning.","我媽媽每天早上叫我起床。","wake 後面接人時，要把人放在 wake 和 up 中間：wake me up。主詞 My mom 是單數，wake 加 s。"],
+ ["Does your cat wake up early?","你的貓很早醒來嗎？","主詞 your cat 是第三人稱單數，疑問句用 Does 開頭，後面的動詞用原形 wake，不能說 wakes。"]]],
+["brush my teeth","phr.","刷牙",[
+ ["I brush my teeth after breakfast.","我吃完早餐後刷牙。","主詞 I 用原形 brush。teeth 是 tooth（牙齒）的複數，刷牙要說 teeth。"],
+ ["Ben brushes his teeth twice a day.","班一天刷兩次牙。","主詞 Ben 是第三人稱單數，brush 字尾是 sh，要加 es 變成 brushes。my 也要跟著主詞換成 his。"],
+ ["Do you brush your teeth before bed?","你睡前會刷牙嗎？","問「你」的時候，my 要換成 your：brush your teeth。疑問句用 Do 開頭，brush 用原形。"]]],
+["wash my face","phr.","洗臉",[
+ ["I wash my face with cold water.","我用冷水洗臉。","主詞 I 用原形 wash。with 是「用……」，with cold water 就是「用冷水」。"],
+ ["She washes her face in the morning.","她早上洗臉。","主詞 She 是第三人稱單數，wash 字尾是 sh，要加 es。my 跟著主詞換成 her。早上用 in the morning。"],
+ ["My little brother doesn't wash his face.","我弟弟不洗臉。","第三人稱單數的否定用 doesn't，後面的 wash 要用原形，不能說 doesn't washes。"]]],
+["take a shower","phr.","淋浴；洗澡",[
+ ["I take a shower every night.","我每天晚上洗澡。","主詞 I 用原形 take。every night 前面不加介系詞，不說 at every night。"],
+ ["My dad takes a shower after work.","我爸爸下班後洗澡。","主詞 My dad 是單數，take 加 s 變成 takes。after work 是「下班後」。"],
+ ["Do you take a shower in the morning or at night?","你是早上洗澡還是晚上洗澡？","in the morning、at night 是固定說法。or 用來問「二選一」，回答時直接選一個，不用 Yes 或 No。"]]],
+["get dressed","phr.","穿好衣服",[
+ ["I get dressed after I wash my face.","我洗完臉後穿衣服。","主詞 I 用原形 get。after 後面可以接一個完整的句子：after I wash my face。"],
+ ["My sister gets dressed very slowly.","我妹妹穿衣服很慢。","主詞 My sister 是單數，get 加 s。dressed 在這裡是固定的形容詞，不用再變化。"],
+ ["Get dressed now. We are late!","現在馬上穿好衣服，我們遲到了！","祈使句用原形動詞 Get 開頭，省略主詞 you。late 是形容詞，前面要有 be 動詞 are。"]],null,null,"👕|穿衣服"],
+["go to school","phr.","去上學",[
+ ["I go to school at seven thirty.","我七點半去上學。","school 指「上學」這件事時，前面不加 the：go to school。幾點用 at。"],
+ ["Amy goes to school by bus.","艾美搭公車上學。","go 字尾是 o，第三人稱單數要加 es 變成 goes。by bus 是「搭公車」，bus 前面不加 a。"],
+ ["We don't go to school on Saturdays.","我們星期六不用上學。","主詞 We 的否定用 don't，後面 go 用原形。星期幾前面用 on，加 s 表示「每個星期六」。"]]],
+["come home","phr.","回家",[
+ ["I come home at five o'clock.","我五點回家。","home 在這裡是副詞「到家」，前面不加 to，不能說 come to home。"],
+ ["My mother comes home late on Fridays.","我媽媽星期五都很晚回家。","主詞 My mother 是單數，come 加 s。late 是「晚」，放在動詞片語後面。"],
+ ["What time does your father come home?","你爸爸幾點回家？","主詞 your father 是第三人稱單數，疑問句用 does，後面的 come 用原形，不能說 comes。"]],null,null,"🏠|回家"],
+["do homework","phr.","寫功課",[
+ ["I do my homework after dinner.","我吃完晚餐後寫功課。","do 在這裡是一般動詞「做」。也可以說 do my homework。homework 是不可數名詞，不加 s。"],
+ ["Tom does his homework in his room.","湯姆在他的房間寫功課。","do 第三人稱單數要變成 does（字尾 o 加 es）。這裡的 does 是「做」的意思，不是助動詞。"],
+ ["Do you do your homework on Sunday?","你星期天寫功課嗎？","第一個 Do 是助動詞，用來問問題；第二個 do 是一般動詞「做」。兩個都要有。"]]],
+["go to bed","phr.","上床睡覺",[
+ ["I go to bed at ten every night.","我每天晚上十點上床睡覺。","bed 指「睡覺」這件事時，前面不加 the 或 my：go to bed。幾點用 at。"],
+ ["Grandpa goes to bed early.","爺爺很早就寢。","主詞 Grandpa 是單數，go 加 es 變成 goes。early 是「早」，放在句尾。"],
+ ["Don't go to bed late.","不要太晚睡。","否定的祈使句用 Don't 開頭，後面接原形動詞 go。"]],null,null,"🛏️|上床睡覺"],
+["watch","v.","觀看；注視",[
+ ["I watch TV after dinner.","我吃完晚餐後看電視。","「看電視」用 watch TV，不用 see 或 look。主詞 I 用原形 watch。"],
+ ["My dad watches the news every evening.","我爸爸每天晚上看新聞。","watch 字尾是 ch，第三人稱單數要加 es 變成 watches，唸 /ˈwɑtʃɪz/。"],
+ ["Do they watch movies on weekends?","他們週末會看電影嗎？","主詞 they 是複數，疑問句用 Do。週末用 on weekends。"]]],
+["catch","v.","趕上（車）；接住",[
+ ["I catch the bus at seven.","我七點去搭公車。","catch the bus 是「趕上公車、搭上公車」。主詞 I 用原形 catch。"],
+ ["He catches the ball with one hand.","他用一隻手接住球。","catch 字尾是 ch，第三人稱單數要加 es 變成 catches。"],
+ ["Hurry up, or we can't catch the train.","快一點，不然我們趕不上火車。","Hurry up 是祈使句。can't 後面接原形動詞 catch。"]]],
+["study","v.","讀書；學習",[
+ ["I study English every day.","我每天讀英文。","主詞 I 用原形 study。every day（兩個字）是「每天」，放在句尾。"],
+ ["My sister studies at the library on Saturdays.","我姊姊星期六都在圖書館讀書。","study 是「子音 d + y」結尾，第三人稱單數要把 y 改成 i 再加 es：studies。"],
+ ["Does Ken study math after school?","肯放學後讀數學嗎？","疑問句用 Does 開頭，後面要用原形 study，不能用 studies。"]]],
+["read","v.","閱讀",[
+ ["I read a book before I go to bed.","我睡前會看一本書。","read 是「閱讀」。主詞 I 用原形 read。before 後面接一個句子：before I go to bed。"],
+ ["Grandpa reads the newspaper every morning.","爺爺每天早上看報紙。","主詞 Grandpa 是單數，read 加 s 變成 reads。看報紙、看書用 read，不用 see。"],
+ ["We don't read comic books in class.","我們上課時不看漫畫書。","主詞 We 的否定用 don't，後面接原形 read。in class 是「上課時」。"]]],
+["walk","v.","走路",[
+ ["I walk to school with my friends.","我和朋友們走路上學。","「走路上學」是 walk to school，也可以說 go to school on foot。"],
+ ["Mr. Lee walks his dog after dinner.","李先生晚餐後去遛狗。","walk 後面直接接狗，意思是「遛（狗）」。主詞 Mr. Lee 是單數，walk 加 s。"],
+ ["Do you walk or ride a bike to school?","你走路還是騎腳踏車上學？","or 是「還是」，用來問二選一。Do you 後面的 walk、ride 都用原形。"]],null,null,"🚶|走路"],
+["sleep","v.","睡覺",[
+ ["I sleep for eight hours every night.","我每天晚上睡八個小時。","for 加一段時間，表示「持續多久」：for eight hours。"],
+ ["The baby sleeps a lot.","小嬰兒睡很多。","主詞 The baby 是單數，sleep 加 s 變成 sleeps。a lot 放在句尾，是「很多」。"],
+ ["Don't sleep in class!","上課不要睡覺！","否定祈使句用 Don't 加原形動詞。go to bed 是「上床」，sleep 是「睡著、睡覺」，意思不太一樣。"]]],
+["enjoy","v.","享受；喜愛",[
+ ["I enjoy breakfast with my family.","我很享受和家人一起吃早餐。","enjoy 後面直接接名詞：enjoy breakfast。主詞 I 用原形 enjoy。"],
+ ["She enjoys reading in the evening.","她喜歡在晚上看書。","enjoy 後面如果接動作，要用 V-ing：enjoy reading，不能說 enjoy read。enjoy 是母音 o + y 結尾，直接加 s。"],
+ ["Do you enjoy science class?","你喜歡自然課嗎？","疑問句用 Do 開頭，enjoy 用原形。science class 是「自然課」。"]],null,null,"😋|享受"],
+["join","v.","參加；加入",[
+ ["I want to join the music club.","我想加入音樂社。","want to 後面接原形動詞：want to join。"],
+ ["Kevin joins us for lunch every day.","凱文每天都跟我們一起吃午餐。","join + 人，表示「加入某人一起做事」。主詞 Kevin 是單數，join 加 s。"],
+ ["Does Mia join the art club?","米亞有參加美術社嗎？","主詞 Mia 是單數，疑問句用 Does，後面 join 用原形。"]],null,null,"🙋|加入"],
+["try","v.","嘗試；試吃",[
+ ["Try this sandwich. It's good!","吃吃看這個三明治，很好吃！","祈使句用原形動詞 Try 開頭。try + 食物，表示「嚐嚐看」。"],
+ ["He always tries his best.","他總是盡全力。","try 是「子音 r + y」結尾，第三人稱單數要改成 tries。always 放在一般動詞前面。"],
+ ["Let's try again.","我們再試一次吧。","Let's 後面接原形動詞 try。again 是「再一次」，放在句尾。"]],null,null,"💪|試試看"],
+/* ---------- 時間 ---------- */
+["time","n.","時間；次數",[
+ ["What time is it now? — It's eight o'clock.","現在幾點？——八點。","問時間用 What time is it?，回答用 It's + 時間，主詞用 it。"],
+ ["It's time for lunch.","午餐時間到了。","It's time for + 名詞，表示「該做……的時間到了」。"],
+ ["I don't have time to watch TV.","我沒有時間看電視。","time 當「時間」時是不可數名詞，不加 a，也不加 s。don't 後面接原形 have。"]]],
+["o'clock","adv.","……點鐘（整點）",[
+ ["School starts at eight o'clock.","學校八點開始上課。","o'clock 只能用在整點，例如 eight o'clock。主詞 School 是單數，start 加 s。"],
+ ["It's ten o'clock. Go to bed!","十點了，去睡覺！","說時間用 It's 開頭。o'clock 可以省略，直接說 It's ten. 也對。"],
+ ["I get up at six o'clock on weekdays.","我平日六點起床。","幾點用 at：at six o'clock。weekdays 是「平日（星期一到五）」。"]]],
+["half","n.","一半；半小時",[
+ ["It's half past seven.","現在七點半。","half past seven 是「過了七點半小時」，也就是七點半，也可以說 seven thirty。"],
+ ["I eat half of the sandwich.","我吃了半個三明治。","half of + 名詞，是「……的一半」。"],
+ ["The movie starts at half past six.","電影六點半開始。","主詞 The movie 是單數，start 加 s。幾點用 at。"]]],
+["quarter","n.","一刻鐘（十五分鐘）；四分之一",[
+ ["It's a quarter past nine.","現在九點十五分。","a quarter 是一刻鐘，也就是十五分鐘。past 是「過了」：a quarter past nine 就是九點十五分。"],
+ ["It's a quarter to eight.","現在七點四十五分。","to 是「差」：差十五分就八點，也就是七點四十五分。"],
+ ["I eat a quarter of the pie.","我吃了四分之一個派。","a quarter of + 名詞，是「……的四分之一」。一刻鐘剛好是一小時的四分之一。"]]],
+["past","prep.","（時間）過了……",[
+ ["It's ten past six.","現在六點十分。","分鐘數 + past + 小時，表示「幾點過幾分」：ten past six 是六點十分。"],
+ ["The bus comes at twenty past seven.","公車七點二十分來。","主詞 The bus 是單數，come 加 s。幾點幾分前面用 at。"],
+ ["It's half past twelve. Let's eat lunch.","十二點半了，我們吃午餐吧。","half past twelve 是十二點半。Let's 後面接原形動詞 eat。"]],null,null,"⏩|過了"],
+["minute","n.","分鐘",[
+ ["Wait a minute, please.","請等一下。","a minute 字面是「一分鐘」，Wait a minute 常用來表示「等一下」。"],
+ ["There are sixty minutes in an hour.","一小時有六十分鐘。","There are 後面接複數名詞 minutes。hour 開頭的 h 不發音，所以用 an hour。"],
+ ["It takes me ten minutes to walk to school.","我走路上學要花十分鐘。","It takes + 人 + 時間 + to 原形動詞，表示「某人做某事要花多少時間」。"]],null,null,"⏱️|分鐘"],
+["hour","n.","小時",[
+ ["I study for an hour every night.","我每天晚上讀書一個小時。","hour 的 h 不發音，開頭是母音 /aʊ/，所以用 an，不用 a。"],
+ ["He sleeps eight hours a day.","他一天睡八小時。","兩個以上要用複數 hours。a day 是「每天」，eight hours a day 是一天八小時。"],
+ ["How many hours do you sleep?","你睡幾個小時？","How many 後面接複數名詞 hours，用來問「幾個」。"]],null,null,"⏳|小時"],
+["noon","n.","中午；正午",[
+ ["We eat lunch at noon.","我們中午吃午餐。","noon 是正午十二點，前面用 at，不用 in。"],
+ ["The store opens at noon on Sundays.","那家店星期天中午開門。","主詞 The store 是單數，open 加 s。at noon、on Sundays 各用不同的介系詞。"],
+ ["It's twelve o'clock. It's noon.","十二點了，是中午了。","說時間用 It's 開頭，It's noon. 就是「中午了」。"]]],
+["afternoon","n.","下午",[
+ ["Good afternoon, Ms. Wang.","王老師，午安。","Good afternoon 用在中午過後到傍晚打招呼。"],
+ ["I have math class in the afternoon.","我下午有數學課。","「在下午」用 in the afternoon，要加 the。"],
+ ["We play basketball on Friday afternoon.","我們星期五下午打籃球。","前面有星期幾的時候，要用 on：on Friday afternoon，不能說 in Friday afternoon。"]],null,null,"🌤️|下午"],
+["evening","n.","傍晚；晚上",[
+ ["Good evening, everyone.","大家晚安。","Good evening 是晚上見面時的招呼；睡前道晚安才說 Good night。"],
+ ["My family eats dinner at six in the evening.","我家晚上六點吃晚餐。","My family 當作一個整體，是單數，所以 eat 加 s。「在晚上」用 in the evening。"],
+ ["What do you do in the evening?","你晚上都做什麼？","第一個 do 是助動詞，第二個 do 是「做」。What 開頭的問句，後面也要有 do 幫忙。"]],null,null,"🌆|傍晚"],
+["night","n.","夜晚",[
+ ["I take a shower at night.","我晚上洗澡。","「在晚上」用 at night，不加 the，也不用 in。"],
+ ["Good night, Mom.","晚安，媽媽。","Good night 是睡前或晚上道別時說的「晚安」。"],
+ ["Owls sleep in the daytime and fly at night.","貓頭鷹白天睡覺，晚上出來飛。","主詞 Owls 是複數，動詞用原形 sleep、fly。in the daytime（在白天）和 at night（在晚上）意思相反。"]]],
+["now","adv.","現在",[
+ ["It's nine o'clock now.","現在九點。","now 可以放在句尾，也可以放在句首：Now it's nine o'clock.。"],
+ ["Go to bed now!","現在就去睡覺！","祈使句用原形動詞開頭，now 放在句尾強調「馬上」。"],
+ ["I am at school now.","我現在在學校。","be 動詞也有「在」的意思。at school 是「在學校」，不加 the。"]],null,null,"👉|現在"],
+["early","adv.","早；提早",[
+ ["My father gets up early.","我爸爸很早起床。","early 是副詞，放在動詞片語 gets up 後面，說明「多早」。"],
+ ["Don't be late. Come early.","不要遲到，早點來。","Don't 後面接原形，be late 是「遲到」，be 不能省略。"],
+ ["I go to bed early on school nights.","上學日的前一晚我很早睡。","school nights 是「隔天要上學的晚上」。early 和 late 意思相反。"]],null,null,"🐓|早"],
+["late","adj.","遲的；晚的",[
+ ["I am late for school.","我上學遲到了。","be late for + 地方或活動，是「做……遲到」。late 是形容詞，前面要有 be 動詞 am。"],
+ ["He is never late for class.","他上課從不遲到。","never 是頻率副詞，放在 be 動詞 is 的後面。"],
+ ["Don't stay up late.","不要熬夜。","stay up late 是「熬夜、晚睡」。這裡的 late 放在動詞後面，當副詞用。"]],null,null,"⏰|遲到"],
+["every","adj.","每一；每個",[
+ ["I brush my teeth every morning.","我每天早上刷牙。","every 後面接單數名詞：every morning。有 every 的時候前面不加 in、on、at。"],
+ ["Every student has a book.","每個學生都有一本書。","every + 單數名詞當主詞時，要看成單數，動詞用 has，不用 have。"],
+ ["She goes jogging every Sunday.","她每個星期天都去慢跑。","every Sunday 前面不加 on。主詞 She 是單數，go 加 es。"]],null,null,"🔁|每一"],
+/* ---------- 星期 ---------- */
+["Monday","n.","星期一",[
+ ["I have English class on Monday.","我星期一有英文課。","星期幾前面用 on。星期的第一個字母一定要大寫。"],
+ ["Monday is the first school day of the week.","星期一是一週的第一個上學日。","主詞 Monday 是單數，be 動詞用 is。"],
+ ["What day is it today? — It's Monday.","今天星期幾？——星期一。","問星期幾用 What day is it today?，回答用 It's + 星期。"]],null,null,"😩|星期一"],
+["Tuesday","n.","星期二",[
+ ["We have P.E. on Tuesday.","我們星期二有體育課。","on + 星期幾。P.E. 是體育課，大寫。"],
+ ["Is today Tuesday? — Yes, it is.","今天是星期二嗎？——是的。","be 動詞疑問句，把 is 放到句首。回答時用 it。"],
+ ["My piano lesson is on Tuesday afternoon.","我的鋼琴課在星期二下午。","有星期幾的時候，後面再接 afternoon 也要用 on：on Tuesday afternoon。"]],null,null,"📘|星期二"],
+["Wednesday","n.","星期三",[
+ ["We have club activities on Wednesday afternoon.","我們星期三下午有社團活動。","有星期幾的時候，後面接 afternoon 也要用 on：on Wednesday afternoon。"],
+ ["Wednesday comes after Tuesday.","星期三在星期二之後。","主詞 Wednesday 是單數，come 加 s。"],
+ ["Do you have science on Wednesday?","你星期三有自然課嗎？","have + 科目，就是「有……課」。疑問句用 Do 開頭，have 用原形。"]],null,null,"🐫|星期三"],
+["Thursday","n.","星期四",[
+ ["I go to the cram school on Thursday.","我星期四去補習班。","cram school 是「補習班」。on + 星期幾。"],
+ ["Thursday is a busy day for me.","星期四對我來說是忙碌的一天。","busy 是子音開頭，所以用 a busy day。"],
+ ["See you on Thursday!","星期四見！","See you + on + 星期幾，是常用的道別說法。"]],null,null,"⚡|星期四"],
+["Friday","n.","星期五",[
+ ["Friday is my favorite day.","星期五是我最喜歡的日子。","favorite 是「最喜歡的」，前面有 my 就不用再加 a 或 the。"],
+ ["We have a test on Friday.","我們星期五有考試。","have a test 是「有考試」。on + 星期幾。"],
+ ["On Friday evening, I watch movies with my family.","星期五晚上，我和家人一起看電影。","Friday evening 前面用 on，不用 in。介系詞片語放句首時，後面常加逗號。"]],null,null,"🎉|星期五"],
+["Saturday","n.","星期六",[
+ ["I sleep late on Saturday.","我星期六睡得很晚。","sleep late 是「睡到很晚、睡懶覺」。on + 星期幾。"],
+ ["Saturday and Sunday are the weekend.","星期六和星期日是週末。","兩天是複數，be 動詞用 are。"],
+ ["Do you go to school on Saturday? — No, I don't.","你星期六上學嗎？——不，我不用。","Do 開頭的問句，簡答也用 do：No, I don't.。"]],null,null,"😴|星期六"],
+["Sunday","n.","星期日",[
+ ["We visit Grandma every Sunday.","我們每個星期天都去看奶奶。","有 every 的時候，前面不加 on：every Sunday。"],
+ ["On Sunday morning, I sleep late.","星期天早上，我會睡懶覺。","Sunday morning 前面用 on，不用 in。介系詞片語放句首時，後面常加逗號。"],
+ ["Sunday is the last day of the week.","星期天是一週的最後一天。","the last day 是「最後一天」。主詞 Sunday 是單數，用 is。"]],null,null,"☀️|星期日"],
+["week","n.","星期；週",[
+ ["There are seven days in a week.","一個星期有七天。","There are 後面接複數名詞 days。"],
+ ["I go swimming once a week.","我一週游一次泳。","once a week 是「一週一次」，用來回答 How often。"],
+ ["See you next week!","下週見！","next week 前面不加 in 或 on。"]],null,null,"🗓️|一週"],
+["weekend","n.","週末",[
+ ["What do you do on weekends?","你週末都做什麼？","on weekends 表示「每個週末」。What 開頭的問句也要用 do 幫忙。"],
+ ["I usually sleep late on the weekend.","我週末通常睡很晚。","usually 是頻率副詞，放在一般動詞 sleep 前面。"],
+ ["Have a nice weekend!","祝你週末愉快！","祈使句用原形動詞 Have 開頭，是星期五道別時常說的話。"]],null,null,"🏖️|週末"],
+["today","n./adv.","今天",[
+ ["What day is it today?","今天星期幾？","today 前面不加 on、in。問星期幾用 What day。"],
+ ["Today is Wednesday.","今天是星期三。","today 也可以當主詞，是單數，用 is。"],
+ ["I don't have English class today.","我今天沒有英文課。","主詞 I 的否定用 don't，後面接原形 have。"]],null,null,"📍|今天"],
+/* ---------- 學科 ---------- */
+["math","n.","數學",[
+ ["I have math class at nine.","我九點有數學課。","科目前面不加 a 或 the。幾點用 at。"],
+ ["Math is hard for me.","數學對我來說很難。","科目名稱當主詞時是單數，用 is。"],
+ ["Does your brother like math?","你哥哥喜歡數學嗎？","主詞 your brother 是第三人稱單數，疑問句用 Does，like 用原形。"]]],
+["science","n.","自然科學",[
+ ["We learn about animals in science class.","我們在自然課學關於動物的知識。","learn about 是「學習有關……」。in science class 是「在自然課上」。"],
+ ["Science is my favorite subject.","自然是我最喜歡的科目。","science 的 sc 唸 /s/，c 不發音。主詞是單數，用 is。"],
+ ["Ms. Chen teaches science.","陳老師教自然。","teach 字尾是 ch，第三人稱單數要加 es 變成 teaches。"]],null,null,"🔬|自然"],
+["history","n.","歷史",[
+ ["We have history on Thursday.","我們星期四有歷史課。","have + 科目，就是「上……課」。on + 星期幾。"],
+ ["I like history. It's fun.","我喜歡歷史，它很有趣。","第二句用 It 代替前面的 history。fun 是「有趣的」。"],
+ ["Does he study history every day?","他每天讀歷史嗎？","Does 開頭的問句，study 要用原形。"]],null,null,"🏛️|歷史"],
+["geography","n.","地理",[
+ ["We learn about maps in geography class.","我們在地理課學看地圖。","maps 是 map 的複數。in geography class 是「在地理課上」。"],
+ ["Geography is not easy.","地理不簡單。","be 動詞否定在 is 後面加 not。"],
+ ["My sister seldom studies geography.","我妹妹很少讀地理。","seldom 是「很少」，放在一般動詞前面。study 改成 studies，因為主詞是第三人稱單數。"]],null,null,"🗺️|地理"],
+["music","n.","音樂",[
+ ["I listen to music every night.","我每天晚上聽音樂。","「聽」音樂要說 listen to music，to 不能省略。"],
+ ["We have music class on Friday.","我們星期五有音樂課。","on + 星期幾。"],
+ ["Does Lily like music? — Yes, she does.","莉莉喜歡音樂嗎？——是的。","Does 開頭的問句，簡答用 does：Yes, she does.。"]]],
+["art","n.","美術；藝術",[
+ ["I draw pictures in art class.","我在美術課畫畫。","art class 是「美術課」。art 是母音開頭。"],
+ ["Mr. Wu is our art teacher.","吳老師是我們的美術老師。","art 是母音開頭，所以「一位美術老師」要說 an art teacher。"],
+ ["Do you like art or music?","你喜歡美術還是音樂？","or 是「還是」，用來問二選一。"]]],
+["Chinese","n.","中文；國文",[
+ ["We have Chinese class every day.","我們每天都有國文課。","語言名稱的第一個字母一定要大寫：Chinese。"],
+ ["Do you speak Chinese?","你說中文嗎？","speak + 語言，是「說……語」。疑問句用 Do 開頭。"],
+ ["My Chinese teacher is very kind.","我的國文老師很親切。","Chinese 放在 teacher 前面，說明是哪一科的老師。"]]],
+["subject","n.","科目",[
+ ["What's your favorite subject?","你最喜歡什麼科目？","What's 是 What is 的縮寫。favorite 是「最喜歡的」。"],
+ ["Math is my favorite subject.","數學是我最喜歡的科目。","主詞 Math 是單數，用 is。"],
+ ["We have seven subjects this year.","我們今年有七個科目。","seven 後面接複數 subjects。this year 前面不加 in。"]],null,null,"📚|科目"],
+/* ---------- 三餐和早餐 ---------- */
+["breakfast","n.","早餐",[
+ ["I eat breakfast at seven.","我七點吃早餐。","三餐前面不加 a 或 the：eat breakfast、have breakfast。"],
+ ["What do you have for breakfast?","你早餐吃什麼？","have 也可以當「吃」。for breakfast 是「當作早餐」。"],
+ ["My mom never skips breakfast.","我媽媽從不省略早餐。","never 放在一般動詞前面。skip 是「跳過、不吃」，主詞是單數，所以加 s。"]]],
+["lunch","n.","午餐",[
+ ["We eat lunch at school.","我們在學校吃午餐。","三餐前面不加 a。at school 是「在學校」。"],
+ ["What time do you have lunch?","你幾點吃午餐？","What time 問幾點，後面接 do you + 原形動詞。"],
+ ["He brings his lunch to school.","他帶午餐到學校。","主詞 He 是單數，bring 加 s。lunch 前面有 his，不再加 a。"]],null,null,"🍱|午餐"],
+["dinner","n.","晚餐",[
+ ["My family has dinner together.","我們家一起吃晚餐。","My family 看作一個整體，是單數，have 要變成 has。"],
+ ["Dinner is ready!","晚餐準備好了！","ready 是形容詞「準備好的」，前面要有 be 動詞 is。"],
+ ["I do my homework after dinner.","我晚餐後寫功課。","after + 名詞，是「在……之後」。"]],null,null,"🍽️|晚餐"],
+["toast","n.","吐司",[
+ ["I have toast and milk for breakfast.","我早餐吃吐司配牛奶。","toast 是不可數名詞，不加 s。要說一片吐司，用 a piece of toast。"],
+ ["Do you want some toast?","你要來點吐司嗎？","some 用在不可數名詞前面，表示「一些」。"],
+ ["She puts jam on her toast.","她把果醬塗在吐司上。","put 是「放」，主詞 She 是單數，所以加 s 變成 puts。"]]],
+["milk","n.","牛奶",[
+ ["I drink milk every morning.","我每天早上喝牛奶。","milk 是不可數名詞，不加 s。「喝」用 drink。"],
+ ["Please give me a glass of milk.","請給我一杯牛奶。","不可數名詞用容器來數：a glass of milk（一杯牛奶）。"],
+ ["My cat doesn't drink milk.","我的貓不喝牛奶。","第三人稱單數的否定用 doesn't，後面接原形 drink。"]]],
+["bread","n.","麵包",[
+ ["I eat bread for breakfast.","我早餐吃麵包。","bread 是不可數名詞，不能說 a bread 或 breads。"],
+ ["Can I have a piece of bread?","我可以吃一塊麵包嗎？","數麵包要用單位：a piece of bread（一塊麵包）、two slices of bread（兩片麵包）。"],
+ ["This bread is soft and sweet.","這個麵包又軟又甜。","bread 是不可數名詞，看作單數，用 is。"]]],
+["sandwich","n.","三明治",[
+ ["I have a ham sandwich for breakfast.","我早餐吃一個火腿三明治。","sandwich 是可數名詞，一個要加 a。ham 放在前面說明是什麼口味。"],
+ ["Mom makes sandwiches for us.","媽媽幫我們做三明治。","sandwich 字尾是 ch，複數要加 es：sandwiches。"],
+ ["Do you want a sandwich or a hamburger?","你要三明治還是漢堡？","or 用來問二選一。"]]],
+["juice","n.","果汁",[
+ ["I drink orange juice in the morning.","我早上喝柳橙汁。","juice 是不可數名詞，不加 s。orange juice 是「柳橙汁」。"],
+ ["Would you like some juice?","你想要來點果汁嗎？","Would you like...? 是禮貌地問「你想要……嗎？」。"],
+ ["This apple juice is too sweet.","這杯蘋果汁太甜了。","too 是「太」，放在形容詞 sweet 前面。"]]],
+["soy milk","n.","豆漿",[
+ ["Taiwanese people often drink soy milk for breakfast.","台灣人早餐常喝豆漿。","often 是頻率副詞，放在一般動詞 drink 前面。"],
+ ["I want a cup of hot soy milk.","我要一杯熱豆漿。","soy milk 是不可數名詞，用 a cup of 來數。"],
+ ["Does your father drink soy milk? — Yes, he does.","你爸爸喝豆漿嗎？——是的。","Does 開頭的問句，簡答用 he does。"]]],
+["pie","n.","派",[
+ ["My grandma makes apple pie on Sundays.","我奶奶星期天會做蘋果派。","主詞 My grandma 是單數，make 加 s。"],
+ ["Can I have a piece of pie?","我可以吃一塊派嗎？","a piece of pie 是「一塊派」。"],
+ ["This pie is really good.","這個派真的很好吃。","really 是「真的」，放在形容詞 good 前面加強語氣。"]]],
+["snack","n.","點心；零食",[
+ ["I eat a snack after school.","我放學後吃點心。","snack 是可數名詞，一份點心是 a snack。after school 是「放學後」。"],
+ ["Don't eat too many snacks.","不要吃太多零食。","too many 後面接可數的複數名詞 snacks。"],
+ ["What's your favorite snack?","你最喜歡的零食是什麼？","What's 是 What is 的縮寫。"]]],
+/* ---------- 頻率副詞 ---------- */
+["always","adv.","總是（100%）",[
+ ["I always get up at six.","我總是六點起床。","always 放在一般動詞 get 的前面。"],
+ ["She is always happy.","她總是很開心。","遇到 be 動詞時，always 要放在 be 動詞 is 的後面。"],
+ ["He always takes a shower at night.","他總是晚上洗澡。","加了 always，主詞 He 是單數，動詞還是要加 s：takes。"]],null,null,"💯|總是"],
+["usually","adv.","通常（約 80%）",[
+ ["I usually walk to school.","我通常走路上學。","usually 放在一般動詞 walk 前面。"],
+ ["My dad is usually busy on Monday.","我爸爸星期一通常很忙。","be 動詞 is 後面才放 usually。"],
+ ["What do you usually eat for breakfast?","你早餐通常吃什麼？","疑問句裡，usually 放在主詞 you 和動詞 eat 中間。"]],null,null,"👍|通常"],
+["often","adv.","常常（約 60%）",[
+ ["We often play games after school.","我們放學後常常玩遊戲。","often 放在一般動詞 play 前面。"],
+ ["Is he often late for school?","他上學常遲到嗎？","be 動詞的疑問句：Is + 主詞 + often + 形容詞。"],
+ ["How often do you go to the library?","你多久去一次圖書館？","How often 是「多久一次」，用來問頻率。"]],null,null,"🔂|常常"],
+["sometimes","adv.","有時候（約 40%）",[
+ ["I sometimes have toast for breakfast.","我早餐有時候吃吐司。","sometimes 放在一般動詞 have 前面。"],
+ ["Sometimes my dad cooks dinner.","有時候我爸爸會煮晚餐。","sometimes 也可以放在句首。主詞 my dad 是單數，cook 加 s。"],
+ ["She is sometimes tired after school.","她放學後有時候會累。","遇到 be 動詞，sometimes 放在 is 後面。"]],null,null,"🤷|有時候"],
+["seldom","adv.","很少（約 10%）",[
+ ["I seldom watch TV on weekdays.","我平日很少看電視。","seldom 放在一般動詞 watch 前面。"],
+ ["He is seldom late.","他很少遲到。","遇到 be 動詞，seldom 放在 is 後面。"],
+ ["My grandpa seldom eats snacks.","我爺爺很少吃零食。","seldom 已經有否定的意思，不用再加 don't。主詞是單數，eat 加 s。"]],null,null,"🤏|很少"],
+["never","adv.","從不（0%）",[
+ ["I never eat breakfast late.","我從不晚吃早餐。","never 放在一般動詞 eat 前面。"],
+ ["She never drinks coffee.","她從不喝咖啡。","never 已經是否定，不能再加 doesn't。主詞是單數，動詞還是要加 s：drinks。"],
+ ["Ben is never late for school.","班上學從不遲到。","遇到 be 動詞，never 放在 is 後面。"]],null,null,"🚫|從不"],
+["why","adv.","為什麼",[
+ ["Why are you late?","你為什麼遲到？","Why 是問「為什麼」，後面接 be 動詞疑問句：are you late。"],
+ ["Why do you get up so early?","你為什麼這麼早起床？","Why 後面接 do you + 原形動詞。回答常用 Because...。"],
+ ["Why does Ben like Fridays? — Because he has P.E.","班為什麼喜歡星期五？——因為他有體育課。","主詞 Ben 是單數，用 does，後面 like 用原形。回答時 has 要跟著主詞 he 變化。"]],null,null,"❓|為什麼"]
+];
+
+const J1_1_3_GRAMMAR = [
+{ id:"g1", title:"現在簡單式：I / you / we / they + 原形動詞",
+  intro:"說每天都會做的事、習慣或事實，用現在簡單式。主詞是 I、you、we、they 或複數名詞時，動詞用原形；否定和疑問要請助動詞 do 來幫忙。",
+  table:[["句型","公式","例子"],["肯定句","主詞 + 原形動詞","I get up at six."],["否定句","主詞 + don't + 原形動詞","We don't go to school on Sunday."],["疑問句","Do + 主詞 + 原形動詞 ...?","Do you eat breakfast?"],["簡答","Yes, 主詞 + do. / No, 主詞 + don't.","Yes, I do. / No, I don't."],["Wh- 疑問句","疑問詞 + do + 主詞 + 原形動詞 ...?","What do you do after school?"]],
+  points:[
+   "現在簡單式用來說「習慣、每天固定做的事、不變的事實」，常和 every day、every morning、on Sundays 一起出現。",
+   "don't 是 do not 的縮寫，後面一定接原形動詞：I don't watch TV.。",
+   "疑問句把 Do 放在句首，問「你」要用「我」回答：Do you walk to school? — Yes, I do.。",
+   "陷阱一：一個句子裡不能同時有 be 動詞和一般動詞。I am get up at six. 是錯的，要說 I get up at six.。",
+   "陷阱二：否定句不能用 not 直接放在一般動詞前面。I not like math. 是錯的，要說 I don't like math.。",
+   "do 也可以當一般動詞「做」：What do you do after school? 第一個 do 是助動詞，第二個 do 是「做」，兩個都要有。"],
+  ex:[
+   ["I eat breakfast at seven every day.","我每天七點吃早餐。","主詞 I，動詞用原形 eat。every day 表示每天都這樣做。"],
+   ["We don't have class on Saturday.","我們星期六不上課。","否定句：don't + 原形動詞 have。"],
+   ["Do they walk to school? — No, they don't.","他們走路上學嗎？——不，他們不是。","疑問句用 Do 開頭，簡答也用 do / don't。"],
+   ["What do you do in the evening? — I do my homework.","你晚上做什麼？——我寫功課。","第一個 do 是助動詞，第二個 do 是「做」。"],
+   ["My friends and I study together.","我和朋友們一起讀書。","My friends and I 等於 we，動詞用原形 study。"]]},
+{ id:"g2", title:"第三人稱單數：動詞加 -s / -es 和 does / doesn't",
+  intro:"主詞是 he、she、it 或一個人、一個東西（第三人稱單數）時，現在簡單式的動詞要加 s 或 es；否定和疑問改用 does 幫忙，後面的動詞再變回原形。",
+  table:[["動詞字尾","變化規則","例子"],["一般動詞","直接加 s","get → gets, read → reads, eat → eats"],["s、x、ch、sh、o 結尾","加 es","watch → watches, wash → washes, go → goes, do → does"],["子音 + y 結尾","把 y 改成 i，再加 es","study → studies, try → tries"],["母音 + y 結尾","直接加 s","play → plays, enjoy → enjoys"],["特殊變化","have 變成 has","have → has"],["否定 / 疑問","doesn't + 原形；Does + 主詞 + 原形?","He doesn't eat. Does she eat?"]],
+  points:[
+   "第三人稱單數就是：he、she、it、一個人名（Amy）、一個東西（my cat、the bus）。主詞是這些，動詞要加 s 或 es。",
+   "s、x、ch、sh、o 結尾加 es：watches、washes、goes、does。es 加在 ch、sh、s、x 後面唸 /ɪz/，多一個音節。",
+   "子音 + y 結尾，y 改 i 加 es：study → studies；母音 + y 結尾直接加 s：play → plays、enjoy → enjoys。",
+   "have 的第三人稱單數是 has，不是 haves：She has breakfast at seven.。",
+   "陷阱一：用了 does 或 doesn't，後面的動詞要變回原形！He doesn't goes. 和 Does she has...? 都是錯的。",
+   "陷阱二：Tom and Amy、my parents 是兩個人，是複數，動詞不加 s：My parents get up early.。"],
+  ex:[
+   ["My mother gets up at six.","我媽媽六點起床。","My mother 是第三人稱單數，get 加 s。"],
+   ["Ben watches TV after dinner.","班晚餐後看電視。","watch 是 ch 結尾，加 es。"],
+   ["She studies English every day.","她每天讀英文。","study 是子音 + y 結尾，y 改 i 加 es。"],
+   ["He doesn't have breakfast at home.","他不在家吃早餐。","doesn't 後面用原形 have，不能用 has。"],
+   ["Does your cat sleep a lot? — Yes, it does.","你的貓睡很多嗎？——是的。","Does 開頭，後面 sleep 用原形；簡答用 it does。"]]},
+{ id:"g3", title:"頻率副詞：always / usually / often / sometimes / seldom / never",
+  intro:"頻率副詞告訴我們「多常」做一件事。它們有固定的位置：放在 be 動詞後面、一般動詞前面。問「多久一次」用 How often。",
+  table:[["頻率副詞","中文","大約頻率"],["always","總是","100%"],["usually","通常","80%"],["often","常常","60%"],["sometimes","有時候","40%"],["seldom","很少","10%"],["never","從不","0%"]],
+  points:[
+   "位置口訣：be 動詞後、一般動詞前。She is always happy. / She always gets up early.。",
+   "頻率副詞不會影響動詞變化：主詞是第三人稱單數，動詞還是要加 s：He often watches TV.。",
+   "never 和 seldom 本身已經有否定的意思，不能再加 don't 或 doesn't：I never eat snacks.，不說 I don't never eat snacks.。",
+   "sometimes 比較自由，也可以放在句首或句尾：Sometimes I walk to school.。",
+   "How often 是「多久一次」。回答可以用頻率副詞，或 once a week（一週一次）、twice a week（一週兩次）、three times a week（一週三次）、every day（每天）。",
+   "陷阱：問句裡頻率副詞放在主詞後面：Do you often eat breakfast? / Is he usually busy?。"],
+  ex:[
+   ["I always brush my teeth before bed.","我睡前總是會刷牙。","always 放在一般動詞 brush 前面。"],
+   ["My brother is often late for school.","我哥哥上學常常遲到。","often 放在 be 動詞 is 後面。"],
+   ["She seldom eats breakfast.","她很少吃早餐。","seldom 放在 eats 前面，主詞是單數，動詞還是要加 s。"],
+   ["We never go to school on Sunday.","我們星期天從來不上學。","never 已經是否定，不加 don't。"],
+   ["How often do you take a shower? — Every day.","你多久洗一次澡？——每天。","How often 問頻率，回答可以用 every day。"]]},
+{ id:"g4", title:"時間介系詞 at / on / in 和 What time / What day",
+  intro:"說「什麼時候」做一件事，要用時間介系詞。at 用在時刻，on 用在星期幾和日期，in 用在一天中比較長的時段（早上、下午、晚上）和月份、年份。問幾點用 What time，問星期幾用 What day。",
+  table:[["介系詞","用法","例子"],["at","時刻、幾點；固定說法","at seven, at half past six, at noon, at night"],["on","星期幾、日期；某一天的早上或晚上","on Monday, on Sunday morning, on weekends"],["in","一天中的時段；月份、年份","in the morning, in the afternoon, in the evening"],["不加介系詞","every、this、next、today 前面","every day, this morning, next week, today"],["問時間","What time is it? / What time do you ...?","It's seven thirty. / I get up at six."],["問星期","What day is it today?","It's Friday."]],
+  points:[
+   "at + 時刻：at six o'clock、at 7:30、at noon；at night 是固定說法，不說 in the night。",
+   "on + 星期幾：on Monday、on Fridays。早上、下午、晚上如果前面有星期幾，要改用 on：on Monday morning，不說 in Monday morning。",
+   "in + 時段：in the morning、in the afternoon、in the evening，記得要加 the。",
+   "every、this、next、today、tomorrow 前面不用介系詞：every Sunday、this afternoon，不說 on every Sunday。",
+   "報時：整點用 o'clock；half past seven 是七點半；a quarter past eight 是八點十五分；a quarter to nine 是八點四十五分。也可以直接唸數字：seven thirty。",
+   "陷阱：What time is it? 問「現在幾點」；What day is it today? 問「星期幾」；問日期要說 What's the date today?，三個不要搞混。"],
+  ex:[
+   ["I get up at six thirty.","我六點半起床。","幾點幾分用 at。"],
+   ["We have music class on Wednesday.","我們星期三有音樂課。","星期幾用 on。"],
+   ["She takes a shower in the evening.","她晚上洗澡。","一天中的時段用 in the evening。"],
+   ["My dad goes jogging on Sunday morning.","我爸爸星期天早上去慢跑。","有星期幾的早上，要用 on，不用 in。"],
+   ["What time is it? — It's a quarter past nine.","現在幾點？——九點十五分。","a quarter past nine 是九點過十五分。"]]}
+];
+
+/* 文法測驗：[題目, [選項 x4], 正確答案索引, 解析, 文法編號] */
+const J1_1_3_QUIZ = [
+ ["I ___ up at six every morning.",["get","gets","am get","getting"],0,"主詞是 I，現在簡單式動詞用原形 get。","g1"],
+ ["We ___ to school on Saturday.",["doesn't go","don't go","aren't go","not go"],1,"主詞 We 的否定用 don't + 原形動詞 go。","g1"],
+ ["___ you eat breakfast at home? — Yes, I do.",["Are","Does","Do","Is"],2,"一般動詞 eat 的疑問句，主詞是 you，用 Do 開頭。","g1"],
+ ["Do they walk to school? — No, ___.",["they don't","they aren't","they doesn't","I don't"],0,"Do 開頭的問句，否定簡答用 don't；問 they 就用 they 回答。","g1"],
+ ["哪一句正確？",["I am get up at seven.","I not like math.","I don't likes math.","I don't like math."],3,"一般動詞的否定用 don't + 原形動詞。不能同時用 am 和 get，也不能只加 not。","g1"],
+ ["What do you ___ after school? — I play basketball.",["do","does","are","doing"],0,"第一個 do 是助動詞，第二個 do 是一般動詞「做」，用原形 do。","g1"],
+ ["My friends and I ___ lunch together.",["eats","am eat","is eat","eat"],3,"My friends and I 等於 we，動詞用原形 eat。","g1"],
+ ["Do you take a shower at night? — ___",["Yes, I am.","Yes, I take.","Yes, I do.","Yes, you do."],2,"Do 開頭的問句用 do 回答；問「你」用「我」回答：Yes, I do.。","g1"],
+ ["Tom and Amy ___ TV after dinner.",["watches","watch","watching","is watch"],1,"Tom and Amy 是兩個人，是複數，動詞用原形 watch，不加 es。","g1"],
+ ["My father ___ the newspaper every morning.",["read","reades","is read","reads"],3,"My father 是第三人稱單數，read 直接加 s。","g2"],
+ ["She ___ TV after dinner.",["watchs","watch","watches","watchies"],2,"watch 是 ch 結尾，第三人稱單數加 es：watches。","g2"],
+ ["Ken ___ English every day.",["studys","studies","study","studyes"],1,"study 是子音 d + y 結尾，要把 y 改成 i 再加 es：studies。","g2"],
+ ["Amy ___ a sandwich for breakfast.",["have","haves","has","having"],2,"have 的第三人稱單數是 has，不是 haves。","g2"],
+ ["He ___ go to bed late.",["don't","doesn't","isn't","not"],1,"主詞 He 是第三人稱單數，否定用 doesn't + 原形動詞。","g2"],
+ ["___ your sister get up early? — Yes, she does.",["Do","Is","Are","Does"],3,"主詞 your sister 是第三人稱單數，疑問句用 Does。","g2"],
+ ["哪一句正確？",["Does she has a cat?","He doesn't goes to school.","She doesn't eat breakfast.","Does he likes math?"],2,"用了 does 或 doesn't，後面的動詞要用原形：doesn't eat。其他三句都多加了 s。","g2"],
+ ["My little brother ___ his face every morning.",["washs","wash","washes","washies"],2,"wash 是 sh 結尾，第三人稱單數加 es：washes。","g2"],
+ ["The bus ___ at seven twenty.",["come","comes","coming","is come"],1,"The bus 是一個東西，是第三人稱單數，come 加 s。","g2"],
+ ["She is ___ happy.",["always","always is","is always","always be"],0,"題目已經有 is，頻率副詞放在 be 動詞後面：She is always happy.。","g3"],
+ ["哪一句的頻率副詞位置正確？",["I get always up at six.","I always get up at six.","Always I get up at six.","I get up at six always."],1,"頻率副詞放在一般動詞前面：I always get up at six.。","g3"],
+ ["He ___ late for school.",["never is","never be","don't never","is never"],3,"遇到 be 動詞，never 放在 is 後面：He is never late.。","g3"],
+ ["My mom ___ breakfast.",["never skip","don't never skip","never skips","skips never"],2,"never 放在一般動詞前面；主詞 My mom 是單數，動詞還是要加 s：never skips。","g3"],
+ ["I go swimming on Saturday and Sunday every week. I ___ go swimming on weekends.",["never","seldom","sometimes","always"],3,"每個週末都去，就是 100%，用 always。","g3"],
+ ["___ do you go to the library? — Twice a week.",["How often","What time","What day","How many"],0,"回答 twice a week（一週兩次）是頻率，問句要用 How often。","g3"],
+ ["「我很少看電視。」正確的英文是？",["I don't seldom watch TV.","I seldom watch TV.","I watch seldom TV.","I seldom watches TV."],1,"seldom 已經有否定的意思，不再加 don't；主詞 I 用原形 watch。","g3"],
+ ["哪一個頻率最高？",["often","sometimes","usually","seldom"],2,"頻率由高到低：always > usually > often > sometimes > seldom > never。","g3"],
+ ["Do you ___ eat snacks? — No, I seldom eat snacks.",["often","seldom","never","doesn't"],0,"疑問句裡頻率副詞放在主詞後面：Do you often eat snacks?。回答說很少吃，所以問「常常」最合理。","g3"],
+ ["I get up ___ six thirty.",["in","on","—","at"],3,"幾點幾分用 at：at six thirty。","g4"],
+ ["We have P.E. ___ Friday.",["on","in","at","—"],0,"星期幾用 on：on Friday。","g4"],
+ ["My mom takes a walk ___ the evening.",["at","on","in","—"],2,"一天中的時段用 in：in the evening。","g4"],
+ ["I watch TV ___ Sunday morning.",["in","at","—","on"],3,"有星期幾的早上要用 on：on Sunday morning，不用 in。","g4"],
+ ["I brush my teeth ___ every night.",["at","—","in","on"],1,"every 前面不用介系詞：every night。","g4"],
+ ["___ is it? — It's half past seven.",["What day","How often","What time","What date"],2,"回答的是幾點，所以問 What time is it?。","g4"],
+ ["What day is it today? — ___",["It's Monday.","It's ten o'clock.","It's sunny.","Yes, it is."],0,"What day 問星期幾，要回答星期：It's Monday.。","g4"],
+ ["「八點四十五分」可以怎麼說？",["a quarter past eight","half past eight","a quarter to nine","a quarter to eight"],2,"八點四十五分還差十五分到九點，所以是 a quarter to nine。a quarter past eight 是八點十五分。","g4"],
+ ["哪一句正確？",["I go to bed in night.","I go to bed at night.","I go to bed on night.","I go to bed in the night."],1,"「在晚上」是固定說法 at night，不加 the。","g4"]
+];
+
+/* =========================================================
+   上課模式腳本（安安老師）
+   say：老師講的話，{ } 裡面用英文語音唸
+   board：黑板內容 [英文, [要標亮的字], 是否為錯誤示範]
+   chant：口訣
+   ask：隨堂提問，答錯會有針對性的回饋，再給一題 again 練習
+   ========================================================= */
+const J1_1_3_CLASS = {
+g1:[
+ {say:"同學好！我是安安老師。期末考第一課，我們要學怎麼說「每天都在做的事」。先想想看，你每天早上做什麼？起床、刷牙、吃早餐、去上學，對吧？", board:[["get up → brush my teeth → eat breakfast → go to school",["get up","brush my teeth","eat breakfast","go to school"]]]},
+ {say:"這些每天重複的習慣，英文用「現在簡單式」。主詞是 {I}、{you}、{we}、{they} 的時候，超簡單，動詞直接用原形就好！", board:[["I get up at six.",["I","get up"]],["We go to school at seven.",["We","go"]],["They eat lunch at noon.",["They","eat"]]]},
+ {say:"口訣先記起來！", chant:"天天做的事，現在簡單式；I、you、we、they，動詞原形就可以！"},
+ {say:"注意一個超常見的錯誤！上一次段考學了 be 動詞，很多同學就說 {I am get up at six.}。一個句子裡，be 動詞和一般動詞不能同時當主角喔！", board:[["I am get up at six.",[],true],["I get up at six.",["get up"]]]},
+ {ask:{say:"換你選選看！", q:"「我每天走路上學。」英文要怎麼說？", opts:["I am walk to school every day.","I walk to school every day.","I walks to school every day."], ans:1,
+   ok:"太棒了！主詞 I，動詞用原形 walk，不需要 am。",
+   bad:{0:"小心！walk 已經是動詞了，前面不用再加 am。",2:"主詞是 I，動詞用原形 walk，不用加 s 喔。"},
+   again:{q:"「我們晚上看電視。」英文要怎麼說？", opts:["We watch TV at night.","We are watch TV at night.","We watches TV at night."], ans:0, exp:"主詞 We，動詞用原形 watch，不加 are，也不加 es。"}}},
+ {say:"再來是否定句。一般動詞不能直接加 not，要請助動詞 {do} 來幫忙。do not 縮寫成 {don't}，放在動詞前面：{I don't watch TV.}", board:[["I not watch TV.",[],true],["I don't watch TV.",["don't"]],["We don't go to school on Sunday.",["don't"]]]},
+ {say:"口訣第二句！", chant:"一般動詞說不要，don't 出來幫忙到！"},
+ {ask:{q:"「他們星期六不上學。」They ___ go to school on Saturday.", opts:["aren't","don't","not"], ans:1,
+   ok:"正確！一般動詞 go 的否定，要用 don't。",
+   bad:{0:"aren't 是 be 動詞的否定，go 是一般動詞，要用 don't。",2:"not 不能單獨放在一般動詞前面，要用 don't。"},
+   again:{q:"「我不喝牛奶。」I ___ drink milk.", opts:["don't","am not","not"], ans:0, exp:"一般動詞 drink 的否定用 don't。"}}},
+ {say:"疑問句也是請 {Do} 來幫忙！把 Do 放在句首，動詞還是原形：{Do you eat breakfast?} 回答用 {Yes, I do.} 或 {No, I don't.}", board:[["You eat breakfast.",["eat"]],["Do you eat breakfast?",["Do"]],["Yes, I do. / No, I don't.",["do","don't"]]]},
+ {ask:{q:"Do you take a shower at night? — Yes, ___", opts:["I am.","I do.","I take."], ans:1,
+   ok:"讚！Do 問就用 do 答：Yes, I do.。",
+   bad:{0:"問句是用 Do 問的，不是 Are，所以要用 do 回答。",2:"簡答不重複動詞，用 do 代替就好：Yes, I do.。"},
+   again:{q:"Do they like math? — No, ___", opts:["they don't.","they aren't.","they not."], ans:0, exp:"Do 問就用 don't 答：No, they don't.。"}}},
+ {say:"最後一個小魔術：do 也可以當一般動詞「做」！{What do you do after school?} 第一個 do 是幫忙問問題的助動詞，第二個 do 是「做」，兩個都不能少。", board:[["What do you do after school?",["do","do"]],["I do my homework.",["do"]]]},
+ {ask:{say:"最後一題挑戰！", q:"What do you ___ on Sunday? — I visit my grandma.", opts:["do","are","does"], ans:0,
+   ok:"太強了！第二個 do 是「做」，主詞 you 用原形 do。",
+   bad:{1:"are 是 be 動詞，這裡要問「做」什麼，用 do。",2:"主詞是 you，不用 does，用原形 do。"},
+   again:{q:"What ___ they do in the evening?", opts:["do","are","does"], ans:0, exp:"主詞 they，疑問句用助動詞 do。"}}},
+ {say:"第一課過關！複習口訣：天天做的事，現在簡單式；I、you、we、they，動詞原形就可以。一般動詞說不要，don't 出來幫忙到。下一課要挑戰最常考的「he、she、it 要加 s」！", end:true}
+],
+g2:[
+ {say:"同學好！今天要學國一最常考、也最容易錯的文法：第三人稱單數！先看黑板，你發現哪裡不一樣嗎？", board:[["I get up at six.",["get"]],["She gets up at six.",["gets"]]]},
+ {say:"沒錯！主詞是 {she} 的時候，get 多了一個 s，變成 {gets}。主詞是 he、she、it，或是一個人、一個東西的時候，動詞就要加 s。這就叫「第三人稱單數」。", board:[["He gets up early.",["He","gets"]],["My mom reads the newspaper.",["My mom","reads"]],["The bus comes at seven.",["The bus","comes"]]]},
+ {say:"記住這個口訣，考試不會錯！", chant:"他她它，一個人，動詞後面加個 s！"},
+ {ask:{q:"My father ___ TV after dinner.", opts:["watch","watches","watchs"], ans:1,
+   ok:"答對！My father 是 he，watch 是 ch 結尾，要加 es。",
+   bad:{0:"My father 是一個人，第三人稱單數，動詞要變化喔。",2:"watch 是 ch 結尾，不能只加 s，要加 es：watches。"},
+   again:{q:"Amy ___ her face every morning.", opts:["wash","washs","washes"], ans:2, exp:"wash 是 sh 結尾，加 es：washes。"}}},
+ {say:"加 s 還是加 es？看字尾！s、x、ch、sh、o 結尾的字，要加 {es}：{watches}、{washes}、{brushes}、{goes}、{does}。", board:[["watch → watches",["es"]],["brush → brushes",["es"]],["go → goes   do → does",["es"]]]},
+ {say:"這五個字尾有口訣，唸出來像在講故事！", chant:"s、x、ch、sh，加上 o，通通加 es！"},
+ {say:"再來是 y 結尾的字。如果 y 前面是子音，要把 y 改成 i 再加 es：{study} 變 {studies}，{try} 變 {tries}。如果 y 前面是母音，直接加 s：{play} 變 {plays}，{enjoy} 變 {enjoys}。", board:[["study → studies   try → tries",["ies"]],["play → plays   enjoy → enjoys",["ys"]]]},
+ {say:"還有一個特別的：{have} 不是加 s，而是變成 {has}！{She has breakfast at seven.}", board:[["She haves breakfast.",[],true],["She has breakfast.",["has"]]]},
+ {ask:{q:"Ken ___ math every day.", opts:["studys","studies","study"], ans:1,
+   ok:"好棒！study 是子音 d + y 結尾，y 改 i 加 es。",
+   bad:{0:"y 前面是子音 d，不能直接加 s，要改成 ies。",2:"Ken 是一個人，動詞要加 es 喔：studies。"},
+   again:{q:"He ___ a cat.", opts:["have","has","haves"], ans:1, exp:"have 的第三人稱單數是 has。"}}},
+ {say:"第三人稱單數的否定和疑問，請 {does} 和 {doesn't} 來幫忙。重點來了：does 已經把 s 拿走了，所以後面的動詞要變回原形！", board:[["He doesn't goes to school.",[],true],["He doesn't go to school.",["doesn't","go"]],["Does she like milk?",["Does","like"]]]},
+ {say:"口訣：does 拿走 s，動詞變回原形！", chant:"does 一出現，s 就被拿走，動詞乖乖變原形！"},
+ {ask:{q:"Does your brother ___ up early?", opts:["gets","get","getting"], ans:1,
+   ok:"完全正確！Does 已經拿走 s 了，後面用原形 get。",
+   bad:{0:"Does 把 s 拿走了，get 不能再加 s。",2:"Does 後面要接原形動詞 get。"},
+   again:{q:"She doesn't ___ breakfast.", opts:["has","have","haves"], ans:1, exp:"doesn't 後面要用原形 have。"}}},
+ {ask:{say:"最後一題，小心陷阱！", q:"Tom and Amy ___ to school by bus.", opts:["goes","go","does go"], ans:1,
+   ok:"太厲害了！Tom and Amy 是兩個人，是複數，動詞不加 es。",
+   bad:{0:"Tom 和 Amy 加起來是兩個人，等於 they，不是第三人稱單數喔。",2:"這是肯定句，不需要 does；而且兩個人要用原形 go。"},
+   again:{q:"My parents ___ coffee every morning.", opts:["drinks","drink","drinkes"], ans:1, exp:"my parents 是兩個人，動詞用原形 drink。"}}},
+ {say:"第三人稱單數過關！複習三個口訣：他她它，一個人，動詞後面加個 s；s、x、ch、sh，加上 o，通通加 es；does 一出現，s 就被拿走，動詞乖乖變原形。下一課學「多常做」！", end:true}
+],
+g3:[
+ {say:"同學好！你多常吃早餐？每天？有時候？從來不吃？今天要學說「多常」的頻率副詞！先看黑板上的頻率溫度計。", board:[["always 100%",["always"]],["usually 80%",["usually"]],["often 60%",["often"]],["sometimes 40%",["sometimes"]],["seldom 10%",["seldom"]],["never 0%",["never"]]]},
+ {say:"從最多到最少：{always} 總是、{usually} 通常、{often} 常常、{sometimes} 有時候、{seldom} 很少、{never} 從不。跟著老師唸一遍！", chant:"always 一百、usually 八十、often 六十、sometimes 四十、seldom 一點點、never 是零！"},
+ {ask:{q:"「我有時候走路上學。」要用哪一個頻率副詞？", opts:["always","sometimes","never"], ans:1,
+   ok:"對！有時候就是 sometimes。",
+   bad:{0:"always 是「總是」，每天都走才用 always。",2:"never 是「從不」，意思剛好相反喔。"},
+   again:{q:"「她從不喝咖啡。」要用哪一個頻率副詞？", opts:["never","often","usually"], ans:0, exp:"從不就是 never。"}}},
+ {say:"頻率副詞最常考的是「位置」！遇到一般動詞，放在動詞前面：{I always get up at six.}", board:[["I always get up at six.",["always","get up"]],["I get always up at six.",[],true]]},
+ {say:"遇到 be 動詞，就放在 be 動詞後面：{She is always happy.}", board:[["She is always happy.",["is","always"]],["She always is happy.",[],true]]},
+ {say:"口訣一定要背起來！", chant:"be 動詞後，一般動詞前，頻率副詞站中間！"},
+ {ask:{q:"哪一句位置正確？", opts:["He is often late.","He often is late.","He is late often always."], ans:0,
+   ok:"讚！遇到 be 動詞 is，often 放在後面。",
+   bad:{1:"is 是 be 動詞，頻率副詞要放在 be 動詞後面：He is often late.。",2:"頻率副詞要放在 be 動詞後面，而且一句只要一個就好。"},
+   again:{q:"哪一句位置正確？", opts:["We play usually games.","We usually play games.","We usually are play games."], ans:1, exp:"一般動詞 play 前面放 usually。"}}},
+ {say:"小心陷阱！加了頻率副詞，第三人稱單數的動詞還是要加 s：{He often watches TV.} 頻率副詞不會把 s 吃掉喔。", board:[["He often watches TV.",["often","watches"]],["He often watch TV.",[],true]]},
+ {say:"另一個陷阱：{never} 和 {seldom} 本身就有否定的意思，不能再加 don't。說 {I never eat snacks.}，不說 I don't never eat snacks.。", board:[["I never eat snacks.",["never"]],["I don't never eat snacks.",[],true]]},
+ {ask:{q:"My mom ___ coffee.", opts:["never drink","don't never drink","never drinks"], ans:2,
+   ok:"太棒了！never 放在動詞前，主詞 My mom 是單數，drink 還是要加 s。",
+   bad:{0:"位置對了！但 My mom 是第三人稱單數，drink 要加 s。",1:"never 已經是否定了，不能再加 don't。"},
+   again:{q:"Ben ___ late for school.", opts:["is seldom","seldom is","doesn't seldom"], ans:0, exp:"be 動詞 is 後面放 seldom。"}}},
+ {say:"最後，問「多久一次」要用 {How often}！{How often do you take a shower?} 可以用頻率副詞回答，也可以說 {every day}、{once a week} 一週一次、{twice a week} 一週兩次、{three times a week} 一週三次。", board:[["How often do you take a shower?",["How often"]],["Every day. / Once a week. / Twice a week.",["Every day","Once a week","Twice a week"]]]},
+ {ask:{say:"最後一題！", q:"___ does Amy go swimming? — Twice a week.", opts:["What time","How often","What day"], ans:1,
+   ok:"完全正確！回答是一週兩次，問頻率用 How often。",
+   bad:{0:"What time 問幾點，要回答時刻，例如 At six.。",2:"What day 問星期幾，要回答星期，例如 On Monday.。"},
+   again:{q:"How often do you eat breakfast? — ___", opts:["Every day.","At seven.","On Monday."], ans:0, exp:"How often 問頻率，回答 Every day.。"}}},
+ {say:"頻率副詞過關！記住口訣：be 動詞後，一般動詞前，頻率副詞站中間。never、seldom 不再加 don't，三單動詞還是要加 s。下一課學時間介系詞！", end:true}
+],
+g4:[
+ {say:"同學好！今天要學三個小小的時間介系詞：{at}、{on}、{in}。它們很小，可是考試超愛考！先看黑板。", board:[["at seven o'clock",["at"]],["on Monday",["on"]],["in the morning",["in"]]]},
+ {say:"{at} 用在一個「點」，也就是幾點幾分：{at six}、{at half past seven}。還有 {at noon} 中午、{at night} 晚上。", board:[["I get up at six.",["at six"]],["We eat lunch at noon.",["at noon"]],["I take a shower at night.",["at night"]]]},
+ {say:"{on} 用在「哪一天」，也就是星期幾：{on Monday}、{on Friday}、{on weekends}。{in} 用在一天裡比較長的一段：{in the morning}、{in the afternoon}、{in the evening}。", board:[["on Monday   on weekends",["on"]],["in the morning   in the afternoon   in the evening",["in"]]]},
+ {say:"三個介系詞的口訣！", chant:"幾點用 at，星期用 on，早上下午晚上用 in！"},
+ {ask:{q:"We have music class ___ Tuesday.", opts:["at","on","in"], ans:1,
+   ok:"答對！星期幾用 on。",
+   bad:{0:"at 是用在幾點幾分，星期幾要用 on。",2:"in 用在早上、下午、晚上，星期幾要用 on。"},
+   again:{q:"I eat breakfast ___ seven o'clock.", opts:["on","in","at"], ans:2, exp:"幾點用 at。"}}},
+ {say:"大陷阱來了！如果早上、下午前面有星期幾，要聽星期的，改用 {on}：{on Sunday morning}，不說 in Sunday morning。", board:[["in Sunday morning",[],true],["on Sunday morning",["on"]]]},
+ {say:"還有，at night 是固定說法，不能說 in the night。另外，看到 {every}、{this}、{next}、{today}，前面什麼介系詞都不加：{every day}、{this morning}、{next week}。", chant:"看到 every、this、next，介系詞通通放假！", board:[["every day   this morning   next week",["every","this","next"]],["on every Sunday",[],true]]},
+ {ask:{q:"My dad goes jogging ___ Saturday morning.", opts:["in","on","at"], ans:1,
+   ok:"太棒了！有星期幾的早上，要用 on。",
+   bad:{0:"雖然有 morning，可是前面有 Saturday，要聽星期的，用 on。",2:"at 用在幾點，這裡是星期六早上，用 on。"},
+   again:{q:"I do my homework ___ every evening.", opts:["in","on","不用加"], ans:2, exp:"every 前面不加介系詞：every evening。"}}},
+ {say:"接下來學報時！問「現在幾點？」用 {What time is it?} 回答用 {It's} 加時間。整點用 {o'clock}：{It's seven o'clock.}", board:[["What time is it?",["What time"]],["It's seven o'clock.",["o'clock"]]]},
+ {say:"{half past seven} 是七點半，past 是「過了」。{a quarter} 是一刻，十五分鐘：{a quarter past eight} 是八點十五分；{a quarter to nine} 是差十五分九點，也就是八點四十五分。也可以直接唸數字：{seven thirty}、{eight fifteen}。", board:[["7:30 half past seven",["half past"]],["8:15 a quarter past eight",["a quarter past"]],["8:45 a quarter to nine",["a quarter to"]]]},
+ {ask:{q:"6:30 用英文怎麼說？", opts:["half past six","half to six","a quarter past six"], ans:0,
+   ok:"好棒！六點過半小時，就是 half past six。",
+   bad:{1:"to 是「差」，半小時通常用 past：half past six。",2:"a quarter 是十五分鐘，6:15 才是 a quarter past six。"},
+   again:{q:"9:45 用英文怎麼說？", opts:["a quarter past nine","a quarter to ten","half past nine"], ans:1, exp:"差十五分十點，就是 a quarter to ten。"}}},
+ {say:"最後，問「今天星期幾？」用 {What day is it today?} 回答 {It's Friday.}。不要和 What time 搞混：What time 問幾點，What day 問星期幾。", board:[["What day is it today? — It's Friday.",["What day","Friday"]],["What time is it? — It's ten o'clock.",["What time","ten o'clock"]]]},
+ {ask:{say:"最後一題挑戰！", q:"What day is it today? — ___", opts:["It's ten o'clock.","It's Wednesday.","At night."], ans:1,
+   ok:"完全正確！What day 問星期幾，回答 It's Wednesday.。",
+   bad:{0:"這是回答 What time（幾點）的喔，What day 要回答星期。",2:"At night 是回答「什麼時候」，What day 要回答星期幾。"},
+   again:{q:"What time do you get up? — ___", opts:["On Monday.","At six thirty.","In the morning."], ans:1, exp:"What time 問幾點，回答 At six thirty.。"}}},
+ {say:"時間介系詞過關！口訣：幾點用 at，星期用 on，早上下午晚上用 in；星期幾的早上用 on；看到 every、this、next，介系詞通通放假！期末考加油，快去做文法測驗吧！", end:true}
+]};
+
+Object.assign(PH, {
+  "get up":"g:c e:short_e t:c _:space u:short_u p:c", "wake up":"w:c a:a_e k:c e:silent_e _:space u:short_u p:c",
+  "brush my teeth":"br:blend u:short_u sh:sh _:space m:c y:y_ai _:space t:c ee:ee th:th",
+  "wash my face":"w:c a:a_ah sh:sh _:space m:c y:y_ai _:space f:c a:a_e c:soft_c e:silent_e",
+  "take a shower":"t:c a:a_e k:c e:silent_e _:space a:schwa _:space sh:sh ow:ow_ou er:er",
+  "get dressed":"g:c e:short_e t:c _:space dr:blend e:short_e ss:double ed:ed_t",
+  "go to school":"g:c o:long_o _:space t:c o:exc _:space s:c ch:ch_k oo:oo_l l:c",
+  "come home":"c:c o:o_uh m:c e:silent _:space h:c o:o_e m:c e:silent_e",
+  "do homework":"d:c o:exc _:space h:c o:o_e m:c e:silent_e w:c or:schwa_r k:c",
+  "go to bed":"g:c o:long_o _:space t:c o:exc _:space b:c e:short_e d:c",
+  watch:"w:c a:a_ah tch:tch", catch:"c:c a:short_a tch:tch", study:"st:blend u:short_u d:c y:y_i", read:"r:c ea:ea d:c",
+  walk:"w:c al:exc k:c", sleep:"sl:blend ee:ee p:c", enjoy:"e:schwa n:c j:c oy:oy", join:"j:c oi:oi n:c", try:"tr:blend y:y_ai",
+  time:"t:c i:i_e m:c e:silent_e", "o'clock":"o':schwa cl:blend o:short_o ck:ck", half:"h:c a:short_a l:silent f:c",
+  quarter:"qu:qu ar:exc t:c er:er", past:"p:c a:short_a st:blend", minute:"m:c i:short_i n:c u:schwa t:c e:silent",
+  hour:"h:silent ou:ou r:c", noon:"n:c oo:oo_l n:c", afternoon:"a:short_a f:c t:c er:er n:c oo:oo_l n:c",
+  evening:"e:long_e v:c e:silent n:c i:short_i ng:ng", night:"n:c igh:igh t:c", now:"n:c ow:ow_ou",
+  early:"ear:exc l:c y:y_i", late:"l:c a:a_e t:c e:silent_e", every:"e:short_e v:c e:silent r:c y:y_i",
+  Monday:"M:c o:o_uh n:c d:c ay:ay", Tuesday:"T:c ue:ue s:s_z d:c ay:ay", Wednesday:"W:c e:short_e d:silent n:c e:silent s:s_z d:c ay:ay",
+  Thursday:"Th:th ur:ur s:s_z d:c ay:ay", Friday:"Fr:blend i:long_i d:c ay:ay", Saturday:"S:c a:short_a t:c ur:ur d:c ay:ay",
+  Sunday:"S:c u:short_u n:c d:c ay:ay", week:"w:c ee:ee k:c", weekend:"w:c ee:ee k:c e:short_e n:c d:c", today:"t:c o:schwa d:c ay:ay",
+  math:"m:c a:short_a th:th", science:"s:c c:silent i:long_i e:schwa n:c c:soft_c e:silent",
+  history:"h:c i:short_i s:c t:c or:schwa_r y:y_i", geography:"g:soft_g e:long_e o:short_o g:c r:c a:schwa ph:ph y:y_i",
+  music:"m:c u:long_u s:s_z i:short_i c:c", art:"ar:ar t:c", Chinese:"Ch:ch i:long_i n:c e:long_e s:s_z e:silent_e",
+  subject:"s:c u:short_u b:c j:c e:short_e c:c t:c",
+  breakfast:"br:blend ea:exc k:c f:c a:schwa st:blend", lunch:"l:c u:short_u n:c ch:ch", dinner:"d:c i:short_i nn:double er:er",
+  toast:"t:c oa:oa st:blend", milk:"m:c i:short_i l:c k:c", bread:"br:blend ea:exc d:c",
+  sandwich:"s:c a:short_a n:c d:c w:c i:short_i ch:ch", juice:"j:c ui:exc c:soft_c e:silent", "soy milk":"s:c oy:oy _:space m:c i:short_i l:c k:c",
+  pie:"p:c ie:ie", snack:"sn:blend a:short_a ck:ck",
+  always:"al:all w:c ay:ay s:s_z", usually:"u:long_u s:exc u:schwa a:schwa ll:double y:y_i", often:"o:short_o f:c t:silent e:schwa n:c",
+  sometimes:"s:c o:o_uh m:c e:silent t:c i:i_e m:c e:silent_e s:s_z", seldom:"s:c e:short_e l:c d:c o:schwa m:c",
+  never:"n:c e:short_e v:c er:er", why:"wh:wh y:y_ai"
+});
+Object.assign(EXC_NOTE, {
+  "go to school":"to 的 o 唸 /uː/（說快時弱讀成 /tə/），不照一般規則，要特別記。school 的 ch 唸 /k/。",
+  "do homework":"do 的 o 唸 /uː/，像「嘟」，不唸長 o。to、do、two 都是這樣唸。",
+  "go to bed":"to 的 o 唸 /uː/（說快時弱讀成 /tə/），不照一般規則，要特別記。",
+  walk:"al 在 walk、talk 裡唸 /ɔ/，l 不發音：w‧al‧k。和 work（工作）不一樣喔。",
+  quarter:"qu 後面的 ar 不唸「啊兒」，而是唸 /ɔr/「歐兒」，像 water 前面有 w 一樣。",
+  early:"ear 一般唸 /ɪr/（像 ear 耳朵），但在 early、learn 裡唸 /ɝ/，像 er。",
+  breakfast:"ea 在 breakfast 裡唸短 e /ɛ/，不唸長長的「一」。breakfast 是 break（打破）+ fast（禁食）：打破一整晚沒吃東西的狀態。",
+  bread:"ea 在 bread、head 裡唸短 e /ɛ/，不唸長長的「一」，要特別記。",
+  juice:"ui 在 juice、fruit 裡唸長長的「嗚」/uː/。",
+  usually:"usually 中間的 s 唸 /ʒ/，像「如」輕輕的音，和 television 的 s 一樣。"
+});
+/* ---------- 4 堂自然發音課（安安老師） ---------- */
+const J1_1_3_PHONICS = [
+  {id:"p1", title:"ou / ow：被嚇到的「啊嗚」/aʊ/"},
+  {id:"p2", title:"oi / oy：「歐一」/ɔɪ/ 雙胞胎"},
+  {id:"p3", title:"長 i 家族：igh / ie / 字尾 y"},
+  {id:"p4", title:"tch 和 ch、ck 和 k：什麼時候用哪個"}
+];
+const J1_1_3_PHONICS_CLASS = {
+p1:[
+ {say:"同學好！今天的發音課，先請你做一個動作：假裝被嚇到，嘴巴張大說「啊——嗚」！很好，這就是今天的主角 /aʊ/。英文用兩組字母來拼它：<<ou>> 和 <<ow>>。", board:[["ou   ow",["ou","ow"],false,true]]},
+ {say:"先看 <<ou>>：{house} 房子、{out} 出去、{mouse} 老鼠，還有我們這一課的 {hour} 小時。注意 hour 的 h 不發音，所以要說 {an hour}。", board:[["house   out   mouse",["ou","ou","ou"],false,true],["hour",["ou"],false,true]]},
+ {say:"再來是 <<ow>>：{how} 怎麼、{now} 現在、{down} 往下、{cow} 牛，還有 take a {shower} 洗澡！", board:[["how   now   down   cow",["ow","ow","ow","ow"],false,true],["shower",["ow"],false,true]]},
+ {say:"跟著老師一起喊口訣！", chant:"ou、ow，啊嗚啊嗚，How now, brown cow！"},
+ {ask:{say:"聽聽看！", q:"n ＿＿（現在）最後要填？", opts:["ow","oa","oo"], ans:0,
+   ok:"對！now 是 n + ow，唸 /naʊ/。",
+   bad:{1:"oa 唸長 o「歐」，像 toast。現在是 now，要用 ow。",2:"oo 唸「嗚」，像 noon 中午。現在是 now。"},
+   again:{q:"h ＿＿（怎麼）最後要填？", opts:["oo","ow","ew"], ans:1, exp:"how 是 h + ow，唸 /haʊ/。"}}},
+ {say:"那什麼時候用 ou，什麼時候用 ow？有一個好用的小規則：字尾常用 <<ow>>，像 {now}、{how}；字的中間常用 <<ou>>，像 {house}、{out}。不過 ow 後面接 n、l、er 時也會在中間，像 {down}、{shower}。", board:[["字尾：now   how   cow",["ow","ow","ow"],false,true],["中間：house   out   mouth",["ou","ou","ou"],false,true],["例外：down   shower",["ow","ow"],false,true]]},
+ {ask:{q:"h ＿＿ se（房子）中間要填？", opts:["ow","ou","oa"], ans:1,
+   ok:"讚！字中間常用 ou：house。",
+   bad:{0:"ow 比較常出現在字尾，房子的中間要用 ou。",2:"oa 唸長 o，像 boat，不是 /aʊ/。"},
+   again:{q:"＿＿ t（出去）開頭要填？", opts:["ou","ow","oo"], ans:0, exp:"out 用 ou 開頭。"}}},
+ {say:"陷阱來了！<<ow>> 還有另一個唸法：長 o /oʊ/。上學期學過的 {yellow}，還有 {snow}、{know}、{slow}，ow 都唸「歐」。所以看到 ow，兩種唸法都要試試看！", board:[["yellow   snow   slow",["ow","ow","ow"],false,true],["now   how   cow",["ow","ow","ow"],false,true]]},
+ {say:"這個陷阱的口訣！", chant:"ow 有兩張臉，一張啊嗚，一張歐！"},
+ {ask:{q:"下面哪一個字的 ow 唸 /aʊ/「啊嗚」？", opts:["yellow","slow","shower"], ans:2,
+   ok:"太棒了！shower 的 ow 唸 /aʊ/。",
+   bad:{0:"yellow 的 ow 唸長 o「歐」。",1:"slow 的 ow 唸長 o「歐」。"},
+   again:{q:"下面哪一個字的 ou 唸 /aʊ/？", opts:["hour","you","four"], ans:0, exp:"hour 唸 /aʊr/；you、four 的 ou 是例外唸法。"}}},
+ {say:"最後提醒：ou 也有幾個例外，像 {you}、{four}、{soup}，就要整個字背起來。單字卡背面的拼字拆解會幫你標出來喔！", board:[["you   four   soup",["ou","ou","ou"],false,true]]},
+ {ask:{say:"最後一題！", q:"聽到 shower（淋浴），拼法是？", opts:["shouer","shower","shoer"], ans:1,
+   ok:"完美！sh + ow + er。",
+   bad:{0:"這個字的 /aʊ/ 用 ow 拼：shower。",2:"少了 w 喔！/aʊ/ 要用 ow 兩個字母。"},
+   again:{q:"聽到 hour（小時），拼法是？", opts:["our","hower","hour"], ans:2, exp:"hour 開頭有不發音的 h，中間是 ou。our（我們的）唸法一樣，但沒有 h。"}}},
+ {say:"ou、ow 過關！口訣：ou、ow，啊嗚啊嗚；字尾常用 ow，中間常用 ou；ow 有兩張臉，一張啊嗚，一張歐。下一課要認識「歐一」雙胞胎！", end:true}
+],
+p2:[
+ {say:"同學好！上學期我們學過 {boy} 的 <<oy>>，唸 /ɔɪ/，像「歐一」連在一起。今天要介紹它的雙胞胎兄弟：<<oi>>！它們唸起來一模一樣。", board:[["boy",["oy"],false,true],["coin",["oi"],false,true]]},
+ {say:"<<oy>> 的字：{boy} 男孩、{toy} 玩具、{enjoy} 享受，還有台灣人最愛的早餐 {soy milk} 豆漿！", board:[["boy   toy",["oy","oy"],false,true],["enjoy   soy milk",["oy","oy"],false,true]]},
+ {say:"<<oi>> 的字：{join} 加入、{coin} 硬幣、{point} 點、{boil} 煮沸、{noise} 噪音。", board:[["join   coin   point",["oi","oi","oi"],false,true],["boil   noise",["oi","oi"],false,true]]},
+ {say:"雙胞胎怎麼分？看位置！<<oi>> 喜歡待在字的中間，<<oy>> 喜歡站在字的最後面。", board:[["中間：join   coin   boil",["oi","oi","oi"],false,true],["字尾：boy   toy   enjoy",["oy","oy","oy"],false,true]]},
+ {say:"口訣唸三遍！", chant:"oi 在中間，oy 在後面，歐一歐一是雙胞胎！"},
+ {ask:{say:"換你試試看！", q:"j ＿＿ n（加入）中間要填？", opts:["oy","oi","io"], ans:1,
+   ok:"對！在字中間，用 oi：join。",
+   bad:{0:"oy 喜歡站在字尾，這裡在中間，要用 oi。",2:"順序反了！是 o 在前、i 在後：oi。"},
+   again:{q:"c ＿＿ n（硬幣）中間要填？", opts:["oi","oy","ou"], ans:0, exp:"在中間用 oi：coin。"}}},
+ {ask:{q:"enj ＿＿（享受）最後要填？", opts:["oi","oy","ow"], ans:1,
+   ok:"讚！在字尾，用 oy：enjoy。",
+   bad:{0:"oi 喜歡待在中間，字尾的「歐一」要用 oy。",2:"ow 唸「啊嗚」或「歐」，不是「歐一」。"},
+   again:{q:"t ＿＿（玩具）最後要填？", opts:["oy","oi","oe"], ans:0, exp:"字尾用 oy：toy。"}}},
+ {say:"加了尾巴也不怕！{enjoy} 加 s 變成 {enjoys}，oy 還是在原本的位置，不會變成 oi。而且 oy 是母音 o + y，所以第三人稱單數直接加 s，不用改 ies！", board:[["enjoy → enjoys",["oy"],false,true],["study → studies",["ies"],false,true]]},
+ {ask:{q:"She ___ music.（享受）", opts:["enjoies","enjoys","enjoyes"], ans:1,
+   ok:"太棒了！母音 + y 結尾，直接加 s：enjoys。",
+   bad:{0:"y 前面是母音 o，不用改成 ies，直接加 s。",2:"enjoy 不是 s、x、ch、sh、o 結尾，不用加 es。"},
+   again:{q:"He ___ basketball every day.（打）", opts:["plaies","playes","plays"], ans:2, exp:"play 是母音 a + y，直接加 s：plays。"}}},
+ {say:"最後來個繞口令，練習歐一歐一：{The boy enjoys soy milk and joins the club.}", board:[["The boy enjoys soy milk and joins the club.",["oy","oy","oy","oi"],false,true]]},
+ {ask:{say:"最後一題！", q:"聽到 point（點），拼法是？", opts:["poynt","point","pount"], ans:1,
+   ok:"完美！在中間，用 oi：point。",
+   bad:{0:"oy 很少出現在字中間，這裡要用 oi。",2:"ou 唸「啊嗚」，像 out，這裡是「歐一」要用 oi。"},
+   again:{q:"聽到 soy（大豆），拼法是？", opts:["soi","soy","sow"], ans:1, exp:"字尾的「歐一」用 oy：soy。"}}},
+ {say:"oi、oy 雙胞胎過關！口訣：oi 在中間，oy 在後面，歐一歐一是雙胞胎。下一課要認識長 i 家族！", end:true}
+],
+p3:[
+ {say:"同學好！還記得魔法 e 嗎？{time} 的 i 被字尾 e 施了魔法，唸成字母名「I」/aɪ/。今天要認識長 i 家族的另外三位成員：<<igh>>、<<ie>>，還有字尾的 <<y>>！", board:[["time",["i","e"],false,true],["igh   ie   y",["igh","ie","y"],false,true]]},
+ {say:"第一位是 <<igh>>，三個字母只唸一個「I」，g 和 h 都在睡覺不出聲！{night} 晚上、{light} 光、{right} 對的、{high} 高的。", board:[["night   light",["igh","igh"],false,true],["right   high",["igh","igh"],false,true]]},
+ {say:"口訣：", chant:"igh 三兄弟，g 和 h 在睡覺，只有 i 叫「愛」！"},
+ {ask:{q:"n ＿＿＿ t（晚上）中間要填？", opts:["igh","ie","ee"], ans:0,
+   ok:"對！night 是 n + igh + t。",
+   bad:{1:"ie 通常在字尾，像 pie。晚上 night 中間要用 igh。",2:"ee 唸長長的「一」，night 唸「愛」，要用 igh。"},
+   again:{q:"l ＿＿＿ t（光）中間要填？", opts:["ie","igh","ay"], ans:1, exp:"light 是 l + igh + t。"}}},
+ {say:"第二位是 <<ie>>，常站在短字的字尾，唸「I」：{pie} 派、{tie} 領帶、{lie} 躺下。", board:[["pie   tie   lie",["ie","ie","ie"],false,true]]},
+ {say:"第三位是字尾 <<y>>！在只有一個音節的短字裡，字尾 y 唸「I」：{my} 我的、{why} 為什麼、{try} 嘗試、{fly} 飛、{sky} 天空。", board:[["my   why   try",["y","y","y"],false,true],["fly   sky",["y","y"],false,true]]},
+ {say:"等一下！上學期學過 {happy}、{baby} 的字尾 y 唸「一」，怎麼現在又唸「愛」？秘訣在音節：短短一拍的字，y 唸「愛」；兩拍以上的長字，y 唸「一」。", board:[["my   why   try → 愛",["y","y","y"],false,true],["happy   study   early → 一",["y","y","y"],false,true]]},
+ {say:"這個超重要，口訣記起來！", chant:"一拍的 y 唸「愛」，兩拍的 y 唸「一」！"},
+ {ask:{q:"下面哪一個字的 y 唸「愛」/aɪ/？", opts:["study","try","early"], ans:1,
+   ok:"讚！try 只有一拍，字尾 y 唸「愛」。",
+   bad:{0:"study 有兩拍，字尾 y 唸「一」。",2:"early 有兩拍，字尾 y 唸「一」。"},
+   again:{q:"下面哪一個字的 y 唸「一」/i/？", opts:["why","my","history"], ans:2, exp:"history 有三拍，字尾 y 唸「一」。"}}},
+ {say:"順便複習！y 變成 ies 的時候，聲音不會變：{try} 變 {tries}，還是唸「愛」；{study} 變 {studies}，還是唸「一」。", board:[["try → tries",["ies"],false,true],["study → studies",["ies"],false,true]]},
+ {ask:{q:"p ＿＿（派）最後要填？", opts:["ie","igh","y"], ans:0,
+   ok:"對！pie 的「愛」用 ie。",
+   bad:{1:"igh 後面常常還會接 t，像 night、light。派是 pie。",2:"py 不是英文字喔，派要寫 pie。"},
+   again:{q:"wh ＿（為什麼）最後要填？", opts:["ie","igh","y"], ans:2, exp:"why 是 wh + y，一拍的 y 唸「愛」。"}}},
+ {ask:{say:"最後一題！", q:"Fr ＿ day（星期五）中間的「愛」要填？", opts:["i","igh","y"], ans:0,
+   ok:"太厲害了！Friday 的 i 直接唸「愛」。",
+   bad:{1:"Friday 很簡單，只要一個 i 就好。",2:"y 是放在字尾的，中間要用 i。"},
+   again:{q:"t ＿ m e（時間）中間要填？", opts:["y","i","igh"], ans:1, exp:"time 是魔法 e，讓 i 唸「愛」。"}}},
+ {say:"長 i 家族過關！i_e 魔法 e、igh 三兄弟、ie 站字尾、一拍的 y 唸「愛」。下一課要解決拼字大難題：tch 還是 ch？ck 還是 k？", end:true}
+],
+p4:[
+ {say:"同學好！今天要解決一個拼字大難題。聽聽看 {watch} 和 {lunch}，最後都唸 /tʃ/，可是一個拼 <<tch>>，一個拼 <<ch>>，到底差在哪裡？", board:[["watch",["tch"],false,true],["lunch",["ch"],false,true]]},
+ {say:"秘密在前面那個音！<<tch>> 緊緊跟在短母音後面：{catch}、{watch}、{match}、{kitchen}。t 是一個小保鑣，保護前面的短母音。", board:[["catch   match",["a","tch","a","tch"],false,true],["watch   kitchen",["tch","tch"],false,true]]},
+ {say:"如果前面是子音，或是長母音、母音好朋友，就用 <<ch>>：{lunch}、{bench}，前面有 n；{teach}、{beach}，前面有 ea。", board:[["lunch   bench",["n","ch","n","ch"],false,true],["teach   beach",["ea","ch","ea","ch"],false,true]]},
+ {say:"口訣來囉！", chant:"短母音後面 tch，其他時候 ch！"},
+ {ask:{say:"換你試試看！", q:"ca ＿＿＿（接住）最後要填？", opts:["ch","tch","sh"], ans:1,
+   ok:"對！a 是短母音，後面用 tch：catch。",
+   bad:{0:"a 是短母音，ch 前面要加小保鑣 t：tch。",2:"sh 是「噓」的音，接住是 /tʃ/ 的音。"},
+   again:{q:"lun ＿＿（午餐）最後要填？", opts:["tch","ch","ck"], ans:1, exp:"前面是子音 n，用 ch：lunch。"}}},
+ {say:"<<ck>> 和 <<k>> 也是同樣的道理！短母音後面的 /k/ 用 <<ck>>：{snack}、{o'clock}、{black}。前面是子音或母音好朋友，就用 <<k>>：{milk}、{week}、{book}。", board:[["snack   o'clock   black",["ck","ck","ck"],false,true],["milk   week   book",["k","k","k"],false,true]]},
+ {say:"把兩組放在一起看，規則一模一樣！", chant:"短母音後面 tch、ck，其他時候 ch、k！", board:[["catch / lunch",["tch","ch"],false,true],["snack / milk",["ck","k"],false,true]]},
+ {ask:{q:"sna ＿＿（點心）最後要填？", opts:["k","ck","ke"], ans:1,
+   ok:"讚！a 是短母音，後面用 ck：snack。",
+   bad:{0:"短母音 a 後面的 /k/ 要用 ck。",2:"加了 e 會變魔法 e，a 就唸「A」了（snake 蛇）！"},
+   again:{q:"mil ＿（牛奶）最後要填？", opts:["ck","k","c"], ans:1, exp:"前面是子音 l，用 k：milk。"}}},
+ {ask:{q:"wee ＿（星期）最後要填？", opts:["k","ck","ch"], ans:0,
+   ok:"太棒了！ee 是母音好朋友（長音），後面用 k。",
+   bad:{1:"ee 是長音，不是短母音，所以不用 ck，用 k 就好。",2:"ch 唸 /tʃ/，星期 week 結尾是 /k/。"},
+   again:{q:"o'clo ＿＿（點鐘）最後要填？", opts:["k","ck","ke"], ans:1, exp:"o 是短母音，後面用 ck：o'clock。"}}},
+ {say:"有規則就有例外！這幾個常用字是短母音，卻只用 ch：{much}、{such}、{rich}、{which}，還有 {sandwich}。把它們背成一組「ch 例外小隊」！", board:[["much   such   rich   which",["ch","ch","ch","ch"],false,true],["sandwich",["ch"],false,true]]},
+ {say:"再加碼！tch 的字加 es，第三人稱單數或複數都要記得：{watch} 變 {watches}，{catch} 變 {catches}，es 唸 /ɪz/，多一個拍子喔。", board:[["watch → watches",["tch","es"],false,true],["catch → catches",["tch","es"],false,true]]},
+ {ask:{say:"最後一題！", q:"He ___ TV every night.", opts:["watchs","watches","waches"], ans:1,
+   ok:"完美！watch 保留 tch，再加 es：watches。",
+   bad:{0:"tch 結尾的字要加 es，不能只加 s。",2:"小保鑣 t 不見了！要寫 watches。"},
+   again:{q:"She ___ the bus at seven.", opts:["catches","cachs","catchs"], ans:0, exp:"catch 保留 tch，加 es：catches。"}}},
+ {say:"自然發音全部上完了！今天的口訣：短母音後面 tch、ck，其他時候 ch、k；much、such、rich、which 是 ch 例外小隊。快去玩「拼字挑戰」試試身手吧！", end:true}
+]};
+
+/* ---------- 單字插圖（抽象的字用單字陣列第 7 欄的概念卡） ---------- */
+const drop = (x, y, s = 1) => grp(x, y, s, `<path d="M0 -6 C-4 0 -4 4 0 4 C4 4 4 0 0 -6 Z" fill="#60a5fa"/>`);
+const moon = (x, y, s = 1) => grp(x, y, s, `<path d="M0 -14 A14 14 0 1 0 12 7 A11 11 0 1 1 0 -14 Z" fill="#ffd23f"/>`);
+const toastP = (x, y, s = 1) => grp(x, y, s, `<path d="M-16 18 V-6 C-24 -8 -24 -24 -10 -24 C-4 -30 4 -30 10 -24 C24 -24 24 -8 16 -6 V18 Z" fill="#e0a458"/><path d="M-12 14 V-4 C-18 -6 -18 -20 -8 -20 C-3 -25 3 -25 8 -20 C18 -20 18 -6 12 -4 V14 Z" fill="#fde2b0"/>`);
+const glassP = (x, y, s, c) => grp(x, y, s, `<path d="M-12 -22 L12 -22 L9 22 L-9 22 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/><path d="M-11 -10 L11 -10 L9 22 L-9 22 Z" fill="${c}"/>`);
+const noteP = (x, y, s, c) => grp(x, y, s, `<ellipse cx="0" cy="0" rx="5" ry="4" fill="${c}"/><path d="M4.5 0 V-20 Q10 -16 12 -10" stroke="${c}" stroke-width="2.5" fill="none"/>`);
+const tvP = (x, y, s) => grp(x, y, s, `<rect x="-32" y="-23" width="64" height="46" rx="6" fill="#374151"/><rect x="-27" y="-18" width="54" height="36" rx="3" fill="#8fd3ff"/><path d="M-10 23 L-16 32 M10 23 L16 32" stroke="#374151" stroke-width="3" stroke-linecap="round"/>`);
+Object.assign(ILLUS, {
+  "get up": () => svgWrap("#fff2d8", ground() + O.sun(128, 30, .8) + kid(66, {pose:"cheer", mood:"open"}) + O.clock(126, 86, .7)),
+  "wake up": () => svgWrap("#eef3ff", ground("#d6def0") + O.clock(50, 58, 1.2) + txt(50, 22, "RING!", 12, "#ef4444") + kid(112, {s:.9, eyes:"closed", mood:"o"}) + txt(140, 40, "!", 18, "#ef4444")),
+  "brush my teeth": () => svgWrap("#e9f8f4", ground("#cfeee6") + kid(70, {pose:"hold", mood:"open"}) + `<rect x="74" y="58" width="30" height="5" rx="2.5" fill="#5b8def"/><rect x="74" y="53" width="9" height="6" rx="1.5" fill="#fff" stroke="#cbd5e1"/>` + `<circle cx="112" cy="44" r="5" fill="#fff" stroke="#8fd3ff"/><circle cx="124" cy="34" r="3.5" fill="#fff" stroke="#8fd3ff"/><circle cx="118" cy="56" r="3" fill="#fff" stroke="#8fd3ff"/>`),
+  "wash my face": () => svgWrap("#e8f4ff", ground("#d6ecf8") + kid(72, {eyes:"closed", mood:"open"}) + drop(50, 38) + drop(96, 34) + drop(102, 52, .8) + drop(44, 56, .8) + spark(120, 24, .7, "#8fd3ff")),
+  "take a shower": () => svgWrap("#eaf5fb", `<path d="M40 10 H92 V20" stroke="#9ca3af" stroke-width="4" fill="none"/><path d="M78 20 H106 L102 27 H82 Z" fill="#9ca3af"/>` + drop(84, 36) + drop(94, 32) + drop(102, 38) + drop(88, 46, .8) + kid(92, {eyes:"closed", mood:"open"}) + `<circle cx="40" cy="80" r="6" fill="#fff" stroke="#8fd3ff"/><circle cx="32" cy="94" r="4" fill="#fff" stroke="#8fd3ff"/>`),
+  "go to school": () => svgWrap("#e8f4ff", ground() + O.school(108, 86, .85) + kid(38, {pose:"wave", acc:["straps"], mood:"open"}) + O.cloud(40, 22, .6)),
+  "do homework": () => svgWrap("#fdf5ea", O.desk(80, 86, 1.2) + O.openBook(66, 64, .7) + O.pencil(108, 58, .6, 40) + O.papers(118, 76, .45)),
+  watch: () => svgWrap("#f3f0ff", ground("#e6def5") + tvP(110, 52, 1) + O.sun(110, 50, .45) + kid(44, {mood:"open", oc:"#ffb347"})),
+  catch: () => svgWrap("#fff8e1", ground("#e5e7eb") + O.bus(110, 80, .85) + kid(36, {pose:"wave", acc:["straps"], mood:"open"}) + txt(66, 30, "Wait!", 12, "#ef4444")),
+  study: () => svgWrap("#eef3ff", kid(80, {pose:"hold", acc:["glasses"], mood:"smile"}) + O.desk(80, 98, 1) + O.openBook(80, 80, .6) + O.pencil(124, 62, .5, 30)),
+  read: () => svgWrap("#fff6ea", ground() + kid(66, {pose:"hold", mood:"open"}) + O.book(66, 84, .55, "#ef4444") + star(122, 36, 6) + spark(132, 70, .8)),
+  sleep: () => svgWrap("#e9e6fb", ground("#d4cff3") + kid(64, {eyes:"closed", mood:"smile", tilt:-12}) + moon(128, 30, 1) + txt(104, 48, "Z", 18, "#8b5cf6") + txt(116, 64, "z", 13, "#8b5cf6")),
+  time: () => svgWrap("#fff5f5", O.clock(80, 62, 1.8)),
+  "o'clock": () => svgWrap("#eef3ff", O.clock(54, 64, 1.4) + txt(118, 72, "7:00", 22, "#2f6fde")),
+  half: () => svgWrap("#fff2e0", O.orangeHalf(56, 62, 1.6) + txt(120, 76, "½", 40, "#f97316")),
+  quarter: () => svgWrap("#fff7ed", `<circle cx="62" cy="60" r="30" fill="#fde2b0"/><path d="M62 60 L62 30 A30 30 0 0 1 92 60 Z" fill="#f97316"/>` + txt(124, 58, "15", 22, "#ea580c") + txt(124, 76, "min", 12, "#9a3412")),
+  noon: () => svgWrap("#fff7d6", ground() + O.sun(80, 28, .95) + kid(48, {pose:"hold", mood:"open"}) + txt(122, 88, "12:00", 16, "#b45309")),
+  night: () => svgWrap("#1e2a4a", ground("#2d3e66") + moon(116, 34, 1.4) + star(36, 26, 4) + star(64, 46, 3) + star(140, 70, 3.5) + star(28, 72, 2.5) + O.tree(54, 86, .6)),
+  breakfast: () => svgWrap("#fff8e6", `<ellipse cx="80" cy="84" rx="62" ry="14" fill="#fff" stroke="#e9dcc3" stroke-width="2"/>` + O.friedEgg(56, 74, 1) + toastP(108, 70, .9) + O.sun(140, 22, .5)),
+  toast: () => svgWrap("#fff8ea", toastP(80, 62, 1.7) + spark(130, 30, .8)),
+  milk: () => svgWrap("#eef6ff", grp(56, 66, 1.3, `<path d="M-14 -16 L0 -28 L14 -16 Z" fill="#60a5fa"/><rect x="-14" y="-16" width="28" height="40" fill="#fff" stroke="#93c5fd" stroke-width="1.5"/>${txt(0, 6, "MILK", 8, "#2563eb")}`) + glassP(114, 70, 1, "#ffffff")),
+  bread: () => svgWrap("#fdf3e3", grp(80, 66, 1.5, `<path d="M-30 14 V-4 Q-30 -20 -14 -20 H14 Q30 -20 30 -4 V14 Z" fill="#d9a05b"/><path d="M-14 -16 Q-10 -8 -6 -16 M0 -16 Q4 -8 8 -16 M14 -16 Q18 -8 22 -16" stroke="#b9793f" stroke-width="2" fill="none"/>`)),
+  sandwich: () => svgWrap("#f3fbf2", grp(80, 64, 1.6, `<path d="M-26 14 L0 -22 L26 14 Z" fill="#fde2b0" stroke="#e0a458" stroke-width="3" stroke-linejoin="round"/><path d="M-19 8 L19 8" stroke="#52b043" stroke-width="4"/><path d="M-15 2 L15 2" stroke="#ff8fa3" stroke-width="4"/>`)),
+  juice: () => svgWrap("#fff2e0", glassP(66, 64, 1.4, "#ff9f1c") + `<path d="M70 26 L80 6 L90 6" stroke="#ef4444" stroke-width="3" fill="none"/>` + O.orange(120, 78, .9)),
+  "soy milk": () => svgWrap("#fbf6ec", grp(72, 70, 1.3, `<path d="M-18 -16 H18 L14 22 H-14 Z" fill="#fff" stroke="#d6c7a8" stroke-width="1.5"/><path d="M-17 -8 H17 L14 22 H-14 Z" fill="#f5e6c8"/><path d="M18 -6 Q28 -4 26 6 Q24 12 16 10" stroke="#d6c7a8" stroke-width="3" fill="none"/>`) + `<path d="M62 30 Q58 22 62 14 M74 30 Q70 22 74 14 M86 30 Q82 22 86 14" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round"/>` + `<ellipse cx="126" cy="88" rx="6" ry="5" fill="#e8c46a"/><ellipse cx="138" cy="94" rx="6" ry="5" fill="#e8c46a"/><ellipse cx="126" cy="100" rx="6" ry="5" fill="#e8c46a"/>`),
+  pie: () => svgWrap("#fdf0e6", `<circle cx="70" cy="60" r="32" fill="#e0a458"/><circle cx="70" cy="60" r="26" fill="#c0392b"/><path d="M52 44 L88 44 M48 56 L92 56 M48 68 L92 68 M54 80 L86 80 M58 36 L58 84 M70 34 L70 86 M82 36 L82 84" stroke="#f3c47e" stroke-width="3"/>` + O.apple(132, 88, .6)),
+  snack: () => svgWrap("#fff6ea", grp(58, 62, 1.3, `<circle r="16" fill="#d9a05b"/><circle cx="-5" cy="-5" r="2.4" fill="#5a3a2a"/><circle cx="6" cy="-2" r="2.4" fill="#5a3a2a"/><circle cx="-1" cy="7" r="2.4" fill="#5a3a2a"/>`) + O.banana(118, 74, .9) + spark(126, 30, .7)),
+  math: () => svgWrap("#eef8f2", O.blackboard(80, 58, 1.4, "1+2=3")),
+  music: () => svgWrap("#f6eefa", noteP(56, 74, 1.6, "#8b5cf6") + noteP(104, 58, 1.3, "#ec4899") + noteP(130, 86, .9, "#3b82f6") + spark(30, 30, .7)),
+  art: () => svgWrap("#fff7ed", O.splash(56, 58, 1, "#f97316") + O.splash(84, 86, .5, "#3b82f6") + O.brush(118, 60, 1.1, "#22c55e")),
+  Chinese: () => svgWrap("#fdf2f2", O.blackboard(80, 58, 1.4, "中文"))
+});
+/* ---------- 記憶小提示 ---------- */
+Object.assign(MEMO, {
+  "get up":"get（得）+ up（往上）：「得」往上爬出被窩，就是起床！",
+  "wake up":"wake 唸起來像「喂客」：「喂！客人醒醒！」就是叫人醒來。",
+  "brush my teeth":"tooth 是一顆牙，teeth 是一整排牙。刷牙當然要刷整排，所以是 brush my teeth。",
+  "wash my face":"wash 唸起來像「哇需」：「哇！需要洗臉了！」face 是臉。",
+  "take a shower":"shower 唸起來像「下哇」：水從上面「下」來「哇啦啦」，就是淋浴。",
+  "get dressed":"dress 是洋裝、衣服，get dressed 就是「讓衣服穿到身上」＝穿好衣服。",
+  "go to school":"照中文順序排：go（去）to（到）school（學校）＝去上學。",
+  "come home":"come 是「來」，home 是「家」：來到家＝回家。home 前面不加 to！",
+  "do homework":"home（家）+ work（工作）＝在家裡做的工作，就是功課！",
+  "go to bed":"bed 長得像一張床：b 是床頭，d 是床尾，中間的 e 是躺著的人。",
+  watch:"watch 也是「手錶」：看（watch）手錶（watch），一個字兩個意思。",
+  catch:"catch 唸起來像「卡取」：把球卡住、取下來，就是接住！",
+  study:"study 唸起來像「死達底」：讀書要一路讀到底！",
+  read:"read 唸起來像「哩的」：看書時嘴裡「哩哩的」小聲念。",
+  walk:"walk 唸起來像「沃克」：沃克先生每天走路上班。l 不發音喔！",
+  sleep:"sleep 和 sheep（綿羊）只差一個字母：睡不著就數綿羊 sheep，數著數著就 sleep 了。",
+  enjoy:"en（使）+ joy（快樂）＝讓自己快樂，就是享受！",
+  join:"join 唸起來像「綜」：把大家「綜合」在一起，就是加入。",
+  try:"try 唸起來像「踹」：踹踹看門開不開，就是試試看！",
+  time:"time 唸起來像「太慢」：時間過得太慢了，怎麼還沒下課？",
+  "o'clock":"o'clock 是 of the clock 的縮寫：「時鐘上的」整點，所以只用在整點。",
+  half:"half 唸起來像「哈夫」：哈密瓜切一半，一人一半！l 不發音。",
+  quarter:"美國的 25 分硬幣叫 quarter，因為它是一塊錢的四分之一；一刻鐘 15 分鐘，也是一小時的四分之一。",
+  past:"past 和 pass（經過）很像：時針經過了七點，就是 past seven。",
+  minute:"minute 開頭像 mini（迷你）：一分鐘很短，迷你的時間。",
+  hour:"hour 和 our（我們的）唸法一樣：一小時是「我們的」時間。h 不發音，所以說 an hour。",
+  noon:"noon 前後都是 n，中間的 oo 像兩顆圓圓的太陽：中午太陽最大最圓。",
+  afternoon:"after（之後）+ noon（中午）＝中午之後，就是下午！",
+  evening:"evening 唸起來像「一夫寧」：一家人傍晚圍在一起，一片安寧。",
+  night:"night 和 knight（騎士）唸法一樣：騎士在夜晚巡邏。",
+  now:"now 倒過來是 won（贏了）：現在就去做，你就贏了！",
+  early:"early 開頭是 ear（耳朵）：早起的人耳朵最靈，第一個聽到鬧鐘。",
+  late:"late 唸起來像「累特」：太累了，睡過頭就遲到了。",
+  every:"every 裡面藏著 very：每一個都 very 好！",
+  Monday:"Mon 像 moon（月亮）：Monday 是「月亮日」。",
+  Tuesday:"Tue 唸起來像「丟」：星期二，把星期一的憂鬱丟掉！",
+  Wednesday:"拼字口訣唸成「Wed‧nes‧day」：中間的 d 不發音，可是一定要寫。",
+  Thursday:"Thur 像 Thor（雷神索爾）：星期四是「雷神日」。",
+  Friday:"Fri 像 free（自由）：星期五，快要自由了！",
+  Saturday:"Sat 像 Saturn（土星）：星期六是「土星日」。",
+  Sunday:"Sun 是太陽：Sunday 是「太陽日」。",
+  week:"week 和 weak（虛弱的）唸法一樣：上學一整週，到週末都虛弱了。",
+  weekend:"week（週）+ end（結束）＝一週的結束，就是週末！",
+  today:"to（到）+ day（日子）：到了這一天，就是今天。",
+  math:"math 是 mathematics 的簡稱，唸起來像「麥斯」：數學好的人，算錢最厲害。",
+  science:"science 開頭的 sci 唸起來像「賽」：科學家在實驗室裡賽跑找答案。c 不發音喔。",
+  history:"his（他的）+ story（故事）＝他的故事：歷史就是古人的故事！",
+  geography:"geo（地球）+ graph（畫）+ y：把地球畫出來，就是地理。",
+  music:"music 唸起來像「謬幾客」：好聽的音樂吸引好幾位客人。",
+  art:"art 加上 ist（人）就是 artist 藝術家，所以 art 是美術、藝術。",
+  Chinese:"-ese 表示「某個地方的語言或人」：Japanese 是日語，Chinese 是中文。",
+  subject:"sub 像潛水艇 submarine：每個科目都要像潛水艇一樣深深潛下去讀懂。",
+  breakfast:"break（打破）+ fast（禁食）：一整夜沒吃東西，早上打破空腹，就是早餐！",
+  lunch:"lunch 唸起來像「狼吃」：中午餓得像狼一樣大口吃午餐！",
+  dinner:"dinner 唸起來像「頂呢」：晚餐吃到頂呢，好飽！記得有兩個 n。",
+  toast:"toast 就是台灣說的「吐司」，發音幾乎一樣！",
+  milk:"milk 唸起來像「咪嚕可」：小貓咪嚕嚕地喝牛奶。",
+  bread:"bread 裡面藏著 read：一邊看書（read），一邊吃麵包（bread）。",
+  sandwich:"「三明治」就是 sandwich 的音譯：sand（三）+ wich（明治）。",
+  juice:"juice 唸起來像「啾斯」：用吸管「啾」一聲吸果汁！",
+  "soy milk":"soy 是黃豆，milk 是奶：黃豆做的奶，就是豆漿！醬油叫 soy sauce。",
+  pie:"pie 唸起來就像中文的「派」！",
+  snack:"snack 和 snake（蛇）只差一個字母：蛇偷吃了我的零食！",
+  always:"all（全部）+ ways（次）：全部每一次都這樣，就是總是。",
+  usually:"usual（平常的）+ ly：平常都這樣，就是通常。",
+  often:"often 的 t 常常不發音：記住「常常」不發音，就是 often 常常。",
+  sometimes:"some（一些）+ times（次數）：有一些次數，就是有時候。",
+  seldom:"sel 像 sell（賣）：這家店很少賣出東西，生意很少上門。",
+  never:"never 唸起來像「內佛」：Never give up！從不放棄！",
+  why:"why 唸起來像「歪」：頭歪一邊，問「為什麼？」"
+});
+registerUnit("j1-1-3", {name:"國一 上學期 期末考", sub:"現在簡單式、第三人稱單數、頻率副詞、時間介系詞 at/on/in", words:J1_1_3_WORDS, grammar:J1_1_3_GRAMMAR, quiz:J1_1_3_QUIZ, classes:Object.assign({}, J1_1_3_CLASS, J1_1_3_PHONICS_CLASS), phonics:J1_1_3_PHONICS});
+})();
