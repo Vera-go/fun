@@ -21,7 +21,7 @@
 
   <main>
     <div class="sites">
-      <a class="box site l1 pop" style="--i:0" href="vote/"><span class="lab">揪團</span><b><span data-badge="restaurant"></span>餐廳推薦投票</b><span class="d">建立聚餐或旅遊活動（例如畢業旅行），大家一起推薦餐廳或地點、投票決定。</span><span class="go">開始揪團 →</span></a>
+      <a class="box site l1 pop" style="--i:0" href="vote/"><span class="lab">揪團</span><b><span data-badge="vote"></span>推薦及投票</b><span class="d">聚餐、尾牙、畢業旅行，揪大家一起推薦餐廳或地點，投票決定去哪吃、去哪玩。不用註冊。</span><span class="go">開始揪團 →</span></a>
       <a class="box site l2 pop" style="--i:1" href="wheel/"><span class="lab">工具</span><b><span data-badge="wheel"></span>暈頭轉向小豬轉盤</b><span class="d">午餐吃什麼、誰去倒垃圾？小豬暈一暈幫你選。</span><span class="go">請小豬轉 →</span></a>
       <a class="box site l3 pop" style="--i:2" href="english/"><span class="lab">學習</span><b><span data-badge="english"></span>安安英文教室</b><span class="d">國中、高中段考和多益的單字、文法，跟著安安老師和她的老師朋友們上課、闖關。</span><span class="go">進教室 →</span></a>
       <a class="box site l4 pop" style="--i:3" href="nostrings/"><img class="pic" src="nostrings/og-image.png" alt="NOSTRINGS：黑底螢光綠的 Q 版潮流角色與剪斷的線" width="1200" height="630" loading="lazy"><span class="lab">測驗</span><b><span data-badge="nostrings"></span>NOSTRINGS</b><span class="d">測測你是哪一種反骨人格？</span><span class="go">剪斷那條線 →</span></a>
@@ -43,8 +43,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="assets/icons.js?v=20261018"></script>
-<script src="assets/wish-core.js?v=20261023"></script>
+<script src="assets/icons.js?v=20261023b"></script>
+<script src="assets/wish-core.js?v=20261023c"></script>
 <script>
 document.querySelectorAll("[data-badge]").forEach(el => { el.innerHTML = SiteIcons.badge(el.dataset.badge, 36); });
 document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcons.icon(el.dataset.icon, +el.dataset.size || 24); });

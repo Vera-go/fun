@@ -9,7 +9,7 @@
 
   // badge：網站徽章的名字（見 assets/icons.js）
   const SITES = {
-    restaurant: { name: "餐廳推薦投票", badge: "restaurant" },
+    restaurant: { name: "推薦及投票（揪團）", badge: "vote" },   // 原本叫「餐廳推薦投票」；資料庫的代號維持 restaurant
     wheel: { name: "暈頭轉向小豬轉盤", badge: "wheel" },
     english: { name: "安安英文教室", badge: "english" },
     nostrings: { name: "NOSTRINGS 反骨人格", badge: "nostrings" },
