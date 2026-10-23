@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Edit, Trash2, Info, Globe, MapPin, Crown, UtensilsCrossed, Plane } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Info, Globe, MapPin, Crown, UtensilsCrossed, Plane, RefreshCw } from "lucide-react";
+import { getImageByType } from "@/utils/restaurantImageUtils";
 import { Restaurant, RestaurantWithVotes, Vote } from "@/types";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,21 @@ function RestaurantList() {
   }));
 
   const isLoading = isRestaurantsLoading || (currentUser && isVotesLoading);
+
+  // 換一張照片：同類型裡挑一張別張（不重複用同活動其他家的照片），只改照片
+  const [shufflingId, setShufflingId] = useState<number | null>(null);
+  const shufflePhoto = async (r: Restaurant) => {
+    setShufflingId(r.id);
+    try {
+      const imageUrl = getImageByType(r.type, { id: r.id, avoid: r.imageUrl });
+      await apiRequest("PUT", `/api/restaurants/${r.id}`, { ...r, imageUrl });
+      await queryClient.invalidateQueries({ queryKey: ['/api/votes/restaurants'] });
+    } catch (e: any) {
+      toast({ title: "換照片失敗", description: e?.message || "請稍後再試", variant: "destructive" });
+    } finally {
+      setShufflingId(null);
+    }
+  };
 
   // Delete restaurant mutation
   const deleteRestaurantMutation = useMutation({
@@ -334,6 +350,14 @@ function RestaurantList() {
                   <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
                     <Badge className="bg-primary">{restaurant.type}</Badge>
                   </div>
+                  {/* 換一張照片：推薦人本人和主辦人可以按 */}
+                  {currentUser && (currentUser.isAdmin === 1 || (restaurant as any).createdBy === currentUser.id) && (
+                    <button type="button" onClick={() => shufflePhoto(restaurant)} disabled={shufflingId === restaurant.id}
+                      className="absolute top-2 right-2 z-[6] flex items-center gap-1 rounded-full bg-black/45 hover:bg-black/65 text-white text-xs px-2.5 py-1 backdrop-blur-sm transition-colors disabled:opacity-60"
+                      title="換一張照片">
+                      <RefreshCw className={`h-3.5 w-3.5 ${shufflingId === restaurant.id ? "animate-spin" : ""}`} />換一張
+                    </button>
+                  )}
                 </div>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-3">

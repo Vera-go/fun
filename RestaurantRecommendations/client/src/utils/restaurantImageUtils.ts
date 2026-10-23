@@ -276,8 +276,9 @@ const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
  * 依類型挑照片，同一個活動裡盡量不重複：
  * 先從這個類型的照片挑別家沒用過的；這類用完了，改從通用照片挑沒用過的；全部都用過才允許重複。
  * 編輯時（opts.id）如果原本的照片還適合、也沒跟別家重複，就保留不換。
+ * 「換一張」（opts.avoid）：不挑目前這張。
  */
-export function getImageByType(type: string, opts: { id?: number; current?: string } = {}): string {
+export function getImageByType(type: string, opts: { id?: number; current?: string; avoid?: string } = {}): string {
   // 旅遊地點活動用風景照（依地點類型），餐廳活動用美食照
   const trip = getEvent()?.kind === "trip";
   const library = trip ? TRIP_PHOTOS : typeBasedImages;
@@ -294,6 +295,7 @@ export function getImageByType(type: string, opts: { id?: number; current?: stri
   }
   const images = library[targetKey] || library.default;
   const used = usedInEvent(opts.id);
+  if (opts.avoid) used.add(opts.avoid);
   if (opts.current && images.includes(opts.current) && !used.has(opts.current)) return opts.current;
   const fresh = images.filter(img => !used.has(img));
   if (fresh.length) return pick(fresh);
