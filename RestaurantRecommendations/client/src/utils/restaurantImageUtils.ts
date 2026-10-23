@@ -15,28 +15,18 @@ export const typeBasedImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "日式無菜單": [
-    "https://images.unsplash.com/photo-1611143669185-af224c5e3252?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1556040220-4096d522378d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    "https://images.unsplash.com/photo-1611143669185-af224c5e3252?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "居酒屋": [
     "https://images.unsplash.com/photo-1554502078-ef0fc409efce?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
 
-  "麻辣鍋": [
-    "https://images.unsplash.com/photo-1515669097368-22e68427d265?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1626082910497-b2987c968923?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
-  ],
   
   // 中式料理
   "中式": [
-    "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1516211881327-e5120a941edc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
 
-  "港式": [
-    "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1593829111182-8a237d2bb024?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
-  ],
   
   // 西式料理
   "西式": [
@@ -77,7 +67,6 @@ export const typeBasedImages: Record<string, string[]> = {
   
   // 鐵板燒
   "鐵板燒": [
-    "https://images.unsplash.com/photo-1542528180-a1208c5169a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   
@@ -89,14 +78,18 @@ export const typeBasedImages: Record<string, string[]> = {
   
   // 自助餐
   "Buffet": [
-    "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "自助餐": [
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   
   // 默認圖片（類型無法辨識時使用）
+  // 港式：港點蒸籠（和中式同一張）
+  "港式": [
+    "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+  ],
+
   "default": [
     "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
@@ -112,7 +105,8 @@ export const typeBasedImages: Record<string, string[]> = {
  */
 // 聚餐類型快捷鍵裡沒有自己照片的，對應到相近的照片類型
 const TYPE_ALIASES: Record<string, string> = {
-  "吃到飽": "自助餐", "火鍋": "麻辣鍋", "熱炒": "中式", "合菜": "中式", "台菜": "中式", "飲茶": "港式",
+  // 火鍋、熱炒、合菜目前沒有合適的照片，用通用餐廳照片（不借別類，避免火鍋配炸雞這種錯置）
+  "吃到飽": "自助餐", "飲茶": "港式",
   "美式": "西式", "漢堡": "西式", "義大利": "義式料理", "烤肉": "燒烤",
 };
 
