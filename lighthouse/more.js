@@ -75,6 +75,16 @@
       r.feel ? `我的感受：${r.feel}` : "",
       `（紀錄時間：${r.at}）`].filter(Boolean).join("\n");
   }
+  // 寄給自己：打開 email 程式，主旨和內容都填好（收件人自己填）
+  const mailHref = r => `mailto:?subject=${encodeURIComponent(`事件紀錄 ${r.date}`)}&body=${encodeURIComponent(recordText(r))}`;
+  // 下載成文字檔
+  function download(r) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["\ufeff" + recordText(r)], { type: "text/plain;charset=utf-8" }));
+    a.download = `事件紀錄_${r.date}${r.time ? "_" + r.time.replace(":", "") : ""}.txt`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
   function protectRecord(el, P) {
     const R = P.record, list = loadRecords();
     el.innerHTML = `<p class="muted small" style="margin-top:0">${esc(R.lead)}</p>
@@ -91,20 +101,26 @@
         <div id="rOut"></div>
       </div>
       <p class="small muted">${esc(R.privacy)}</p>
-      ${list.length ? `<div class="rsaved"><b>存在這台裝置的紀錄（${list.length}）</b>${list.map((r, i) => `<details><summary>${esc(r.date)} ${esc(r.place || "")}</summary><pre>${esc(recordText(r))}</pre>
-          <div class="rbtns"><button class="btn ghost small" data-rcopy="${i}">複製</button><button class="btn ghost small" data-rdel="${i}">刪除</button></div></details>`).join("")}</div>` : ""}`;
+      ${list.length ? `<div class="rsaved"><b>暫存在這台裝置的紀錄（${list.length}）</b><p class="small rwarn">${R.tempWarn}</p>${list.map((r, i) => `<details><summary>${esc(r.date)} ${esc(r.place || "")}</summary><pre>${esc(recordText(r))}</pre>
+          <div class="rbtns"><a class="btn acc small" href="${mailHref(r)}">寄給自己</a><button class="btn acc small" data-rdown="${i}">下載</button><button class="btn ghost small" data-rcopy="${i}">複製</button><button class="btn ghost small" data-rdel="${i}">刪除</button></div></details>`).join("")}</div>` : ""}`;
     const copy = async (t, btn) => { try { await navigator.clipboard.writeText(t); btn.textContent = "已複製"; } catch (e) { prompt("請複製這段紀錄：", t); } };
     $("#rMake").onclick = () => {
       const r = { date: $("#rDate").value, time: $("#rTime").value, place: $("#rPlace").value.trim(), what: $("#rWhat").value.trim(),
         who: $("#rWho").value.trim(), saw: $("#rSaw").value.trim(), ev: [...el.querySelectorAll(".rev input:checked")].map(i => i.value),
         feel: $("#rFeel").value.trim(), at: new Date().toLocaleString("zh-TW") };
       if (!r.what) { $("#rWhat").focus(); $("#rWhat").classList.add("shake"); setTimeout(() => $("#rWhat").classList.remove("shake"), 420); return; }
+      const hurt = r.ev.includes("有受傷");
       $("#rOut").innerHTML = `<pre class="rpre">${esc(recordText(r))}</pre>
-        <div class="rbtns"><button class="btn acc" id="rCopy">複製</button><button class="btn ghost" id="rSave">存在這台裝置</button></div>`;
+        ${hurt ? `<div class="urgent"><div class="ut">${icon("alert", 20)} ${esc(R.injured.title)}</div><ul class="small" style="margin:6px 0 0;padding-left:20px">${R.injured.items.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}
+        <p class="rkeep">${esc(R.keep)}</p>
+        <div class="rbtns"><a class="btn acc" id="rMail" href="${mailHref(r)}">寄 email 給自己</a><button class="btn acc" id="rDown">下載成檔案</button><button class="btn ghost" id="rCopy">複製</button></div>
+        <div class="rtemp"><button class="btn ghost small" id="rSave">暫存在這台裝置（可能會不見）</button></div>`;
       $("#rCopy").onclick = e => copy(recordText(r), e.target);
-      $("#rSave").onclick = () => { const l = loadRecords(); l.unshift(r); if (saveRecords(l)) renderProtect(); else alert("這個瀏覽器不能存，請先按「複製」貼到別的地方。"); };
+      $("#rDown").onclick = () => download(r);
+      $("#rSave").onclick = () => { const l = loadRecords(); l.unshift(r); if (saveRecords(l)) renderProtect(); else alert("這個瀏覽器不能存，請用「寄 email 給自己」或「下載成檔案」保存。"); };
     };
     el.querySelectorAll("[data-rcopy]").forEach(b => b.onclick = () => copy(recordText(list[+b.dataset.rcopy]), b));
+    el.querySelectorAll("[data-rdown]").forEach(b => b.onclick = () => download(list[+b.dataset.rdown]));
     el.querySelectorAll("[data-rdel]").forEach(b => b.onclick = () => {
       if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "確定刪除？"; return; }
       list.splice(+b.dataset.rdel, 1); saveRecords(list); renderProtect();
