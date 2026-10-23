@@ -8,8 +8,7 @@ const usedImagesMap = new Map<string, Set<string>>();
 export const typeBasedImages: Record<string, string[]> = {
   // 日式料理
   "日式": [
-    "https://images.unsplash.com/photo-1617196035154-1e7e6e28b0db?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1534604973900-c43ab4fdeecc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    "https://images.unsplash.com/photo-1617196035154-1e7e6e28b0db?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "日式料理": [
     "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
@@ -20,15 +19,9 @@ export const typeBasedImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1556040220-4096d522378d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "居酒屋": [
-    "https://images.unsplash.com/photo-1558985590-e84f198c8274?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1554502078-ef0fc409efce?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
-  
-  // 火鍋類
-  "火鍋": [
-    "https://images.unsplash.com/photo-1582271929389-5496efa4d6f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1614084354557-c9506ae0a8a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
-  ],
+
   "麻辣鍋": [
     "https://images.unsplash.com/photo-1515669097368-22e68427d265?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1626082910497-b2987c968923?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
@@ -39,10 +32,7 @@ export const typeBasedImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1516211881327-e5120a941edc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
-  "中式料理": [
-    "https://images.unsplash.com/photo-1569058242252-623df46ea71f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1623689046286-01d442216502?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
-  ],
+
   "港式": [
     "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1593829111182-8a237d2bb024?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
@@ -66,23 +56,18 @@ export const typeBasedImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1615937722923-67f6deaf2cc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "法式料理": [
-    "https://images.unsplash.com/photo-1608855238293-a8853e7f7c98?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500", 
-    "https://images.unsplash.com/photo-1600891963935-9a29ad5f94ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    "https://images.unsplash.com/photo-1608855238293-a8853e7f7c98?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500" 
   ],
   
   // 韓式料理
   "韓式": [
-    "https://images.unsplash.com/photo-1590301157890-4810ed352733?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1583187855714-1cf4d18e43b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    "https://images.unsplash.com/photo-1590301157890-4810ed352733?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "韓式料理": [
     "https://images.unsplash.com/photo-1580651315530-69c8e0026377?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
-  "韓國燒肉": [
-    "https://images.unsplash.com/photo-1632558106217-a0b9935fe63f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1585544913515-f5e339de9443?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
-  ],
+
   
   // 燒肉
   "燒肉": [
@@ -108,7 +93,6 @@ export const typeBasedImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   "自助餐": [
-    "https://images.unsplash.com/photo-1623595119708-26b1f7500dec?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
   

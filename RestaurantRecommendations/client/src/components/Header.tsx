@@ -1,73 +1,57 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Utensils, Plane, Vote, LogIn, LogOut, User, ImageIcon, Shield } from "lucide-react";
+import { Utensils, Plane, Vote, LogIn, LogOut, User, Shield, ChevronDown } from "lucide-react";
 import { useUser } from "./UserContext";
 import { LoginDialog } from "./LoginDialog";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useEvent } from "@/lib/event";
 import { termsFor, HOME_TITLE } from "@/lib/terms";
+import { toggleHostTools, useHostToolsOpen } from "@/lib/hostTools";
 
 export function Header() {
   const { currentUser, isAdmin, logout } = useUser();
   const { event } = useEvent();
   const T = termsFor(event?.kind);
-  // 標題列：進入活動後依活動類型顯示；首頁等還沒進入活動的頁面用通用標題
+  // 標題列：進入活動後大字是活動名稱、小字是網站名稱；首頁等還沒進入活動的頁面用通用標題
   const title = event ? { app: T.app, slogan: T.slogan } : HOME_TITLE;
+  const hostOpen = useHostToolsOpen();
   const AppIcon = !event ? Vote : event.kind === "trip" ? Plane : Utensils;
-  useEffect(() => { document.title = `${title.app} - ${title.slogan}`; }, [title.app, title.slogan]);
+  // 瀏覽器分頁標題：活動頁顯示活動名稱
+  const tabTitle = event ? `${event.title} - ${T.app}` : `${title.app} - ${title.slogan}`;
+  useEffect(() => { document.title = tabTitle; }, [tabTitle]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isFixingImages, setIsFixingImages] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  // 修復所有餐廳圖片的mutation
-  const fixRestaurantImagesMutation = useMutation({
-    mutationFn: async () => {
-      setIsFixingImages(true);
-      return apiRequest("POST", `/api/fix-restaurant-images?isAdmin=1`).then(res => res.json());
-    },
-    onSuccess: (result) => {
-      // 成功後刷新餐廳數據
-      queryClient.invalidateQueries({ queryKey: ['/api/restaurants'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/votes/restaurants'] });
-      
-      toast({
-        title: "圖片修復成功",
-        description: result.message,
-        variant: "default",
-      });
-      setIsFixingImages(false);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "圖片修復失敗",
-        description: error.message || "發生錯誤，請稍後再試",
-        variant: "destructive",
-      });
-      setIsFixingImages(false);
-    }
-  });
 
   return (
     <header className="bg-gradient-to-r from-gray-900 via-primary to-gray-900 sticky top-0 z-10 shadow-md border-b border-amber-500/20">
       <div className="container mx-auto px-6 py-5 flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-4" title="回首頁">
-          <div className="p-2 rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 backdrop-blur-sm border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.2)]">
+        <Link href="/" className="flex items-center gap-3 md:gap-4 min-w-0 flex-1 mr-3" title="回首頁">
+          <div className="flex-shrink-0 p-2 rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 backdrop-blur-sm border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.2)]">
             <AppIcon className="h-6 w-6 text-amber-300" />
           </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-medium tracking-wider flex items-center flex-wrap">
-              <span className="font-serif mr-2 font-semibold text-amber-100">{title.app}</span>
-              <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">{title.slogan}</span>
-            </h1>
+          <div className="min-w-0">
+            {event ? (
+              <h1 className="font-medium tracking-wider min-w-0">
+                <span className="block text-xs md:text-sm font-serif text-amber-100/70">{T.app}</span>
+                <span className="block text-lg md:text-2xl font-serif font-semibold text-amber-100 truncate" title={event.title}>{event.title}</span>
+              </h1>
+            ) : (
+              <h1 className="text-xl md:text-2xl font-medium tracking-wider flex items-center flex-wrap">
+                <span className="font-serif mr-2 font-semibold text-amber-100">{title.app}</span>
+                <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">{title.slogan}</span>
+              </h1>
+            )}
             <div className="h-[1px] w-[60%] mx-auto bg-gradient-to-r from-amber-500/0 via-amber-500/40 to-amber-500/0 mt-2"></div>
           </div>
         </Link>
         
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 flex-shrink-0">
+          {event?.isAdmin && (
+            <button type="button" onClick={toggleHostTools} aria-expanded={hostOpen}
+              className={`flex items-center px-2.5 py-1 rounded-md border text-xs font-medium tracking-wide transition-colors ${hostOpen ? "bg-amber-500 text-gray-900 border-amber-300" : "bg-gradient-to-r from-amber-900/80 to-amber-800/80 text-amber-300 border-amber-500/40 hover:border-amber-300"}`}
+              title={hostOpen ? "收起主辦人工具" : "打開主辦人工具"}>
+              <Shield className="h-3 w-3 mr-1" />主辦人<ChevronDown className={`h-3 w-3 ml-0.5 transition-transform ${hostOpen ? "rotate-180" : ""}`} />
+            </button>
+          )}
           {currentUser ? (
             <>
               <div className="hidden md:flex items-center mr-3">
@@ -79,26 +63,11 @@ export function Header() {
                 </div>
                 {isAdmin && (
                   <div className="ml-2 flex items-center space-x-2">
-                    <div className="relative">
-                      <div className="flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-900/80 to-amber-800/80 border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.15)]">
-                        <span className="text-xs text-amber-300 font-medium tracking-wide">
-                          <Shield className="h-3 w-3 inline mr-1 text-amber-300" />
-                          {currentUser.isAdmin === 1 && event?.isAdmin ? "主辦人" : "管理員"}
-                        </span>
+                    {!event && (
+                      <div className="flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-900/80 to-amber-800/80 border border-amber-500/30">
+                        <span className="text-xs text-amber-300 font-medium tracking-wide"><Shield className="h-3 w-3 inline mr-1 text-amber-300" />管理員</span>
                       </div>
-                    </div>
-                    
-                    {event && <Button
-                      variant="ghost" 
-                      size="sm"
-                      className="h-6 px-1.5 py-0.5 rounded-md bg-gradient-to-r from-blue-900/80 to-blue-800/80 border border-blue-500/30 text-xs text-blue-300 font-medium tracking-wide hover:bg-blue-800/50"
-                      onClick={() => fixRestaurantImagesMutation.mutate()}
-                      disabled={isFixingImages}
-                      title={`修復所有${T.item}圖片`}
-                    >
-                      <ImageIcon className="h-3 w-3 inline mr-1 text-blue-300" />
-                      {isFixingImages ? "修復中..." : `修復${T.item}圖片`}
-                    </Button>}
+                    )}
                   </div>
                 )}
               </div>

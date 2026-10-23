@@ -1,4 +1,5 @@
-import { Waves, Mountain, Landmark, FerrisWheel, Flame, Palmtree, Building2, Tractor, Library, Plane, MapPin, type LucideIcon } from "lucide-react";
+import { useState } from "react";
+import { Waves, Mountain, Landmark, FerrisWheel, Flame, Palmtree, Building2, Tractor, Library, Plane, MapPin, UtensilsCrossed, type LucideIcon } from "lucide-react";
 
 /* 旅遊地點的封面：不用外部照片（網址可能失效），用類型對應的圖示和顏色。
    image_url 存成 "trip:海邊" 這種格式；餐廳活動照舊是照片網址。 */
@@ -15,6 +16,8 @@ const THEMES: { keys: string[]; id: string; icon: LucideIcon; bg: string }[] = [
   { id: "city", keys: ["城市", "都市", "市區", "夜市", "購物", "逛街"], icon: Building2, bg: "from-slate-300 via-slate-400 to-slate-600" },
 ];
 const FALLBACK = { id: "default", icon: MapPin, bg: "from-amber-200 via-orange-300 to-rose-400" };
+// 餐廳照片載入失敗（外部網址失效）時用的封面，不會出現破圖
+const FOOD = { icon: UtensilsCrossed, bg: "from-amber-300 via-orange-400 to-red-400" };
 
 /** 依地點類型決定封面（存進資料庫的值） */
 export function tripImage(type: string) {
@@ -23,9 +26,9 @@ export function tripImage(type: string) {
 }
 
 export function Cover({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
-  if (src.startsWith("trip:")) {
-    const id = src.slice(5);
-    const t = THEMES.find(th => th.id === id) || FALLBACK;
+  const [failed, setFailed] = useState<string | null>(null);   // 載入失敗的照片網址（換了網址就重試）
+  if (src.startsWith("trip:") || !src || failed === src) {
+    const t = src.startsWith("trip:") ? (THEMES.find(th => th.id === src.slice(5)) || FALLBACK) : FOOD;
     const Icon = t.icon;
     return (
       <div role="img" aria-label={alt} className={`w-full h-full bg-gradient-to-br ${t.bg} flex items-center justify-center relative overflow-hidden ${className}`}>
@@ -34,5 +37,5 @@ export function Cover({ src, alt, className = "" }: { src: string; alt: string; 
       </div>
     );
   }
-  return <img src={src} alt={alt} className={`w-full h-full object-cover ${className}`} />;
+  return <img src={src} alt={alt} className={`w-full h-full object-cover ${className}`} onError={() => setFailed(src)} />;
 }

@@ -1,6 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { supabase } from "./supabase";
-import { getImageByType } from "@/utils/restaurantImageUtils";
 import { getEvent } from "./event";
 import { currentTerms } from "./terms";
 
@@ -125,17 +124,6 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
     if (error) throw friendly(error);
     if (!data.length) throw apiError("投票已經截止，不能再取消。", 403);
     return null;
-  }
-  if (method === "POST" && path === "/api/fix-restaurant-images") {
-    // 管理員工具：依餐廳類型重新配圖（權限由資料庫檢查）
-    const { data: rs, error } = await supabase.from("restaurants").select("id,type").eq("event_id", eventId());
-    if (error) throw friendly(error);
-    let n = 0;
-    for (const r of rs || []) {
-      const { data } = await supabase.from("restaurants").update({ image_url: getImageByType(r.type) }).eq("id", r.id).select("id");
-      if (data && data.length) n++;
-    }
-    return { message: `已更新 ${n} ${currentTerms().unit}${currentTerms().item}的圖片` };
   }
   throw apiError(`不支援的操作：${method} ${path}`, 404);
 }

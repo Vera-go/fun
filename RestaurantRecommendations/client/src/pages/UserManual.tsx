@@ -137,12 +137,7 @@ export default function UserManual() {
               <li>主辦人可在餐廳卡片右下角看到「查看投票詳情」按鈕（ⓘ）</li>
               <li>點擊後可查看該餐廳的投票者名單和投票總數</li>
             </ol>
-            
-            <h3 className="text-xl font-bold mt-6 mb-2">修復餐廳圖片 (主辦人功能)</h3>
-            <ol className="list-decimal pl-6">
-              <li>主辦人登入後，在頁面右上角可看到「修復餐廳圖片」按鈕（只會更新這個活動的餐廳）</li>
-              <li>點擊後系統會自動根據餐廳類型更新所有餐廳的圖片</li>
-            </ol>
+
           </section>
           
           {/* 注意事項 */}

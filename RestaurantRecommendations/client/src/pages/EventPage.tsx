@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { CalendarClock, Clock, AlertTriangle, BookOpen, Link2, Pencil, Trash2, Copy } from "lucide-react";
+import { CalendarClock, Clock, AlertTriangle, BookOpen, Link2, Pencil, Trash2, X } from "lucide-react";
 import Header from "@/components/Header";
 import RestaurantList from "@/components/RestaurantList";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useEvent, loadEvent, reloadEvent, leaveEvent, forgetEvent, isOpen, daysLeft, shortDate, inviteUrl, EventInfo } from "@/lib/event";
 import { termsFor } from "@/lib/terms";
+import { useHostToolsOpen, closeHostTools } from "@/lib/hostTools";
 
 export async function copyText(text: string, toast: ReturnType<typeof useToast>["toast"], what = "連結") {
   try { await navigator.clipboard.writeText(text); toast({ title: `已複製${what}` }); }
@@ -90,6 +91,7 @@ export default function EventPage({ code }: { code: string }) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const T = termsFor(event?.kind);
+  const hostOpen = useHostToolsOpen();
 
   // 換活動時清掉上一個活動的資料
   useEffect(() => {
@@ -128,36 +130,36 @@ export default function EventPage({ code }: { code: string }) {
             <div className="flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
             <DateBadge label="推薦截止日期" deadline={event.recommendDeadline} today={event.today} icon={<CalendarClock className="h-4 w-4 mr-2 text-amber-500" />} />
             <DateBadge label="最後投票日期" deadline={event.voteDeadline} today={event.today} icon={<Clock className="h-4 w-4 mr-2 text-amber-500" />} />
-            <Link href="/manual">
-              <Button variant="ghost" size="sm" className="flex items-center text-amber-900 bg-amber-100/50 hover:bg-amber-100 border border-amber-200">
-                <BookOpen className="h-4 w-4 mr-2 text-amber-600" /><span className="text-sm font-medium">使用手冊</span>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="flex items-center text-amber-900 bg-amber-100/50 hover:bg-amber-100 border border-amber-200"
+                onClick={() => copyText(inviteUrl(event.code), toast, "邀請連結")}>
+                <Link2 className="h-4 w-4 mr-2 text-amber-600" /><span className="text-sm font-medium">複製邀請連結</span>
               </Button>
-            </Link>
+              <Link href="/manual">
+                <Button variant="ghost" size="sm" className="flex items-center text-amber-900 bg-amber-100/50 hover:bg-amber-100 border border-amber-200">
+                  <BookOpen className="h-4 w-4 mr-2 text-amber-600" /><span className="text-sm font-medium">使用手冊</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
       <main className="container mx-auto px-6 pt-6 pb-12">
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-medium text-primary mb-3 font-serif tracking-wide">{event.title}</h2>
-          <div className="h-[2px] w-24 bg-primary/30 mx-auto"></div>
-          {event.description && (
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-3 font-serif text-sm md:text-base tracking-wide whitespace-pre-line">{event.description}</p>
-          )}
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => copyText(inviteUrl(event.code), toast, "邀請連結")}>
-              <Link2 className="h-4 w-4 mr-1.5" />複製邀請連結
-            </Button>
-          </div>
-        </div>
+        {/* 活動名稱在標題列；這裡只放說明 */}
+        {event.description && (
+          <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-6 font-serif text-sm md:text-base tracking-wide whitespace-pre-line">{event.description}</p>
+        )}
 
-        {/* 主辦人工具：只有主辦人看得到 */}
-        {event.isAdmin && (
+        {/* 主辦人工具：只有主辦人看得到，點標題列的「主辦人」才展開 */}
+        {event.isAdmin && hostOpen && (
           <div className="max-w-2xl mx-auto mb-6 border border-amber-300 bg-amber-50/60 rounded-sm p-4 text-sm">
-            <div className="font-medium text-amber-900 mb-2">主辦人工具</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="font-medium text-amber-900">主辦人工具</div>
+              <button type="button" onClick={closeHostTools} className="text-amber-700 hover:text-amber-900" title="收起" aria-label="收起主辦人工具"><X className="h-4 w-4" /></button>
+            </div>
             <p className="text-amber-800 mb-3">把邀請連結傳給大家，例如貼到 LINE 群組。你可以看到每{T.unit}{T.item}是誰投的（點{T.item}卡片上的 ⓘ），也可以刪除不適合的{T.item}。</p>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" onClick={() => copyText(inviteUrl(event.code), toast, "邀請連結")}><Copy className="h-4 w-4 mr-1.5" />複製邀請連結</Button>
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil className="h-4 w-4 mr-1.5" />修改活動</Button>
               <Button size="sm" variant="outline" className="text-destructive" onClick={() => setConfirmDelete(true)}><Trash2 className="h-4 w-4 mr-1.5" />刪除活動</Button>
             </div>
