@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Waves, Mountain, Landmark, FerrisWheel, Flame, Palmtree, Building2, Tractor, Library, Plane, MapPin, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { Waves, Mountain, Landmark, FerrisWheel, Flame, Palmtree, Building2, Tractor, Library, Plane, MapPin, Store, UtensilsCrossed, type LucideIcon } from "lucide-react";
 
 import { tripThemeOfPhoto } from "@/utils/tripPhotos";
 
 /* 旅遊地點的類型（THEMES）：決定用哪一組照片（utils/tripPhotos.ts）。
    照片載入失敗、或舊資料存的是 "trip:mountain" 這種代號時，改用類型對應的圖示和顏色當封面。 */
 const THEMES: { keys: string[]; id: string; icon: LucideIcon; bg: string }[] = [
+  // 夜市放最前面：「基隆廟口」含「廟」字，要先比對到夜市而不是老街
+  { id: "nightmarket", keys: ["夜市", "廟口", "小吃", "市集"], icon: Store, bg: "from-orange-300 via-red-400 to-rose-600" },
   { id: "beach", keys: ["海", "沙灘", "衝浪", "潛水"], icon: Waves, bg: "from-sky-300 via-cyan-400 to-blue-500" },
   { id: "island", keys: ["離島", "島"], icon: Palmtree, bg: "from-teal-300 via-emerald-400 to-cyan-500" },
   { id: "mountain", keys: ["山", "森林", "步道", "露營", "國家公園", "峽谷", "瀑布"], icon: Mountain, bg: "from-emerald-300 via-green-500 to-teal-700" },
@@ -15,7 +17,7 @@ const THEMES: { keys: string[]; id: string; icon: LucideIcon; bg: string }[] = [
   { id: "farm", keys: ["農場", "牧場", "果園", "田"], icon: Tractor, bg: "from-lime-200 via-lime-400 to-green-600" },
   { id: "museum", keys: ["博物館", "美術館", "展", "科教", "文化"], icon: Library, bg: "from-indigo-200 via-violet-300 to-indigo-500" },
   { id: "abroad", keys: ["出國", "國外", "日本", "韓國", "泰國", "新加坡", "香港", "越南"], icon: Plane, bg: "from-blue-300 via-indigo-400 to-violet-500" },
-  { id: "city", keys: ["城市", "都市", "市區", "夜市", "購物", "逛街"], icon: Building2, bg: "from-slate-300 via-slate-400 to-slate-600" },
+  { id: "city", keys: ["城市", "都市", "市區", "購物", "逛街"], icon: Building2, bg: "from-slate-300 via-slate-400 to-slate-600" },
 ];
 const FALLBACK = { id: "default", icon: MapPin, bg: "from-amber-200 via-orange-300 to-rose-400" };
 // 餐廳照片載入失敗（外部網址失效）時用的封面，不會出現破圖

@@ -44,8 +44,8 @@ const restaurant: Terms = {
 const trip: Terms = {
   item: "地點", unit: "個", app: "旅遊地點投票", slogan: "一起決定去哪玩",
   name: "地點名稱", namePh: "例如：墾丁、花蓮太魯閣、日本沖繩",
-  type: "地點類型", typePh: "例如：海邊、山上、遊樂園...",
-  typeChips: ["海邊", "山上", "老街", "遊樂園", "溫泉", "離島", "城市", "農場", "博物館", "出國"],
+  type: "地點類型", typePh: "例如：海邊、山上、夜市...",
+  typeChips: ["海邊", "山上", "老街", "夜市", "遊樂園", "溫泉", "離島", "城市", "農場", "博物館", "出國"],
   price: "每人預算", pricePh: "例如：約 $6000/人（含交通住宿）", priceShort: "預算",
   address: "在哪裡", addressPh: "例如：屏東縣恆春鎮", addressShort: "位置",
   distance: "天數／交通", distancePh: "例如：三天兩夜，遊覽車約 5 小時", distanceShort: "天數",

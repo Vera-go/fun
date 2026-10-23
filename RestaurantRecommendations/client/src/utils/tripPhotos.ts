@@ -1,6 +1,19 @@
 /* 旅遊地點的照片：依地點類型（id 和 components/Cover.tsx 的 THEMES 一樣）各 10 張，
    2026/10 從 Unsplash 免費圖庫（Unsplash License）逐張看過內容挑選，盡量用台灣的景色。 */
 export const TRIP_PHOTOS: Record<string, string[]> = {
+  // 夜市
+  nightmarket: [
+    "https://images.unsplash.com/photo-1552993873-0dd1110e025f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1762703744776-dedce1f87411?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1535898331935-2d274aff0fbc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1583889659384-64d9df2347ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1650039549639-de095177bf35?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1698567045771-a22c872c26fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1614419348667-82046b13469e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1771233343124-6b2a233dc970?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1616658589225-aa7e64e59c13?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1672172506036-637c69759a9e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+  ],
   // 海邊
   beach: [
     "https://images.unsplash.com/photo-1602422801299-b40cb21ec585?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
@@ -82,7 +95,7 @@ export const TRIP_PHOTOS: Record<string, string[]> = {
   // 城市
   city: [
     "https://images.unsplash.com/photo-1598935898639-81586f7d2129?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
-    "https://images.unsplash.com/photo-1552993873-0dd1110e025f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1777137748365-804ab53dd279?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1764185255779-0c208c1c4c23?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1621584728858-616080e4bd01?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1470004914212-05527e49370b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
