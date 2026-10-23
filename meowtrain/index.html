@@ -625,6 +625,9 @@ function turn(d){
   if(state === "paused") return;
   if(state === "ready" && !G.started){
     if(G.train.length > 1 && d === OPP[G.dir]) return;
+    // 往那個方向會馬上撞到（牆或同伴）就照原本排好的方向走
+    if(G.train.length > 1){ const h = G.train[0], [dx, dy] = DIRS[d], nx = h.x + dx, ny = h.y + dy;
+      if(nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS || G.train.slice(0, -1).some(c => c.x === nx && c.y === ny)) d = G.dir; }
     G.dir = d; G.moveDir = d; G.started = true; state = "play"; G.acc = 0; setMusic(true); return;
   }
   // 這一格才剛開始走：直接改方向，反應比較快
@@ -762,8 +765,9 @@ function afterCrash(){
   if(G.lives > 0){
     G.lives--;
     rebuildTrain();
-    state = "ready"; G.started = true; G.readyUntil = G.t + 2400; G.crash = null; G.queue = [];
-    toast("大家重新排好隊了", `剩下 ${G.lives} 次復活。2 秒後出發！`);
+    // 復活後停在原地，等玩家按方向鍵再出發
+    state = "ready"; G.started = false; G.revived = true; G.readyUntil = 0; G.crash = null; G.queue = []; G.acc = 0;
+    toast("大家重新排好隊了", `剩下 ${G.lives} 次復活。按方向鍵繼續出發！`);
     updateHud();
   }else{
     state = "over"; gameOver();
@@ -948,7 +952,7 @@ function draw(ts){
     }
   }
   if(state === "ready"){
-    if(!G.started) banner("按方向鍵或滑一下，出發！", "收編流浪貓，避開牆壁和同伴");
+    if(!G.started) banner(G.revived ? "按方向鍵或滑一下，繼續出發！" : "按方向鍵或滑一下，出發！", G.revived ? `還可以復活 ${G.lives} 次` : "收編流浪貓，避開牆壁和同伴");
     else if(G.readyUntil) banner(`準備出發 ${Math.ceil((G.readyUntil - t) / 1000)}`, "");
   }
 }
