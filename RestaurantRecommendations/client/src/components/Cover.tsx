@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Waves, Mountain, Landmark, FerrisWheel, Flame, Palmtree, Building2, Tractor, Library, Plane, MapPin, UtensilsCrossed, type LucideIcon } from "lucide-react";
 
-/* 旅遊地點的封面：不用外部照片（網址可能失效），用類型對應的圖示和顏色。
-   image_url 存成 "trip:海邊" 這種格式；餐廳活動照舊是照片網址。 */
+import { tripThemeOfPhoto } from "@/utils/tripPhotos";
+
+/* 旅遊地點的類型（THEMES）：決定用哪一組照片（utils/tripPhotos.ts）。
+   照片載入失敗、或舊資料存的是 "trip:mountain" 這種代號時，改用類型對應的圖示和顏色當封面。 */
 const THEMES: { keys: string[]; id: string; icon: LucideIcon; bg: string }[] = [
   { id: "beach", keys: ["海", "沙灘", "衝浪", "潛水"], icon: Waves, bg: "from-sky-300 via-cyan-400 to-blue-500" },
   { id: "island", keys: ["離島", "島"], icon: Palmtree, bg: "from-teal-300 via-emerald-400 to-cyan-500" },
@@ -19,16 +21,17 @@ const FALLBACK = { id: "default", icon: MapPin, bg: "from-amber-200 via-orange-3
 // 餐廳照片載入失敗（外部網址失效）時用的封面，不會出現破圖
 const FOOD = { icon: UtensilsCrossed, bg: "from-amber-300 via-orange-400 to-red-400" };
 
-/** 依地點類型決定封面（存進資料庫的值） */
-export function tripImage(type: string) {
+/** 依地點類型決定照片組（THEMES 的 id；找不到就是 default） */
+export function tripTheme(type: string): string {
   const t = THEMES.find(th => th.keys.some(k => type.includes(k)));
-  return `trip:${t ? t.id : FALLBACK.id}`;
+  return t ? t.id : FALLBACK.id;
 }
 
 export function Cover({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   const [failed, setFailed] = useState<string | null>(null);   // 載入失敗的照片網址（換了網址就重試）
   if (src.startsWith("trip:") || !src || failed === src) {
-    const t = src.startsWith("trip:") ? (THEMES.find(th => th.id === src.slice(5)) || FALLBACK) : FOOD;
+    const tripId = src.startsWith("trip:") ? src.slice(5) : tripThemeOfPhoto(src);
+    const t = tripId !== null ? (THEMES.find(th => th.id === tripId) || FALLBACK) : FOOD;
     const Icon = t.icon;
     return (
       <div role="img" aria-label={alt} className={`w-full h-full bg-gradient-to-br ${t.bg} flex items-center justify-center relative overflow-hidden ${className}`}>

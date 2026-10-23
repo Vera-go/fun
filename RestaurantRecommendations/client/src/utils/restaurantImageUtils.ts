@@ -1,5 +1,6 @@
 import { getEvent } from "@/lib/event";
-import { tripImage } from "@/components/Cover";
+import { tripTheme } from "@/components/Cover";
+import { TRIP_PHOTOS } from "./tripPhotos";
 import { queryClient } from "@/lib/queryClient";
 
 
@@ -277,20 +278,25 @@ const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
  * 編輯時（opts.id）如果原本的照片還適合、也沒跟別家重複，就保留不換。
  */
 export function getImageByType(type: string, opts: { id?: number; current?: string } = {}): string {
-  // 旅遊地點活動：不用美食照片，改用類型對應的圖示封面
-  if (getEvent()?.kind === "trip") return tripImage(type);
-  // 沒有自己照片的類型，借用相近類型的照片
-  for (const [k, v] of Object.entries(TYPE_ALIASES)) if (type.includes(k)) { type = v; break; }
-  // 找最相符的類型（關鍵字越長越精確）
-  let targetKey = "default", best = 0;
-  for (const key of Object.keys(typeBasedImages)) {
-    if (type.includes(key) && key.length > best) { targetKey = key; best = key.length; }
+  // 旅遊地點活動用風景照（依地點類型），餐廳活動用美食照
+  const trip = getEvent()?.kind === "trip";
+  const library = trip ? TRIP_PHOTOS : typeBasedImages;
+  let targetKey = "default";
+  if (trip) targetKey = tripTheme(type);
+  else {
+    // 沒有自己照片的寫法，對應到相近的類型
+    for (const [k, v] of Object.entries(TYPE_ALIASES)) if (type.includes(k)) { type = v; break; }
+    // 找最相符的類型（關鍵字越長越精確）
+    let best = 0;
+    for (const key of Object.keys(typeBasedImages)) {
+      if (type.includes(key) && key.length > best) { targetKey = key; best = key.length; }
+    }
   }
-  const images = typeBasedImages[targetKey];
+  const images = library[targetKey] || library.default;
   const used = usedInEvent(opts.id);
   if (opts.current && images.includes(opts.current) && !used.has(opts.current)) return opts.current;
   const fresh = images.filter(img => !used.has(img));
   if (fresh.length) return pick(fresh);
-  const freshDefault = typeBasedImages.default.filter(img => !used.has(img));
+  const freshDefault = library.default.filter(img => !used.has(img));
   return pick(freshDefault.length ? freshDefault : images);
 }
