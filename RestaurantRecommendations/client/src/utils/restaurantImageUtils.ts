@@ -90,6 +90,23 @@ export const typeBasedImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
   ],
 
+  // 台灣聚餐常見類型（2026/10 從 Unsplash 免費圖庫逐張確認過內容）
+  "火鍋": [
+    "https://images.unsplash.com/photo-1614104030967-5ca61a54247b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1784429611794-aecb6ebaef48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1703945530505-2f06e3e1cf97?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+  ],
+  "熱炒": [
+    "https://images.unsplash.com/photo-1566749006386-4cfc0d44f733?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1603246993190-638a8354b557?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1464500542410-1396074bf230?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+  ],
+  "合菜": [
+    "https://images.unsplash.com/photo-1755742319537-449f661a3190?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1791724099322-c59f7ff53cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    "https://images.unsplash.com/photo-1755742319437-ddb3e0c1497b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+  ],
+
   "default": [
     "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
@@ -105,8 +122,7 @@ export const typeBasedImages: Record<string, string[]> = {
  */
 // 聚餐類型快捷鍵裡沒有自己照片的，對應到相近的照片類型
 const TYPE_ALIASES: Record<string, string> = {
-  // 火鍋、熱炒、合菜目前沒有合適的照片，用通用餐廳照片（不借別類，避免火鍋配炸雞這種錯置）
-  "吃到飽": "自助餐", "飲茶": "港式",
+  "吃到飽": "自助餐", "飲茶": "港式", "台菜": "合菜", "麻辣鍋": "火鍋", "涮涮鍋": "火鍋", "鍋物": "火鍋", "快炒": "熱炒",
   "美式": "西式", "漢堡": "西式", "義大利": "義式料理", "烤肉": "燒烤",
 };
 
