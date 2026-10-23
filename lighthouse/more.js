@@ -14,20 +14,102 @@
   };
   const icon = (n, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n] || ""}</svg>`;
 
-  // ---------- 保護自己 ----------
+  // ---------- 保護自己：指南、情境判斷、紀錄小幫手 ----------
+  let ptab = "guide", quiz = null;
   window.renderProtect = function () {
     const P = M.protect;
-    app.innerHTML = `<p class="muted small" style="margin-top:0">${esc(P.lead)}</p>
+    const tabs = [["guide", "保護指南"], ["quiz", "情境判斷"], ["record", "紀錄小幫手"]];
+    app.innerHTML = `<div class="seg" role="tablist">${tabs.map(([k, n]) => `<button role="tab" aria-selected="${ptab === k}" class="${ptab === k ? "on" : ""}" data-ptab="${k}">${n}</button>`).join("")}</div>
+      <div id="pBody"></div>`;
+    app.querySelectorAll("[data-ptab]").forEach(b => b.onclick = () => { ptab = b.dataset.ptab; renderProtect(); });
+    ({ guide: protectGuide, quiz: protectQuiz, record: protectRecord })[ptab]($("#pBody"), P);
+  };
+  function protectGuide(el, P) {
+    el.innerHTML = `<p class="muted small" style="margin-top:0">${esc(P.lead)}</p>
       ${P.sections.map((s, i) => `<details class="pg"${i === 0 ? " open" : ""}>
         <summary><span class="pgi">${icon(s.icon)}</span><span class="pgt">${esc(s.title)}</span><span class="pgtag">${esc(s.tag)}</span></summary>
         <ul>${s.items.map(t => `<li>${t}</li>`).join("")}</ul>
       </details>`).join("")}
-      <div class="urgent">
-        <div class="ut">${icon("alert", 20)} ${esc(P.urgent.title)}</div>
-        <p class="small" style="margin:4px 0 10px">${esc(P.urgent.lead)}</p>
-        ${P.urgent.items.map(u => `<div class="ur"><span>${esc(u.when)}</span><b>${esc(u.call)}</b></div>`).join("")}
+      ${urgentBox(P)}`;
+  }
+  const urgentBox = P => `<div class="urgent">
+      <div class="ut">${icon("alert", 20)} ${esc(P.urgent.title)}</div>
+      <p class="small" style="margin:4px 0 10px">${esc(P.urgent.lead)}</p>
+      ${P.urgent.items.map(u => `<div class="ur"><span>${esc(u.when)}</span><b>${esc(u.call)}</b></div>`).join("")}
+    </div>`;
+
+  // 情境判斷：一題一題，選完看解釋
+  function protectQuiz(el, P) {
+    if (!quiz) quiz = { i: 0, picked: null, right: 0 };
+    const Q = P.quiz;
+    if (quiz.i >= Q.length) {
+      el.innerHTML = `<div class="qend"><div class="qscore">${quiz.right} / ${Q.length}</div><p>${esc(P.quizEnd)}</p>
+        <button class="btn ghost" id="qAgain">再練習一次</button></div>${urgentBox(P)}`;
+      $("#qAgain").onclick = () => { quiz = null; renderProtect(); };
+      return;
+    }
+    const q = Q[quiz.i], picked = quiz.picked;
+    el.innerHTML = `<p class="muted small" style="margin-top:0">${esc(P.quizLead)}</p>
+      <div class="qprog"><span>第 ${quiz.i + 1} 題 / ${Q.length}</span><div class="bar"><i style="width:${quiz.i / Q.length * 100}%"></i></div></div>
+      <div class="qcard rfade"><div class="qq">${esc(q.q)}</div>
+        <div class="qopts">${q.options.map((o, j) => `<button class="qopt${picked === null ? "" : j === q.best ? " best" : j === picked ? " wrong" : " dim"}" data-q="${j}" ${picked !== null ? "disabled" : ""}>${esc(o)}</button>`).join("")}</div>
+        ${picked !== null ? `<div class="qwhy ${picked === q.best ? "ok" : ""}"><b>${picked === q.best ? "這樣做比較安全" : "比較好的做法是上面標綠色的那個"}</b>${esc(q.why)}</div>
+          <div style="text-align:right;margin-top:12px"><button class="btn acc" id="qNext">${quiz.i + 1 >= Q.length ? "看結果" : "下一題"}</button></div>` : ""}
       </div>`;
-  };
+    el.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { quiz.picked = +b.dataset.q; if (quiz.picked === q.best) quiz.right++; renderProtect(); });
+    const n = $("#qNext"); if (n) n.onclick = () => { quiz.i++; quiz.picked = null; renderProtect(); };
+  }
+
+  // 紀錄小幫手：填完整理成一段文字，可以複製；也可以存在這台裝置（只存在瀏覽器）
+  const RKEY = "lh_records";
+  const loadRecords = () => { try { return JSON.parse(localStorage.getItem(RKEY)) || []; } catch (e) { return []; } };
+  const saveRecords = l => { try { localStorage.setItem(RKEY, JSON.stringify(l)); return true; } catch (e) { return false; } };
+  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  function recordText(r) {
+    return [`【事件紀錄】${r.date}${r.time ? " " + r.time : ""}`,
+      `地點：${r.place || "（沒填）"}`,
+      `發生什麼事：${r.what || "（沒填）"}`,
+      `對方：${r.who || "（沒填）"}`,
+      `在場看到的人：${r.saw || "（沒填）"}`,
+      `證據：${r.ev.length ? r.ev.join("、") : "（沒有）"}`,
+      r.feel ? `我的感受：${r.feel}` : "",
+      `（紀錄時間：${r.at}）`].filter(Boolean).join("\n");
+  }
+  function protectRecord(el, P) {
+    const R = P.record, list = loadRecords();
+    el.innerHTML = `<p class="muted small" style="margin-top:0">${esc(R.lead)}</p>
+      <div class="rec">
+        <div class="r2"><label>日期<input type="date" id="rDate" value="${today()}"></label><label>大約幾點<input type="time" id="rTime"></label></div>
+        <label>在哪裡<input id="rPlace" maxlength="60" placeholder="例如：教室後排、廁所、班級群組"></label>
+        <label>發生什麼事<textarea id="rWhat" rows="3" maxlength="600" placeholder="例如：他把我的書包丟到垃圾桶，說「你這種人不配」"></textarea></label>
+        <label>對方是誰<input id="rWho" maxlength="60" placeholder="名字或帳號，不知道也可以寫「不知道」"></label>
+        <label>誰在旁邊看到<input id="rSaw" maxlength="80" placeholder="例如：同學小美、阿明"></label>
+        <div class="rlab">有哪些證據</div>
+        <div class="rev">${R.evidence.map(e => `<label class="rchk"><input type="checkbox" value="${esc(e)}"> ${esc(e)}</label>`).join("")}</div>
+        <label>我的感受（可以不填）<input id="rFeel" maxlength="120" placeholder="例如：很害怕、不想去學校"></label>
+        <div class="rbtns"><button class="btn acc" id="rMake">整理成紀錄</button></div>
+        <div id="rOut"></div>
+      </div>
+      <p class="small muted">${esc(R.privacy)}</p>
+      ${list.length ? `<div class="rsaved"><b>存在這台裝置的紀錄（${list.length}）</b>${list.map((r, i) => `<details><summary>${esc(r.date)} ${esc(r.place || "")}</summary><pre>${esc(recordText(r))}</pre>
+          <div class="rbtns"><button class="btn ghost small" data-rcopy="${i}">複製</button><button class="btn ghost small" data-rdel="${i}">刪除</button></div></details>`).join("")}</div>` : ""}`;
+    const copy = async (t, btn) => { try { await navigator.clipboard.writeText(t); btn.textContent = "已複製"; } catch (e) { prompt("請複製這段紀錄：", t); } };
+    $("#rMake").onclick = () => {
+      const r = { date: $("#rDate").value, time: $("#rTime").value, place: $("#rPlace").value.trim(), what: $("#rWhat").value.trim(),
+        who: $("#rWho").value.trim(), saw: $("#rSaw").value.trim(), ev: [...el.querySelectorAll(".rev input:checked")].map(i => i.value),
+        feel: $("#rFeel").value.trim(), at: new Date().toLocaleString("zh-TW") };
+      if (!r.what) { $("#rWhat").focus(); $("#rWhat").classList.add("shake"); setTimeout(() => $("#rWhat").classList.remove("shake"), 420); return; }
+      $("#rOut").innerHTML = `<pre class="rpre">${esc(recordText(r))}</pre>
+        <div class="rbtns"><button class="btn acc" id="rCopy">複製</button><button class="btn ghost" id="rSave">存在這台裝置</button></div>`;
+      $("#rCopy").onclick = e => copy(recordText(r), e.target);
+      $("#rSave").onclick = () => { const l = loadRecords(); l.unshift(r); if (saveRecords(l)) renderProtect(); else alert("這個瀏覽器不能存，請先按「複製」貼到別的地方。"); };
+    };
+    el.querySelectorAll("[data-rcopy]").forEach(b => b.onclick = () => copy(recordText(list[+b.dataset.rcopy]), b));
+    el.querySelectorAll("[data-rdel]").forEach(b => b.onclick = () => {
+      if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "確定刪除？"; return; }
+      list.splice(+b.dataset.rdel, 1); saveRecords(list); renderProtect();
+    });
+  }
 
   // ---------- 陪朋友：聊天模擬 ----------
   const F = M.friend;

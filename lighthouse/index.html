@@ -221,6 +221,42 @@ dialog::backdrop{background:rgba(11,21,38,.6)}
 @media (prefers-reduced-motion:reduce){.finale .seq{animation:none;opacity:1}}
 .fpunch{text-align:center;font-size:18px;font-weight:900;color:#fff;margin:18px 0 6px;line-height:1.6}
 .fafter{text-align:center;font-size:14.5px;color:#cfdced;margin:0;line-height:1.8}
+.seg{display:flex;gap:4px;background:#f3e9d6;border-radius:999px;padding:4px;margin:0 0 14px}
+.seg button{flex:1;border:none;background:transparent;border-radius:999px;padding:8px 6px;font:inherit;font-size:14px;font-weight:800;color:var(--muted);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(60,40,10,.12)}
+.btn.small{padding:6px 12px;font-size:13px}
+.qprog{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:800;color:var(--muted);margin-bottom:10px}
+.qprog .bar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.qprog .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s}
+.qcard{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff}
+.qq{font-size:17px;font-weight:900;margin-bottom:12px;line-height:1.6}
+.qopts{display:grid;gap:8px}
+.qopt{text-align:left;border:1.5px solid var(--line);background:#fffdf8;border-radius:14px;padding:11px 14px;font:inherit;font-size:14.5px;cursor:pointer;color:inherit}
+.qopt:hover:not(:disabled){border-color:var(--acc)}
+.qopt:disabled{cursor:default}
+.qopt.best{border-color:#2f9e44;background:#e8f8ec;font-weight:800}
+.qopt.wrong{border-color:#e8604c;background:#fff0ed}
+.qopt.dim{opacity:.55}
+.qwhy{margin-top:12px;background:#fff3dc;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.7}
+.qwhy.ok{background:#e8f8ec}
+.qwhy b{display:block;margin-bottom:2px}
+.qend{text-align:center;padding:10px 0}
+.qscore{font-size:40px;font-weight:900;color:var(--acc2)}
+.rec{display:grid;gap:10px;border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff}
+.rec label{display:grid;gap:4px;font-size:13px;font-weight:800;color:var(--muted)}
+.rec input,.rec textarea{font:inherit;font-size:15px;font-weight:500;color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;background:#fffdf8;width:100%;box-sizing:border-box}
+.rec textarea{resize:vertical}
+.rec textarea.shake{animation:shake .4s ease;border-color:var(--acc2)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rlab{font-size:13px;font-weight:800;color:var(--muted)}
+.rev{display:flex;flex-wrap:wrap;gap:6px}
+.rec .rchk{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer}
+.rec .rchk input{width:auto;padding:0}
+.rbtns{display:flex;gap:8px;flex-wrap:wrap}
+.rpre,.rsaved pre{white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.7;background:#fff8ec;border:1px dashed var(--line);border-radius:12px;padding:12px;margin:4px 0 8px}
+.rsaved{margin-top:12px;font-size:14px}
+.rsaved details{border-top:1px solid var(--line);padding:8px 0}
+.rsaved summary{cursor:pointer;font-weight:700}
 .rank{text-align:center;margin:16px 0 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,#fff3dc,#ffe4d6)}
 .rank .rk{font-size:19px;font-weight:900;color:#b5521f;display:flex;align-items:center;justify-content:center;gap:6px}
 .rank p{margin:6px 0 0;font-size:14px;color:var(--ink)}
