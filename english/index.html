@@ -35,7 +35,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 header{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--border)}
 .bar{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .brand{font-weight:700;font-size:17px;margin-right:auto;cursor:pointer}
-@media (prefers-color-scheme: dark){.brand svg,.portal-link svg{filter:drop-shadow(0 0 .7px rgba(255,255,255,.95)) drop-shadow(0 0 .7px rgba(255,255,255,.7))}}
+@media (prefers-color-scheme: dark){.brand svg{filter:drop-shadow(0 0 .7px rgba(255,255,255,.95)) drop-shadow(0 0 .7px rgba(255,255,255,.7))}}
 .learner{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
 select,input[type=text]{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px}
 .btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 14px;font-size:15px}
@@ -63,8 +63,6 @@ h2{font-size:18px;margin:24px 0 10px}
 .tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
 .crumb{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:14px;color:var(--muted);flex-wrap:wrap}
 .crumb b{color:var(--text);font-size:17px}
-.portal-link{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--surface);text-decoration:none;font-size:20px;flex:none}
-.portal-link:hover,.portal-link:focus-visible{border-color:var(--primary,#2f6fde)}
 .portal-foot{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 40px}
 .portal-foot a{color:var(--muted)}
 /* progress */
@@ -500,7 +498,6 @@ button.ctile:hover{border-color:var(--accent)}
 <body>
 <header>
   <div class="bar">
-    <a class="portal-link" href="../" title="回工具箱" aria-label="回工具箱"><svg viewBox="0 0 32 32" width="1.3em" height="1.3em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <div class="brand" id="brand" title="回首頁"><svg viewBox="0 0 32 32" width="1.35em" height="1.35em" aria-hidden="true" focusable="false" style="vertical-align:-.3em"><path d="M2.5 14 Q9 12 16 15 V30 Q9 27 2.5 29 Z" fill="#FFFFFF" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M29.5 14 Q23 12 16 15 V30 Q23 27 29.5 29 Z" fill="#FFF3A3" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 20 H12 M6 23.5 H12 M20 20 H26 M20 23.5 H26" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/><path d="M16.00 1.10L17.18 3.88L20.18 4.14L17.90 6.12L18.59 9.06L16.00 7.50L13.41 9.06L14.10 6.12L11.82 4.14L14.82 3.88Z" fill="#FFD60A" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 8 l.9 2.3 2.3 .9 -2.3 .9 -.9 2.3 -.9 -2.3 -2.3 -.9 2.3 -.9 Z M25 7 l.8 2 2 .8 -2 .8 -.8 2 -.8 -2 -2 -.8 2 -.8 Z" fill="#FF9CC6" stroke="#111" stroke-width="1.2" stroke-linejoin="round"/></svg> 安安英文教室</div>
     <button class="hud" id="hud" title="我的成就"></button>
     <button class="boxbtn" id="boxBtn" title="盲盒・商店">🎁<span class="bdot" id="boxDot" hidden></span></button>
