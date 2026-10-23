@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { PlusCircle, Link2, ShieldAlert, CalendarDays, X, Utensils, Plane } from "lucide-react";
+import { PlusCircle, Link2, ShieldAlert, CalendarDays, X } from "lucide-react";
+import { BowlIcon, SuitcaseIcon, CreatedSeal, KindIcon } from "@/components/BrandIcons";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -9,9 +10,9 @@ import { ensureSession, inviteUrl, adminUrl, myEvents, forgetEvent } from "@/lib
 import { EventFields, copyText } from "./EventPage";
 import { type EventKind } from "@/lib/terms";
 
-const KINDS: { kind: EventKind; label: string; hint: string; Icon: typeof Utensils }[] = [
-  { kind: "restaurant", label: "聚餐餐廳", hint: "決定去哪吃", Icon: Utensils },
-  { kind: "trip", label: "旅遊地點", hint: "畢業旅行、員工旅遊…", Icon: Plane },
+const KINDS: { kind: EventKind; label: string; hint: string; Icon: typeof BowlIcon }[] = [
+  { kind: "restaurant", label: "聚餐餐廳", hint: "決定去哪吃", Icon: BowlIcon },
+  { kind: "trip", label: "旅遊地點", hint: "畢業旅行、員工旅遊…", Icon: SuitcaseIcon },
 ];
 
 // 台灣今天 + n 天（建立活動時的預設日期）
@@ -55,7 +56,7 @@ export default function Landing() {
 
         {created ? (
           <div className="border border-primary/40 bg-card rounded-sm p-6 shadow-sm">
-            <h3 className="text-xl font-serif text-primary mb-1">🎉 活動建立好了：{created.title}</h3>
+            <h3 className="text-xl font-serif text-primary mb-1 flex items-center gap-2"><CreatedSeal className="h-9 w-9 flex-shrink-0" /><span>活動建立好了：{created.title}</span></h3>
             <p className="text-sm text-muted-foreground mb-5">下面兩個連結請分開用：</p>
 
             <div className="mb-5">
@@ -100,7 +101,7 @@ export default function Landing() {
               {list.map(e => (
                 <li key={e.code} className="flex items-center justify-between px-4 py-3">
                   <Link href={`/e/${e.code}`} className="hover:text-primary">
-                    {e.kind === "trip" ? "✈️ " : "🍽️ "}{e.title}{e.admin && <span className="ml-2 text-xs text-amber-700 border border-amber-300 rounded-full px-2 py-0.5">主辦人</span>}
+                    <KindIcon kind={e.kind} className="h-4 w-4 inline-block mr-1.5 -mt-0.5 text-amber-700" />{e.title}{e.admin && <span className="ml-2 text-xs text-amber-700 border border-amber-300 rounded-full px-2 py-0.5">主辦人</span>}
                   </Link>
                   <button title="從清單移除" className="text-muted-foreground hover:text-destructive" onClick={() => { forgetEvent(e.code); setList(myEvents()); }}>
                     <X className="h-4 w-4" />
