@@ -13,7 +13,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
 body{min-height:100vh;-webkit-tap-highlight-color:transparent}
-.wrap{max-width:560px;margin:0 auto;padding:12px 16px 0}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 16px 0}
 header{display:flex;align-items:center;gap:10px;margin:2px 0 8px}
 header h1{font-size:24px;margin:0;font-weight:900;letter-spacing:1px}
 header .sub{font-size:13px;color:var(--muted);font-weight:700}
@@ -23,14 +23,24 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .hud .sp{flex:1}
 .ibtn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:4px 8px;font:inherit;font-weight:900;font-size:13px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:4px;box-shadow:2px 2px 0 var(--line)}
 .ibtn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--line)}
-.stage{position:relative;border:3px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:4px 4px 0 var(--line);background:#F7E6C8;touch-action:none;user-select:none;-webkit-user-select:none}
-canvas{display:block;width:100%;height:auto}
-.toasts{position:absolute;left:0;right:0;top:8px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:3}
-.toast{background:rgba(255,255,255,.95);border:2px solid var(--line);border-radius:14px;padding:6px 12px;font-size:14px;font-weight:800;max-width:92%;text-align:center;animation:tin .25s ease-out;box-shadow:2px 2px 0 var(--line)}
+.stage{position:relative;flex:none;border:3px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:4px 4px 0 var(--line);background:#F7E6C8;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block}
+.game{display:flex;gap:16px;align-items:flex-start;justify-content:center}
+.side{flex:none;width:300px}
+.side header{margin-top:0}
+.side .hud{margin-bottom:14px}
+.side .tip{text-align:left;margin-top:12px}
+.side h3{margin:0 0 6px;font-size:14px;color:var(--muted)}
+.hint{margin:0 0 12px;font-size:13px;font-weight:800;background:#fff;border:2px solid #E6D6C2;border-radius:12px;padding:6px 10px;line-height:1.7}
+.hint i,.tierh i{font-style:normal;padding:1px 7px;border-radius:99px;color:#fff;font-size:12px}
+.toasts{display:flex;flex-direction:column;gap:6px}
+.toasts .empty{font-size:13px;color:var(--muted);border:2px dashed #E6D6C2;border-radius:14px;padding:10px 12px}
+@media(max-width:760px){.game{flex-direction:column;align-items:stretch;gap:8px}.side{display:contents}.side header{order:0;margin:2px 0 0}.side .hud{order:1;margin-bottom:0}.hint{order:2;margin:0}.stage{order:3}.side h3{display:none}.toasts{order:4;min-height:58px}.toasts .toast.old{display:none}.side .tip{order:5;text-align:center;margin-top:4px}}
+.toast{background:#fff;border:2px solid var(--line);border-radius:14px;padding:7px 12px;font-size:14px;font-weight:800;animation:tin .25s ease-out;box-shadow:2px 2px 0 var(--line);transition:opacity .4s}
+.toast.old{opacity:.5;box-shadow:none}
 .toast small{display:block;font-weight:600;color:var(--muted);font-size:12.5px;margin-top:1px}
 .toast.bad{background:#FFF0EC}
 .toast.gold{background:#FFF6CC}
-.toast.out{opacity:0;transform:translateY(-6px);transition:.4s}
 @keyframes tin{from{opacity:0;transform:translateY(-8px) scale(.96)}}
 .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(255,244,226,.86);z-index:4;overflow:auto}
 .ov[hidden]{display:none}
@@ -44,6 +54,7 @@ canvas{display:block;width:100%;height:auto}
 .btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 .pick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:10px 0}
 .pick button{border:2px solid #E6D6C2;background:#FFF9F0;border-radius:12px;padding:4px 2px 3px;cursor:pointer;font:inherit;font-size:12px;font-weight:800;color:var(--ink)}
+.pick button:disabled{cursor:not-allowed;color:#BFAF9C}
 .pick button.on{border-color:var(--acc);background:#FFE7D3;box-shadow:0 0 0 2px var(--acc)}
 .pick canvas{width:100%;max-width:64px;height:auto}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
@@ -57,6 +68,7 @@ canvas{display:block;width:100%;height:auto}
 .book .it b{font-size:14px}
 .book .it p{margin:0;font-size:12px;line-height:1.45;color:var(--muted)}
 .book .it.no{opacity:.6}
+.tierh{grid-column:1/-1;font-size:13px;font-weight:800;color:var(--muted);margin-top:4px}
 .help{text-align:left;font-size:14px;line-height:1.7;margin:6px 0;padding-left:20px}
 .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;text-align:left;margin:8px 0}
 .legend div{display:flex;align-items:center;gap:6px;font-size:13px;background:#FFF9F0;border-radius:10px;padding:4px 6px}
@@ -73,24 +85,31 @@ canvas{display:block;width:100%;height:auto}
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <canvas id="logo" width="88" height="88" style="width:44px;height:44px"></canvas>
-    <div><h1>喵喵列車長</h1><div class="sub">沿路收編流浪貓，帶大家一起回家</div></div>
-  </header>
-  <div class="hud">
-    <span class="pill" title="隊伍裡的貓咪">貓咪 <span id="hLen">1</span></span>
-    <span class="pill" title="分數">分數 <span id="hScore">0</span></span>
-    <span class="pill" title="復活次數（吃金色貓罐罐可以增加）">復活 <span id="hLives">1</span></span>
-    <span class="sp"></span>
-    <button class="ibtn" id="bPause" title="暫停（空白鍵）">暫停</button>
-    <button class="ibtn" id="bMusic" title="背景音樂"></button>
-    <button class="ibtn" id="bBook">圖鑑</button>
-    <button class="ibtn" id="bHelp">說明</button>
-  </div>
-  <div class="stage" id="stage">
-    <canvas id="cv"></canvas>
-    <div class="toasts" id="toasts"></div>
-    <div class="ov" id="ov"><div class="panel" id="panel"></div></div>
+  <div class="game">
+    <div class="stage" id="stage">
+      <canvas id="cv"></canvas>
+      <div class="ov" id="ov"><div class="panel" id="panel"></div></div>
+    </div>
+    <aside class="side">
+      <header>
+        <canvas id="logo" width="88" height="88" style="width:44px;height:44px"></canvas>
+        <div><h1>喵喵列車長</h1><div class="sub">沿路收編流浪貓，帶大家一起回家</div></div>
+      </header>
+      <div class="hud">
+        <span class="pill" title="隊伍裡的貓咪">貓咪 <span id="hLen">1</span></span>
+        <span class="pill" title="分數">分數 <span id="hScore">0</span></span>
+        <span class="pill" title="復活次數（吃金色貓罐罐可以增加）">復活 <span id="hLives">1</span></span>
+        <span class="sp"></span>
+        <button class="ibtn" id="bPause" title="暫停（空白鍵）">暫停</button>
+        <button class="ibtn" id="bMusic" title="背景音樂"></button>
+        <button class="ibtn" id="bBook">圖鑑</button>
+        <button class="ibtn" id="bHelp">說明</button>
+      </div>
+      <p class="hint" id="rareHint"></p>
+      <h3>列車廣播</h3>
+      <div class="toasts" id="toasts" aria-live="polite"><div class="empty">收編了什麼貓、吃了什麼，都會顯示在這裡。</div></div>
+      <p class="tip">方向鍵、WASD、在畫面上滑動，或按下面的按鈕都可以轉彎。空白鍵暫停。</p>
+    </aside>
   </div>
   <div class="pad" id="pad">
     <button class="u" data-d="up" aria-label="上">▲</button>
@@ -98,7 +117,6 @@ canvas{display:block;width:100%;height:auto}
     <button class="d" data-d="down" aria-label="下">▼</button>
     <button class="r" data-d="right" aria-label="右">▶</button>
   </div>
-  <p class="tip">方向鍵、WASD、在畫面上滑動，或按下面的按鈕都可以轉彎。空白鍵暫停。</p>
 </div>
 <!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
 <footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
@@ -109,7 +127,6 @@ canvas{display:block;width:100%;height:auto}
    玩法像貪吃蛇：帶頭的貓（列車長）一直往前走，沿路收編流浪貓，隊伍越來越長。
    - 健康食物：大家開心；不健康的食物：有貓變胖（健康食物可以讓胖貓瘦回來）
    - 金色貓罐罐：多一次復活
-   - 休息站（貓窩）：走進去會睡一下，讓手休息
    - 撞牆或撞到同伴：貓咪散開或疊成貓山；還有復活次數就重新排好繼續
    所有圖都是用程式畫的，沒有用圖片和 emoji。
    ========================================================= */
@@ -117,17 +134,36 @@ const COLS = 13, ROWS = 15;
 const INK = "#3A2A20";
 
 // ---------- 貓咪品種（花色、眼睛、小知識） ----------
+// tier：0 普通、1 少見、2 稀有、3 傳說（隊伍夠長才會遇到，見 TIERS）
+// 其他外觀：fluffy 長毛、tufts 耳尖長毛、bigEars 大耳朵、shortLegs 短腿、wide 圓臉、eye2 另一隻眼睛的顏色
 const BREEDS = [
-  {id:"orange",  name:"橘貓",   base:"#F6A64A", eye:"#7FB33A", fact:"橘貓大多是公貓，因為決定橘色的基因在 X 染色體上。"},
-  {id:"calico",  name:"三花貓", base:"#FFFDF8", eye:"#D9A531", fact:"三花貓有白、橘、黑三種顏色，幾乎都是母貓，公三花非常少見。"},
-  {id:"tuxedo",  name:"賓士貓", base:"#2E2B2B", eye:"#E8C547", fact:"黑白配色像穿著燕尾服，英文叫 tuxedo cat（燕尾服貓）。"},
-  {id:"tabby",   name:"虎斑貓", base:"#B39878", eye:"#8BB04A", fact:"虎斑貓的額頭上，常常有一個像英文字母「M」的花紋。"},
-  {id:"black",   name:"黑貓",   base:"#2B2A2E", eye:"#F2C230", fact:"在日本和英國，有些地方把黑貓當成會帶來好運的貓。"},
-  {id:"white",   name:"白貓",   base:"#FFFFFF", eye:"#62A8E8", fact:"藍眼睛的白貓，比較容易天生聽力不好，要多一點耐心。"},
-  {id:"siamese", name:"暹羅貓", base:"#F3E7D3", eye:"#4C9BE0", fact:"暹羅貓身上比較冷的地方（耳朵、臉、腳、尾巴）顏色會比較深。"},
-  {id:"grey",    name:"灰貓",   base:"#9EA7B2", eye:"#7CC08A", fact:"灰色其實是「變淡的黑色」，所以灰貓也常被叫做藍貓。"},
-  {id:"tortie",  name:"玳瑁貓", base:"#3B2C25", eye:"#E2A53A", fact:"玳瑁貓是黑色和橘色混在一起，跟三花貓一樣幾乎都是母貓。"},
-  {id:"cow",     name:"乳牛貓", base:"#FFFFFF", eye:"#C9A640", fact:"白底黑斑像乳牛，每一隻的花紋都不一樣，像身分證一樣。"},
+  {id:"orange",  tier:0, name:"橘貓",     base:"#F6A64A", eye:"#7FB33A", fact:"橘貓大多是公貓，因為決定橘色的基因在 X 染色體上。"},
+  {id:"calico",  tier:0, name:"三花貓",   base:"#FFFDF8", eye:"#D9A531", fact:"三花貓有白、橘、黑三種顏色，幾乎都是母貓。"},
+  {id:"tuxedo",  tier:0, name:"賓士貓",   base:"#2E2B2B", eye:"#E8C547", fact:"黑白配色像穿著燕尾服，英文叫 tuxedo cat（燕尾服貓）。"},
+  {id:"tabby",   tier:0, name:"虎斑貓",   base:"#B39878", eye:"#8BB04A", fact:"虎斑貓的額頭上，常常有一個像英文字母「M」的花紋。"},
+  {id:"black",   tier:0, name:"黑貓",     base:"#2B2A2E", eye:"#F2C230", fact:"在日本和英國，有些地方把黑貓當成會帶來好運的貓。"},
+  {id:"white",   tier:0, name:"白貓",     base:"#FFFFFF", eye:"#62A8E8", fact:"藍眼睛的白貓，比較容易天生聽力不好，要多一點耐心。"},
+  {id:"grey",    tier:0, name:"灰貓",     base:"#9EA7B2", eye:"#7CC08A", fact:"灰色其實是「變淡的黑色」，所以灰貓也常被叫做藍貓。"},
+  {id:"orangew", tier:0, name:"橘白貓",   base:"#F6A64A", eye:"#9DBB45", fact:"橘白貓和橘貓一樣大多是公貓，是台灣街頭很常見的花色。"},
+  {id:"tortie",  tier:1, name:"玳瑁貓",   base:"#3B2C25", eye:"#E2A53A", fact:"玳瑁貓是黑色和橘色混在一起，跟三花貓一樣幾乎都是母貓。"},
+  {id:"cow",     tier:1, name:"乳牛貓",   base:"#FFFFFF", eye:"#C9A640", fact:"白底黑斑像乳牛，每一隻的花紋都不一樣，像身分證一樣。"},
+  {id:"siamese", tier:1, name:"暹羅貓",   base:"#F3E7D3", eye:"#4C9BE0", fact:"暹羅貓身上比較冷的地方（耳朵、臉、腳、尾巴）顏色會比較深。"},
+  {id:"amshort", tier:1, name:"美國短毛貓", base:"#CDD2D8", eye:"#7DB34E", fact:"銀色底加上黑色的漩渦花紋，身體結實，個性穩定好相處。"},
+  {id:"british", tier:1, name:"英國短毛貓", base:"#8E9BAA", eye:"#E39B3A", wide:true, fact:"圓圓的臉、胖胖的臉頰，據說是《愛麗絲夢遊仙境》柴郡貓的原型之一。"},
+  {id:"ragdoll", tier:2, name:"布偶貓",   base:"#F6EEDF", eye:"#4C8FE0", fluffy:true, fact:"被抱起來的時候常常全身放鬆，像布娃娃一樣，所以叫布偶貓。"},
+  {id:"persian", tier:2, name:"波斯貓",   base:"#FFF6EC", eye:"#D98B2B", fluffy:true, fact:"毛又長又多，要常常梳毛；扁扁的臉比較容易有呼吸和眼睛的問題。"},
+  {id:"munchkin",tier:2, name:"曼赤肯貓", base:"#E2B57E", eye:"#8FB84A", shortLegs:true, fact:"腿天生特別短，所以又叫「短腿貓」，不過跑起來一樣很快。"},
+  {id:"mainecoon",tier:2,name:"緬因貓",   base:"#9C7650", eye:"#C9A23A", fluffy:true, tufts:true, fact:"體型最大的家貓品種之一，耳朵尖端有像山貓一樣的長毛。"},
+  {id:"sphynx",  tier:3, name:"斯芬克斯無毛貓", base:"#F0C6B4", eye:"#7FC08A", bigEars:true, fact:"幾乎沒有毛，摸起來像溫暖的麂皮；怕冷也怕曬，還要常常洗澡。"},
+  {id:"oddeye",  tier:3, name:"異色瞳白貓", base:"#FFFFFF", eye:"#5AA8F0", eye2:"#F2C230", fact:"兩隻眼睛顏色不一樣叫「異色瞳」，在日本被叫做「金目銀目」，代表好運。"},
+  {id:"malecalico", tier:3, name:"公三花貓", base:"#FFFDF8", eye:"#D9A531", fact:"三花貓幾乎都是母貓，公三花大約幾千隻才有一隻，在日本被當成幸運的象徵。"},
+];
+// 稀有度：隊伍有幾隻貓（含列車長）才會開始遇到、出現的機率權重、分數、光圈顏色、會不會跑走（毫秒）
+const TIERS = [
+  {name:"普通", need:1,  weight:60, score:10, glow:null,      leave:0},
+  {name:"少見", need:5,  weight:28, score:15, glow:"#6FB8FF", leave:0},
+  {name:"稀有", need:10, weight:16, score:25, glow:"#B57CFF", leave:15000},
+  {name:"傳說", need:16, weight:7,  score:50, glow:"#FFC23D", leave:12000},
 ];
 const BY = Object.fromEntries(BREEDS.map(b => [b.id, b]));
 const STREET_FACTS = [
@@ -136,6 +172,7 @@ const STREET_FACTS = [
   "想幫助流浪貓，可以先問問附近的動物保護團體，用「領養代替購買」。",
   "貓咪一天大約要睡 12 到 16 個小時，睡飽了才有精神。",
   "貓咪慢慢眨眼睛，是在說「我信任你」，你也可以慢慢眨眼回應牠。",
+  "品種貓也可能被棄養而流浪。決定養貓之前，要想清楚能不能照顧牠一輩子。",
 ];
 
 // ---------- 食物 ----------
@@ -159,11 +196,17 @@ const persist = () => { try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)
 const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
 let CELL = 32, DPR = 1;
 function resize(){
-  const w = document.getElementById("stage").clientWidth;
+  const st = document.getElementById("stage"), wrapW = document.querySelector(".wrap").clientWidth - 32;
+  const wide = innerWidth > 760;
   DPR = Math.min(window.devicePixelRatio || 1, 2);
-  CELL = w / COLS;
+  const top = st.getBoundingClientRect().top + scrollY;
+  const availW = (wide ? wrapW - 316 : wrapW) - 6;
+  const availH = innerHeight - Math.min(top, 40) - 20;
+  CELL = wide ? Math.max(24, Math.min(availW / COLS, availH / ROWS, 60)) : availW / COLS;
+  const w = CELL * COLS;
+  st.style.width = (w + 6) + "px";
   cv.width = Math.round(w * DPR); cv.height = Math.round(CELL * ROWS * DPR);
-  cv.style.height = (CELL * ROWS) + "px";
+  cv.style.width = w + "px"; cv.style.height = (CELL * ROWS) + "px";
 }
 
 // ---------- 畫貓 ----------
@@ -178,33 +221,50 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   const lw = Math.max(1.2, s * .045);
   c.lineWidth = lw; c.strokeStyle = INK; c.lineJoin = "round"; c.lineCap = "round";
   const r = s * .33, hy = -s * .07;            // 頭的半徑、位置
+  if(opt.glow){ const gg = c.createRadialGradient(0, s * .05, s * .08, 0, s * .05, s * .62); gg.addColorStop(0, opt.glow); gg.addColorStop(1, "rgba(255,255,255,0)"); c.save(); c.fillStyle = gg; c.beginPath(); c.arc(0, s * .05, s * .62, 0, Math.PI * 2); c.fill(); c.restore(); }
   const bw = s * (.3 + fat * .085), bh = s * (.2 + fat * .03), by = s * .2;
   // 尾巴
   c.beginPath(); c.moveTo(bw * .7, by + bh * .3); c.quadraticCurveTo(bw * 1.45, by - bh * .2, bw * 1.15, by - bh * 1.3);
   c.strokeStyle = INK; c.lineWidth = s * .13; c.stroke();
   c.strokeStyle = tailColor(b); c.lineWidth = s * .13 - lw * 2; c.stroke();
   c.lineWidth = lw; c.strokeStyle = INK;
+  // 短腿貓的小短腿（畫在身體後面，只露出一點點）
+  if(b.shortLegs){ c.fillStyle = b.base; for(const k of [-.6, -.22, .22, .6]){ c.beginPath(); c.ellipse(k * bw, by + bh * 1.05, bw * .17, bh * .38, 0, 0, Math.PI * 2); c.fill(); c.stroke(); } }
   // 身體
   c.beginPath(); c.ellipse(0, by, bw, bh, 0, 0, Math.PI * 2); c.fillStyle = bodyColor(b); c.fill(); c.stroke();
-  if(b.id === "tuxedo" || b.id === "cow" || b.id === "calico"){ // 白肚子或身上的斑
+  if(["tuxedo", "cow", "calico", "malecalico", "orangew"].includes(b.id)){ // 白肚子或身上的斑
     c.save(); c.beginPath(); c.ellipse(0, by, bw, bh, 0, 0, Math.PI * 2); c.clip();
     if(b.id === "tuxedo"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, by + bh * .3, bw * .45, bh * .9, 0, 0, Math.PI * 2); c.fill(); }
     if(b.id === "cow"){ c.fillStyle = "#2B2A2E"; c.beginPath(); c.ellipse(-bw * .5, by - bh * .2, bw * .35, bh * .6, .3, 0, Math.PI * 2); c.fill(); }
-    if(b.id === "calico"){ c.fillStyle = "#F09A3E"; c.beginPath(); c.ellipse(bw * .5, by, bw * .35, bh * .7, 0, 0, Math.PI * 2); c.fill(); }
+    if(b.id === "orangew"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, by + bh * .3, bw * .5, bh * .9, 0, 0, Math.PI * 2); c.fill(); }
+    if(b.id === "calico" || b.id === "malecalico"){ c.fillStyle = "#F09A3E"; c.beginPath(); c.ellipse(bw * .5, by, bw * .35, bh * .7, 0, 0, Math.PI * 2); c.fill(); }
     c.restore(); c.beginPath(); c.ellipse(0, by, bw, bh, 0, 0, Math.PI * 2); c.stroke();
   }
   // 耳朵（害怕時往兩邊壓平）
   const flat = mood === "scared" ? .55 : 0;
+  // 長毛貓：頭後面一圈蓬蓬的毛
+  if(b.fluffy){
+    // 一圈小圓組成的毛：先畫粗的外框，再填色蓋掉裡面的線，只留最外圈的輪廓
+    const fur = [...Array(14)].map((_, k) => { const a = k / 14 * Math.PI * 2; return [Math.cos(a) * r * 1.02, hy + r * .1 + Math.sin(a) * r * .92]; });
+    c.lineWidth = lw * 2;
+    fur.forEach(([fx, fy]) => { c.beginPath(); c.arc(fx, fy, r * .3, 0, Math.PI * 2); c.stroke(); });
+    c.fillStyle = b.id === "mainecoon" ? "#C9A57A" : b.id === "ragdoll" ? "#FFFFFF" : b.base;
+    fur.forEach(([fx, fy]) => { c.beginPath(); c.arc(fx, fy, r * .3, 0, Math.PI * 2); c.fill(); });
+    c.beginPath(); c.ellipse(0, hy + r * .1, r * 1.02, r * .92, 0, 0, Math.PI * 2); c.fill();
+    c.lineWidth = lw;
+  }
+  const es = b.bigEars ? 1.35 : b.id === "persian" ? .75 : 1;
   for(const sd of [-1, 1]){
-    c.save(); c.translate(sd * r * .62, hy - r * .62); c.rotate(sd * (.25 + flat));
+    c.save(); c.translate(sd * r * .62, hy - r * .62); c.rotate(sd * (.25 + flat + (b.bigEars ? .15 : 0))); c.scale(es, es);
     c.beginPath(); c.moveTo(-r * .34, r * .22); c.lineTo(0, -r * .5); c.lineTo(r * .34, r * .22); c.closePath();
     c.fillStyle = earColor(b, sd); c.fill(); c.stroke();
+    if(b.tufts){ c.beginPath(); c.moveTo(0, -r * .5); c.lineTo(-r * .06, -r * .78); c.moveTo(0, -r * .5); c.lineTo(r * .07, -r * .8); c.stroke(); }
     c.beginPath(); c.moveTo(-r * .16, r * .12); c.lineTo(0, -r * .24); c.lineTo(r * .16, r * .12); c.closePath();
     c.fillStyle = "#F7A8B8"; c.fill();
     c.restore();
   }
   // 頭（胖的時候臉頰鼓鼓的）
-  const hw = r * (1 + fat * .1), hh = r * .92;
+  const hw = r * (1 + fat * .1 + (b.wide ? .12 : 0)), hh = r * .92;
   c.beginPath(); c.ellipse(0, hy, hw, hh, 0, 0, Math.PI * 2); c.fillStyle = b.base; c.fill();
   c.save(); c.clip(); headPattern(c, b, hw, hh, hy); c.restore();
   c.beginPath(); c.ellipse(0, hy, hw, hh, 0, 0, Math.PI * 2); c.stroke();
@@ -226,7 +286,7 @@ function drawCat(c, x, y, s, breedId, opt = {}){
     }
   }else{
     for(const sd of [-1, 1]){
-      c.beginPath(); c.ellipse(sd * ex, ey, r * .15, r * .19, 0, 0, Math.PI * 2); c.fillStyle = b.eye; c.fill();
+      c.beginPath(); c.ellipse(sd * ex, ey, r * .15, r * .19, 0, 0, Math.PI * 2); c.fillStyle = sd > 0 && b.eye2 ? b.eye2 : b.eye; c.fill();
       c.lineWidth = lw * .8; c.strokeStyle = INK; c.stroke();
       c.beginPath(); c.ellipse(sd * ex, ey, r * .06, r * .15, 0, 0, Math.PI * 2); c.fillStyle = "#1E1612"; c.fill();
       c.beginPath(); c.arc(sd * ex + r * .05, ey - r * .07, r * .04, 0, Math.PI * 2); c.fillStyle = "#fff"; c.fill();
@@ -258,11 +318,11 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   }
   c.restore();
 }
-function bodyColor(b){ return {tuxedo:"#2E2B2B", black:"#2B2A2E", tortie:"#3B2C25", siamese:"#EADBC4", calico:"#FFFDF8", cow:"#FFFFFF", white:"#FFFFFF"}[b.id] || b.base; }
-function tailColor(b){ return {siamese:"#6B4A3A", calico:"#2B2A2E", cow:"#2B2A2E", tortie:"#D9822F", orange:"#E08A30", tabby:"#8C7258"}[b.id] || b.base; }
+function bodyColor(b){ return {siamese:"#EADBC4", ragdoll:"#EFE3CF", mainecoon:"#8E6A47"}[b.id] || b.base; }
+function tailColor(b){ return {siamese:"#6B4A3A", ragdoll:"#8A6A55", calico:"#2B2A2E", malecalico:"#2B2A2E", cow:"#2B2A2E", tortie:"#D9822F", orange:"#E08A30", orangew:"#E08A30", tabby:"#8C7258", amshort:"#5B5F66", mainecoon:"#6E5034"}[b.id] || b.base; }
 function earColor(b, sd){
-  if(b.id === "siamese") return "#6B4A3A";
-  if(b.id === "calico") return sd < 0 ? "#F09A3E" : "#2B2A2E";
+  if(b.id === "siamese" || b.id === "ragdoll") return "#6B4A3A";
+  if(b.id === "calico" || b.id === "malecalico") return sd < 0 ? "#F09A3E" : "#2B2A2E";
   if(b.id === "cow") return sd < 0 ? "#2B2A2E" : "#FFFFFF";
   if(b.id === "tortie") return sd < 0 ? "#D9822F" : "#3B2C25";
   return b.base;
@@ -270,19 +330,22 @@ function earColor(b, sd){
 // 頭上的花紋（已經裁切在頭的範圍內）
 function headPattern(c, b, hw, hh, hy){
   const r = hh;
-  if(b.id === "orange" || b.id === "tabby"){
-    c.strokeStyle = b.id === "orange" ? "#D97A26" : "#7A6248"; c.lineWidth = r * .12;
+  if(["orange", "tabby", "orangew", "mainecoon", "amshort"].includes(b.id)){
+    c.strokeStyle = {orange:"#D97A26", orangew:"#D97A26", tabby:"#7A6248", mainecoon:"#5E4329", amshort:"#4F545B"}[b.id]; c.lineWidth = r * .12;
     for(const k of [-1, 0, 1]){ c.beginPath(); c.moveTo(k * r * .25, hy - r); c.lineTo(k * r * .2, hy - r * .55); c.stroke(); }
     for(const sd of [-1, 1]) for(const k of [0, 1]){ c.beginPath(); c.moveTo(sd * hw, hy + r * (.05 + k * .22)); c.lineTo(sd * hw * .72, hy + r * (.1 + k * .22)); c.stroke(); }
-  }else if(b.id === "calico"){
+    if(b.id === "orangew"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, hy + r * .62, hw * .8, r * .62, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(-r * .18, hy + r * .1); c.lineTo(0, hy - r * .55); c.lineTo(r * .18, hy + r * .1); c.fill(); }
+    if(b.id === "mainecoon"){ c.fillStyle = "#E8D2B0"; c.beginPath(); c.ellipse(0, hy + r * .5, hw * .5, r * .35, 0, 0, Math.PI * 2); c.fill(); }
+  }else if(b.id === "calico" || b.id === "malecalico"){
     c.fillStyle = "#F09A3E"; c.beginPath(); c.ellipse(-hw * .6, hy - r * .55, hw * .55, r * .55, .4, 0, Math.PI * 2); c.fill();
     c.fillStyle = "#2B2A2E"; c.beginPath(); c.ellipse(hw * .65, hy - r * .6, hw * .45, r * .5, -.3, 0, Math.PI * 2); c.fill();
   }else if(b.id === "tuxedo"){
     c.fillStyle = "#fff"; c.beginPath(); c.moveTo(0, hy - r * .35); c.quadraticCurveTo(r * .5, hy + r * .1, r * .55, hy + r); c.lineTo(-r * .55, hy + r); c.quadraticCurveTo(-r * .5, hy + r * .1, 0, hy - r * .35); c.fill();
-  }else if(b.id === "siamese"){
+  }else if(b.id === "siamese" || b.id === "ragdoll"){
     const g = c.createRadialGradient(0, hy + r * .25, r * .05, 0, hy + r * .2, r * .75);
     g.addColorStop(0, "#5A3C30"); g.addColorStop(.6, "rgba(107,74,58,.75)"); g.addColorStop(1, "rgba(107,74,58,0)");
     c.fillStyle = g; c.fillRect(-hw, hy - r, hw * 2, r * 2);
+    if(b.id === "ragdoll"){ c.fillStyle = "#fff"; c.beginPath(); c.moveTo(0, hy); c.lineTo(r * .3, hy + r); c.lineTo(-r * .3, hy + r); c.closePath(); c.fill(); }
   }else if(b.id === "tortie"){
     c.fillStyle = "#D9822F";
     [[-.5, -.5, .4], [.45, .1, .3], [-.2, .55, .25], [.6, -.6, .22]].forEach(([px, py, pr]) => { c.beginPath(); c.arc(px * hw, hy + py * r, pr * r, 0, Math.PI * 2); c.fill(); });
@@ -290,7 +353,12 @@ function headPattern(c, b, hw, hh, hy){
     c.fillStyle = "#2B2A2E";
     c.beginPath(); c.ellipse(-hw * .55, hy - r * .55, hw * .5, r * .45, .2, 0, Math.PI * 2); c.fill();
     c.beginPath(); c.arc(hw * .7, hy + r * .35, r * .22, 0, Math.PI * 2); c.fill();
-  }else if(b.id === "grey"){
+  }else if(b.id === "sphynx"){
+    c.strokeStyle = "rgba(170,105,90,.55)"; c.lineWidth = r * .06;
+    for(const k of [0, 1, 2]){ c.beginPath(); c.moveTo(-r * .3, hy - r * (.75 - k * .14)); c.quadraticCurveTo(0, hy - r * (.85 - k * .14), r * .3, hy - r * (.75 - k * .14)); c.stroke(); }
+  }else if(b.id === "persian"){
+    c.fillStyle = "rgba(240,215,185,.6)"; c.beginPath(); c.ellipse(0, hy + r * .35, hw * .55, r * .4, 0, 0, Math.PI * 2); c.fill();
+  }else if(b.id === "grey" || b.id === "british"){
     c.fillStyle = "rgba(255,255,255,.35)"; c.beginPath(); c.ellipse(0, hy + r * .45, hw * .5, r * .35, 0, 0, Math.PI * 2); c.fill();
   }
 }
@@ -346,14 +414,6 @@ function drawItem(c, x, y, s, kind, t){
     c.beginPath(); c.ellipse(0, r * .05, r * .4, r * .2, 0, 0, Math.PI * 2); c.fillStyle = "#fff"; c.fill();
     c.beginPath(); c.moveTo(-r * .2, r * .05); c.quadraticCurveTo(0, -r * .1, r * .18, r * .05); c.quadraticCurveTo(0, r * .2, -r * .2, r * .05); c.moveTo(r * .18, r * .05); c.lineTo(r * .3, -r * .05); c.lineTo(r * .3, r * .15); c.closePath(); c.fillStyle = "#5D9AD0"; c.fill();
     sparkle(c, r * .85, -r * .7, r * .22 * (.6 + glow * .4));
-  }else if(kind === "bed"){
-    c.beginPath(); c.ellipse(0, r * .2, r * 1.15, r * .75, 0, 0, Math.PI * 2); c.fillStyle = "#B886E0"; P();
-    c.beginPath(); c.ellipse(0, r * .25, r * .82, r * .48, 0, 0, Math.PI * 2); c.fillStyle = "#F4D6FF"; P();
-    c.fillStyle = "#B886E0";
-    c.beginPath(); c.arc(0, r * .32, r * .17, 0, Math.PI * 2); c.fill();
-    for(const [dx, dy] of [[-.24, .04], [-.08, -.05], [.08, -.05], [.24, .04]]){ c.beginPath(); c.arc(dx * r, dy * r, r * .07, 0, Math.PI * 2); c.fill(); }
-    c.fillStyle = INK; c.font = `900 ${r * .55}px system-ui,sans-serif`; c.textAlign = "center";
-    c.fillText("z", r * .9, -r * .55 + Math.sin(t / 400) * r * .1); c.font = `900 ${r * .4}px system-ui,sans-serif`; c.fillText("z", r * 1.15, -r * .9 + Math.sin(t / 400 + 1) * r * .1);
   }
   c.restore();
 }
@@ -415,7 +475,6 @@ const SFX = {
   good: () => blip([660, 880, 1175]),
   bad: () => blip([330, 247], "square", .12, .08),
   can: () => blip([784, 988, 1175, 1568], "triangle", .08, .13),
-  bed: () => blip([523, 392, 330], "sine", .18, .12),
   crash: () => { blip([220, 165, 110], "square", .1, .1); setTimeout(() => meow("scared"), 60); },
 };
 // 背景音樂：輕快的五聲音階小旋律，一直循環
@@ -466,25 +525,26 @@ function musicLabel(){
 const DIRS = {up:[0, -1], down:[0, 1], left:[-1, 0], right:[1, 0]};
 const OPP = {up:"down", down:"up", left:"right", right:"left"};
 let G = null;        // 這一局的資料
-let state = "menu";  // menu / ready / play / nap / crash / over / paused
+let state = "menu";  // menu / ready / play / crash / over / paused
 let pausedFrom = null;
 function newGame(){
   const leader = save.leader;
   const cx = Math.floor(COLS / 2) - 1, cy = Math.floor(ROWS / 2);
   G = {
     train: [{x:cx, y:cy, px:cx, py:cy, breed:leader, fat:0, happy:0, scared:0}],
-    dir:"right", queue:[], score:0, lives:1, eatenGood:0, eatenBad:0, naps:0,
-    stray:null, foods:[], can:null, bed:null,
+    dir:"right", queue:[], score:0, lives:1, eatenGood:0, eatenBad:0,
+    stray:null, foods:[], can:null,
     tickMs:260, acc:0, t:0, started:false,
-    canTimer:18000, bedTimer:22000, readyUntil:0, napUntil:0, crash:null, collected:{},
+    canTimer:18000, readyUntil:0, topTier:0, crash:null, collected:{},
     lastScaredMeow:0,
   };
   spawnStray(); spawnFood(); spawnFood();
+  updateRareHint();
   state = "ready"; G.readyUntil = 0;
   hideOverlay(); updateHud();
 }
 const occupied = (x, y) => G.train.some(c => c.x === x && c.y === y) || (G.stray && G.stray.x === x && G.stray.y === y) ||
-  G.foods.some(f => f.x === x && f.y === y) || (G.can && G.can.x === x && G.can.y === y) || (G.bed && G.bed.x === x && G.bed.y === y);
+  G.foods.some(f => f.x === x && f.y === y) || (G.can && G.can.x === x && G.can.y === y);
 function freeCell(){
   const h = G.train[0], [dx, dy] = DIRS[G.dir];
   for(let k = 0; k < 300; k++){
@@ -497,11 +557,17 @@ function freeCell(){
   }
   return null;
 }
+// 隊伍越長，開放的稀有度越多；先抽稀有度，再抽品種（這一局還沒收編過的比較容易出現）
+function unlockedTier(){ const n = G.train.length; return TIERS.reduce((m, t, i) => n >= t.need ? i : m, 0); }
 function spawnStray(){
   const p = freeCell(); if(!p) return;
-  // 還沒收編過的品種比較容易出現
-  const pool = BREEDS.flatMap(b => G.collected[b.id] ? [b.id] : [b.id, b.id, b.id]);
-  G.stray = {...p, breed: pool[Math.floor(Math.random() * pool.length)], born: G.t};
+  const tw = TIERS.slice(0, unlockedTier() + 1).map(t => t.weight);
+  let roll = Math.random() * tw.reduce((a, b) => a + b, 0), tier = 0;
+  while(roll >= tw[tier]){ roll -= tw[tier]; tier++; }
+  const pool = BREEDS.filter(b => b.tier === tier).flatMap(b => G.collected[b.id] ? [b.id] : [b.id, b.id, b.id]);
+  const breed = pool[Math.floor(Math.random() * pool.length)];
+  G.stray = {...p, breed, tier, born: G.t, until: TIERS[tier].leave ? G.t + TIERS[tier].leave : 0};
+  if(tier >= 2) toast(`附近出現了${TIERS[tier].name}的${BY[breed].name}！`, `${TIERS[tier].leave / 1000} 秒內沒收編，牠就會跑走。`, "gold");
 }
 function spawnFood(){
   const p = freeCell(); if(!p) return;
@@ -515,7 +581,6 @@ function turn(d){
   audio();
   if(state === "menu" || state === "over") return;
   if(state === "paused") return;
-  if(state === "nap"){ wake(); return; }
   if(state === "ready" && !G.started){
     if(G.train.length > 1 && d === OPP[G.dir]) return;
     G.dir = d; G.started = true; state = "play"; G.acc = 0; setMusic(true); return;
@@ -541,12 +606,12 @@ stage.addEventListener("touchmove", e => { if(!touch0) return; e.preventDefault(
 stage.addEventListener("touchend", () => { touch0 = null; });
 document.querySelectorAll(".pad button").forEach(b => b.addEventListener("pointerdown", e => { e.preventDefault(); turn(b.dataset.d); }));
 function togglePause(){
-  if(state === "play" || state === "ready" || state === "nap"){ pausedFrom = state; state = "paused"; setMusic(false);
+  if(state === "play" || state === "ready"){ pausedFrom = state; state = "paused"; setMusic(false);
     showOverlay(`<h2>暫停中</h2><p class="muted">貓咪們在原地等你。</p><div class="btns"><button class="btn acc" data-act="resume">繼續</button><button class="btn" data-act="menu">換列車長／重來</button></div>`); }
   else if(state === "paused") resume();
 }
-function resume(){ if(state !== "paused") return; state = pausedFrom; hideOverlay(); if(state !== "ready" || G.started) setMusic(true, state === "nap"); }
-document.addEventListener("visibilitychange", () => { if(document.hidden && (state === "play" || state === "nap")) togglePause(); });
+function resume(){ if(state !== "paused") return; state = pausedFrom; hideOverlay(); if(state !== "ready" || G.started) setMusic(true); }
+document.addEventListener("visibilitychange", () => { if(document.hidden && state === "play") togglePause(); });
 
 // ---------- 每一步 ----------
 function step(){
@@ -568,10 +633,14 @@ function step(){
   if(willGrow){
     const b = BY[G.stray.breed];
     G.train.push({x:tx, y:ty, px:tx, py:ty, breed:b.id, fat:0, happy:1500, scared:0});
+    updateRareHint();
     const first = !save.seen[b.id];
     save.seen[b.id] = (save.seen[b.id] || 0) + 1; G.collected[b.id] = (G.collected[b.id] || 0) + 1; persist();
-    G.score += 10;
-    toast(`收編了一隻${b.name}！${first ? "（圖鑑新登場）" : ""}`, b.fact, first ? "gold" : "");
+    const T = TIERS[b.tier];
+    G.score += T.score;
+    toast(`收編了一隻${b.tier ? T.name + "的" : ""}${b.name}！${first ? "（圖鑑新登場）" : ""}`, b.fact, first || b.tier >= 2 ? "gold" : "");
+    const now = unlockedTier();
+    if(now > G.topTier){ G.topTier = now; toast(`隊伍有 ${G.train.length} 隻了！`, `開始會遇到「${TIERS[now].name}」的貓咪。`, "gold"); }
     meow("happy");
     G.stray = null; spawnStray();
     G.tickMs = Math.max(115, 260 - (G.train.length - 1) * 7);
@@ -601,8 +670,6 @@ function step(){
     G.can = null; G.lives = Math.min(5, G.lives + 1); G.score += 15; SFX.can(); G.canTimer = 20000 + Math.random() * 10000;
     toast("吃到金色貓罐罐！復活次數 +1", `現在可以復活 ${G.lives} 次。`, "gold");
   }
-  // 休息站
-  if(G.bed && G.bed.x === nx && G.bed.y === ny){ G.bed = null; nap(); }
   // 前面 2 格有同伴：那隻貓會害怕
   let scaredNow = false;
   for(let s = 1; s <= 2; s++){
@@ -612,13 +679,6 @@ function step(){
   if(scaredNow && G.t - G.lastScaredMeow > 900){ meow("scared"); G.lastScaredMeow = G.t; }
   updateHud();
 }
-function nap(){
-  state = "nap"; G.naps++; G.score += 3; G.napUntil = G.t + 5000; G.queue = []; SFX.bed(); setMusic(true, true);
-  G.train.forEach(c => { c.px = c.x; c.py = c.y; });
-  toast("到休息站了，大家睡一下", "手也休息一下吧。5 秒後出發，按任意方向鍵可以提早叫醒大家。");
-  G.bedTimer = 25000 + Math.random() * 10000;
-}
-function wake(){ if(state !== "nap") return; state = "play"; G.acc = 0; setMusic(true); }
 
 // ---------- 撞到了 ----------
 function crash(kind, nx, ny){
@@ -669,7 +729,6 @@ function rebuildTrain(){
   if(onTrain(G.stray)){ G.stray = null; spawnStray(); }
   G.foods = G.foods.filter(f => !onTrain(f)); while(G.foods.length < 2) spawnFood();
   if(onTrain(G.can)) G.can = null;
-  if(onTrain(G.bed)) G.bed = null;
 }
 function gameOver(){
   const len = G.train.length - 1, best = G.score > save.best;
@@ -679,7 +738,7 @@ function gameOver(){
   showOverlay(`<h2>${best ? "新紀錄！" : "這趟列車到站了"}</h2>
     <p class="muted">${len ? `你收編了 ${len} 隻流浪貓，${kinds} 種花色。` : "這次沒有收編到貓咪，再試一次吧！"}</p>
     <div class="stats"><div><b>${G.score}</b><span>分數</span></div><div><b>${len}</b><span>收編的貓</span></div><div><b>${save.best}</b><span>最高分</span></div></div>
-    <p class="muted" style="font-size:13px">健康食物 ${G.eatenGood} 次・不健康的 ${G.eatenBad} 次・在休息站睡了 ${G.naps} 次</p>
+    <p class="muted" style="font-size:13px">健康食物 ${G.eatenGood} 次・不健康的 ${G.eatenBad} 次</p>
     <div class="fact"><b>貓咪小知識</b><br>${fact}</div>
     <div class="btns"><button class="btn acc" data-act="again">再玩一次</button><button class="btn" data-act="menu">換列車長</button><button class="btn" data-act="book">看圖鑑</button></div>`);
 }
@@ -694,12 +753,11 @@ function loop(ts){
     if(state === "play"){
       G.acc += dt;
       while(G.acc >= G.tickMs && state === "play"){ G.acc -= G.tickMs; step(); }
-      // 罐罐、休息站定時出現
+      // 稀有的貓過一陣子會跑走
+      if(G.stray && G.stray.until && G.t > G.stray.until){ toast(`${BY[G.stray.breed].name}跑走了……`, "隊伍夠長，還會再遇到稀有的貓。", "bad"); G.stray = null; spawnStray(); }
+      // 罐罐定時出現
       if(!G.can){ G.canTimer -= dt; if(G.canTimer <= 0){ const p = freeCell(); if(p){ G.can = {...p, until:G.t + 9000}; toast("金色貓罐罐出現了！", "吃到可以多一次復活，9 秒後會消失。", "gold"); } G.canTimer = 22000 + Math.random() * 10000; } }
       else if(G.t > G.can.until){ G.can = null; }
-      if(!G.bed){ G.bedTimer -= dt; if(G.bedTimer <= 0){ const p = freeCell(); if(p){ G.bed = {...p}; toast("休息站出現了", "走進貓窩，大家可以睡一下。"); } G.bedTimer = 1e9; } }
-    }else if(state === "nap"){
-      if(G.t >= G.napUntil) wake();
     }else if(state === "ready" && G.started && G.readyUntil && G.t >= G.readyUntil){
       state = "play"; G.acc = 0; G.readyUntil = 0; setMusic(true);
     }else if(state === "crash"){
@@ -729,17 +787,17 @@ function draw(ts){
   if(!G){ return; }
   const t = G.t;
   // 物品
-  if(G.bed) drawItem(ctx, (G.bed.x + .5) * s, (G.bed.y + .5) * s, s, "bed", t);
   G.foods.forEach(f => drawItem(ctx, (f.x + .5) * s, (f.y + .5) * s, s, f.kind, t));
   if(G.can){ const left = G.can.until - t; if(left > 2500 || Math.floor(t / 150) % 2) drawItem(ctx, (G.can.x + .5) * s, (G.can.y + .5) * s, s, "can", t); }
   if(G.stray){
-    const st = G.stray, bob = Math.sin(t / 250) * s * .04;
-    drawCat(ctx, (st.x + .5) * s, (st.y + .5) * s + bob, s * .9, st.breed, {blush:true});
+    const st = G.stray, bob = Math.sin(t / 250) * s * .04, T = TIERS[st.tier || 0];
+    const leaving = st.until && st.until - t < 3000;
+    if(!leaving || Math.floor(t / 160) % 2) drawCat(ctx, (st.x + .5) * s, (st.y + .5) * s + bob, s * .9, st.breed, {blush:true, glow:T.glow});
     // 小對話框「喵？」
     const bx = (st.x + .5) * s + s * .38, by = (st.y + .5) * s - s * .5;
     ctx.save(); ctx.fillStyle = "#fff"; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, s * .04);
     ctx.beginPath(); ctx.roundRect(bx - s * .26, by - s * .17, s * .52, s * .3, s * .1); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = INK; ctx.font = `900 ${s * .2}px system-ui,"Noto Sans TC",sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("喵？", bx, by - s * .02); ctx.restore();
+    ctx.fillStyle = INK; ctx.font = `900 ${s * .2}px system-ui,"Noto Sans TC",sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = TIER_BG[st.tier || 0] === TIER_BG[0] ? INK : TIER_BG[st.tier]; ctx.fillText(st.tier ? T.name : "喵？", bx, by - s * .02); ctx.restore();
   }
   // 隊伍
   const k = state === "play" ? Math.min(1, G.acc / G.tickMs) : 1;
@@ -749,19 +807,11 @@ function draw(ts){
     for(let i = G.train.length - 1; i >= 0; i--){
       const c = G.train[i];
       const x = (c.px + (c.x - c.px) * ease + .5) * s, y = (c.py + (c.y - c.py) * ease + .5) * s;
-      const mood = state === "nap" ? "sleep" : c.scared ? "scared" : c.happy ? "happy" : "normal";
+      const mood = c.scared ? "scared" : c.happy ? "happy" : "normal";
       const hop = state === "play" ? Math.abs(Math.sin((t / 140) + i * .9)) * s * .05 : 0;
       drawCat(ctx, x, y - hop, s * 1.02, c.breed, {mood, fat:c.fat, leader:i === 0, shake:!!c.scared});
       if(c.happy > 1200 && i % 2 === 0) heart(ctx, x + s * .3, y - s * .5 - (1800 - c.happy) / 1800 * s * .4, s * .16);
     }
-  }
-  // 睡覺的 Zzz
-  if(state === "nap"){
-    const h = G.train[0], hx = (h.x + .5) * s, hy = (h.y + .5) * s;
-    ctx.save(); ctx.fillStyle = "#6E57C9"; ctx.textAlign = "center";
-    for(let j = 0; j < 3; j++){ const p = ((t / 900) + j / 3) % 1; ctx.globalAlpha = 1 - p; ctx.font = `900 ${s * (.3 + p * .3)}px system-ui,sans-serif`; ctx.fillText("z", hx + s * (.3 + p * .5), hy - s * (.5 + p * 1.1)); }
-    ctx.restore();
-    banner(`小睡一下… ${Math.ceil((G.napUntil - t) / 1000)}`, "按方向鍵可以提早出發");
   }
   if(state === "ready"){
     if(!G.started) banner("按方向鍵或滑一下，出發！", "收編流浪貓，避開牆壁和同伴");
@@ -799,6 +849,13 @@ function banner(title, sub){
 }
 
 // ---------- 畫面上的文字 ----------
+const TIER_BG = ["#B49A82", "#2F74C0", "#7B3FD0", "#B07800"];
+function updateRareHint(){
+  const el = document.getElementById("rareHint"); if(!el || !G) return;
+  const n = G.train.length, next = TIERS.find(t => t.need > n);
+  el.innerHTML = `會遇到：${TIERS.slice(0, unlockedTier() + 1).map((t, i) => `<i style="background:${TIER_BG[i]}">${t.name}</i>`).join(" ")}` +
+    (next ? `<br><span class="muted">再收編 ${next.need - n} 隻，就會開始遇到「${next.name}」的貓</span>` : `<br><span class="muted">所有稀有度都開放了！</span>`);
+}
 function updateHud(){
   document.getElementById("hLen").textContent = G ? G.train.length : 1;
   document.getElementById("hScore").textContent = G ? G.score : 0;
@@ -808,9 +865,10 @@ function toast(msg, sub = "", cls = ""){
   const box = document.getElementById("toasts");
   const el = document.createElement("div"); el.className = "toast " + cls;
   el.innerHTML = esc(msg) + (sub ? `<small>${esc(sub)}</small>` : "");
-  box.appendChild(el);
-  while(box.children.length > 3) box.firstChild.remove();
-  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 450); }, sub ? 3200 : 2000);
+  box.querySelector(".empty")?.remove();
+  box.querySelectorAll(".toast").forEach(t => t.classList.add("old"));
+  box.prepend(el);
+  while(box.children.length > 5) box.lastChild.remove();
 }
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[ch]));
 const ov = document.getElementById("ov"), panel = document.getElementById("panel");
@@ -821,16 +879,18 @@ let overlayBack = null;   // 從圖鑑或說明回去哪裡
 function showMenu(){
   state = "menu"; setMusic(false);
   showOverlay(`<h2>選一隻貓當列車長</h2>
-    <p class="muted">列車長會一直往前走，沿路收編流浪貓。</p>
+    <p class="muted">列車長會一直往前走，沿路收編流浪貓。少見、稀有的貓收編過以後，也可以當列車長。</p>
     <div class="pick" id="pick"></div>
     <p id="pickName" style="font-weight:900;margin:2px 0"></p>
     <div class="btns"><button class="btn acc" data-act="start">出發！</button><button class="btn" data-act="help">怎麼玩</button></div>
     ${save.best ? `<p class="muted" style="font-size:13px">最高分 ${save.best}・圖鑑 ${Object.keys(save.seen).length} / ${BREEDS.length}</p>` : ""}`);
   const pick = document.getElementById("pick");
   BREEDS.forEach(b => {
-    const btn = document.createElement("button"); btn.type = "button"; btn.dataset.breed = b.id;
-    btn.appendChild(miniCanvas(64, (c, px) => drawCat(c, px / 2, px * .56, px * .9, b.id, {leader:true})));
-    btn.appendChild(document.createTextNode(b.name));
+    const open = b.tier === 0 || save.seen[b.id];
+    const btn = document.createElement("button"); btn.type = "button"; btn.dataset.breed = b.id; btn.disabled = !open;
+    btn.title = open ? b.name : "收編過才能當列車長";
+    btn.appendChild(miniCanvas(64, (c, px) => { if(open) drawCat(c, px / 2, px * .56, px * .9, b.id, {leader:true}); else { c.globalAlpha = .2; drawCat(c, px / 2, px * .56, px * .9, "black", {mood:"sleep"}); } }));
+    btn.appendChild(document.createTextNode(open ? b.name : "？？？"));
     btn.onclick = () => { save.leader = b.id; persist(); markPick(); meow("happy"); };
     pick.appendChild(btn);
   });
@@ -848,10 +908,15 @@ function showBook(back){
     <div class="book" id="book"></div>
     <div class="btns"><button class="btn acc" data-act="back">回去</button></div>`);
   const book = document.getElementById("book");
-  BREEDS.forEach(b => {
+  BREEDS.forEach((b, k) => {
+    if(k === 0 || BREEDS[k - 1].tier !== b.tier){
+      const h = document.createElement("div"); h.className = "tierh";
+      h.innerHTML = `<i style="background:${TIER_BG[b.tier]}">${TIERS[b.tier].name}</i> ${b.tier ? `隊伍 ${TIERS[b.tier].need} 隻以上才會遇到` : "一開始就會遇到"}`;
+      book.appendChild(h);
+    }
     const got = save.seen[b.id];
     const it = document.createElement("div"); it.className = "it" + (got ? "" : " no");
-    it.appendChild(miniCanvas(56, (c, px) => { if(got) drawCat(c, px / 2, px * .55, px * .9, b.id, {mood:"happy"}); else { c.globalAlpha = .25; drawCat(c, px / 2, px * .55, px * .9, "black", {mood:"sleep"}); } }));
+    it.appendChild(miniCanvas(56, (c, px) => { if(got) drawCat(c, px / 2, px * .55, px * .9, b.id, {mood:"happy", glow:TIERS[b.tier].glow}); else { c.globalAlpha = .25; drawCat(c, px / 2, px * .55, px * .9, "black", {mood:"sleep"}); } }));
     const tx = document.createElement("div");
     tx.innerHTML = got ? `<b>${b.name}</b> <span class="muted" style="font-size:12px">收編 ${got} 次</span><p>${esc(b.fact)}</p>` : `<b>？？？</b><p>還沒收編過。</p>`;
     it.appendChild(tx); book.appendChild(it);
@@ -863,14 +928,15 @@ function showHelp(back){
     <ol class="help">
       <li>列車長會<b>一直往前走</b>，用方向鍵、WASD、滑動或下面的按鈕轉彎。</li>
       <li>走到<b>流浪貓</b>身上就收編牠，隊伍會變長、速度也會變快。</li>
+      <li>隊伍越長，越會遇到稀有的貓：5 隻以上有「少見」、10 隻以上有「稀有」、16 隻以上有「傳說」。稀有和傳說的貓過一陣子就會跑走，要快！</li>
       <li>撞到<b>牆壁</b>或<b>自己的隊伍</b>就會出事。快撞到的貓咪會嚇到發抖、喵喵叫。</li>
       <li>還有<b>復活次數</b>的話，大家會重新排好隊繼續走。</li>
-      <li>累了就走進<b>休息站</b>的貓窩，大家睡 5 秒，你的手也休息一下。</li>
+      <li>手累了隨時按<b>暫停</b>（空白鍵），休息一下再繼續。</li>
     </ol>
     <div class="legend" id="legend"></div>
     <div class="btns"><button class="btn acc" data-act="back">知道了</button></div>`);
   const lg = document.getElementById("legend");
-  [["fish", "魚、水煮雞肉、貓草：健康，大家開心，胖貓會瘦回來"], ["fries", "薯條、蛋糕、炸雞：不健康，會有貓變胖"], ["can", "金色貓罐罐：復活次數 +1（會消失）"], ["bed", "休息站：睡一下，讓手休息"]].forEach(([k, txt]) => {
+  [["fish", "魚、水煮雞肉、貓草：健康，大家開心，胖貓會瘦回來"], ["fries", "薯條、蛋糕、炸雞：不健康，會有貓變胖"], ["can", "金色貓罐罐：復活次數 +1（會消失）"]].forEach(([k, txt]) => {
     const d = document.createElement("div");
     d.appendChild(miniCanvas(34, (c, px) => drawItem(c, px / 2, px / 2, px * .95, k, 0)));
     d.appendChild(document.createTextNode(txt)); lg.appendChild(d);
@@ -892,13 +958,13 @@ panel.addEventListener("click", e => {
   }
 });
 document.getElementById("bPause").onclick = () => { audio(); if(state === "menu" || state === "over") return; togglePause(); };
-document.getElementById("bMusic").onclick = () => { save.music = !save.music; persist(); musicLabel(); if(state === "play" || state === "nap") setMusic(true, state === "nap"); else setMusic(false); };
+document.getElementById("bMusic").onclick = () => { save.music = !save.music; persist(); musicLabel(); if(state === "play") setMusic(true); else setMusic(false); };
 document.getElementById("bBook").onclick = () => {
-  if(state === "play" || state === "ready" || state === "nap") togglePause();
+  if(state === "play" || state === "ready") togglePause();
   showBook(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
 };
 document.getElementById("bHelp").onclick = () => {
-  if(state === "play" || state === "ready" || state === "nap") togglePause();
+  if(state === "play" || state === "ready") togglePause();
   showHelp(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
 };
 
