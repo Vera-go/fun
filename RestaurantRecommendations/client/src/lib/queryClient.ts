@@ -2,6 +2,7 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { supabase } from "./supabase";
 import { getImageByType } from "@/utils/restaurantImageUtils";
 import { getEvent } from "./event";
+import { currentTerms } from "./terms";
 
 /* 原本這些 /api/... 是 Replit 上的伺服器；現在網站是純靜態網頁，
    改成在這裡把同樣的網址轉成 Supabase 查詢，畫面元件不用改。
@@ -25,9 +26,10 @@ function apiError(message: string, status = 400): Error {
 }
 function friendly(error: any): Error {
   if (!error) return apiError("發生未知錯誤");
-  if (error.code === "23505") return apiError("你已經投過這家餐廳了！同一家餐廳只能投一票。");
+  const T = currentTerms(), it = `這${T.unit}${T.item}`;
+  if (error.code === "23505") return apiError(`你已經投過${it}了！同一${T.unit}${T.item}只能投一票。`);
   if (error.code === "P0001") return apiError(error.message);
-  if (error.code === "42501") return apiError("沒有權限：可能已經過了截止日期，或只有推薦這家餐廳的人和主辦人可以修改。", 403);
+  if (error.code === "42501") return apiError(`沒有權限：可能已經過了截止日期，或只有推薦${it}的人和主辦人可以修改。`, 403);
   return apiError(error.message || "發生未知錯誤");
 }
 
@@ -49,7 +51,7 @@ async function restaurantsWithVotes() {
     supabase.rpc("restaurant_vote_counts", { p_event: eid }),
   ]);
   if (e1 || e2) throw friendly(e1 || e2);
-  const map = new Map((counts || []).map((c: any) => [Number(c.restaurant_id), Number(c.vote_count)]));
+  const map = new Map<number, number>((counts || []).map((c: any) => [Number(c.restaurant_id), Number(c.vote_count)]));
   return (rs || []).map(r => ({ ...toRestaurant(r), voteCount: map.get(Number(r.id)) || 0 }))
     .sort((a, b) => b.voteCount - a.voteCount);
 }
@@ -101,14 +103,14 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
     await currentUid();
     const { data, error } = await supabase.from("restaurants").update(fromRestaurant(body)).eq("id", Number(m[1])).select();
     if (error) throw friendly(error);
-    if (!data.length) throw apiError("只有新增這家餐廳的人和管理員可以修改。", 403);
+    if (!data.length) throw apiError(`只有新增這${currentTerms().unit}${currentTerms().item}的人和管理員可以修改。`, 403);
     return toRestaurant(data[0]);
   }
   if (method === "DELETE" && (m = path.match(/^\/api\/restaurants\/(\d+)$/))) {
     await currentUid();
     const { data, error } = await supabase.from("restaurants").delete().eq("id", Number(m[1])).select();
     if (error) throw friendly(error);
-    if (!data.length) throw apiError("只有新增這家餐廳的人和管理員可以刪除。", 403);
+    if (!data.length) throw apiError(`只有新增這${currentTerms().unit}${currentTerms().item}的人和管理員可以刪除。`, 403);
     return null;
   }
   if (method === "POST" && path === "/api/votes") {
@@ -133,7 +135,7 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
       const { data } = await supabase.from("restaurants").update({ image_url: getImageByType(r.type) }).eq("id", r.id).select("id");
       if (data && data.length) n++;
     }
-    return { message: `已更新 ${n} 家餐廳的圖片` };
+    return { message: `已更新 ${n} ${currentTerms().unit}${currentTerms().item}的圖片` };
   }
   throw apiError(`不支援的操作：${method} ${path}`, 404);
 }

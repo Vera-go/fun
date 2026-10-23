@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useEvent, loadEvent, reloadEvent, leaveEvent, forgetEvent, isOpen, daysLeft, shortDate, inviteUrl, EventInfo } from "@/lib/event";
+import { termsFor } from "@/lib/terms";
 
 export async function copyText(text: string, toast: ReturnType<typeof useToast>["toast"], what = "連結") {
   try { await navigator.clipboard.writeText(text); toast({ title: `已複製${what}` }); }
@@ -51,7 +52,7 @@ function EditEventDialog({ ev, open, onClose }: { ev: EventInfo; open: boolean; 
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader><DialogTitle>修改活動</DialogTitle><DialogDescription>只有主辦人看得到這個視窗</DialogDescription></DialogHeader>
-        <EventFields f={f} setF={setF} />
+        <EventFields f={f} setF={setF} kind={ev.kind} />
         <div className="flex justify-end"><Button onClick={save} disabled={busy || !f.title.trim() || !f.rd || !f.vd}>{busy ? "儲存中..." : "儲存"}</Button></div>
       </DialogContent>
     </Dialog>
@@ -59,14 +60,15 @@ function EditEventDialog({ ev, open, onClose }: { ev: EventInfo; open: boolean; 
 }
 
 // 建立和修改活動共用的欄位
-export function EventFields({ f, setF }: { f: { title: string; description: string; rd: string; vd: string; votes: number }; setF: (v: any) => void }) {
+export function EventFields({ f, setF, kind }: { f: { title: string; description: string; rd: string; vd: string; votes: number }; setF: (v: any) => void; kind?: string }) {
+  const T = termsFor(kind);
   const up = (k: string) => (e: any) => setF({ ...f, [k]: k === "votes" ? Number(e.target.value) : e.target.value });
   return (
     <div className="grid gap-4 py-2">
       <div className="grid gap-1.5"><Label htmlFor="ev-title">活動名稱</Label>
-        <Input id="ev-title" maxLength={60} placeholder="例如：2026 尾牙聚餐" value={f.title} onChange={up("title")} /></div>
+        <Input id="ev-title" maxLength={60} placeholder={T.eventTitlePh} value={f.title} onChange={up("title")} /></div>
       <div className="grid gap-1.5"><Label htmlFor="ev-desc">活動說明（選填）</Label>
-        <Textarea id="ev-desc" maxLength={500} rows={3} placeholder="例如：平均預算 2800/人，共 30 人" value={f.description} onChange={up("description")} /></div>
+        <Textarea id="ev-desc" maxLength={500} rows={3} placeholder={T.eventDescPh} value={f.description} onChange={up("description")} /></div>
       <div className="grid grid-cols-2 gap-3">
         <div className="grid gap-1.5"><Label htmlFor="ev-rd">推薦截止日期</Label><Input id="ev-rd" type="date" value={f.rd} onChange={up("rd")} /></div>
         <div className="grid gap-1.5"><Label htmlFor="ev-vd">最後投票日期</Label><Input id="ev-vd" type="date" value={f.vd} min={f.rd} onChange={up("vd")} /></div>
@@ -75,7 +77,7 @@ export function EventFields({ f, setF }: { f: { title: string; description: stri
         <select id="ev-votes" className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.votes} onChange={up("votes")}>
           {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} 票</option>)}
         </select>
-        <span className="text-xs text-muted-foreground">同一家餐廳每人只能投一票</span></div>
+        <span className="text-xs text-muted-foreground">同一{T.unit}{T.item}每人只能投一票</span></div>
       {f.rd && f.vd && f.vd < f.rd && <p className="text-sm text-destructive">最後投票日期不能早於推薦截止日期</p>}
     </div>
   );
@@ -87,6 +89,7 @@ export default function EventPage({ code }: { code: string }) {
   const [, setLocation] = useLocation();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const T = termsFor(event?.kind);
 
   // 換活動時清掉上一個活動的資料
   useEffect(() => {
@@ -152,7 +155,7 @@ export default function EventPage({ code }: { code: string }) {
         {event.isAdmin && (
           <div className="max-w-2xl mx-auto mb-12 border border-amber-300 bg-amber-50/60 rounded-sm p-4 text-sm">
             <div className="font-medium text-amber-900 mb-2">主辦人工具</div>
-            <p className="text-amber-800 mb-3">把邀請連結傳給大家，例如貼到 LINE 群組。你可以看到每家餐廳是誰投的（點餐廳卡片上的 ⓘ），也可以刪除不適合的餐廳。</p>
+            <p className="text-amber-800 mb-3">把邀請連結傳給大家，例如貼到 LINE 群組。你可以看到每{T.unit}{T.item}是誰投的（點{T.item}卡片上的 ⓘ），也可以刪除不適合的{T.item}。</p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="outline" onClick={() => copyText(inviteUrl(event.code), toast, "邀請連結")}><Copy className="h-4 w-4 mr-1.5" />複製邀請連結</Button>
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil className="h-4 w-4 mr-1.5" />修改活動</Button>
@@ -160,7 +163,7 @@ export default function EventPage({ code }: { code: string }) {
             </div>
             {confirmDelete && (
               <div className="mt-3 p-3 border border-destructive/40 bg-white rounded-sm">
-                <p className="mb-2">確定要刪除「{event.title}」嗎？所有餐廳和投票都會一起刪除，不能復原。</p>
+                <p className="mb-2">確定要刪除「{event.title}」嗎？所有{T.item}和投票都會一起刪除，不能復原。</p>
                 <div className="flex gap-2"><Button size="sm" variant="destructive" onClick={del}>確定刪除</Button><Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)}>取消</Button></div>
               </div>
             )}

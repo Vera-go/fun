@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, Check, Info } from "lucide-react";
 import { useUser } from "./UserContext";
 import { useEvent, isOpen } from "@/lib/event";
+import { currentTerms } from "@/lib/terms";
 import { type Vote } from "@/types";
 import { VoteDetailsDialog } from "./VoteDetailsDialog";
 
@@ -42,10 +43,11 @@ export function VoteButton({ restaurantId, restaurantName, hasVoted, voteCount, 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/votes/restaurants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/votes/users/${currentUser?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/votes/unique-voters-count'] });   // 「目前共有幾人參與投票」也要更新
       
       toast({
         title: "投票成功",
-        description: "你已成功為這家餐廳投票",
+        description: `你已成功為這${currentTerms().unit}${currentTerms().item}投票`,
       });
     },
     onError: (error: any) => {
@@ -100,10 +102,11 @@ export function VoteButton({ restaurantId, restaurantName, hasVoted, voteCount, 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/votes/restaurants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/votes/users/${currentUser?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/votes/unique-voters-count'] });   // 「目前共有幾人參與投票」也要更新
       
       toast({
         title: "取消投票成功",
-        description: "你已成功取消為這家餐廳的投票",
+        description: `你已成功取消為這${currentTerms().unit}${currentTerms().item}的投票`,
       });
     },
     onError: (error: any) => {

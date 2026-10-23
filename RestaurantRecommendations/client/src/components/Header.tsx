@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Utensils, LogIn, LogOut, User, ImageIcon, Shield } from "lucide-react";
+import { Utensils, Plane, LogIn, LogOut, User, ImageIcon, Shield } from "lucide-react";
 import { useUser } from "./UserContext";
 import { LoginDialog } from "./LoginDialog";
 import { apiRequest } from "@/lib/queryClient";
@@ -8,10 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useEvent } from "@/lib/event";
+import { termsFor } from "@/lib/terms";
 
 export function Header() {
   const { currentUser, isAdmin, logout } = useUser();
   const { event } = useEvent();
+  const T = termsFor(event?.kind);
+  const AppIcon = event?.kind === "trip" ? Plane : Utensils;
+  useEffect(() => { document.title = `${T.app} - ${T.slogan}`; }, [T]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isFixingImages, setIsFixingImages] = useState(false);
   const { toast } = useToast();
@@ -50,12 +54,12 @@ export function Header() {
       <div className="container mx-auto px-6 py-5 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-4" title="回首頁">
           <div className="p-2 rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 backdrop-blur-sm border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.2)]">
-            <Utensils className="h-6 w-6 text-amber-300" />
+            <AppIcon className="h-6 w-6 text-amber-300" />
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-medium tracking-wider flex items-center flex-wrap">
-              <span className="font-serif mr-2 font-semibold text-amber-100">餐廳推薦投票</span>
-              <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">一起決定去哪吃</span>
+              <span className="font-serif mr-2 font-semibold text-amber-100">{T.app}</span>
+              <span className="hidden sm:inline text-lg md:text-xl font-serif text-amber-100/90">{T.slogan}</span>
             </h1>
             <div className="h-[1px] w-[60%] mx-auto bg-gradient-to-r from-amber-500/0 via-amber-500/40 to-amber-500/0 mt-2"></div>
           </div>
@@ -88,10 +92,10 @@ export function Header() {
                       className="h-6 px-1.5 py-0.5 rounded-md bg-gradient-to-r from-blue-900/80 to-blue-800/80 border border-blue-500/30 text-xs text-blue-300 font-medium tracking-wide hover:bg-blue-800/50"
                       onClick={() => fixRestaurantImagesMutation.mutate()}
                       disabled={isFixingImages}
-                      title="修復所有餐廳圖片"
+                      title={`修復所有${T.item}圖片`}
                     >
                       <ImageIcon className="h-3 w-3 inline mr-1 text-blue-300" />
-                      {isFixingImages ? "修復中..." : "修復餐廳圖片"}
+                      {isFixingImages ? "修復中..." : `修復${T.item}圖片`}
                     </Button>}
                   </div>
                 )}

@@ -15,6 +15,7 @@ import { createRestaurantSchema } from "@shared/schema";
 import { Slider } from "@/components/ui/slider";
 import { getImageByType } from '@/utils/restaurantImageUtils';
 import { useUser } from "./UserContext";
+import { useTerms } from "@/lib/terms";
 
 interface EditRestaurantModalProps {
   restaurant: Restaurant;
@@ -27,6 +28,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { currentUser } = useUser();
+  const T = useTerms();
   
   // 確認當前用戶是否有權限編輯推薦人欄位（只有管理員可以）
   const canEditRecommender = currentUser?.isAdmin === 1;
@@ -78,7 +80,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
       queryClient.invalidateQueries({ queryKey: ['/api/restaurants'] });
       queryClient.invalidateQueries({ queryKey: ['/api/votes/restaurants'] });
       toast({
-        title: "餐廳更新成功！",
+        title: `${T.item}更新成功！`,
         description: `「${updatedRestaurant.name}」的資訊已成功更新並儲存到資料庫`,
         variant: "default",
       });
@@ -86,7 +88,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
     },
     onError: (error) => {
       toast({
-        title: "更新餐廳失敗",
+        title: `更新${T.item}失敗`,
         description: error.message || "發生錯誤，請稍後再試",
         variant: "destructive",
       });
@@ -113,7 +115,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-blue-50">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-primary">編輯餐廳資訊</h2>
+          <h2 className="text-2xl font-bold text-primary">編輯{T.item}資訊</h2>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -121,12 +123,12 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="name" className="flex items-center">
                 <Utensils className="h-4 w-4 mr-1 text-amber-500" />
-                <span>餐廳名稱</span>
+                <span>{T.name}</span>
               </Label>
               <Input
                 id="name"
                 {...register("name")}
-                placeholder="請輸入餐廳名稱"
+                placeholder={T.namePh}
                 className={errors.name ? "border-destructive" : ""}
               />
               {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
@@ -135,12 +137,12 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="type" className="flex items-center">
                 <Utensils className="h-4 w-4 mr-1 text-orange-500" />
-                <span>餐廳類型</span>
+                <span>{T.type}</span>
               </Label>
               <Input
                 id="type"
                 {...register("type")}
-                placeholder="例如：海鮮、火鍋、燒肉..."
+                placeholder={T.typePh}
                 className={errors.type ? "border-destructive" : ""}
               />
               {errors.type && <p className="text-destructive text-sm">{errors.type.message}</p>}
@@ -149,12 +151,12 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="price" className="flex items-center">
                 <DollarSign className="h-4 w-4 mr-1 text-green-500" />
-                <span>價格範圍</span>
+                <span>{T.price}</span>
               </Label>
               <Input
                 id="price"
                 {...register("price")}
-                placeholder="例如：$1500/人、$2000雙人套..."
+                placeholder={T.pricePh}
                 className={errors.price ? "border-destructive" : ""}
               />
               {errors.price && <p className="text-destructive text-sm">{errors.price.message}</p>}
@@ -163,12 +165,12 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="address" className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1 text-red-500" />
-                <span>餐廳地址</span>
+                <span>{T.address}</span>
               </Label>
               <Input
                 id="address"
                 {...register("address")}
-                placeholder="請輸入完整地址"
+                placeholder={T.addressPh}
                 className={errors.address ? "border-destructive" : ""}
               />
               {errors.address && <p className="text-destructive text-sm">{errors.address.message}</p>}
@@ -177,12 +179,12 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="distance" className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1 text-blue-500" />
-                <span>距離資訊</span>
+                <span>{T.distance}</span>
               </Label>
               <Input
                 id="distance"
                 {...register("distance")}
-                placeholder="例如：距離捷運站約500m"
+                placeholder={T.distancePh}
                 className={errors.distance ? "border-destructive" : ""}
               />
               {errors.distance && <p className="text-destructive text-sm">{errors.distance.message}</p>}
@@ -210,12 +212,12 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="websiteUrl" className="flex items-center">
                 <Globe className="h-4 w-4 mr-1 text-blue-500" />
-                <span>餐廳網址</span>
+                <span>{T.website}</span>
               </Label>
               <Input
                 id="websiteUrl"
                 {...register("websiteUrl")}
-                placeholder="例如：https://www.restaurant.com"
+                placeholder={T.websitePh}
                 className={errors.websiteUrl ? "border-destructive" : ""}
               />
               {errors.websiteUrl && <p className="text-destructive text-sm">{errors.websiteUrl.message}</p>}
@@ -224,7 +226,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
             <div className="space-y-2">
               <Label htmlFor="rating" className="flex items-center">
                 <Star className="h-4 w-4 mr-1 text-yellow-500" />
-                <span>評分 (1-5)</span>
+                <span>{T.rating}</span>
               </Label>
               <div className="flex items-center space-x-2">
                 <Slider
@@ -248,7 +250,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
               <Textarea
                 id="notes"
                 {...register("notes")}
-                placeholder="有關餐廳的其他資訊"
+                placeholder={T.notesPh}
                 className={errors.notes ? "border-destructive" : ""}
                 rows={3}
               />
@@ -277,7 +279,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
               className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "儲存中..." : "儲存並更新餐廳"}
+              {isSubmitting ? "儲存中..." : `儲存並更新${T.item}`}
             </Button>
           </div>
         </form>

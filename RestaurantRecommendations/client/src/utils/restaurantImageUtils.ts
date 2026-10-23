@@ -1,3 +1,6 @@
+import { getEvent } from "@/lib/event";
+import { tripImage } from "@/components/Cover";
+
 // 用來記錄每個類型已使用的圖片，避免同類型餐廳使用重複圖片
 const usedImagesMap = new Map<string, Set<string>>();
 
@@ -124,6 +127,8 @@ export const typeBasedImages: Record<string, string[]> = {
  * @returns 該類型對應的照片URL
  */
 export function getImageByType(type: string): string {
+  // 旅遊地點活動：不用美食照片，改用類型對應的圖示封面
+  if (getEvent()?.kind === "trip") return tripImage(type);
   // 記錄最佳匹配的類型關鍵字和其長度（優先使用最長匹配，更精確）
   let bestMatchKey = "";
   let bestMatchLength = 0;

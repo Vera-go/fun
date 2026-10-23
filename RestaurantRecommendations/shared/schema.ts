@@ -20,11 +20,11 @@ export const restaurants = pgTable("restaurants", {
 export const createRestaurantSchema = createInsertSchema(restaurants)
   .omit({ id: true })
   .extend({
-    name: z.string().min(1, "餐廳名稱不能為空"),
-    type: z.string().min(1, "請輸入餐廳類型"),
-    price: z.string().min(1, "請輸入價格範圍"),
-    address: z.string().min(1, "請輸入餐廳地址"),
-    distance: z.string().min(1, "請輸入距離共好的距離"),
+    name: z.string().min(1, "名稱不能為空"),
+    type: z.string().min(1, "請輸入類型"),
+    price: z.string().min(1, "請輸入價格或預算"),
+    address: z.string().min(1, "請輸入地址或地點"),
+    distance: z.string().min(1, "請填寫這一欄"),
     rating: z.number().min(1).max(5).default(4),
     notes: z.string().optional(),
     imageUrl: z.string().min(1),

@@ -12,6 +12,7 @@ export interface EventInfo {
   votesPerPerson: number;
   today: string;               // 資料庫的台灣今天日期，用來判斷是否截止
   isAdmin: boolean;            // 目前的人是不是這個活動的主辦人
+  kind: "restaurant" | "trip"; // 活動類型：餐廳 / 旅遊地點（用詞見 lib/terms.ts）
 }
 interface State { code: string | null; event: EventInfo | null; loading: boolean; notFound: boolean }
 
@@ -35,6 +36,7 @@ export async function loadEvent(code: string) {
     id: Number(e.id), code: e.code, title: e.title, description: e.description,
     recommendDeadline: e.recommend_deadline, voteDeadline: e.vote_deadline,
     votesPerPerson: e.votes_per_person, today: e.today, isAdmin: !!e.is_admin,
+    kind: e.kind === "trip" ? "trip" : "restaurant",
   };
   set({ event: ev, loading: false });
   rememberEvent(ev);
@@ -56,13 +58,13 @@ export const adminUrl = (code: string, token: string) => `${base()}#/e/${code}/a
 
 // 這台裝置參加過的活動（只存在自己的瀏覽器）
 const MY = "myEvents";
-export interface MyEvent { code: string; title: string; admin?: boolean; at: number }
+export interface MyEvent { code: string; title: string; admin?: boolean; kind?: string; at: number }
 export function myEvents(): MyEvent[] {
   try { return JSON.parse(localStorage.getItem(MY) || "[]"); } catch { return []; }
 }
 export function rememberEvent(ev: EventInfo) {
   const list = myEvents().filter(x => x.code !== ev.code);
-  list.unshift({ code: ev.code, title: ev.title, admin: ev.isAdmin, at: Date.now() });
+  list.unshift({ code: ev.code, title: ev.title, admin: ev.isAdmin, kind: ev.kind, at: Date.now() });
   try { localStorage.setItem(MY, JSON.stringify(list.slice(0, 30))); } catch {}
 }
 export function forgetEvent(code: string) {

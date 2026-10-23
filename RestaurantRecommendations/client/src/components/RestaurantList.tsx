@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Edit, Trash2, Info, Globe, MapPin, Crown, UtensilsCrossed } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Info, Globe, MapPin, Crown, UtensilsCrossed, Plane } from "lucide-react";
 import { Restaurant, RestaurantWithVotes, Vote } from "@/types";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { VoteButton } from "./VoteButton";
 import { VoteDetailsDialog } from "./VoteDetailsDialog";
 import { useUser } from "./UserContext";
 import { useEvent, isOpen, shortDate } from "@/lib/event";
+import { useTerms } from "@/lib/terms";
+import { Cover } from "./Cover";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +32,7 @@ function RestaurantList() {
   const queryClient = useQueryClient();
   const { currentUser } = useUser();
   const { event } = useEvent();
+  const T = useTerms();
   // 推薦截止後就不能新增（主辦人例外）；資料庫也會檢查
   const recommendOpen = !!event && (isOpen(event.recommendDeadline, event.today) || currentUser?.isAdmin === 1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -108,8 +111,8 @@ function RestaurantList() {
       queryClient.invalidateQueries({ queryKey: ['/api/restaurants'] });
       queryClient.invalidateQueries({ queryKey: ['/api/votes/restaurants'] });
       toast({
-        title: "餐廳刪除成功！",
-        description: "該餐廳已從列表中移除"
+        title: `${T.item}刪除成功！`,
+        description: `該${T.item}已從列表中移除`
       });
       setDeleteRestaurant(null);
     },
@@ -197,7 +200,7 @@ function RestaurantList() {
             disabled={!currentUser || !recommendOpen}
           >
             <PlusCircle className="mr-2 h-6 w-6" />
-            推薦餐廳
+            推薦{T.item}
           </Button>
         </div>
         
@@ -235,7 +238,7 @@ function RestaurantList() {
           disabled={!currentUser || !recommendOpen} // 未登入或已過推薦截止日
         >
           <PlusCircle className="mr-2 h-5 w-5 opacity-90" />
-          推薦餐廳
+          推薦{T.item}
         </Button>
         {!recommendOpen && event ? (
           <div className="ml-2 text-amber-600 text-sm flex items-center">
@@ -243,7 +246,7 @@ function RestaurantList() {
           </div>
         ) : !currentUser && (
           <div className="ml-2 text-amber-600 text-sm flex items-center">
-            <span className="italic">請先登入以推薦餐廳</span>
+            <span className="italic">請先登入以推薦{T.item}</span>
           </div>
         )}
       </div>
@@ -255,7 +258,7 @@ function RestaurantList() {
       <div className="text-center mb-10">
         <div className="relative inline-block">
           <h2 className="text-3xl font-serif text-primary font-medium mb-3 relative">
-            餐廳投票排名
+            {T.item}投票排名
             {restaurantsWithVotes.length > 0 && (
               <div className="absolute -top-5 -right-8 transform rotate-12">
                 <Crown className="h-8 w-8 text-yellow-500 drop-shadow-md" />
@@ -265,22 +268,24 @@ function RestaurantList() {
         </div>
         <div className="h-1 w-24 bg-yellow-500/50 mx-auto mb-4"></div>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          以下餐廳根據投票數量進行排名，票數越多排名越前。
+          以下{T.item}根據投票數量進行排名，票數越多排名越前。
           目前共有 <span className="font-medium text-primary">{uniqueVotersData?.count || 0}</span> 人參與投票。
           <span className="block mt-2 text-amber-600 text-xs font-medium">
-            投票規則：一人有 {event?.votesPerPerson ?? 2} 票，同一間餐廳限投一票
+            投票規則：一人有 {event?.votesPerPerson ?? 2} 票，同一{T.unit}{T.item}限投一票
           </span>
         </p>
       </div>
       
       {restaurants.length === 0 ? (
         <div className="text-center py-16 bg-card border border-border/40 rounded-sm shadow-sm">
-          <h3 className="text-xl font-serif tracking-wide font-medium mb-3 text-primary">還沒有人推薦餐廳</h3>
+          <h3 className="text-xl font-serif tracking-wide font-medium mb-3 text-primary">{T.emptyTitle}</h3>
           <div className="h-[1px] w-20 bg-primary/20 mx-auto mb-4"></div>
-          <p className="text-muted-foreground mb-10 font-serif">點擊上方按鈕開始新增您推薦的餐廳</p>
+          <p className="text-muted-foreground mb-10 font-serif">點擊上方按鈕開始新增您推薦的{T.item}</p>
           <div className="max-w-md mx-auto opacity-60">
             {/* 原本的外部插圖網站已失效，改用內建圖示 */}
-            <UtensilsCrossed aria-label="空餐廳列表插圖" className="w-24 h-24 mx-auto text-primary" strokeWidth={1.2} />
+            {event?.kind === "trip"
+              ? <Plane aria-label="空地點列表插圖" className="w-24 h-24 mx-auto text-primary" strokeWidth={1.2} />
+              : <UtensilsCrossed aria-label="空餐廳列表插圖" className="w-24 h-24 mx-auto text-primary" strokeWidth={1.2} />}
           </div>
         </div>
       ) : (
@@ -331,10 +336,10 @@ function RestaurantList() {
                 </div>
                 
                 <div className="h-40 overflow-hidden relative group">
-                  <img
+                  <Cover
                     src={restaurant.imageUrl}
-                    alt={`${restaurant.name}的美食`}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                    alt={event?.kind === "trip" ? restaurant.name : `${restaurant.name}的美食`}
+                    className="transition-transform group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
                     <Badge className="bg-primary">{restaurant.type}</Badge>
@@ -347,7 +352,7 @@ function RestaurantList() {
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-amber-700">
                           {restaurant.name}
                         </span>
-                        <span className="ml-2 text-sm font-normal text-red-500">冠軍餐廳</span>
+                        <span className="ml-2 text-sm font-normal text-red-500">{T.champion}</span>
                       </h2>
                     ) : (
                       <h2 className="text-xl font-bold text-gray-800">{restaurant.name}</h2>
@@ -357,11 +362,11 @@ function RestaurantList() {
                   
                   <div className="space-y-2 text-gray-600">
                     <div className="flex items-center">
-                      <span className="font-medium mr-2">價格:</span> 
+                      <span className="font-medium mr-2">{T.priceShort}:</span> 
                       {restaurant.price}
                     </div>
                     <div className="flex items-start">
-                      <span className="font-medium mr-2 mt-1 flex-shrink-0">位置:</span>
+                      <span className="font-medium mr-2 mt-1 flex-shrink-0">{T.addressShort}:</span>
                       <a 
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`}
                         target="_blank"
@@ -374,7 +379,7 @@ function RestaurantList() {
                       </a>
                     </div>
                     <div className="flex items-center mb-2">
-                      <span className="font-medium mr-2">距離:</span>
+                      <span className="font-medium mr-2">{T.distanceShort}:</span>
                       <Badge variant="outline" className="bg-white text-primary border-primary">
                         {restaurant.distance}
                       </Badge>
@@ -504,7 +509,7 @@ function RestaurantList() {
       <AlertDialog open={!!deleteRestaurant} onOpenChange={open => !open && setDeleteRestaurant(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除餐廳</AlertDialogTitle>
+            <AlertDialogTitle>確認刪除{T.item}</AlertDialogTitle>
             <AlertDialogDescription>
               您確定要刪除「{deleteRestaurant?.name}」嗎？此操作無法撤銷，相關的投票記錄也將一併刪除。
             </AlertDialogDescription>

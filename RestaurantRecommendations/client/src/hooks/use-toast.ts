@@ -6,7 +6,8 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+// 關掉後 1 秒（淡出動畫結束）就移除；原本 1000000 毫秒會讓看不見的通知擋住右下角的按鈕約 16 分鐘
+const TOAST_REMOVE_DELAY = 1000
 
 type ToasterToast = ToastProps & {
   id: string
