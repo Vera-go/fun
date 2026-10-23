@@ -56,12 +56,12 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
               className="col-span-3"
             />
           </div>
-          {/* 身分是綁在這台裝置（匿名登入），名字只是給主辦人看的；所以提醒用認得出來的名字、同一台裝置 */}
+          {/* 同一個活動裡同名字＝同一個人（投票、編輯都是），所以提醒用認得出來、固定的名字 */}
           <div className="flex gap-2 bg-amber-50 p-3 rounded-md border border-amber-200 text-sm text-amber-800">
             <Info className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-600" />
             <ul className="m-0 pl-4 list-disc space-y-1">
               <li>請用<b>主辦人認得出來的名字</b>（例如本名或大家都知道的綽號），主辦人才知道是誰推薦、誰投票。</li>
-              <li>每次都用<b>同一個名字</b>，並盡量用<b>同一支手機或電腦</b>：換了裝置會被當成另一個人，之前投的票不會跟過去。</li>
+              <li>每次都用<b>同一個名字</b>：換了瀏覽器或手機，用同樣的名字登入就會認得你，投過的票、推薦的項目都在。</li>
             </ul>
           </div>
         </div>

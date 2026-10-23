@@ -74,11 +74,12 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
     return { count: Number(data) || 0 };
   }
   if (method === "GET" && (m = path.match(/^\/api\/votes\/users\/(.+)$/))) {
+    // 我在這個活動投了哪些：同名字在其他裝置投的也算（同一個人）
     const { data: s } = await supabase.auth.getSession();
-    if (!s.session || s.session.user.id !== m[1]) return [];
-    const { data, error } = await supabase.from("votes").select("*").eq("user_id", m[1]);
+    if (!s.session || s.session.user.id !== m[1] || !eventId()) return [];
+    const { data, error } = await supabase.rpc("my_votes", { p_event: eventId() });
     if (error) throw friendly(error);
-    return data.map(v => ({ id: v.id, userId: v.user_id, restaurantId: v.restaurant_id, createdAt: v.created_at }));
+    return (data || []).map((v: any) => ({ id: Number(v.restaurant_id), userId: m![1], restaurantId: Number(v.restaurant_id), createdAt: "" }));
   }
   if (method === "GET" && (m = path.match(/^\/api\/votes\/restaurants\/(\d+)$/))) {
     const rid = Number(m[1]);
@@ -119,10 +120,11 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
     return { id: data.id, userId: data.user_id, restaurantId: data.restaurant_id, createdAt: data.created_at };
   }
   if (method === "DELETE" && path === "/api/votes") {
-    const uid = await currentUid();
-    const { data, error } = await supabase.from("votes").delete().eq("user_id", uid).eq("restaurant_id", body.restaurantId).select("id");
+    // 取消投票：同名字在其他裝置投的也能取消
+    await currentUid();
+    const { data, error } = await supabase.rpc("unvote", { p_restaurant: body.restaurantId });
     if (error) throw friendly(error);
-    if (!data.length) throw apiError("投票已經截止，不能再取消。", 403);
+    if (!data) throw apiError("找不到這張票，可能已經取消了。", 404);
     return null;
   }
   throw apiError(`不支援的操作：${method} ${path}`, 404);
