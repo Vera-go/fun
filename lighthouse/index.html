@@ -201,6 +201,26 @@ dialog::backdrop{background:rgba(11,21,38,.6)}
 .msg.epi.bad .ep-k{color:#6b7a8f}
 .ep-t{font-size:15px;line-height:1.7}
 .ep-s{margin-top:8px;font-size:12.5px;color:#73839a}
+.mzhead{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px}
+.cback.dark{color:var(--ink);font-size:24px}
+.chlist{display:grid;gap:10px}
+.chpick{display:flex;align-items:center;gap:12px;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;cursor:pointer;color:inherit;font:inherit}
+.chpick:hover{border-color:var(--acc)}
+.chpick.done{opacity:.75}
+.chn{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#ffd27a;background:#1d3150}
+.finale{background:linear-gradient(180deg,#14233a,#1d3150);color:#e8eef7;border-radius:18px;padding:20px 16px}
+.fnt{text-align:center;font-size:20px;font-weight:900;color:#ffd27a;letter-spacing:.1em;margin-bottom:14px}
+.frow{display:flex;gap:12px;border-top:1px dashed #3a5070;padding:12px 0}
+.frow:first-of-type{border-top:0}
+.ftime{flex:none;width:52px;font-weight:900;color:#ffd27a;font-size:15px}
+.fitems{flex:1;display:grid;gap:6px}
+.fit{font-size:14px;line-height:1.6}
+.fit b{display:inline-block;min-width:3.2em;color:#9fd0ff;margin-right:6px}
+.finale .seq{opacity:0;animation:seqIn .9s ease forwards}
+@keyframes seqIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.finale .seq{animation:none;opacity:1}}
+.fpunch{text-align:center;font-size:18px;font-weight:900;color:#fff;margin:18px 0 6px;line-height:1.6}
+.fafter{text-align:center;font-size:14.5px;color:#cfdced;margin:0;line-height:1.8}
 .rank{text-align:center;margin:16px 0 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,#fff3dc,#ffe4d6)}
 .rank .rk{font-size:19px;font-weight:900;color:#b5521f;display:flex;align-items:center;justify-content:center;gap:6px}
 .rank p{margin:6px 0 0;font-size:14px;color:var(--ink)}
@@ -302,6 +322,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
 <script src="content.js?v=20261023"></script>
 <script src="content-more.js?v=20261023"></script>
 <script src="content-friend.js?v=20261023"></script>
+<script src="content-maze.js?v=20261023"></script>
 <script src="more.js?v=20261023"></script>
 <script>
 const C = window.LH;

@@ -105,46 +105,81 @@
     $("#cDone").onclick = () => renderFriend();
   }
 
-  // ---------- 心理迷宮 ----------
+  // ---------- 心理迷宮：同一天，四個人（文案在 content-maze.js） ----------
   const Z = M.maze;
-  let ms = null;
+  const mz = { chapter: null, at: null, seen: null, path: null, done: new Set(), finale: false };
   window.renderMaze = function () {
-    if (!ms) ms = { at: Z.start, seen: new Set([Z.start]), path: [Z.start] };
-    const room = Z.rooms[ms.at];
-    const insights = ms.path.map(k => Z.rooms[k]).filter(r => r.insight && !r.end);
-    const uniq = [...new Map(insights.map(r => [r.name, r])).values()];
-    const total = Object.values(Z.rooms).filter(r => r.insight && !r.end).length;
-    app.innerHTML = `<p class="muted small" style="margin-top:0">${esc(Z.lead)}</p>
-      <div class="mzwrap">${mazeMap()}<div class="mzcount">看見的心理 ${uniq.length} / ${total}</div></div>
+    if (mz.finale) return renderFinale();
+    if (!mz.chapter) return renderChapters();
+    const ch = mz.chapter, room = ch.rooms[mz.at];
+    const insights = [...new Map(mz.path.map(k => ch.rooms[k]).filter(r => r.insight && !r.end).map(r => [r.name, r])).values()];
+    app.innerHTML = `<div class="mzhead"><button class="cback dark" id="mzBack" aria-label="回到四個人">‹</button>
+        <span><b>${esc(ch.who)}</b>・${esc(ch.role)}</span></div>
+      <div class="mzwrap">${mazeMap(ch)}</div>
       <div class="room${room.end ? " end" : ""} rfade">
         <div class="rname">${esc(room.name)}</div>
         <p class="rscene">${esc(room.scene)}</p>
-        ${room.insight ? `<div class="rins"><span>你看見的</span>${esc(room.insight)}</div>` : ""}
-        ${room.end ? `${uniq.length ? `<div class="rlist"><b>這一路你看見了：</b><ul>${uniq.map(r => `<li><b>${esc(r.name)}</b>：${esc(r.insight)}</li>`).join("")}</ul></div>` : ""}
-          <p class="small muted">${esc(Z.endNote)}</p>
-          <div style="text-align:center"><button class="btn acc" id="mzAgain">再走一次，試試別的路</button></div>`
-        : `<div class="rexits">${room.exits.map((e, j) => `<button class="rexit" data-to="${esc(e.to)}">${esc(e.text)}<span>→</span></button>`).join("")}</div>`}
+        ${room.insight ? `<div class="rins"><span>${room.end ? "這一章" : "你看見的"}</span>${esc(room.insight)}</div>` : ""}
+        ${room.end ? `${insights.length ? `<div class="rlist"><b>這一路看見的：</b><ul>${insights.map(r => `<li><b>${esc(r.name)}</b>：${esc(r.insight)}</li>`).join("")}</ul></div>` : ""}
+          <div class="rexits"><button class="btn acc" id="mzNext">${mz.done.size + (mz.done.has(ch.id) ? 0 : 1) >= Z.chapters.length ? "看看同一天的四個人 →" : "換另一個人的角度 →"}</button></div>`
+        : `<div class="rexits">${room.exits.map(e => `<button class="rexit" data-to="${esc(e.to)}">${esc(e.text)}<span>→</span></button>`).join("")}</div>`}
       </div>`;
+    $("#mzBack").onclick = () => { mz.chapter = null; renderMaze(); };
     app.querySelectorAll("[data-to]").forEach(b => b.onclick = () => {
-      ms.at = b.dataset.to; ms.seen.add(ms.at); ms.path.push(ms.at);
+      mz.at = b.dataset.to; mz.seen.add(mz.at); mz.path.push(mz.at);
       renderMaze();
-      document.querySelector(".mzwrap").scrollIntoView({ block: "nearest", behavior: "smooth" });
+      document.querySelector(".mzhead").scrollIntoView({ block: "nearest", behavior: "smooth" });
     });
-    const again = $("#mzAgain"); if (again) again.onclick = () => { ms = null; renderMaze(); };
+    const next = $("#mzNext");
+    if (next) next.onclick = () => {
+      mz.done.add(ch.id); mz.chapter = null;
+      if (mz.done.size >= Z.chapters.length) mz.finale = true;
+      renderMaze();
+      document.querySelector(".nav").scrollIntoView({ block: "start", behavior: "smooth" });
+    };
   };
-  function mazeMap() {
+  function renderChapters() {
+    const all = mz.done.size >= Z.chapters.length;
+    app.innerHTML = `<p class="muted small" style="margin-top:0">${esc(Z.lead)}</p>
+      <div class="chlist">${Z.chapters.map((c, i) => `<button class="chpick${mz.done.has(c.id) ? " done" : ""}" data-ch="${i}">
+          <span class="chn">${i + 1}</span><span class="ft"><b>${esc(c.role)}：${esc(c.who)}</b><span>${esc(c.hint)}</span></span>
+          <span class="${mz.done.has(c.id) ? "fsc" : "fgo"}">${mz.done.has(c.id) ? "走過了" : "走進去 →"}</span></button>`).join("")}</div>
+      <p class="small muted" style="text-align:center;margin:12px 0 0">${all
+        ? `<button class="btn acc" id="mzFinale">看看同一天的四個人 →</button>`
+        : `走完四個人的角度，會看到同一天的全貌（${mz.done.size} / ${Z.chapters.length}）`}</p>`;
+    app.querySelectorAll("[data-ch]").forEach(b => b.onclick = () => {
+      const ch = Z.chapters[+b.dataset.ch];
+      Object.assign(mz, { chapter: ch, at: ch.start, seen: new Set([ch.start]), path: [ch.start] });
+      renderMaze();
+    });
+    const f = $("#mzFinale"); if (f) f.onclick = () => { mz.finale = true; renderMaze(); };
+  }
+  function renderFinale() {
+    const F = Z.finale;
+    app.innerHTML = `<div class="finale">
+        <div class="fnt">${esc(F.title)}</div>
+        ${F.rows.map((r, i) => `<div class="frow seq" style="animation-delay:${0.4 + i * 1.1}s"><div class="ftime">${esc(r.time)}</div>
+          <div class="fitems">${r.items.map(([who, what]) => `<div class="fit"><b>${esc(who)}</b>${esc(what)}</div>`).join("")}</div></div>`).join("")}
+        <p class="fpunch seq" style="animation-delay:${0.6 + F.rows.length * 1.1}s">${esc(F.punch)}</p>
+        <p class="fafter seq" style="animation-delay:${1.8 + F.rows.length * 1.1}s">${esc(F.after)}</p>
+      </div>
+      <div style="text-align:center;margin-top:14px"><button class="btn ghost" id="mzReset">從頭再走一次</button></div>`;
+    $("#mzReset").onclick = () => { Object.assign(mz, { chapter: null, done: new Set(), finale: false }); renderMaze(); };
+  }
+  function mazeMap(ch) {
     const W = 300, H = 252, px = x => 30 + x * 60, py = y => 25 + y * 45;
+    const R = ch.rooms;
     const edges = [];
-    for (const [k, r] of Object.entries(Z.rooms)) for (const e of r.exits || []) edges.push([k, e.to]);
-    const walked = new Set(ms.path.slice(1).map((k, i) => ms.path[i] + ">" + k));
+    for (const [k, r] of Object.entries(R)) for (const e of r.exits || []) if (!edges.some(([a, b]) => a === k && b === e.to)) edges.push([k, e.to]);
+    const walked = new Set(mz.path.slice(1).map((k, i) => mz.path[i] + ">" + k));
     const lines = edges.map(([a, b]) => {
-      const A = Z.rooms[a], B = Z.rooms[b], on = walked.has(a + ">" + b);
-      const known = ms.seen.has(a) && ms.seen.has(b);
+      const A = R[a], B = R[b], on = walked.has(a + ">" + b);
+      const known = mz.seen.has(a) && mz.seen.has(b);
       return `<line x1="${px(A.x)}" y1="${py(A.y)}" x2="${px(B.x)}" y2="${py(B.y)}" class="${on ? "e on" : known ? "e" : "e dim"}"/>`;
     }).join("");
-    const nodes = Object.entries(Z.rooms).map(([k, r]) => {
-      const cls = k === ms.at ? "n cur" : ms.seen.has(k) ? "n seen" : "n fog";
-      return `<g class="${cls}"><circle cx="${px(r.x)}" cy="${py(r.y)}" r="${k === ms.at ? 11 : 8}"/>${ms.seen.has(k) ? `<text x="${px(r.x)}" y="${py(r.y) + 24}">${esc(r.name.replace("的房間", ""))}</text>` : ""}</g>`;
+    const nodes = Object.entries(R).map(([k, r]) => {
+      const cls = k === mz.at ? "n cur" : mz.seen.has(k) ? "n seen" : "n fog";
+      return `<g class="${cls}"><circle cx="${px(r.x)}" cy="${py(r.y)}" r="${k === mz.at ? 11 : 8}"/>${mz.seen.has(k) ? `<text x="${px(r.x)}" y="${py(r.y) + 24}">${esc(r.name)}</text>` : ""}</g>`;
     }).join("");
     return `<svg class="mzmap" viewBox="0 0 ${W} ${H}" role="img" aria-label="迷宮地圖">${lines}${nodes}</svg>`;
   }
