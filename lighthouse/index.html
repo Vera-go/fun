@@ -73,8 +73,8 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
 .hero-text p.bye{color:#ffe9b8;font-size:16px}
 .hero-text p.fadeout{animation:softOut 1.4s ease forwards}
 /* 放飛後的真實計數：在開場語下面淡淡出現，不推動版面 */
-.hero-text p.count{position:absolute;left:18px;right:18px;top:100%;margin-top:6px;min-height:0;font-size:15px;color:#ffe9b8;line-height:1.55;font-weight:500;text-shadow:0 0 12px rgba(255,214,140,.35)}
-.hero-text p.count b{color:var(--acc2);font-size:19px;font-weight:900;margin:0 2px;text-shadow:0 0 14px rgba(255,138,101,.55)}
+/* 放飛後的真實計數：和給使用者的那句話輪流出現在同一行，數字另外上色 */
+.hero-text p.bye b{color:var(--acc2);font-size:19px;font-weight:900;margin:0 2px;text-shadow:0 0 14px rgba(255,138,101,.55)}
 @keyframes softIn{from{opacity:0;transform:translateY(6px);filter:blur(5px)}to{opacity:1;transform:none;filter:blur(0)}}
 @keyframes softOut{from{opacity:1;transform:none;filter:blur(0)}to{opacity:0;transform:translateY(-4px);filter:blur(4px)}}
 
@@ -179,7 +179,6 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
   <div class="hero-text">
     <h1 id="tagline"></h1>
     <p id="openline"></p>
-    <p id="countline" class="count" aria-live="polite"></p>
   </div>
 </div>
 
@@ -234,9 +233,15 @@ $("#foot").innerHTML = `<p>${SiteIcons.line("anchor", 16)} ${esc(C.site.disclaim
 })();
 
 // 開場語：一次只出現一句，慢慢浮現、停一下、再輕輕淡去，一句結束才換下一句（不會疊在一起）
-// 放飛時，heroSay() 會讓目前這句先淡出，換成給使用者的一句話（視線本來就在天空）
-let heroHold = null, heroWake = null;
-function heroSay(text){ heroHold = text; if(heroWake) heroWake(); }
+// 放飛時，heroSay() 會讓目前這句先淡出，換成給使用者的一句話（視線本來就在天空）；
+// heroAfter() 排在那句話後面，同一行接著出現（紙飛機計數），天空只佔一行，不會疊成好幾行
+let heroQueue = [], heroWake = null, heroBusy = false, heroSeq = 0;
+function heroSay(text){ heroSeq++; heroQueue = [{text}]; if(heroWake) heroWake(); }
+function heroAfter(html, seq){
+  if(seq !== heroSeq) return;   // 已經又放了一架：舊的計數不要
+  heroQueue.push({html});
+  if(!heroBusy && heroWake) heroWake();
+}
 // 洗牌：一輪內不重複，用完才重洗；進度存在 localStorage，重新開頁也不會從頭看到同一句
 function nextBye(list){
   let bag = [];
@@ -256,20 +261,23 @@ function nextBye(list){
   const wait = ms => new Promise(r => { const t = setTimeout(r, ms); heroWake = () => { clearTimeout(t); r(); }; });
   (async () => {
     for(let i = 0; ; ){
-      if(heroHold){
-        const text = heroHold; heroHold = null;
-        if(el.textContent && el.className.startsWith("fadein")){ el.className = "fadeout"; await wait(700); }
-        el.textContent = text; el.className = "fadein bye";
-        await wait(1800 + 5500);
-        if(heroHold) continue;
+      if(heroQueue.length){
+        const m = heroQueue.shift();
+        heroBusy = true;
+        if(el.textContent && el.className.startsWith("fadein")){ el.className = el.className.replace("fadein", "fadeout"); await wait(m.html ? 1400 : 700); }
+        if(m.html) el.innerHTML = m.html; else el.textContent = m.text;
+        el.className = "fadein bye";
+        await wait(1800 + (m.html ? 7200 : 4200));
+        heroBusy = false;
+        if(heroQueue.length) continue;
         el.className = "fadeout bye"; await wait(1400);
         continue;
       }
       el.textContent = lines[i % lines.length]; i++;
       el.className = "fadein"; await wait(1800);
-      if(heroHold) continue;
+      if(heroQueue.length) continue;
       await wait(2400);
-      if(heroHold) continue;
+      if(heroQueue.length) continue;
       el.className = "fadeout"; await wait(1400);
     }
   })();
@@ -308,9 +316,8 @@ function renderRelease(){
 // 連不上就什麼都不顯示，不影響放飛
 const PLANES_API = "https://bbydhrcyxxwxtbtemszb.supabase.co/rest/v1/rpc/lighthouse_fly";
 const PLANES_KEY = "sb_publishable_hlbBn6LWqC5oLdCS32lchw_xzZeIph7";   // 公開金鑰，保護靠資料庫權限規則
-let countTimers = [];
 async function countPlane(){
-  const shownAt = Date.now() + 2200;   // 等給使用者的那句話先浮現
+  const seq = heroSeq;
   let stats;
   try{
     const res = await fetch(PLANES_API, {method: "POST", headers: {apikey: PLANES_KEY, "Content-Type": "application/json"}, body: "{}"});
@@ -323,13 +330,7 @@ async function countPlane(){
   const html = today >= 2 ? fillStr(esc(R.countToday), {n: num(today)})
     : total >= 2 ? fillStr(esc(R.countTotal), {n: num(total)}) : "";
   if(!html) return;
-  const el = $("#countline");
-  countTimers.forEach(clearTimeout);
-  el.className = "count";
-  countTimers = [
-    setTimeout(() => { el.innerHTML = html; el.className = "count fadein"; }, Math.max(0, shownAt - Date.now())),
-    setTimeout(() => { el.className = "count fadeout"; }, Math.max(0, shownAt - Date.now()) + 9000),
-  ];
+  heroAfter(html, seq);
 }
 function fillStr(s, o){ return String(s).replace(/\{(\w+)\}/g, (_, k) => o[k] ?? ""); }
 function showLookup(){
