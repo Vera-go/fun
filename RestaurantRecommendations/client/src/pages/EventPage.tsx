@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { CalendarClock, Clock, AlertTriangle, BookOpen, Link2, Pencil, Trash2, X, Users } from "lucide-react";
+import { CalendarClock, Clock, BookOpen, Link2, Pencil, Trash2, X, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import RestaurantList from "@/components/RestaurantList";
@@ -137,7 +137,6 @@ export default function EventPage({ code }: { code: string }) {
       <div className="relative bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 py-2 shadow-sm">
         <div className="container mx-auto px-6">
           <div className="relative flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-x-6 gap-y-2 text-amber-800">
-            <div className="hidden xl:flex items-center whitespace-nowrap"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
             <DateBadge label="推薦截止日期" deadline={event.recommendDeadline} today={event.today} icon={<CalendarClock className="h-4 w-4 mr-2 text-amber-500" />} />
             <DateBadge label="最後投票日期" deadline={event.voteDeadline} today={event.today} icon={<Clock className="h-4 w-4 mr-2 text-amber-500" />} />
             <div className="flex items-center text-sm whitespace-nowrap"><Users className="h-4 w-4 mr-2 text-amber-500" /><span className="font-medium">{voters?.count ?? 0}</span>&nbsp;人已投票</div>
