@@ -14,6 +14,7 @@ import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useEvent, loadEvent, reloadEvent, leaveEvent, forgetEvent, isOpen, daysLeft, shortDate, inviteUrl, EventInfo } from "@/lib/event";
 import { termsFor } from "@/lib/terms";
+import { tabFillHandler } from "@/lib/tabFill";
 import { useHostToolsOpen, closeHostTools } from "@/lib/hostTools";
 
 export async function copyText(text: string, toast: ReturnType<typeof useToast>["toast"], what = "連結") {
@@ -66,7 +67,12 @@ export function EventFields({ f, setF, kind }: { f: { title: string; description
   const T = termsFor(kind);
   const up = (k: string) => (e: any) => setF({ ...f, [k]: k === "votes" ? Number(e.target.value) : e.target.value });
   return (
-    <div className="grid gap-4 py-2">
+    <div className="grid gap-4 py-2" onKeyDown={tabFillHandler((id, v) => {
+      const key = ({ "ev-title": "title", "ev-desc": "description" } as Record<string, string>)[id];
+      if (!key) return false;
+      setF({ ...f, [key]: v });
+    })}>
+      <p className="hidden sm:block text-xs text-muted-foreground -mb-2">小技巧：空白欄位按 <kbd className="px-1 border rounded bg-white">Tab</kbd> 可以帶入灰色的範例，再自己修改。</p>
       <div className="grid gap-1.5"><Label htmlFor="ev-title">活動名稱</Label>
         <Input id="ev-title" maxLength={60} placeholder={T.eventTitlePh} value={f.title} onChange={up("title")} /></div>
       <div className="grid gap-1.5"><Label htmlFor="ev-desc">活動說明（選填）</Label>

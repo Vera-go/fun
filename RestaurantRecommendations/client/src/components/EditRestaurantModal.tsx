@@ -16,6 +16,7 @@ import { Slider } from "@/components/ui/slider";
 import { getImageByType } from '@/utils/restaurantImageUtils';
 import { useUser } from "./UserContext";
 import { useTerms } from "@/lib/terms";
+import { tabFillHandler } from "@/lib/tabFill";
 
 interface EditRestaurantModalProps {
   restaurant: Restaurant;
@@ -37,6 +38,7 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateRestaurantInput>({
     resolver: zodResolver(createRestaurantSchema),
@@ -118,7 +120,13 @@ export function EditRestaurantModal({ restaurant, isOpen, onClose }: EditRestaur
           <h2 className="text-2xl font-bold text-primary">編輯{T.item}資訊</h2>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <p className="hidden sm:block text-xs text-muted-foreground -mt-4 mb-4">小技巧：空白欄位按 <kbd className="px-1 border rounded bg-white">Tab</kbd> 可以帶入灰色的範例，再自己修改。</p>
+        {/* 空白欄位按 Tab 帶入範例（網址欄位不帶，避免填進假網址） */}
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}
+          onKeyDown={tabFillHandler((id, v) => {
+            if (!["name", "type", "price", "address", "distance", "notes"].includes(id)) return false;
+            setValue(id as any, v, { shouldValidate: true, shouldDirty: true });
+          })}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="flex items-center">
