@@ -116,7 +116,23 @@
   async function adminEvents() {
     const { data, error } = await sb.rpc("admin_list_events");
     if (error) throw new Error(error.code === "PGRST202" ? "資料庫還沒更新：請先執行 supabase/schema-v8-admin-console.sql" : "讀取活動失敗");
-    return data.map(e => ({ ...e, items: Number(e.items), voters: Number(e.voters) }));
+    return data.map(e => ({ ...e, items: Number(e.items), voters: Number(e.voters), hosts: Number(e.hosts ?? 0) }));
+  }
+  const needV9 = error => error.code === "PGRST202" ? "資料庫還沒更新：請先執行 supabase/schema-v9-event-hosts.sql" : (error.message || "操作失敗");
+  async function adminEventHosts(code) {
+    const { data, error } = await sb.rpc("admin_list_event_hosts", { p_code: code });
+    if (error) throw new Error(needV9(error));
+    return data;
+  }
+  async function adminRemoveHost(code, userId) {
+    const { error } = await sb.rpc("admin_remove_event_host", { p_code: code, p_user: userId });
+    if (error) throw new Error(needV9(error));
+  }
+  /** 重新產生管理連結：回傳新的管理密碼（舊的連結失效）；完整連結由頁面組 */
+  async function adminResetEventToken(code) {
+    const { data, error } = await sb.rpc("admin_reset_event_token", { p_code: code });
+    if (error) throw new Error(needV9(error));
+    return data;
   }
   async function adminDeleteEvent(code) {
     const { error } = await sb.rpc("delete_event", { p_code: code });
@@ -131,5 +147,5 @@
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const day = iso => { const d = new Date(iso); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
 
-  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, adminEvents, adminDeleteEvent, planeStats, esc, day };
+  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, adminEvents, adminDeleteEvent, adminEventHosts, adminRemoveHost, adminResetEventToken, planeStats, esc, day };
 })();

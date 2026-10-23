@@ -17,8 +17,15 @@
 .ac .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 .ac .stat{flex:1 1 120px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
 .ac .stat b{display:block;font-size:24px;line-height:1.2}
-.ev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)}
-.ev:first-of-type{border-top:0}
+.evwrap{padding:10px 0;border-top:1px solid var(--line)}
+.evwrap:first-child{border-top:0}
+.ev{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.evx{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.evx .host{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-top:1px dashed var(--line)}
+.evx .host:first-of-type{border-top:0}
+.evx .host .n{flex:1 1 160px;min-width:0;overflow-wrap:anywhere}
+.evx input{width:100%;min-width:0;font-size:13px}
+.evx .row .btn{flex:none;white-space:nowrap}
 .ev .info{flex:1 1 240px;min-width:0}
 .ev .info .t{font-weight:700;overflow-wrap:anywhere}
 .ev .acts{display:flex;gap:6px;flex-wrap:wrap}
@@ -104,7 +111,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../assets/icons.js?v=20261018"></script>
-<script src="../assets/wish-core.js?v=20261023"></script>
+<script src="../assets/wish-core.js?v=20261023b"></script>
 <script>
 document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcons.icon(el.dataset.icon, +el.dataset.size || 24); });
 const { esc, SITES, day } = Wish;
@@ -195,7 +202,7 @@ async function load() {
 }
 
 document.addEventListener("click", async e => {
-  const t = e.target.closest("[data-vote],[data-del],[data-save],[data-evf],[data-evdel],#adminOpen,#adLogin,#adCancel,#adLogout");
+  const t = e.target.closest("[data-vote],[data-del],[data-save],[data-evf],[data-evdel],[data-evhosts],[data-evreset],[data-copy],[data-hostdel],#adminOpen,#adLogin,#adCancel,#adLogout");
   if (!t || busy) return;
   if (t.dataset.vote) {
     busy = true;
@@ -218,6 +225,34 @@ document.addEventListener("click", async e => {
     return;
   }
   if (t.dataset.evf) { evFilter = t.dataset.evf; renderEvents(); return; }
+  if (t.dataset.evhosts) {
+    const code = t.dataset.evhosts;
+    if (openHosts.has(code)) { openHosts.delete(code); renderEvents(); return; }
+    openHosts.add(code); await loadHosts(code); return;
+  }
+  if (t.dataset.evreset) {
+    const code = t.dataset.evreset;
+    if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "確定？舊的管理連結會失效"; return; }   // 點兩次才換
+    busy = true;
+    try {
+      const token = await Wish.adminResetEventToken(code);
+      newLinks[code] = new URL(`../vote/#/e/${encodeURIComponent(code)}/admin/${token}`, location.href).href;
+      toast("已產生新的管理連結"); renderEvents();
+    } catch (err) { toast(err.message); }
+    busy = false; return;
+  }
+  if (t.dataset.copy !== undefined) {
+    const v = t.closest(".evx").querySelector("input").value;
+    try { await navigator.clipboard.writeText(v); toast("已複製"); } catch (err) { t.closest(".evx").querySelector("input").select(); toast("請手動複製"); }
+    return;
+  }
+  if (t.dataset.hostdel) {
+    const [code, uid] = t.dataset.hostdel.split("|");
+    if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "確定移除？"; return; }   // 點兩次才移除
+    busy = true;
+    try { await Wish.adminRemoveHost(code, uid); toast("已移除主辦人"); await loadAdminCenter(); await loadHosts(code); } catch (err) { toast(err.message); }
+    busy = false; return;
+  }
   if (t.dataset.evdel) {
     const code = t.dataset.evdel;
     if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "確定刪除？所有推薦和投票都會刪掉"; return; }   // 點兩次才刪
@@ -244,6 +279,22 @@ async function setAdmin(on) {
 
 // 管理中心：揪團投票的所有活動、Lighthouse 紙飛機
 let events = [], evFilter = "all";
+const openHosts = new Set(), hostsOf = {}, newLinks = {};   // 展開主辦人名單的活動、名單內容、剛產生的新管理連結（只顯示這一次）
+async function loadHosts(code) {
+  try { hostsOf[code] = await Wish.adminEventHosts(code); }
+  catch (err) { hostsOf[code] = err.message; }
+  renderEvents();
+}
+function hostsHtml(code) {
+  const hs = hostsOf[code];
+  if (hs === undefined) return '<div class="small muted">載入中⋯⋯</div>';
+  if (typeof hs === "string") return `<div class="small muted">${esc(hs)}</div>`;
+  if (!hs.length) return '<div class="small muted">這個活動目前沒有主辦人。可以「重新產生管理連結」傳給要管理的人。</div>';
+  return `<div class="small muted" style="margin-bottom:4px">名字是他們在揪團投票登入時填的；移除後，那台裝置打開活動就只是一般參加者。</div>` + hs.map(h => `<div class="host">
+      <span class="n">${h.name ? esc(h.name) : '<span class="muted">（還沒填名字）</span>'} ${h.is_creator ? '<span class="badge next">建立者</span>' : ""}<br><span class="small muted">${day(h.added_at)} 成為主辦人</span></span>
+      <button class="btn small" data-hostdel="${esc(code)}|${esc(h.user_id)}" style="color:var(--bad)">移除</button>
+    </div>`).join("");
+}
 const KIND = { trip: "✈️ 旅遊地點", restaurant: "🍽️ 聚餐餐廳" };
 const md = d => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 function renderEvents() {
@@ -251,16 +302,26 @@ function renderEvents() {
   const list = events.filter(e => evFilter === "all" || (evFilter === "open") === (e.today <= e.vote_deadline));
   $("#evList").innerHTML = list.length ? list.map(e => {
     const open = e.today <= e.vote_deadline;
-    return `<div class="ev">
+    const code = esc(e.code);
+    return `<div class="evwrap"><div class="ev">
       <div class="info">
         <div class="t">${esc(e.title)}</div>
-        <div class="small muted">${KIND[e.kind] || esc(e.kind)}・${day(e.created_at)} 建立・${e.items} 個推薦・${e.voters} 人投票</div>
+        <div class="small muted">${KIND[e.kind] || esc(e.kind)}・${day(e.created_at)} 建立・${e.items} 個推薦・${e.voters} 人投票・${e.hosts} 位主辦人</div>
         <div class="small muted">推薦截止 ${md(e.recommend_deadline)}・投票截止 ${md(e.vote_deadline)} ${open ? '<span class="badge doing">進行中</span>' : '<span class="badge done">已截止</span>'}</div>
       </div>
       <div class="acts">
         <a class="btn small" href="../vote/#/e/${encodeURIComponent(e.code)}" target="_blank" rel="noopener">打開</a>
-        <button class="btn small" data-evdel="${esc(e.code)}" style="color:var(--bad)">刪除</button>
+        <button class="btn small" data-evhosts="${code}">${openHosts.has(e.code) ? "收起主辦人" : "主辦人"}</button>
+        <button class="btn small" data-evreset="${code}">重新產生管理連結</button>
+        <button class="btn small" data-evdel="${code}" style="color:var(--bad)">刪除</button>
       </div>
+    </div>
+    ${newLinks[e.code] ? `<div class="evx">
+      <div class="small" style="margin-bottom:6px"><b>新的管理連結</b>（只會顯示這一次，離開頁面就看不到了）</div>
+      <div class="row" style="flex-wrap:nowrap"><input readonly value="${esc(newLinks[e.code])}" onfocus="this.select()"><button class="btn small" data-copy>複製</button></div>
+      <div class="small muted" style="margin-top:6px">傳給主辦人，他用這個連結打開就能管理。舊的管理連結已經失效；之前用舊連結開過的裝置還是主辦人，要取消請在「主辦人」裡移除。</div>
+    </div>` : ""}
+    ${openHosts.has(e.code) ? `<div class="evx">${hostsHtml(e.code)}</div>` : ""}
     </div>`;
   }).join("") : `<div class="empty">${events.length ? "沒有符合的活動" : "還沒有人建立活動"}</div>`;
 }
