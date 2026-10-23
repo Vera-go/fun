@@ -166,8 +166,9 @@ const COLS = 13, ROWS = 15;
 const INK = "#3A2A20";
 
 // ---------- 貓咪品種（花色、眼睛、小知識） ----------
-// tier：0 普通、1 少見、2 稀有、3 傳說（隊伍夠長才會遇到，見 TIERS）
-// 其他外觀：fluffy 長毛、tufts 耳尖長毛、bigEars 大耳朵、shortLegs 短腿、wide 圓臉、eye2 另一隻眼睛的顏色
+// tier：0 普通、1 少見、2 稀有、3 傳說、4 夢幻、5 神話（隊伍夠長才會遇到，見 TIERS）
+// 其他外觀：fluffy 長毛、tufts 耳尖長毛、bigEars 大耳朵、shortLegs 短腿、wide 圓臉、eye2 另一隻眼睛的顏色、
+//          bobtail 短尾巴、foldEars 摺耳、paw 舉手、halo 光環、crown 皇冠、dark 深色（臉上的線改用淺色）
 const BREEDS = [
   {id:"orange",  tier:0, name:"橘貓",     base:"#F6A64A", eye:"#7FB33A", fact:"橘貓大多是公貓，因為決定橘色的基因在 X 染色體上。"},
   {id:"calico",  tier:0, name:"三花貓",   base:"#FFFDF8", eye:"#D9A531", fact:"三花貓有白、橘、黑三種顏色，幾乎都是母貓。"},
@@ -176,19 +177,32 @@ const BREEDS = [
   {id:"black",   tier:0, name:"黑貓",     base:"#2B2A2E", eye:"#F2C230", fact:"在日本和英國，有些地方把黑貓當成會帶來好運的貓。"},
   {id:"white",   tier:0, name:"白貓",     base:"#FFFFFF", eye:"#62A8E8", fact:"藍眼睛的白貓，比較容易天生聽力不好，要多一點耐心。"},
   {id:"grey",    tier:0, name:"灰貓",     base:"#9EA7B2", eye:"#7CC08A", fact:"灰色其實是「變淡的黑色」，所以灰貓也常被叫做藍貓。"},
+  {id:"cream",   tier:0, name:"奶油貓",   base:"#F7DDB0", eye:"#C99A3A", fact:"奶油色其實是「變淡的橘色」，奶油貓和橘貓一樣大多是公貓。"},
+  {id:"greytabby",tier:0,name:"灰虎斑貓", base:"#AEB4BB", eye:"#9DBB45", fact:"一條一條像魚骨頭的條紋，英文叫 mackerel tabby（鯖魚虎斑）。"},
   {id:"orangew", tier:0, name:"橘白貓",   base:"#F6A64A", eye:"#9DBB45", fact:"橘白貓和橘貓一樣大多是公貓，是台灣街頭很常見的花色。"},
   {id:"tortie",  tier:1, name:"玳瑁貓",   base:"#3B2C25", eye:"#E2A53A", fact:"玳瑁貓是黑色和橘色混在一起，跟三花貓一樣幾乎都是母貓。"},
   {id:"cow",     tier:1, name:"乳牛貓",   base:"#FFFFFF", eye:"#C9A640", fact:"白底黑斑像乳牛，每一隻的花紋都不一樣，像身分證一樣。"},
   {id:"siamese", tier:1, name:"暹羅貓",   base:"#F3E7D3", eye:"#4C9BE0", fact:"暹羅貓身上比較冷的地方（耳朵、臉、腳、尾巴）顏色會比較深。"},
   {id:"amshort", tier:1, name:"美國短毛貓", base:"#CDD2D8", eye:"#7DB34E", fact:"銀色底加上黑色的漩渦花紋，身體結實，個性穩定好相處。"},
   {id:"british", tier:1, name:"英國短毛貓", base:"#8E9BAA", eye:"#E39B3A", wide:true, fact:"圓圓的臉、胖胖的臉頰，據說是《愛麗絲夢遊仙境》柴郡貓的原型之一。"},
+  {id:"russian", tier:1, name:"俄羅斯藍貓", base:"#8496AE", eye:"#4FC27A", fact:"灰藍色的毛尖帶一點銀色，看起來閃閃發亮；眼睛是翠綠色的。"},
+  {id:"bobtail", tier:1, name:"日本短尾貓", base:"#FFFDF8", eye:"#D9A531", bobtail:true, fact:"尾巴天生短短的像一顆毛球，據說是招財貓的原型。"},
   {id:"ragdoll", tier:2, name:"布偶貓",   base:"#F6EEDF", eye:"#4C8FE0", fluffy:true, fact:"被抱起來的時候常常全身放鬆，像布娃娃一樣，所以叫布偶貓。"},
   {id:"persian", tier:2, name:"波斯貓",   base:"#FFF6EC", eye:"#D98B2B", fluffy:true, fact:"毛又長又多，要常常梳毛；扁扁的臉比較容易有呼吸和眼睛的問題。"},
   {id:"munchkin",tier:2, name:"曼赤肯貓", base:"#E2B57E", eye:"#8FB84A", shortLegs:true, fact:"腿天生特別短，所以又叫「短腿貓」，不過跑起來一樣很快。"},
   {id:"mainecoon",tier:2,name:"緬因貓",   base:"#9C7650", eye:"#C9A23A", fluffy:true, tufts:true, fact:"體型最大的家貓品種之一，耳朵尖端有像山貓一樣的長毛。"},
+  {id:"bengal",  tier:2, name:"孟加拉貓", base:"#E4A95C", eye:"#7FB33A", fact:"身上有像豹一樣的斑點，很愛玩水、愛爬高，精力超級旺盛。"},
+  {id:"norwegian",tier:2,name:"挪威森林貓", base:"#B3ABA2", eye:"#9DBB45", fluffy:true, tufts:true, fact:"有兩層厚厚的防水長毛，原本生活在寒冷的北歐森林裡。"},
+  {id:"fold",    tier:2, name:"蘇格蘭摺耳貓", base:"#C5CBD3", eye:"#E39B3A", wide:true, foldEars:true, fact:"耳朵往前摺是軟骨的基因問題，容易關節疼痛，很多獸醫不建議繁殖。"},
   {id:"sphynx",  tier:3, name:"斯芬克斯無毛貓", base:"#F0C6B4", eye:"#7FC08A", bigEars:true, fact:"幾乎沒有毛，摸起來像溫暖的麂皮；怕冷也怕曬，還要常常洗澡。"},
   {id:"oddeye",  tier:3, name:"異色瞳白貓", base:"#FFFFFF", eye:"#5AA8F0", eye2:"#F2C230", fact:"兩隻眼睛顏色不一樣叫「異色瞳」，在日本被叫做「金目銀目」，代表好運。"},
   {id:"malecalico", tier:3, name:"公三花貓", base:"#FFFDF8", eye:"#D9A531", fact:"三花貓幾乎都是母貓，公三花大約幾千隻才有一隻，在日本被當成幸運的象徵。"},
+  {id:"maneki",  tier:3, name:"招財貓",   base:"#FFFFFF", eye:"#2B2A2E", paw:true, fact:"招財貓是日本的吉祥物：舉右手招財，舉左手招客人。"},
+  {id:"rainbow", tier:4, name:"彩虹貓",   base:"#FFFFFF", eye:"#7C5CE0", fact:"貓看得到的顏色比人少，主要看得到藍色和綠色，可能看不出自己是彩虹色。"},
+  {id:"starry",  tier:4, name:"星空貓",   base:"#26305F", eye:"#FFD447", dark:true, fact:"貓的眼睛後面有一層會反光的「照膜」，所以晚上眼睛會發亮，在暗處比人看得清楚。"},
+  {id:"moon",    tier:4, name:"月亮貓",   base:"#F2F3FF", eye:"#9C7CF0", fact:"貓的鬍鬚大約跟身體一樣寬，可以用來判斷自己鑽不鑽得過去。"},
+  {id:"catgod",  tier:5, name:"貓神",     base:"#EBC45C", eye:"#3D8BE0", halo:true, fact:"古埃及人很敬重貓，還有一位貓頭人身的女神叫芭絲特（Bastet）。"},
+  {id:"ninelives",tier:5,name:"九命貓王", base:"#2B2A2E", eye:"#FF6B6B", dark:true, crown:true, fact:"「貓有九條命」是英文的俗話，因為貓很會保持平衡，從高處跌下來常常能翻身用腳著地。"},
 ];
 // 稀有度：隊伍有幾隻貓（含列車長）才會開始遇到、出現的機率權重、分數、光圈顏色、會不會跑走（毫秒）
 const TIERS = [
@@ -196,6 +210,8 @@ const TIERS = [
   {name:"少見", need:5,  weight:28, score:15, glow:"#6FB8FF", leave:0},
   {name:"稀有", need:10, weight:16, score:25, glow:"#B57CFF", leave:15000},
   {name:"傳說", need:16, weight:7,  score:50, glow:"#FFC23D", leave:12000},
+  {name:"夢幻", need:25, weight:5,  score:80, glow:"#FF7FC8", leave:11000},
+  {name:"神話", need:40, weight:3,  score:120, glow:"#33D6B4", leave:10000},
 ];
 const BY = Object.fromEntries(BREEDS.map(b => [b.id, b]));
 const STREET_FACTS = [
@@ -260,21 +276,28 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   const r = s * .33, hy = -s * .07;            // 頭的半徑、位置
   if(opt.glow){ const gg = c.createRadialGradient(0, s * .05, s * .08, 0, s * .05, s * .62); gg.addColorStop(0, opt.glow); gg.addColorStop(1, "rgba(255,255,255,0)"); c.save(); c.fillStyle = gg; c.beginPath(); c.arc(0, s * .05, s * .62, 0, Math.PI * 2); c.fill(); c.restore(); }
   const bw = s * (.3 + fat * .13), bh = s * (.2 + fat * .06), by = s * (.2 + fat * .02);
-  // 尾巴
-  c.beginPath(); c.moveTo(bw * .7, by + bh * .3); c.quadraticCurveTo(bw * 1.45, by - bh * .2, bw * 1.15, by - bh * 1.3);
-  c.strokeStyle = INK; c.lineWidth = s * .13; c.stroke();
-  c.strokeStyle = tailColor(b); c.lineWidth = s * .13 - lw * 2; c.stroke();
-  c.lineWidth = lw; c.strokeStyle = INK;
+  // 尾巴（短尾貓只有一顆毛球）
+  if(b.bobtail){ c.beginPath(); c.arc(bw * .95, by - bh * .25, s * .09, 0, Math.PI * 2); c.fillStyle = "#F09A3E"; c.fill(); c.stroke(); }
+  else{
+    c.beginPath(); c.moveTo(bw * .7, by + bh * .3); c.quadraticCurveTo(bw * 1.45, by - bh * .2, bw * 1.15, by - bh * 1.3);
+    c.strokeStyle = INK; c.lineWidth = s * .13; c.stroke();
+    c.strokeStyle = tailColor(b); c.lineWidth = s * .13 - lw * 2; c.stroke();
+    c.lineWidth = lw; c.strokeStyle = INK;
+  }
   // 短腿貓的小短腿（畫在身體後面，只露出一點點）
   if(b.shortLegs){ c.fillStyle = b.base; for(const k of [-.6, -.22, .22, .6]){ c.beginPath(); c.ellipse(k * bw, by + bh * 1.05, bw * .17, bh * .38, 0, 0, Math.PI * 2); c.fill(); c.stroke(); } }
   // 身體
   c.beginPath(); c.ellipse(0, by, bw, bh, 0, 0, Math.PI * 2); c.fillStyle = bodyColor(b); c.fill(); c.stroke();
-  if(["tuxedo", "cow", "calico", "malecalico", "orangew"].includes(b.id)){ // 白肚子或身上的斑
+  if(["tuxedo", "cow", "calico", "malecalico", "orangew", "bobtail", "maneki", "bengal", "norwegian", "rainbow", "starry"].includes(b.id)){ // 白肚子或身上的斑
     c.save(); c.beginPath(); c.ellipse(0, by, bw, bh, 0, 0, Math.PI * 2); c.clip();
     if(b.id === "tuxedo"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, by + bh * .3, bw * .45, bh * .9, 0, 0, Math.PI * 2); c.fill(); }
     if(b.id === "cow"){ c.fillStyle = "#2B2A2E"; c.beginPath(); c.ellipse(-bw * .5, by - bh * .2, bw * .35, bh * .6, .3, 0, Math.PI * 2); c.fill(); }
     if(b.id === "orangew"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, by + bh * .3, bw * .5, bh * .9, 0, 0, Math.PI * 2); c.fill(); }
-    if(b.id === "calico" || b.id === "malecalico"){ c.fillStyle = "#F09A3E"; c.beginPath(); c.ellipse(bw * .5, by, bw * .35, bh * .7, 0, 0, Math.PI * 2); c.fill(); }
+    if(b.id === "norwegian"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, by + bh * .3, bw * .5, bh * .9, 0, 0, Math.PI * 2); c.fill(); }
+    if(b.id === "bengal"){ c.fillStyle = "#6B4220"; [[-.55, -.2], [-.15, .25], [.25, -.25], [.55, .2], [-.4, .45], [.1, -.55]].forEach(([dx, dy]) => { c.beginPath(); c.ellipse(dx * bw, by + dy * bh, bw * .09, bh * .16, 0, 0, Math.PI * 2); c.fill(); }); }
+    if(b.id === "rainbow"){ ["#FF6B6B", "#FFB347", "#FFE066", "#7BD88F", "#6FB8FF", "#B68CFF"].forEach((col, k) => { c.fillStyle = col; c.fillRect(-bw + k * bw / 3, by - bh, bw / 3 + .5, bh * 2); }); }
+    if(b.id === "starry") starDots(c, [[-.5, -.3], [.1, .3], [.5, -.2], [-.15, -.5]].map(([dx, dy]) => [dx * bw, by + dy * bh]), s * .035);
+    if(b.id === "calico" || b.id === "malecalico" || b.id === "bobtail" || b.id === "maneki"){ c.fillStyle = "#F09A3E"; c.beginPath(); c.ellipse(bw * .5, by, bw * .35, bh * .7, 0, 0, Math.PI * 2); c.fill(); }
     c.restore(); c.beginPath(); c.ellipse(0, by, bw, bh, 0, 0, Math.PI * 2); c.stroke();
   }
   // 耳朵（害怕時往兩邊壓平）
@@ -293,6 +316,7 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   const es = b.bigEars ? 1.35 : b.id === "persian" ? .75 : 1;
   for(const sd of [-1, 1]){
     c.save(); c.translate(sd * r * .62, hy - r * .62); c.rotate(sd * (.25 + flat + (b.bigEars ? .15 : 0))); c.scale(es, es);
+    if(b.foldEars){ c.beginPath(); c.moveTo(-r * .32, r * .25); c.quadraticCurveTo(0, -r * .28, r * .32, r * .25); c.closePath(); c.fillStyle = earColor(b, sd); c.fill(); c.stroke(); c.restore(); continue; }
     c.beginPath(); c.moveTo(-r * .34, r * .22); c.lineTo(0, -r * .5); c.lineTo(r * .34, r * .22); c.closePath();
     c.fillStyle = earColor(b, sd); c.fill(); c.stroke();
     if(b.tufts){ c.beginPath(); c.moveTo(0, -r * .5); c.lineTo(-r * .06, -r * .78); c.moveTo(0, -r * .5); c.lineTo(r * .07, -r * .8); c.stroke(); }
@@ -309,7 +333,7 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   if(fat){ c.save(); c.lineWidth = lw * .8; c.strokeStyle = "rgba(58,42,32,.55)"; c.beginPath(); c.ellipse(0, hy + hh * .78, hw * (.35 + fat * .1), hh * .14, 0, .15 * Math.PI, .85 * Math.PI); c.stroke(); c.restore(); }
   // 臉
   const ey = hy - r * .05, ex = r * .4;
-  const dark = ["tuxedo", "black", "tortie"].includes(b.id);
+  const dark = b.dark || ["tuxedo", "black", "tortie"].includes(b.id);
   const faceInk = dark ? "#FFF6E8" : INK;
   c.strokeStyle = faceInk; c.fillStyle = faceInk;
   if(mood === "happy"){
@@ -347,6 +371,19 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   c.lineWidth = lw; c.strokeStyle = INK;
   // 害怕的汗
   if(mood === "scared"){ c.beginPath(); c.moveTo(hw * .9, hy - r * .5); c.quadraticCurveTo(hw * 1.18, hy - r * .1, hw * .98, hy); c.quadraticCurveTo(hw * .78, hy - r * .1, hw * .9, hy - r * .5); c.fillStyle = "#8FD0FF"; c.fill(); c.lineWidth = lw * .7; c.stroke(); }
+  // 招財貓：舉起來的手和紅色項圈、金鈴鐺
+  if(b.paw){
+    c.lineWidth = lw;
+    c.beginPath(); c.ellipse(-hw * .95, hy - r * .15, r * .2, r * .32, -.2, 0, Math.PI * 2); c.fillStyle = "#fff"; c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(-hw * .55, hy + hh * .92); c.quadraticCurveTo(0, hy + hh * 1.12, hw * .55, hy + hh * .92); c.strokeStyle = "#E23B3B"; c.lineWidth = r * .16; c.stroke();
+    c.lineWidth = lw; c.strokeStyle = INK; c.beginPath(); c.arc(0, hy + hh * 1.08, r * .13, 0, Math.PI * 2); c.fillStyle = "#FFD447"; c.fill(); c.stroke();
+  }
+  // 貓神的光環、九命貓王的皇冠
+  if(b.halo && !opt.leader){ c.beginPath(); c.ellipse(0, hy - r * 1.1, r * .55, r * .14, 0, 0, Math.PI * 2); c.strokeStyle = "#FFD447"; c.lineWidth = r * .12; c.stroke(); c.lineWidth = lw; c.strokeStyle = INK; }
+  if(b.crown && !opt.leader){
+    const cy = hy - r * .78; c.beginPath(); c.moveTo(-r * .45, cy + r * .2); c.lineTo(-r * .5, cy - r * .25); c.lineTo(-r * .22, cy); c.lineTo(0, cy - r * .35); c.lineTo(r * .22, cy); c.lineTo(r * .5, cy - r * .25); c.lineTo(r * .45, cy + r * .2); c.closePath();
+    c.fillStyle = "#FFD447"; c.fill(); c.stroke();
+  }
   // 列車長的帽子
   if(opt.leader){
     const ty = hy - r * .78;
@@ -357,11 +394,14 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   }
   c.restore();
 }
-function bodyColor(b){ return {siamese:"#EADBC4", ragdoll:"#EFE3CF", mainecoon:"#8E6A47"}[b.id] || b.base; }
-function tailColor(b){ return {siamese:"#6B4A3A", ragdoll:"#8A6A55", calico:"#2B2A2E", malecalico:"#2B2A2E", cow:"#2B2A2E", tortie:"#D9822F", orange:"#E08A30", orangew:"#E08A30", tabby:"#8C7258", amshort:"#5B5F66", mainecoon:"#6E5034"}[b.id] || b.base; }
+function bodyColor(b){ return {siamese:"#EADBC4", ragdoll:"#EFE3CF", mainecoon:"#8E6A47", norwegian:"#A39A90"}[b.id] || b.base; }
+// 星星小點點（星空貓用）
+function starDots(c, pts, rr){ c.fillStyle = "#FFE98A"; pts.forEach(([x, y]) => { c.beginPath(); for(let i = 0; i < 8; i++){ const a = i * Math.PI / 4, q = i % 2 ? rr * .4 : rr; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.closePath(); c.fill(); }); }
+function tailColor(b){ if(b.id === "rainbow") return "#B68CFF"; return {cream:"#E2B571", greytabby:"#5C636B", bengal:"#6B4220", norwegian:"#7E766C", maneki:"#2B2A2E", moon:"#FFD447", siamese:"#6B4A3A", ragdoll:"#8A6A55", calico:"#2B2A2E", malecalico:"#2B2A2E", cow:"#2B2A2E", tortie:"#D9822F", orange:"#E08A30", orangew:"#E08A30", tabby:"#8C7258", amshort:"#5B5F66", mainecoon:"#6E5034"}[b.id] || b.base; }
 function earColor(b, sd){
   if(b.id === "siamese" || b.id === "ragdoll") return "#6B4A3A";
-  if(b.id === "calico" || b.id === "malecalico") return sd < 0 ? "#F09A3E" : "#2B2A2E";
+  if(b.id === "calico" || b.id === "malecalico" || b.id === "bobtail" || b.id === "maneki") return sd < 0 ? "#F09A3E" : "#2B2A2E";
+  if(b.id === "rainbow") return sd < 0 ? "#FF6B6B" : "#6FB8FF";
   if(b.id === "cow") return sd < 0 ? "#2B2A2E" : "#FFFFFF";
   if(b.id === "tortie") return sd < 0 ? "#D9822F" : "#3B2C25";
   return b.base;
@@ -369,13 +409,32 @@ function earColor(b, sd){
 // 頭上的花紋（已經裁切在頭的範圍內）
 function headPattern(c, b, hw, hh, hy){
   const r = hh;
-  if(["orange", "tabby", "orangew", "mainecoon", "amshort"].includes(b.id)){
-    c.strokeStyle = {orange:"#D97A26", orangew:"#D97A26", tabby:"#7A6248", mainecoon:"#5E4329", amshort:"#4F545B"}[b.id]; c.lineWidth = r * .12;
+  if(["orange", "tabby", "orangew", "mainecoon", "amshort", "cream", "greytabby"].includes(b.id)){
+    c.strokeStyle = {orange:"#D97A26", orangew:"#D97A26", tabby:"#7A6248", mainecoon:"#5E4329", amshort:"#4F545B", cream:"#E2B571", greytabby:"#5C636B"}[b.id]; c.lineWidth = r * .12;
     for(const k of [-1, 0, 1]){ c.beginPath(); c.moveTo(k * r * .25, hy - r); c.lineTo(k * r * .2, hy - r * .55); c.stroke(); }
     for(const sd of [-1, 1]) for(const k of [0, 1]){ c.beginPath(); c.moveTo(sd * hw, hy + r * (.05 + k * .22)); c.lineTo(sd * hw * .72, hy + r * (.1 + k * .22)); c.stroke(); }
     if(b.id === "orangew"){ c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, hy + r * .62, hw * .8, r * .62, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(-r * .18, hy + r * .1); c.lineTo(0, hy - r * .55); c.lineTo(r * .18, hy + r * .1); c.fill(); }
     if(b.id === "mainecoon"){ c.fillStyle = "#E8D2B0"; c.beginPath(); c.ellipse(0, hy + r * .5, hw * .5, r * .35, 0, 0, Math.PI * 2); c.fill(); }
-  }else if(b.id === "calico" || b.id === "malecalico"){
+  }else if(b.id === "bengal"){
+    c.fillStyle = "#6B4220";
+    [[-.45, -.55], [0, -.7], [.45, -.55], [-.7, -.05], [.7, -.05], [-.3, -.3], [.3, -.3]].forEach(([dx, dy]) => { c.beginPath(); c.ellipse(dx * hw, hy + dy * r, r * .09, r * .12, 0, 0, Math.PI * 2); c.fill(); });
+  }else if(b.id === "norwegian"){
+    c.fillStyle = "#fff"; c.beginPath(); c.ellipse(0, hy + r * .55, hw * .65, r * .5, 0, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = "#7E766C"; c.lineWidth = r * .1; for(const k of [-1, 0, 1]){ c.beginPath(); c.moveTo(k * r * .22, hy - r); c.lineTo(k * r * .18, hy - r * .6); c.stroke(); }
+  }else if(b.id === "russian"){
+    c.fillStyle = "rgba(255,255,255,.28)"; c.beginPath(); c.ellipse(-hw * .35, hy - r * .45, hw * .3, r * .2, -.4, 0, Math.PI * 2); c.fill();
+  }else if(b.id === "rainbow"){
+    ["#FF6B6B", "#FFB347", "#FFE066", "#7BD88F", "#6FB8FF", "#B68CFF"].forEach((col, k) => { c.fillStyle = col; c.globalAlpha = .55; c.fillRect(-hw, hy - r + k * r * .22, hw * 2, r * .22 + .5); });
+    c.globalAlpha = 1;
+  }else if(b.id === "starry"){
+    starDots(c, [[-.5, -.55], [.35, -.65], [.65, -.1], [-.7, .1], [0, -.85]].map(([dx, dy]) => [dx * hw, hy + dy * r]), r * .07);
+  }else if(b.id === "moon"){
+    c.fillStyle = "#FFD447"; c.beginPath(); c.arc(0, hy - r * .55, r * .2, 0, Math.PI * 2); c.fill();
+    c.fillStyle = b.base; c.beginPath(); c.arc(r * .09, hy - r * .6, r * .17, 0, Math.PI * 2); c.fill();
+  }else if(b.id === "catgod"){
+    c.fillStyle = "#2B5DA8"; c.beginPath(); c.moveTo(-hw * .55, hy - r * .05); c.lineTo(-hw * .95, hy + r * .08); c.lineTo(-hw * .55, hy + r * .1); c.fill();
+    c.beginPath(); c.moveTo(hw * .55, hy - r * .05); c.lineTo(hw * .95, hy + r * .08); c.lineTo(hw * .55, hy + r * .1); c.fill();
+  }else if(b.id === "calico" || b.id === "malecalico" || b.id === "bobtail" || b.id === "maneki"){
     c.fillStyle = "#F09A3E"; c.beginPath(); c.ellipse(-hw * .6, hy - r * .55, hw * .55, r * .55, .4, 0, Math.PI * 2); c.fill();
     c.fillStyle = "#2B2A2E"; c.beginPath(); c.ellipse(hw * .65, hy - r * .6, hw * .45, r * .5, -.3, 0, Math.PI * 2); c.fill();
   }else if(b.id === "tuxedo"){
@@ -625,16 +684,21 @@ function unlockedTier(){ const n = G.train.length; return TIERS.reduce((m, t, i)
 function spawnStray(){
   const p = freeCell(); if(!p) return;
   const top = unlockedTier(), n = G.train.length;
-  const tw = TIERS.slice(0, top + 1).map((t, i) => i === 3 ? t.weight + (n - t.need) * 1.5 : t.weight);
+  // 目前開放的最高稀有度，隊伍越長機率越高
+  const tw = TIERS.slice(0, top + 1).map((t, i) => i >= 3 && i === top ? t.weight + (n - t.need) * 1.5 : t.weight);
   let roll = Math.random() * tw.reduce((a, b) => a + b, 0), tier = 0;
   while(roll >= tw[tier]){ roll -= tw[tier]; tier++; }
+  // 保底：剛開放的稀有度一定先出現；最高稀有度連續 5 隻沒出現就補上；稀有以上連續 5 隻沒出現也補上
   if(G.forceTier >= 0){ tier = G.forceTier; G.forceTier = -1; }
-  else if(top >= 3 && G.sinceLegend >= 5) tier = 3;
+  else if(top >= 3 && G.sinceLegend >= 5) tier = top;
   else if(top >= 2 && G.sinceRare >= 5 && tier < 2) tier = 2;
   G.sinceRare = tier >= 2 ? 0 : G.sinceRare + (top >= 2 ? 1 : 0);
-  G.sinceLegend = tier >= 3 ? 0 : G.sinceLegend + (top >= 3 ? 1 : 0);
-  const pool = BREEDS.filter(b => b.tier === tier).flatMap(b => G.collected[b.id] ? [b.id] : [b.id, b.id, b.id]);
-  const breed = pool[Math.floor(Math.random() * pool.length)];
+  G.sinceLegend = tier === top && top >= 3 ? 0 : G.sinceLegend + (top >= 3 ? 1 : 0);
+  // 圖鑑還沒收集到的品種：機率是 6 倍；這一局還沒收編過的：2 倍
+  const cand = BREEDS.filter(b => b.tier === tier);
+  const wt = b => (save.seen[b.id] ? 1 : 6) * (G.collected[b.id] ? 1 : 2);
+  let r2 = Math.random() * cand.reduce((a, b) => a + wt(b), 0), breed = cand[0].id;
+  for(const b of cand){ r2 -= wt(b); if(r2 < 0){ breed = b.id; break; } }
   G.stray = {...p, breed, tier, born: G.t, until: TIERS[tier].leave ? G.t + TIERS[tier].leave : 0};
   if(tier >= 2) toast(`附近出現了${TIERS[tier].name}的${BY[breed].name}！`, `${TIERS[tier].leave / 1000} 秒內沒收編，牠就會跑走。`, "gold");
 }
@@ -1015,7 +1079,7 @@ function banner(title, sub){
 }
 
 // ---------- 畫面上的文字 ----------
-const TIER_BG = ["#B49A82", "#2F74C0", "#7B3FD0", "#B07800"];
+const TIER_BG = ["#B49A82", "#2F74C0", "#7B3FD0", "#B07800", "#D2449A", "#0F9C7E"];
 function updateRareHint(){
   const el = document.getElementById("rareHint"); if(!el || !G) return;
   const n = G.train.length, next = TIERS.find(t => t.need > n);
@@ -1106,7 +1170,7 @@ function showHelp(back){
     <ol class="help">
       <li>列車長會<b>一直往前走</b>，用方向鍵、WASD、滑動或下面的按鈕轉彎。</li>
       <li>走到<b>流浪貓</b>身上就收編牠，隊伍會變長、速度也會變快。</li>
-      <li>隊伍越長，越會遇到稀有的貓：5 隻以上有「少見」、10 隻以上有「稀有」、16 隻以上有「傳說」。稀有和傳說的貓過一陣子就會跑走，要快！</li>
+      <li>隊伍越長，越會遇到稀有的貓：${TIERS.slice(1).map(t => `${t.need} 隻以上有「${t.name}」`).join("、")}。稀有以上的貓過一陣子就會跑走，要快！圖鑑還沒收集到的貓比較容易出現。</li>
       <li>撞到<b>牆壁</b>或<b>自己的隊伍</b>就會出事。快撞到的貓咪會嚇到發抖、喵喵叫。</li>
       <li>還有<b>復活次數</b>的話，大家會重新排好隊繼續走。</li>
       <li>手累了隨時按<b>暫停</b>（空白鍵），休息一下再繼續。</li>
@@ -1114,8 +1178,7 @@ function showHelp(back){
     <div class="legend" id="legend"></div>
     <h3 class="sh">怎麼算分數</h3>
     <table class="score"><tbody>
-      <tr><td>收編普通的貓</td><td>+${TIERS[0].score}</td><td>收編少見的貓</td><td>+${TIERS[1].score}</td></tr>
-      <tr><td>收編稀有的貓</td><td>+${TIERS[2].score}</td><td>收編傳說的貓</td><td>+${TIERS[3].score}</td></tr>
+      ${[0, 2, 4].map(i => `<tr><td>收編${TIERS[i].name}的貓</td><td>+${TIERS[i].score}</td><td>收編${TIERS[i + 1].name}的貓</td><td>+${TIERS[i + 1].score}</td></tr>`).join("")}
       <tr><td>健康食物</td><td>+5</td><td>不健康的食物</td><td>+1</td></tr>
       <tr><td>金色貓罐罐</td><td>+15</td><td>撞到用掉復活</td><td>不扣分</td></tr>
     </tbody></table>
