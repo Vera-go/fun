@@ -74,6 +74,7 @@ h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
 .hero-text p.fadeout{animation:softOut 1.4s ease forwards}
 /* 放飛後的真實計數：在開場語下面淡淡出現，不推動版面 */
 .hero-text p.count{position:absolute;left:18px;right:18px;top:100%;margin-top:6px;min-height:0;font-size:15px;color:#ffe9b8;line-height:1.55;font-weight:500;text-shadow:0 0 12px rgba(255,214,140,.35)}
+.hero-text p.count b{color:var(--acc2);font-size:19px;font-weight:900;margin:0 2px;text-shadow:0 0 14px rgba(255,138,101,.55)}
 @keyframes softIn{from{opacity:0;transform:translateY(6px);filter:blur(5px)}to{opacity:1;transform:none;filter:blur(0)}}
 @keyframes softOut{from{opacity:1;transform:none;filter:blur(0)}to{opacity:0;transform:translateY(-4px);filter:blur(4px)}}
 
@@ -317,14 +318,16 @@ async function countPlane(){
     stats = await res.json();
   }catch(e){ return; }
   const R = C.release, today = Number(stats.today) || 0, total = Number(stats.total) || 0;
-  const text = today >= 2 ? fillStr(R.countToday, {n: today.toLocaleString()})
-    : total >= 2 ? fillStr(R.countTotal, {n: total.toLocaleString()}) : "";
-  if(!text) return;
+  // 數字另外上色：文案先跳脫，再把 {n} 換成 <b>數字</b>
+  const num = n => `<b>${n.toLocaleString()}</b>`;
+  const html = today >= 2 ? fillStr(esc(R.countToday), {n: num(today)})
+    : total >= 2 ? fillStr(esc(R.countTotal), {n: num(total)}) : "";
+  if(!html) return;
   const el = $("#countline");
   countTimers.forEach(clearTimeout);
   el.className = "count";
   countTimers = [
-    setTimeout(() => { el.textContent = text; el.className = "count fadein"; }, Math.max(0, shownAt - Date.now())),
+    setTimeout(() => { el.innerHTML = html; el.className = "count fadein"; }, Math.max(0, shownAt - Date.now())),
     setTimeout(() => { el.className = "count fadeout"; }, Math.max(0, shownAt - Date.now()) + 9000),
   ];
 }
