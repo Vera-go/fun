@@ -28,10 +28,10 @@ export default defineConfig({
     },
   },
   root: path.resolve(dir, "client"),
-  // 相對路徑 + 輸出到儲存庫根目錄的 restaurant/，由 GitHub Pages 直接提供
+  // 相對路徑 + 輸出到儲存庫根目錄的 vote/，由 GitHub Pages 直接提供（舊網址 restaurant/ 會轉址過來）
   base: "./",
   build: {
-    outDir: path.resolve(dir, "../restaurant"),
+    outDir: path.resolve(dir, "../vote"),
     emptyOutDir: true,
   },
 });
