@@ -190,6 +190,17 @@ dialog::backdrop{background:rgba(11,21,38,.6)}
 .cfoot:empty{display:none}
 .copt{border:1.5px solid #4a6587;background:#1f3149;color:#eef3fa;border-radius:14px;padding:10px 12px;text-align:left;font:inherit;font-size:14px;cursor:pointer}
 .copt:hover{border-color:var(--acc)}
+.mood{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:#9fb3cc}
+.mbar{width:70px;height:7px;border-radius:99px;background:#26384f;overflow:hidden}
+.mbar i{display:block;height:100%;background:#9fb3cc;transition:width .8s ease,background .8s}
+.mbar i.up{background:linear-gradient(90deg,#7ee0a5,#ffd27a)}.mbar i.down{background:#e8604c}
+.msg.sys{align-self:center;max-width:90%;background:transparent;color:#8aa0bb;font-size:12.5px;text-align:center;padding:2px 8px}
+.msg.epi{align-self:stretch;max-width:none;border-radius:14px;padding:14px 16px;margin-top:8px;color:#1f2b3c;animation:pop .6s ease}
+.msg.epi.good{background:linear-gradient(135deg,#fff3dc,#e2f7e9)}.msg.epi.mid{background:#f3efe6}.msg.epi.bad{background:#e9edf2;color:#3a4657}
+.ep-k{font-size:12px;font-weight:900;letter-spacing:.2em;color:#b5521f;margin-bottom:4px}
+.msg.epi.bad .ep-k{color:#6b7a8f}
+.ep-t{font-size:15px;line-height:1.7}
+.ep-s{margin-top:8px;font-size:12.5px;color:#73839a}
 .rank{text-align:center;margin:16px 0 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,#fff3dc,#ffe4d6)}
 .rank .rk{font-size:19px;font-weight:900;color:#b5521f;display:flex;align-items:center;justify-content:center;gap:6px}
 .rank p{margin:6px 0 0;font-size:14px;color:var(--ink)}
@@ -290,6 +301,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:34px;pad
 <script src="../assets/icons.js?v=20261018"></script>
 <script src="content.js?v=20261023"></script>
 <script src="content-more.js?v=20261023"></script>
+<script src="content-friend.js?v=20261023"></script>
 <script src="more.js?v=20261023"></script>
 <script>
 const C = window.LH;

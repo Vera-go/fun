@@ -40,12 +40,15 @@
       <div class="meter"><span>接住值</span><div class="bar"><i style="width:${Math.round(fs.score / maxScore * 100)}%"></i></div><b>${fs.score}</b></div>
       <div class="flist">${F.stories.map((s, i) => `<button class="fpick${s.red ? " red" : ""}${fs.done[i] !== undefined ? " done" : ""}" data-story="${i}">
           <span class="av">${esc(s.avatar)}</span><span class="ft"><b>${esc(s.name)}</b><span>${esc(s.title)}</span></span>
-          ${fs.done[i] !== undefined ? `<span class="fsc">${fs.done[i]} / ${s.steps.length * 2}</span>` : s.red ? '<span class="fred">最重要的一關</span>' : '<span class="fgo">開始聊 →</span>'}
+          ${fs.done[i] !== undefined ? `<span class="fsc">${endLabel(fs.done[i], s)}</span>` : s.red ? '<span class="fred">要找大人的情況</span>' : '<span class="fgo">開始聊 →</span>'}
         </button>`).join("")}</div>
       ${doneN === F.stories.length ? friendSummary() : `<p class="small muted" style="text-align:center;margin:12px 0 0">已經陪了 ${doneN} / ${F.stories.length} 位朋友</p>`}`;
     app.querySelectorAll("[data-story]").forEach(b => b.onclick = () => playStory(+b.dataset.story));
     const again = $("#fAgain"); if (again) again.onclick = () => { fs = null; renderFriend(); };
   };
+  // 結局：得分比例 ≥75% good、≥40% mid、其他 bad
+  const endingOf = (got, s) => { const r = got / (s.steps.length * 2); return r >= 0.75 ? "good" : r >= 0.4 ? "mid" : "bad"; };
+  const endLabel = (got, s) => ({ good: "接住了", mid: "還在努力", bad: "沒接住" })[endingOf(got, s)];
   function friendSummary() {
     const ratio = fs.score / maxScore;
     const rank = [...F.ranks].reverse().find(r => ratio >= r.min);
@@ -60,7 +63,8 @@
     const s = F.stories[i];
     let got = 0;
     app.innerHTML = `<div class="chat">
-        <div class="chead"><button class="cback" id="cBack" aria-label="回到朋友列表">‹</button><span class="av">${esc(s.avatar)}</span><b>${esc(s.name)}</b></div>
+        <div class="chead"><button class="cback" id="cBack" aria-label="回到朋友列表">‹</button><span class="av">${esc(s.avatar)}</span><b>${esc(s.name)}</b>
+          <span class="mood" title="他現在的心情"><span>心情</span><span class="mbar"><i id="cMood" style="width:40%"></i></span></span></div>
         <div class="cbody" id="cBody"></div>
         <div class="cfoot" id="cFoot"></div>
       </div>`;
@@ -68,25 +72,35 @@
     const body = $("#cBody"), foot = $("#cFoot");
     const add = (html, cls) => { const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = html; body.appendChild(d); body.scrollTop = body.scrollHeight; return d; };
     const typing = async ms => { const t = add('<span class="dots"><i></i><i></i><i></i></span>', "them typing"); await sleep(ms); t.remove(); };
+    // 朋友的訊息：開頭 # 是旁白；第二輪起依你上一個回覆（2/1/0 分）換不同的話
+    const say = async m => {
+      if (m.startsWith("#")) { add(esc(m.slice(1)), "sys"); await sleep(500); return; }
+      await typing(700 + m.length * 25); if (document.body.contains(body)) add(esc(m), "them");
+    };
+    let mood = 40, last = null;
+    const setMood = d => { mood = Math.max(5, Math.min(100, mood + d)); const el = $("#cMood"); if (el) { el.style.width = mood + "%"; el.className = mood >= 60 ? "up" : mood <= 25 ? "down" : ""; } };
+    if (s.setup) add(esc(s.setup), "sys");
     for (const step of s.steps) {
-      for (const m of step.msgs) { await typing(700 + m.length * 25); if (!document.body.contains(body)) return; add(esc(m), "them"); }
+      const msgs = Array.isArray(step.msgs) ? step.msgs : (step.msgs[last === 2 ? "good" : last === 1 ? "ok" : last === 0 ? "bad" : "good"] || step.msgs.good);
+      for (const m of msgs) { await say(m); if (!document.body.contains(body)) return; }
       const c = await new Promise(res => {
         foot.innerHTML = step.choices.map((c, j) => `<button class="copt" data-c="${j}">${esc(c.text)}</button>`).join("");
         foot.querySelectorAll("[data-c]").forEach(b => b.onclick = () => res(step.choices[+b.dataset.c]));
       });
       foot.innerHTML = "";
       add(esc(c.text), "me");
-      got += c.score;
-      await typing(900);
+      got += c.score; last = c.score;
+      await say(c.reply);
       if (!document.body.contains(body)) return;
-      add(esc(c.reply), "them");
+      setMood(c.score === 2 ? 20 : c.score === 1 ? 2 : -18);
       add(`<span class="tipk ${c.score === 2 ? "good" : c.score === 1 ? "ok" : "hm"}">${c.score === 2 ? "接住了" : c.score === 1 ? "還可以" : "他可能更難受了"}</span>${c.tip}`, "tip");
       await new Promise(res => { foot.innerHTML = '<button class="btn acc" id="cNext">繼續</button>'; $("#cNext").onclick = res; });
       foot.innerHTML = "";
     }
     if (fs.done[i] === undefined) fs.score += got; else fs.score += got - fs.done[i];
     fs.done[i] = got;
-    add(`這段對話，你的接住值 <b>+${got}</b>`, "tip end");
+    const e = endingOf(got, s);
+    add(`<div class="ep-k">後來</div><div class="ep-t">${esc(s.endings[e])}</div><div class="ep-s">這段對話，你的接住值 <b>+${got}</b>・${endLabel(got, s)}</div>`, "epi " + e);
     foot.innerHTML = '<button class="btn acc" id="cDone">回到朋友列表</button>';
     $("#cDone").onclick = () => renderFriend();
   }
