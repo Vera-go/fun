@@ -3,21 +3,27 @@ import { Button } from "@/components/ui/button";
 import { Utensils, Plane, Vote, LogIn, LogOut, User, Shield, ChevronDown } from "lucide-react";
 import { useUser } from "./UserContext";
 import { LoginDialog } from "./LoginDialog";
-import { Link } from "wouter";
-import { useEvent } from "@/lib/event";
+import { Link, useLocation } from "wouter";
+import { useEvent, myEvents } from "@/lib/event";
 import { termsFor, HOME_TITLE } from "@/lib/terms";
 import { toggleHostTools, useHostToolsOpen } from "@/lib/hostTools";
 
 export function Header() {
   const { currentUser, isAdmin, logout } = useUser();
-  const { event } = useEvent();
-  const T = termsFor(event?.kind);
+  const { event, notFound } = useEvent();
+  // 活動頁（#/e/活動代碼）在資料載入前，先用這台裝置記得的活動名稱和類型，避免標題先閃成首頁的「推薦及投票」
+  const [loc] = useLocation();
+  const routeCode = notFound ? undefined : loc.match(/^\/e\/([^/]+)/)?.[1]?.toLowerCase();
+  const cached = !event && routeCode ? myEvents().find(e => e.code === routeCode) : undefined;
+  const shown = event ? { title: event.title, kind: event.kind } : cached ? { title: cached.title, kind: cached.kind } : null;
+  const pending = !shown && !!routeCode;   // 第一次打開的活動：載入前先放空白佔位
+  const T = termsFor(shown?.kind);
   // 標題列：進入活動後大字是活動名稱、小字是網站名稱；首頁等還沒進入活動的頁面用通用標題
-  const title = event ? { app: T.app, slogan: T.slogan } : HOME_TITLE;
+  const title = shown ? { app: T.app, slogan: T.slogan } : HOME_TITLE;
   const hostOpen = useHostToolsOpen();
-  const AppIcon = !event ? Vote : event.kind === "trip" ? Plane : Utensils;
+  const AppIcon = pending ? null : !shown ? Vote : shown.kind === "trip" ? Plane : Utensils;
   // 瀏覽器分頁標題：活動頁顯示活動名稱
-  const tabTitle = event ? `${event.title} - ${T.app}` : `${title.app} - ${title.slogan}`;
+  const tabTitle = shown ? `${shown.title} - ${T.app}` : pending ? "載入中…" : `${title.app} - ${title.slogan}`;
   useEffect(() => { document.title = tabTitle; }, [tabTitle]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -26,14 +32,19 @@ export function Header() {
       <div className="container mx-auto px-6 py-5 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-3 md:gap-4 min-w-0 flex-1 mr-3" title="回首頁">
           <div className="flex-shrink-0 p-2 rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 backdrop-blur-sm border border-amber-500/30 shadow-[0_0_10px_rgba(217,119,6,0.2)]">
-            <AppIcon className="h-6 w-6 text-amber-300" />
+            {AppIcon ? <AppIcon className="h-6 w-6 text-amber-300" /> : <span className="block h-6 w-6" />}
           </div>
           <div className="min-w-0">
-            {event ? (
+            {shown ? (
               <h1 className="font-medium tracking-wider min-w-0">
                 <span className="block text-xs md:text-sm font-serif text-amber-100/70">{T.app}</span>
-                <span className="block text-lg md:text-2xl font-serif font-semibold text-amber-100 truncate" title={event.title}>{event.title}</span>
+                <span className="block text-lg md:text-2xl font-serif font-semibold text-amber-100 truncate" title={shown.title}>{shown.title}</span>
               </h1>
+            ) : pending ? (
+              <div className="space-y-2 py-0.5" aria-label="載入中">
+                <span className="block h-3 w-20 rounded bg-amber-100/15 animate-pulse" />
+                <span className="block h-6 w-44 md:w-64 rounded bg-amber-100/15 animate-pulse" />
+              </div>
             ) : (
               <h1 className="text-xl md:text-2xl font-medium tracking-wider flex items-center flex-wrap">
                 <span className="font-serif mr-2 font-semibold text-amber-100">{title.app}</span>
