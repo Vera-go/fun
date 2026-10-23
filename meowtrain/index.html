@@ -732,7 +732,7 @@ function adopt(){
   });
   if(!gone.length){ toast(`隊伍裡已經沒有${A.want.map(id => BY[id].name).join("、")}了`, `${A.who}說下次再來。`, "bad"); updateAdoptHint(); return; }
   gone.forEach(id => { save.adopt[id] = (save.adopt[id] || 0) + 1; });
-  G.adopted += gone.length; G.score += gone.length * 20;
+  G.adopted += gone.length; G.score += gone.length * 20; addPop(A.x, A.y, gone.length * 20, "#D2449A");
   G.tickMs = speedOf(G.train.length);
   persist(); SFX.can(); meow("happy");
   updateRecordBox();
@@ -768,6 +768,22 @@ function drawAdopter(t){
   c.beginPath(); c.moveTo(x - s * .08, by + s * .52); c.lineTo(x, by + s * .66); c.lineTo(x + s * .08, by + s * .52); c.fill(); c.stroke();
   c.restore();
   A.want.forEach((id, k) => drawCat(ctx, bx + s * (.31 + k * .5), by + s * .3, s * .5, id, {mood:"happy"}));
+}
+// 得分時在那一格飄出「+分數」
+function addPop(x, y, pts, color){ (G.pops = G.pops || []).push({x, y, text:"+" + pts, color, t0:G.t}); }
+function drawPops(t){
+  if(!G.pops || !G.pops.length) return;
+  const s = CELL;
+  G.pops = G.pops.filter(p => t - p.t0 < 1000);
+  ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
+  G.pops.forEach(p => {
+    const k = (t - p.t0) / 1000, x = (p.x + .5) * s, y = (p.y + .5) * s - s * (.4 + k * .9);
+    ctx.globalAlpha = k < .7 ? 1 : 1 - (k - .7) / .3;
+    ctx.font = `900 ${s * (.42 + Math.min(k * 4, 1) * .12)}px system-ui,"Noto Sans TC",sans-serif`;
+    ctx.lineWidth = s * .12; ctx.strokeStyle = "#fff"; ctx.strokeText(p.text, x, y);
+    ctx.fillStyle = p.color; ctx.fillText(p.text, x, y);
+  });
+  ctx.restore();
 }
 function spawnFood(){
   const p = freeCell(); if(!p) return;
@@ -854,7 +870,7 @@ function step(){
     const first = !save.seen[b.id];
     save.seen[b.id] = (save.seen[b.id] || 0) + 1; G.collected[b.id] = (G.collected[b.id] || 0) + 1; persist();
     const T = TIERS[b.tier];
-    G.score += T.score;
+    G.score += T.score; addPop(nx, ny, T.score, b.tier ? TIER_BG[b.tier] : "#E8742A");
     toast(`收編了一隻${b.tier ? T.name + "的" : ""}${b.name}！${first ? "（圖鑑新登場）" : ""}`, b.fact, first || b.tier >= 2 ? "gold" : "");
     const now = unlockedTier();
     if(now > G.topTier){ G.topTier = now; G.forceTier = now; toast(`隊伍有 ${G.train.length} 隻了！`, `開始會遇到「${TIERS[now].name}」的貓咪。`, "gold"); }
@@ -871,13 +887,13 @@ function step(){
   if(fi >= 0){
     const f = G.foods[fi], F = FOODS[f.kind]; G.foods.splice(fi, 1);
     if(F.good){
-      G.eatenGood++; G.score += 5; SFX.good();
+      G.eatenGood++; G.score += 5; addPop(nx, ny, 5, "#2E9B4F"); SFX.good();
       G.train.forEach(c => c.happy = 1800);
       const fatOne = G.train.find(c => c.fat > 0);
       if(fatOne){ fatOne.fat--; fatOne.puff = 0; toast(F.msg, `${BY[fatOne.breed].name}吃得健康，瘦回來一點了。`); }
       else toast(F.msg);
     }else{
-      G.eatenBad++; G.score += 1; SFX.bad();
+      G.eatenBad++; G.score += 1; addPop(nx, ny, 1, "#9A8676"); SFX.bad();
       const cand = G.train.filter(c => c.fat < 2);
       const n = Math.min(cand.length, 1 + Math.floor(Math.random() * 2));
       const names = [];
@@ -888,7 +904,7 @@ function step(){
   }
   // 金色貓罐罐
   if(G.can && G.can.x === nx && G.can.y === ny){
-    G.can = null; G.lives = Math.min(5, G.lives + 1); G.score += 15; SFX.can(); G.canTimer = 20000 + Math.random() * 10000;
+    G.can = null; G.lives = Math.min(5, G.lives + 1); G.score += 15; addPop(nx, ny, 15, "#C99400"); SFX.can(); G.canTimer = 20000 + Math.random() * 10000;
     toast("吃到金色貓罐罐！復活次數 +1", `現在可以復活 ${G.lives} 次。`, "gold");
   }
   // 前面 2 格有同伴：那隻貓會害怕
@@ -1119,6 +1135,7 @@ function draw(ts){
       if(c.happy > 1200 && i % 2 === 0) heart(ctx, x + s * .3, y - s * .5 - (1800 - c.happy) / 1800 * s * .4, s * .16);
     }
   }
+  drawPops(t);
   if(state === "ready"){
     if(!G.started) banner(G.revived ? "按方向鍵或滑一下，繼續出發！" : "按方向鍵或滑一下，出發！", G.revived ? `還可以復活 ${G.lives} 次` : "收編流浪貓，避開牆壁和同伴");
     else if(G.readyUntil) banner(`準備出發 ${Math.ceil((G.readyUntil - t) / 1000)}`, "");
