@@ -66,6 +66,24 @@ canvas{display:block}
 .rec .t{grid-column:1/-1;font-weight:900;color:var(--muted)}
 .stats b{display:block;font-size:22px}
 .stats span{font-size:12px;color:var(--muted);font-weight:700}
+.lbbox{background:#FFF6EA;border-radius:12px;padding:8px 10px;font-size:14px;margin-top:8px;text-align:left;line-height:1.6}
+.lbbox .small,.panel .small{font-size:12px;margin:4px 0 0}
+.lbform{display:flex;gap:6px;margin-top:6px}
+.lbform input{flex:1;min-width:0;font:inherit;font-size:15px;border:2px solid var(--line);border-radius:10px;padding:6px 10px}
+.btn.small{padding:6px 12px;font-size:14px}
+.lbtabs{display:flex;gap:4px;background:#F3E6D2;border-radius:99px;padding:4px;margin:6px 0 10px}
+.lbtabs button{flex:1;border:0;background:transparent;border-radius:99px;padding:6px;font:inherit;font-weight:900;color:var(--muted);cursor:pointer}
+.lbtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.lblist{display:grid;gap:4px;text-align:left;max-height:52vh;overflow:auto}
+.lbrow{display:flex;align-items:center;gap:8px;background:#FFF9F0;border-radius:12px;padding:4px 10px}
+.lbrow.mine{background:#FFE7D3;box-shadow:inset 0 0 0 2px var(--acc)}
+.lbrow canvas{width:34px;height:34px;flex:none}
+.lbrow .rk{width:26px;text-align:center;font-weight:900;color:var(--muted)}
+.lbrow .rk.r1{color:#C99400;font-size:18px}.lbrow .rk.r2{color:#8C9AA8;font-size:17px}.lbrow .rk.r3{color:#B87333;font-size:16px}
+.lbrow .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbrow .v{text-align:right;font-size:13px}
+.lbrow .v b{font-size:17px}
+.lbrow .v small{display:block;color:var(--muted);font-size:11px}
 .fact{background:#EEF8F0;border-radius:12px;padding:8px 10px;font-size:13.5px;text-align:left;line-height:1.6;margin-top:8px}
 .book{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:10px 0;text-align:left}
 .book .it{display:flex;gap:8px;align-items:center;background:#FFF9F0;border:2px solid #EADBC8;border-radius:12px;padding:6px}
@@ -108,6 +126,7 @@ canvas{display:block}
         <button class="ibtn" id="bPause" title="暫停（空白鍵）">暫停</button>
         <button class="ibtn" id="bMusic" title="背景音樂"></button>
         <button class="ibtn" id="bBook">圖鑑</button>
+        <button class="ibtn" id="bRank">排行榜</button>
         <button class="ibtn" id="bHelp">說明</button>
       </div>
       <p class="hint" id="rareHint"></p>
@@ -768,6 +787,7 @@ function gameOver(){
   if(!G.recorded){
     const R = save.rec; G.recorded = true;
     G.newRec = {score: G.score > R.score, len: len > R.len, kinds: kinds > R.kinds};
+    if(G.score >= R.score) R.leader = G.train[0].breed;
     R.score = Math.max(R.score, G.score); R.len = Math.max(R.len, len); R.kinds = Math.max(R.kinds, kinds); R.tier = Math.max(R.tier, tier);
     R.games++; R.total += Object.values(G.collected).reduce((a, b) => a + b, 0);
     save.best = R.score; persist(); updateRecordBox();
@@ -784,8 +804,66 @@ function gameOver(){
       <div>${tag(nr.kinds)}<b>${kinds}</b><span>花色・最多 ${R.kinds}</span></div>
     </div>
     <p class="muted" style="font-size:13px">健康食物 ${G.eatenGood} 次・不健康的 ${G.eatenBad} 次</p>
+    <div class="lbbox" id="lbBox"></div>
     <div class="fact"><b>貓咪小知識</b><br>${fact}</div>
-    <div class="btns"><button class="btn acc" data-act="again">再玩一次</button><button class="btn" data-act="menu">換列車長</button><button class="btn" data-act="book">看圖鑑</button></div>`);
+    <div class="btns"><button class="btn acc" data-act="again">再玩一次</button><button class="btn" data-act="menu">換列車長</button><button class="btn" data-act="rank">排行榜</button><button class="btn" data-act="book">看圖鑑</button></div>`);
+  renderLbBox();
+  // 有名字就自動上傳這一局之後的最高紀錄（每局只傳一次）
+  if(save.name && !G.uploaded && R.score > 0){ G.uploaded = true; submitScore(); }
+}
+
+// ---------- 排行榜（存在 Supabase，大家看得到；每個瀏覽器一筆，只留最高值） ----------
+const SUPA_URL = "https://bbydhrcyxxwxtbtemszb.supabase.co", SUPA_KEY = "sb_publishable_hlbBn6LWqC5oLdCS32lchw_xzZeIph7";
+async function rpc(fn, body){
+  const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, {method:"POST", headers:{apikey:SUPA_KEY, Authorization:`Bearer ${SUPA_KEY}`, "Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+if(!save.client){ save.client = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16)); persist(); }
+let lbStatus = "";   // 結束畫面上排行榜那一區的狀態文字
+async function submitScore(){
+  const R = save.rec;
+  lbStatus = "上傳中⋯⋯"; renderLbBox();
+  try{
+    const res = await rpc("meowtrain_submit", {p_client:save.client, p_name:save.name, p_score:R.score, p_len:Math.max(1, R.len), p_kinds:R.kinds, p_leader:R.leader || save.leader});
+    lbStatus = `已上傳！最高分 ${res.score} 排第 <b>${res.score_rank}</b> 名、最長隊伍 ${res.len} 隻排第 <b>${res.len_rank}</b> 名（共 ${res.players} 人）`;
+  }catch(e){
+    lbStatus = /invalid score/.test(e.message) ? "這個成績上傳不了。" : /too many/.test(e.message) ? "上傳太快了，等幾秒再試。" : "上傳失敗，可能是網路有問題。";
+  }
+  renderLbBox();
+}
+function renderLbBox(){
+  const el = document.getElementById("lbBox"); if(!el) return;
+  if(!save.name){
+    el.innerHTML = `<b>留下名字，上排行榜</b>
+      <div class="lbform"><input id="lbName" maxlength="12" placeholder="暱稱（1～12 個字）" autocomplete="nickname"><button class="btn acc small" data-act="lbsave">上傳</button></div>
+      <p class="muted small">排行榜大家都看得到，請不要用真實姓名。之後每一局結束會自動上傳你的最高紀錄。</p>`;
+  }else{
+    el.innerHTML = `<div>${lbStatus || "排行榜"}</div><p class="muted small">名字：${esc(save.name)}・<a href="#" data-act="lbrename">改名字</a></p>`;
+  }
+}
+async function showRank(back, by = "score"){
+  overlayBack = back;
+  const tabs = `<div class="lbtabs"><button class="${by === "score" ? "on" : ""}" data-act="rankscore">最高分</button><button class="${by === "len" ? "on" : ""}" data-act="ranklen">最長隊伍</button></div>`;
+  showOverlay(`<h2>排行榜</h2>${tabs}<div class="lblist" id="lbList"><p class="muted">載入中⋯⋯</p></div>
+    <p class="muted small">${save.name ? `你的名字：${esc(save.name)}` : "還沒上榜：玩完一局後留下名字就會上傳。"}</p>
+    <div class="btns"><button class="btn acc" data-act="back">回去</button></div>`);
+  let rows;
+  try{ rows = await rpc("meowtrain_top", {p_by:by, p_client:save.client, p_limit:20}); }
+  catch(e){ const l = document.getElementById("lbList"); if(l) l.innerHTML = `<p class="muted">排行榜暫時載入不了，請稍後再試。</p>`; return; }
+  const list = document.getElementById("lbList"); if(!list) return;
+  if(!rows.length){ list.innerHTML = `<p class="muted">還沒有人上榜，當第一個吧！</p>`; return; }
+  list.innerHTML = "";
+  rows.forEach(r => {
+    const row = document.createElement("div"); row.className = "lbrow" + (r.mine ? " mine" : "");
+    const rk = document.createElement("span"); rk.className = "rk r" + Math.min(r.rank, 4); rk.textContent = r.rank;
+    row.appendChild(rk);
+    row.appendChild(miniCanvas(34, (c, px) => drawCat(c, px / 2, px * .56, px * .9, BY[r.leader] ? r.leader : "orange", {leader:true})));
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = r.name + (r.mine ? "（你）" : "");
+    const v = document.createElement("span"); v.className = "v";
+    v.innerHTML = by === "len" ? `<b>${r.len}</b> 隻<small>${r.score} 分</small>` : `<b>${r.score}</b> 分<small>隊伍 ${r.len} 隻</small>`;
+    row.append(nm, v); list.appendChild(row);
+  });
 }
 
 // ---------- 主迴圈 ----------
@@ -1001,6 +1079,7 @@ function showHelp(back){
     d.appendChild(document.createTextNode(txt)); lg.appendChild(d);
   });
 }
+panel.addEventListener("keydown", e => { if(e.key === "Enter" && e.target.id === "lbName"){ e.preventDefault(); panel.querySelector('[data-act="lbsave"]').click(); } e.stopPropagation(); });
 panel.addEventListener("click", e => {
   const a = e.target.closest("[data-act]"); if(!a) return;
   audio();
@@ -1010,6 +1089,14 @@ panel.addEventListener("click", e => {
   else if(act === "resume"){ resume(); }
   else if(act === "book"){ showBook(state === "over" ? "over" : "menu"); }
   else if(act === "help"){ showHelp("menu"); }
+  else if(act === "rank"){ showRank(state === "over" ? "over" : "menu"); }
+  else if(act === "rankscore" || act === "ranklen"){ showRank(overlayBack, act === "ranklen" ? "len" : "score"); }
+  else if(act === "lbsave"){
+    const v = (document.getElementById("lbName").value || "").trim();
+    if(!v || v.length > 12){ document.getElementById("lbName").focus(); return; }
+    save.name = v; persist(); if(G) G.uploaded = true; submitScore();
+  }
+  else if(act === "lbrename"){ e.preventDefault(); save.name = ""; persist(); lbStatus = ""; renderLbBox(); }
   else if(act === "back"){
     if(overlayBack === "over") gameOver();
     else if(overlayBack === "paused"){ showOverlay(`<h2>暫停中</h2><p class="muted">貓咪們在原地等你。</p><div class="btns"><button class="btn acc" data-act="resume">繼續</button><button class="btn" data-act="menu">換列車長／重來</button></div>`); }
@@ -1021,6 +1108,10 @@ document.getElementById("bMusic").onclick = () => { save.music = !save.music; pe
 document.getElementById("bBook").onclick = () => {
   if(state === "play" || state === "ready") togglePause();
   showBook(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
+};
+document.getElementById("bRank").onclick = () => {
+  if(state === "play" || state === "ready") togglePause();
+  showRank(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
 };
 document.getElementById("bHelp").onclick = () => {
   if(state === "play" || state === "ready") togglePause();
