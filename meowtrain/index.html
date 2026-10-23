@@ -482,8 +482,31 @@ function audio(){
     }catch(e){ return null; }
   }
   if(AC.state === "suspended") AC.resume();
+  unlockMobileAudio();
   return AC;
 }
+// 手機的聲音：
+// - iPhone 開了靜音開關時，網頁用程式合成的聲音預設會被靜音；告訴瀏覽器這是「播放媒體」，
+//   並同時播一段無聲的音訊，就會跟影片一樣照常出聲（只看媒體音量）。
+// - 手機瀏覽器要在使用者點畫面時才允許出聲，所以第一次點、滑的時候都試著打開聲音。
+let silentEl = null;
+function unlockMobileAudio(){
+  try{ if(navigator.audioSession && navigator.audioSession.type !== "playback") navigator.audioSession.type = "playback"; }catch(e){}
+  if(silentEl){ if(silentEl.paused && !document.hidden) silentEl.play().catch(() => {}); return; }
+  try{
+    // 0.5 秒的無聲 WAV（8kHz、8 位元、單聲道）
+    const n = 4000, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+    const str = (o, t) => [...t].forEach((ch, i) => v.setUint8(o + i, ch.charCodeAt(0)));
+    str(0, "RIFF"); v.setUint32(4, 36 + n, true); str(8, "WAVEfmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); str(36, "data"); v.setUint32(40, n, true);
+    for(let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    silentEl = new Audio(URL.createObjectURL(new Blob([buf], {type:"audio/wav"})));
+    silentEl.loop = true; silentEl.setAttribute("playsinline", "");
+    const pr = silentEl.play(); if(pr) pr.catch(() => { silentEl = null; });
+  }catch(e){ silentEl = null; }
+}
+// 第一次點畫面、放開手指時就打開聲音（滑動本身不算「點」，有些手機不會因為滑動而允許出聲）
+["pointerdown", "touchend", "click", "keydown"].forEach(ev => addEventListener(ev, () => audio(), {passive:true}));
 // 喵：鋸齒波通過帶通濾波，音高先升再降
 function meow(kind = "happy"){
   const a = audio(); if(!a) return;
@@ -662,6 +685,7 @@ function togglePause(){
   else if(state === "paused") resume();
 }
 function resume(){ if(state !== "paused") return; state = pausedFrom; hideOverlay(); if(state !== "ready" || G.started) setMusic(true); }
+document.addEventListener("visibilitychange", () => { if(document.hidden && silentEl) silentEl.pause(); });
 document.addEventListener("visibilitychange", () => { if(document.hidden && state === "play") togglePause(); });
 
 // ---------- 每一步 ----------
