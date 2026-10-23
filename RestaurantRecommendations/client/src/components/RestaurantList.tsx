@@ -229,9 +229,9 @@ function RestaurantList() {
   const { sortedRestaurants, rankMap } = calculateRankings(restaurantsWithVotes);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       {/* 添加按鈕 */}
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center">
         <Button 
           onClick={() => setIsAddModalOpen(true)}
           className="bg-primary hover:bg-primary/90 text-primary-foreground font-serif text-lg px-8 py-6 rounded-sm transition-all transform hover:translate-y-[-2px] shadow-sm border border-primary/30"
@@ -252,10 +252,10 @@ function RestaurantList() {
       </div>
       
       {/* 裝飾分隔線 */}
-      <div className="japanese-divider my-10"></div>
+      <div className="japanese-divider !my-6"></div>
       
       {/* 餐廳排名提示 */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-6">
         <div className="relative inline-block">
           <h2 className="text-3xl font-serif text-primary font-medium mb-3 relative">
             {T.item}投票排名

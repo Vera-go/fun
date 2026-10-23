@@ -122,7 +122,7 @@ export default function EventPage({ code }: { code: string }) {
       <Header />
 
       {/* 重要日期提醒橫幅 */}
-      <div className="relative bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 py-4 mb-8 shadow-sm">
+      <div className="relative bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 py-3 shadow-sm">
         <div className="container mx-auto px-6">
           <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-12 text-amber-800">
             <div className="flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-amber-500" /><span className="text-sm font-medium">重要日期提醒</span></div>
@@ -137,14 +137,14 @@ export default function EventPage({ code }: { code: string }) {
         </div>
       </div>
 
-      <main className="container mx-auto px-6 py-12">
-        <div className="mb-12 text-center">
+      <main className="container mx-auto px-6 pt-6 pb-12">
+        <div className="mb-6 text-center">
           <h2 className="text-2xl md:text-3xl font-medium text-primary mb-3 font-serif tracking-wide">{event.title}</h2>
           <div className="h-[2px] w-24 bg-primary/30 mx-auto"></div>
           {event.description && (
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-6 font-serif text-sm md:text-base tracking-wide whitespace-pre-line">{event.description}</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-3 font-serif text-sm md:text-base tracking-wide whitespace-pre-line">{event.description}</p>
           )}
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
             <Button variant="outline" size="sm" onClick={() => copyText(inviteUrl(event.code), toast, "邀請連結")}>
               <Link2 className="h-4 w-4 mr-1.5" />複製邀請連結
             </Button>
@@ -153,7 +153,7 @@ export default function EventPage({ code }: { code: string }) {
 
         {/* 主辦人工具：只有主辦人看得到 */}
         {event.isAdmin && (
-          <div className="max-w-2xl mx-auto mb-12 border border-amber-300 bg-amber-50/60 rounded-sm p-4 text-sm">
+          <div className="max-w-2xl mx-auto mb-6 border border-amber-300 bg-amber-50/60 rounded-sm p-4 text-sm">
             <div className="font-medium text-amber-900 mb-2">主辦人工具</div>
             <p className="text-amber-800 mb-3">把邀請連結傳給大家，例如貼到 LINE 群組。你可以看到每{T.unit}{T.item}是誰投的（點{T.item}卡片上的 ⓘ），也可以刪除不適合的{T.item}。</p>
             <div className="flex flex-wrap gap-2">
@@ -171,10 +171,10 @@ export default function EventPage({ code }: { code: string }) {
         )}
 
         {!isOpen(event.voteDeadline, event.today) && (
-          <p className="text-center text-amber-700 mb-8">投票已經在 {shortDate(event.voteDeadline)} 截止，以下是最後結果。</p>
+          <p className="text-center text-amber-700 mb-4">投票已經在 {shortDate(event.voteDeadline)} 截止，以下是最後結果。</p>
         )}
 
-        <div className="japanese-divider mb-12"></div>
+        <div className="japanese-divider !my-6"></div>
         <RestaurantList />
       </main>
       {event.isAdmin && <EditEventDialog ev={event} open={editing} onClose={() => setEditing(false)} />}
