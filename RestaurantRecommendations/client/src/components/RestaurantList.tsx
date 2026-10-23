@@ -98,6 +98,11 @@ function RestaurantList() {
 
   const isLoading = isRestaurantsLoading || (currentUser && isVotesLoading);
 
+  // 誰可以編輯這筆推薦：主辦人、推薦的本人（同一個身分），或用同樣名字登入的人（換了瀏覽器或手機也能改；名字忽略大小寫和前後空白）
+  const sameName = (a?: string, b?: string) => !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+  const canEdit = (r: Restaurant) => !!currentUser &&
+    (currentUser.isAdmin === 1 || (r as any).createdBy === currentUser.id || sameName(r.recommender, currentUser.name));
+
   // 換一張照片：同類型裡挑一張別張（不重複用同活動其他家的照片），只改照片
   const [shufflingId, setShufflingId] = useState<number | null>(null);
   const shufflePhoto = async (r: Restaurant) => {
@@ -351,7 +356,7 @@ function RestaurantList() {
                     <Badge className="bg-primary">{restaurant.type}</Badge>
                   </div>
                   {/* 換一張照片：推薦人本人和主辦人可以按 */}
-                  {currentUser && (currentUser.isAdmin === 1 || (restaurant as any).createdBy === currentUser.id) && (
+                  {canEdit(restaurant) && (
                     <button type="button" onClick={() => shufflePhoto(restaurant)} disabled={shufflingId === restaurant.id}
                       className="absolute top-2 right-2 z-[6] flex items-center gap-1 rounded-full bg-black/45 hover:bg-black/65 text-white text-xs px-2.5 py-1 backdrop-blur-sm transition-colors disabled:opacity-60"
                       title="換一張照片">
@@ -463,7 +468,7 @@ function RestaurantList() {
                     {/* 編輯與刪除按鈕 - 只對推薦人本人或管理員顯示 */}
                     {currentUser && (
                       // 確認是否有權限編輯/刪除：推薦人本人或管理員
-                      (currentUser.isAdmin === 1 || (restaurant as any).createdBy === currentUser.id) && (
+                      canEdit(restaurant) && (
                         <>
                           <Button 
                             variant="outline" 

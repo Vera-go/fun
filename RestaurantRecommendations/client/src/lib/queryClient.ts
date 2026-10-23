@@ -102,14 +102,14 @@ async function handle(method: string, url: string, body?: any): Promise<any> {
     await currentUid();
     const { data, error } = await supabase.from("restaurants").update(fromRestaurant(body)).eq("id", Number(m[1])).select();
     if (error) throw friendly(error);
-    if (!data.length) throw apiError(`只有新增這${currentTerms().unit}${currentTerms().item}的人和管理員可以修改。`, 403);
+    if (!data.length) throw apiError(`只有推薦這${currentTerms().unit}${currentTerms().item}的人（或用同樣名字登入）和主辦人可以修改。`, 403);
     return toRestaurant(data[0]);
   }
   if (method === "DELETE" && (m = path.match(/^\/api\/restaurants\/(\d+)$/))) {
     await currentUid();
     const { data, error } = await supabase.from("restaurants").delete().eq("id", Number(m[1])).select();
     if (error) throw friendly(error);
-    if (!data.length) throw apiError(`只有新增這${currentTerms().unit}${currentTerms().item}的人和管理員可以刪除。`, 403);
+    if (!data.length) throw apiError(`只有推薦這${currentTerms().unit}${currentTerms().item}的人（或用同樣名字登入）和主辦人可以刪除。`, 403);
     return null;
   }
   if (method === "POST" && path === "/api/votes") {
