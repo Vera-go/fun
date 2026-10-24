@@ -145,6 +145,10 @@ const SUBJ_COLOR = Object.fromEntries(SUBJECTS);
 const KEY = "studyisland.v1";
 let S = {items:[], sessions:[], dur:25, subject:"英文", goal:60, name:"", client:"", completed:0};
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
+// 從「段考倒數」按「去專心」打開時，會帶科目和時間
+{ const q = new URLSearchParams(location.search), sj = q.get("subject"), du = +q.get("dur");
+  if(sj && ["英文", "數學", "國文", "自然", "社會", "其他"].includes(sj)) S.subject = sj;
+  if([15, 25, 45, 60].includes(du)) S.dur = du; }
 if(!S.client) S.client = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 save();
