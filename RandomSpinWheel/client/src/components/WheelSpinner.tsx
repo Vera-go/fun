@@ -14,12 +14,15 @@ export default function WheelSpinner({ options, isSpinning, spinAngle, onSpinWhe
   const wheelRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // 中間的小豬：每次按旋轉換下一個（洗牌，一輪內不重複）；第一次進頁面也隨機挑一個
+  // 中間的小豬：轉完停下來 1.2 秒後換下一個（洗牌，一輪內不重複），
+  // 所以按旋轉前看到的小豬，就是轉的時候那一隻；第一次進頁面也隨機挑一個
   const [faceIndex, setFaceIndex] = useState<number>(() => nextFaceIndex());
   const wasSpinning = useRef(false);
   useEffect(() => {
-    if (isSpinning && !wasSpinning.current) setFaceIndex(nextFaceIndex());
+    let t: ReturnType<typeof setTimeout> | undefined;
+    if (!isSpinning && wasSpinning.current) t = setTimeout(() => setFaceIndex(nextFaceIndex()), 1200);
     wasSpinning.current = isSpinning;
+    return () => { if (t) clearTimeout(t); };
   }, [isSpinning]);
   const showResult = !isSpinning && spinAngle > 0 && options.length > 0;
   const sparkles = useMemo(
