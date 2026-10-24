@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>讀書島</title>
+<meta name="description" content="專心讀 25 分鐘，你的小島就長出一棵樹。可以和同學一起開讀書房間，不用開鏡頭。">
+<meta property="og:title" content="讀書島｜專心讀書，種出一座島">
+<meta property="og:description" content="專心讀 25 分鐘，你的小島就長出一棵樹。可以和同學一起開讀書房間，不用開鏡頭。">
+<meta name="theme-color" content="#E6F4F1">
+<style>
+:root{--bg:#E9F5F2;--card:#FFFFFF;--ink:#1F3A3D;--muted:#6B8A8C;--line:#CFE5E0;--acc:#2FA58A;--acc2:#F08A5D;--warn:#D65A4A;--sea:#8FD3E0;--sea2:#5FB8CC}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+header h1{margin:0;font-size:24px;font-weight:900;letter-spacing:1px}
+header .sub{font-size:13px;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+/* 手機：計時器放最上面，接著小島、讀書房間、紀錄、說明 */
+@media(max-width:820px){.grid{display:flex;flex-direction:column;gap:0}.grid>div{display:contents}#timerCard{order:1}.islandCard{order:2}#roomCard{order:3}.statsCard{order:4}.helpCard{order:5}}
+.card{background:var(--card);border-radius:20px;padding:16px;box-shadow:0 2px 0 var(--line),0 8px 24px rgba(31,58,61,.06);margin-bottom:16px}
+.card h2{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:8px}
+.card h2 .r{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+/* 小島 */
+.island{position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(#BFE9F1,var(--sea))}
+.island svg{display:block;width:100%;height:auto}
+.island .cap{position:absolute;left:12px;bottom:10px;background:rgba(255,255,255,.85);border-radius:99px;padding:4px 12px;font-size:13px;font-weight:800}
+/* 計時器 */
+.timer{text-align:center}
+.ring{position:relative;width:220px;height:220px;margin:6px auto 10px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .t b{font-size:46px;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.ring .t span{font-size:13px;color:var(--muted);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}
+.chip{border:2px solid var(--line);background:#F7FBFA;border-radius:99px;padding:5px 12px;font:inherit;font-size:14px;font-weight:800;color:var(--ink);cursor:pointer}
+.chip.on{border-color:var(--acc);background:#E1F5EF;color:#17785F}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.btn{border:0;border-radius:14px;padding:12px 22px;font:inherit;font-size:17px;font-weight:900;cursor:pointer;background:var(--acc);color:#fff;box-shadow:0 4px 0 #1E7E68}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1E7E68}
+.btn.ghost{background:#EEF6F4;color:var(--ink);box-shadow:0 4px 0 #CFE0DC}
+.btn.warn{background:#FBE9E6;color:var(--warn);box-shadow:0 4px 0 #EFCFC9}
+.btn.sm{padding:7px 14px;font-size:14px;border-radius:12px}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.note{font-size:13px;line-height:1.6;background:#F3FAF8;border-radius:12px;padding:8px 12px;margin-top:12px;text-align:left}
+.note.warn{background:#FFF1EE;color:#8A3B2B}
+.goal{display:flex;align-items:center;gap:8px;justify-content:center;font-size:14px;font-weight:700;margin-top:6px}
+.goal .bar{flex:1;max-width:240px;height:10px;border-radius:99px;background:#E3EFEC;overflow:hidden}
+.goal .bar i{display:block;height:100%;background:linear-gradient(90deg,#55C9A6,var(--acc));transition:width .4s}
+/* 統計 */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stats div{background:#F3FAF8;border-radius:14px;padding:8px;text-align:center}
+.stats b{display:block;font-size:22px}
+.stats span{font-size:12px;color:var(--muted);font-weight:700}
+.week{display:flex;align-items:flex-end;gap:6px;height:110px;padding:0 4px}
+.week .d{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.week .d i{display:block;width:100%;max-width:30px;border-radius:8px 8px 4px 4px;background:#BFE6DA;min-height:3px}
+.week .d.today i{background:var(--acc)}
+.week .d span{font-size:11.5px;color:var(--muted);font-weight:700}
+.week .d em{font-style:normal;font-size:11px;font-weight:800;color:var(--ink)}
+.subj{display:grid;gap:6px;margin-top:12px}
+.subj .r{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.subj .r .bar{flex:1;height:8px;border-radius:99px;background:#EEF5F3;overflow:hidden}
+.subj .r .bar i{display:block;height:100%}
+/* 房間 */
+.room input{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:12px;padding:8px 12px;min-width:0;width:100%}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.row > *{flex:1}
+.row .btn{flex:none}
+.code{font-size:26px;font-weight:900;letter-spacing:4px;color:#17785F}
+.members{display:grid;gap:6px;margin-top:10px}
+.mem{display:flex;align-items:center;gap:10px;background:#F7FBFA;border-radius:14px;padding:8px 10px}
+.mem.me{background:#E6F6F0;box-shadow:inset 0 0 0 2px #9FDCC7}
+.mem .dot{width:12px;height:12px;border-radius:50%;flex:none;background:#C5D6D3}
+.mem.focus .dot{background:var(--acc);box-shadow:0 0 0 4px rgba(47,165,138,.18)}
+.mem.break .dot{background:#F4B860}
+.mem .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mem .st{font-size:12.5px;color:var(--muted);font-weight:700;text-align:right}
+.mem .st b{color:var(--ink);font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#fff;border-radius:14px;padding:10px 16px;font-weight:800;box-shadow:0 8px 30px rgba(31,58,61,.18);z-index:20;max-width:92vw;text-align:center;animation:tin .25s}
+.toast small{display:block;font-weight:600;color:var(--muted);margin-top:2px}
+@keyframes tin{from{opacity:0;transform:translate(-50%,-8px)}}
+.portal-foot{text-align:center;color:#6B8A8C;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#6B8A8C;text-decoration:none}.portal-foot svg{display:inline-block}.portal-foot a:hover,.portal-foot a:focus-visible{text-decoration:underline;outline:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><ellipse cx="24" cy="34" rx="20" ry="8" fill="#8FD3E0"/><ellipse cx="24" cy="31" rx="15" ry="6" fill="#F3D9A4"/><ellipse cx="24" cy="29" rx="12" ry="4.5" fill="#7CCB8E"/><rect x="22.5" y="16" width="3" height="12" rx="1.2" fill="#8A5A3B"/><circle cx="24" cy="15" r="8" fill="#3FAE6E"/><circle cx="20.5" cy="13" r="2.4" fill="#6FD08F"/></svg>
+    <div><h1>讀書島</h1><div class="sub">專心讀一段時間，你的小島就會長出一棵樹</div></div>
+  </header>
+
+  <div class="grid">
+    <div>
+      <div class="card islandCard">
+        <div class="island" id="island"></div>
+      </div>
+      <div class="card statsCard">
+        <h2>我的讀書紀錄 <span class="r" id="streakTxt"></span></h2>
+        <div class="stats" id="stats"></div>
+        <div class="week" id="week"></div>
+        <div class="subj" id="subj"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card timer" id="timerCard"></div>
+      <div class="card room" id="roomCard"></div>
+      <div class="card helpCard">
+        <h2>怎麼玩</h2>
+        <ol class="small" style="line-height:1.8;padding-left:20px;margin:0">
+          <li>選好時間和科目，按「開始專心」。</li>
+          <li>時間到了，你的小島會長出一株植物：讀越久，長得越大（15 分鐘一朵花、25 分鐘一棵樹、45 分鐘大樹、60 分鐘結果子的樹）。每完成 4 次，還會有一隻小貓搬到島上。</li>
+          <li>專心時<b>離開這個頁面超過 15 秒</b>（去滑手機、切到別的視窗），或按了放棄，植物就會枯掉，枯樹也會留在島上。</li>
+          <li>建立「讀書房間」把連結傳給同學，就能看到大家是不是正在讀書、今天讀了多久。不用開鏡頭，也不用註冊。</li>
+        </ol>
+        <p class="small muted" style="margin:8px 0 0">小島和紀錄只存在這個瀏覽器裡；換手機、換瀏覽器或清除瀏覽資料，會看不到原本的小島。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
+<footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+/* =========================================================
+   讀書島（許願池 #18）
+   - 番茄鐘：專心一段時間 → 小島長出植物；中途離開頁面超過 15 秒或放棄 → 植物枯掉
+   - 小島、讀書紀錄存在瀏覽器（localStorage）
+   - 讀書房間：用 Supabase Realtime 的 presence（只在線上時同步，不存資料庫），看到同學正在專心還是休息
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
+const GRACE = 15;   // 專心時可以離開頁面幾秒
+const DURS = [15, 25, 45, 60];
+const BREAKS = [5, 10];
+const SUBJECTS = [["英文", "#5B8DEF"], ["數學", "#F08A5D"], ["國文", "#E06C9F"], ["自然", "#2FA58A"], ["社會", "#C9A227"], ["其他", "#8C8FA8"]];
+const SUBJ_COLOR = Object.fromEntries(SUBJECTS);
+
+// ---------- 存檔 ----------
+const KEY = "studyisland.v1";
+let S = {items:[], sessions:[], dur:25, subject:"英文", goal:60, name:"", client:"", completed:0};
+try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
+if(!S.client) S.client = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+save();
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const minutesOn = k => S.sessions.filter(x => x.ok && x.day === k).reduce((a, b) => a + b.min, 0);
+
+// ---------- 計時狀態 ----------
+// T.mode：idle（還沒開始）、focus（專心中）、break（休息中）、done（剛完成）、failed（剛枯掉）
+let T = {mode:"idle", endAt:0, total:0, leftAt:0, last:null};
+let wakeLock = null;
+async function keepAwake(on){
+  try{
+    if(on && "wakeLock" in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); }
+    if(!on && wakeLock){ await wakeLock.release(); wakeLock = null; }
+  }catch(e){ wakeLock = null; }
+}
+function start(){
+  audio();
+  T = {mode:"focus", endAt:Date.now() + S.dur * 60000, total:S.dur * 60000, leftAt:0, last:null, dur:S.dur, subject:S.subject};
+  keepAwake(true); renderTimer(); pushPresence();
+}
+function startBreak(min){
+  T = {mode:"break", endAt:Date.now() + min * 60000, total:min * 60000, leftAt:0, last:T.last};
+  renderTimer(); pushPresence();
+}
+function giveUp(reason){
+  if(T.mode !== "focus") return;
+  const doneMin = Math.round((T.total - Math.max(0, T.endAt - Date.now())) / 60000);
+  const it = placeItem({type:"dead", min:doneMin, subject:T.subject});
+  S.sessions.push({day:dayKey(), min:0, planned:T.dur, subject:T.subject, ok:false, at:Date.now()});
+  save();
+  T = {mode:"failed", last:it, reason};
+  keepAwake(false); chime(false); renderAll(); pushPresence();
+}
+function finishFocus(){
+  const min = T.dur, type = min >= 60 ? "fruit" : min >= 45 ? "bigtree" : min >= 25 ? "tree" : "flower";
+  const it = placeItem({type, min, subject:T.subject});
+  S.sessions.push({day:dayKey(), min, planned:min, subject:T.subject, ok:true, at:Date.now()});
+  S.completed = (S.completed || 0) + 1;
+  let cat = null;
+  if(S.completed % 4 === 0) cat = placeItem({type:"cat", min:0, subject:T.subject, breed:Math.floor(Math.random() * CAT_COLORS.length)});
+  save();
+  T = {mode:"done", last:it, cat};
+  keepAwake(false); chime(true); renderAll(); pushPresence();
+}
+// 離開頁面：專心中離開超過 GRACE 秒，回來時植物就枯掉
+document.addEventListener("visibilitychange", () => {
+  if(T.mode !== "focus") return;
+  if(document.hidden){ T.leftAt = Date.now(); }
+  else{
+    const away = (Date.now() - T.leftAt) / 1000; T.leftAt = 0;
+    if(away > GRACE) giveUp("away");
+    else if(away > 2) toast("差一點就枯掉了！", `離開了 ${Math.round(away)} 秒，超過 ${GRACE} 秒植物就會枯掉。`);
+    keepAwake(true);
+  }
+});
+addEventListener("beforeunload", e => { if(T.mode === "focus"){ e.preventDefault(); e.returnValue = ""; } });
+setInterval(() => {
+  if(T.mode === "focus"){
+    if(document.hidden && T.leftAt && (Date.now() - T.leftAt) / 1000 > GRACE){ /* 回來時才判定，避免在背景時跳出畫面 */ }
+    else if(Date.now() >= T.endAt) finishFocus();
+  }else if(T.mode === "break" && Date.now() >= T.endAt){
+    T = {mode:"idle", last:T.last}; chime(true); toast("休息結束", "準備好就再開始一輪吧！"); renderTimer(); pushPresence();
+  }
+  if(T.mode === "focus" || T.mode === "break") updateClock();
+}, 250);
+
+// ---------- 小島 ----------
+const CAT_COLORS = [["#F6A64A", "#D97A26"], ["#2E2B2B", "#2E2B2B"], ["#9EA7B2", "#7A838E"], ["#FFFFFF", "#E3C9A8"], ["#B39878", "#7A6248"]];
+function islandSize(){ const n = S.items.length; return {rx:150 + Math.min(n, 80) * 2.2, ry:62 + Math.min(n, 80) * .9}; }
+// 在島上找一個空位：離其他東西遠一點
+function placeItem(it){
+  const {rx, ry} = islandSize();
+  let best = null, bestD = -1;
+  for(let k = 0; k < 40; k++){
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * .82;
+    const x = Math.cos(a) * rx * r, y = Math.sin(a) * ry * r;
+    const d = S.items.reduce((m, o) => Math.min(m, Math.hypot((o.x - x) / 1.2, o.y - y)), 1e9);
+    if(d > bestD){ bestD = d; best = {x, y}; }
+    if(d > 34) break;
+  }
+  const item = {...it, x:Math.round(best.x), y:Math.round(best.y), day:dayKey(), at:Date.now()};
+  S.items.push(item);
+  return item;
+}
+function drawItem(it, hl){
+  const s = it.type === "bigtree" || it.type === "fruit" ? 1.25 : 1;
+  let g = "";
+  if(it.type === "flower"){
+    const c = SUBJ_COLOR[it.subject] || "#E06C9F";
+    g = `<path d="M0 0 V-14" stroke="#3E8E57" stroke-width="2.4"/><path d="M0 -6 q-7 -2 -8 -8 q6 0 8 6" fill="#5DBB72"/>${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-22" rx="4" ry="6.5" fill="${c}" transform="rotate(${a} 0 -17)"/>`).join("")}<circle cx="0" cy="-17" r="3.4" fill="#FFE27A"/>`;
+  }else if(it.type === "tree" || it.type === "bigtree" || it.type === "fruit"){
+    g = `<rect x="-3.5" y="-22" width="7" height="22" rx="2.5" fill="#8A5A3B"/><circle cx="0" cy="-32" r="17" fill="#3FAE6E"/><circle cx="-9" cy="-26" r="10" fill="#36A062"/><circle cx="9" cy="-27" r="11" fill="#47B877"/><circle cx="-5" cy="-38" r="5" fill="#7AD69A" opacity=".8"/>`;
+    if(it.type === "fruit") g += [[-8, -30], [7, -36], [10, -24], [-2, -22]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.2" fill="#FF8A3D" stroke="#C8571B" stroke-width=".8"/>`).join("");
+  }else if(it.type === "dead"){
+    g = `<path d="M0 0 V-24 M0 -14 L-8 -22 M0 -18 L7 -27 M-8 -22 l-3 -4 M7 -27 l3 -3" stroke="#8B7355" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M-6 -1 q6 -3 12 0" stroke="#A8957A" stroke-width="2" fill="none"/>`;
+  }else if(it.type === "cat"){
+    const [c1, c2] = CAT_COLORS[it.breed || 0];
+    g = `<ellipse cx="0" cy="-6" rx="9" ry="6.5" fill="${c1}" stroke="#3A2A20" stroke-width="1.3"/><path d="M8 -8 q8 -2 6 -11" stroke="${c2}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="-6" cy="-14" r="6.5" fill="${c1}" stroke="#3A2A20" stroke-width="1.3"/><path d="M-11 -18 l1 -6 l4 3 Z M-4 -19 l3 -5 l2 5 Z" fill="${c1}" stroke="#3A2A20" stroke-width="1.1" stroke-linejoin="round"/><circle cx="-8.3" cy="-14.5" r="1" fill="#3A2A20"/><circle cx="-3.8" cy="-14.5" r="1" fill="#3A2A20"/><path d="M-7 -12 q1 1 2 0" stroke="#3A2A20" stroke-width=".8" fill="none"/>`;
+  }else{
+    g = `<path d="M0 0 V-8" stroke="#3E8E57" stroke-width="2.2"/><path d="M0 -6 q-6 -1 -7 -6 q5 0 7 5 M0 -7 q6 -1 7 -6 q-5 0 -7 5" fill="#5DBB72"/>`;
+  }
+  const shadow = `<ellipse cx="0" cy="0" rx="${it.type === "cat" ? 9 : 11 * s}" ry="3" fill="rgba(40,80,40,.18)"/>`;
+  return `<g transform="translate(${it.x},${it.y}) scale(${s})"><g class="${hl ? "pop" : ""}">${shadow}${g}</g></g>`;
+}
+function renderIsland(){
+  const {rx, ry} = islandSize();
+  const W = Math.max(420, rx * 2 + 80), H = Math.max(240, ry * 2 + 120);
+  const items = S.items.slice(-160).sort((a, b) => a.y - b.y);
+  const hl = T.last && (T.mode === "done" || T.mode === "failed") ? T.last.at : 0;
+  const h = new Date().getHours(), night = h >= 19 || h < 6;
+  const today = minutesOn(dayKey());
+  $("#island").style.background = night ? "linear-gradient(#2B3F66,#3E6F8E)" : "linear-gradient(#BFE9F1,#8FD3E0)";
+  $("#island").innerHTML = `<svg viewBox="${-W / 2} ${-H / 2 - 20} ${W} ${H}" role="img" aria-label="我的小島，上面有 ${S.items.length} 樣東西">
+    <style>.pop{transform-box:fill-box;transform-origin:50% 100%;animation:pop .8s cubic-bezier(.3,1.6,.5,1)} @keyframes pop{from{transform:scale(.1)}to{transform:scale(1)}}</style>
+    ${night ? [...Array(14)].map((_, i) => `<circle cx="${(i * 97 % W) - W / 2}" cy="${-H / 2 + (i * 37 % 60)}" r="${i % 3 ? 1 : 1.6}" fill="#fff" opacity=".8"/>`).join("") : `<circle cx="${W / 2 - 50}" cy="${-H / 2 + 30}" r="16" fill="#FFE27A" opacity=".9"/>`}
+    ${[0, 1, 2].map(i => `<path d="M${-W / 2 + 20 + i * 140} ${H / 2 - 40 - i * 10} q10 -6 20 0 t20 0" stroke="#fff" stroke-width="2" fill="none" opacity=".55"/>`).join("")}
+    <ellipse cx="0" cy="${ry * .35}" rx="${rx + 26}" ry="${ry + 18}" fill="#A9E2EA" opacity=".7"/>
+    <ellipse cx="0" cy="${ry * .25}" rx="${rx + 10}" ry="${ry + 8}" fill="#F3D9A4"/>
+    <ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="#7CCB8E"/>
+    <ellipse cx="${-rx * .3}" cy="${-ry * .3}" rx="${rx * .45}" ry="${ry * .35}" fill="#8ED69D" opacity=".6"/>
+    ${items.map(it => drawItem(it, it.at === hl)).join("")}
+    ${S.items.length ? "" : `<text x="0" y="6" text-anchor="middle" font-size="15" font-weight="800" fill="#2D6B45">讀完第一輪，這裡就會長出第一株植物</text>`}
+  </svg>
+  <div class="cap">島上有 ${S.items.filter(i => i.type !== "dead" && i.type !== "cat").length} 株植物${S.items.some(i => i.type === "cat") ? `・${S.items.filter(i => i.type === "cat").length} 隻貓` : ""}・今天讀了 ${today} 分鐘</div>`;
+}
+
+// ---------- 計時器畫面 ----------
+const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; };
+function ringSvg(p, color){
+  const C = 2 * Math.PI * 96;
+  return `<svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="#E6F1EE" stroke-width="14"/><circle id="arc" cx="110" cy="110" r="96" fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - p)}"/></svg>`;
+}
+function updateClock(){
+  const left = T.endAt - Date.now(), p = 1 - left / T.total;
+  const el = $("#clock"); if(el) el.textContent = fmt(left);
+  const arc = $("#arc"); if(arc){ const C = 2 * Math.PI * 96; arc.setAttribute("stroke-dashoffset", C * (1 - Math.min(1, p))); }
+  document.title = `${fmt(left)} ${T.mode === "focus" ? "專心中" : "休息中"}｜讀書島`;
+}
+function renderTimer(){
+  const el = $("#timerCard");
+  const today = minutesOn(dayKey()), goalP = Math.min(1, today / S.goal);
+  const goal = `<div class="goal">今天 ${today} / <input id="goalIn" type="number" min="10" max="600" step="10" value="${S.goal}" style="width:62px;font:inherit;font-weight:800;border:2px solid var(--line);border-radius:8px;padding:2px 4px"> 分鐘 <span class="bar"><i style="width:${goalP * 100}%"></i></span></div>`;
+  if(T.mode === "focus" || T.mode === "break"){
+    const focus = T.mode === "focus";
+    el.innerHTML = `<h2>${focus ? `專心中・${esc(T.subject)}` : "休息一下"}</h2>
+      <div class="ring">${ringSvg(0, focus ? "#2FA58A" : "#F4B860")}<div class="t"><b id="clock">${fmt(T.endAt - Date.now())}</b><span>${focus ? `讀完會長出${T.dur >= 60 ? "結果子的樹" : T.dur >= 45 ? "大樹" : T.dur >= 25 ? "一棵樹" : "一朵花"}` : "站起來動一動、喝口水"}</span></div></div>
+      <div class="btns">${focus ? `<button class="btn warn" id="giveUp">放棄</button>` : `<button class="btn ghost" id="skipBreak">跳過休息</button>`}</div>
+      ${focus ? `<div class="note">離開這個頁面超過 ${GRACE} 秒，植物就會枯掉。手機請保持螢幕開著（這個頁面會盡量讓螢幕不要自動關掉）。</div>` : ""}`;
+    if(focus) $("#giveUp").onclick = () => { if(confirm("確定要放棄嗎？這次的植物會枯掉。")) giveUp("quit"); };
+    else $("#skipBreak").onclick = () => { T = {mode:"idle", last:T.last}; document.title = "讀書島"; renderTimer(); pushPresence(); };
+    updateClock();
+    return;
+  }
+  document.title = "讀書島";
+  let head = "";
+  if(T.mode === "done") head = `<div class="note" style="background:#E6F6F0;margin:0 0 10px"><b>完成了！</b>${T.cat ? "島上長出新的植物，還有一隻小貓搬來了！" : "島上長出新的植物了。"}要不要休息一下？
+    <div class="btns">${BREAKS.map(b => `<button class="btn sm ghost" data-break="${b}">休息 ${b} 分鐘</button>`).join("")}</div></div>`;
+  if(T.mode === "failed") head = `<div class="note warn" style="margin:0 0 10px"><b>植物枯掉了。</b>${T.reason === "away" ? `離開頁面超過 ${GRACE} 秒。` : "這次放棄了。"}沒關係，枯樹也是島的一部分，下一輪再試一次。</div>`;
+  el.innerHTML = `${head}<h2>開始專心</h2>
+    <div class="ring">${ringSvg(0, "#2FA58A")}<div class="t"><b>${String(S.dur).padStart(2, "0")}:00</b><span>${S.dur >= 60 ? "結果子的樹" : S.dur >= 45 ? "大樹" : S.dur >= 25 ? "一棵樹" : "一朵花"}</span></div></div>
+    <div class="chips">${DURS.map(d => `<button class="chip ${d === S.dur ? "on" : ""}" data-dur="${d}">${d} 分鐘</button>`).join("")}</div>
+    <div class="chips">${SUBJECTS.map(([n]) => `<button class="chip ${n === S.subject ? "on" : ""}" data-subj="${n}">${n}</button>`).join("")}</div>
+    <div class="btns"><button class="btn" id="startBtn">開始專心</button></div>
+    ${goal}`;
+  el.querySelectorAll("[data-dur]").forEach(b => b.onclick = () => { S.dur = +b.dataset.dur; save(); renderTimer(); });
+  el.querySelectorAll("[data-subj]").forEach(b => b.onclick = () => { S.subject = b.dataset.subj; save(); renderTimer(); });
+  el.querySelectorAll("[data-break]").forEach(b => b.onclick = () => startBreak(+b.dataset.break));
+  $("#startBtn").onclick = start;
+  $("#goalIn").onchange = e => { const v = Math.max(10, Math.min(600, Math.round(+e.target.value || 60))); S.goal = v; save(); renderTimer(); };
+}
+
+// ---------- 統計 ----------
+function streak(){
+  let n = 0; const d = new Date();
+  if(!minutesOn(dayKey(d))) d.setDate(d.getDate() - 1);   // 今天還沒讀，不算斷
+  while(minutesOn(dayKey(d)) > 0){ n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function renderStats(){
+  const ok = S.sessions.filter(x => x.ok), total = ok.reduce((a, b) => a + b.min, 0);
+  const st = streak();
+  $("#streakTxt").textContent = st ? `連續 ${st} 天` : "";
+  $("#stats").innerHTML = `<div><b>${minutesOn(dayKey())}</b><span>今天（分鐘）</span></div><div><b>${(total / 60).toFixed(total >= 600 ? 0 : 1)}</b><span>總共（小時）</span></div><div><b>${ok.length}</b><span>完成次數</span></div>`;
+  const days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return d; });
+  const vals = days.map(d => minutesOn(dayKey(d))), max = Math.max(30, ...vals);
+  const W = "日一二三四五六";
+  $("#week").innerHTML = days.map((d, i) => `<div class="d ${i === 6 ? "today" : ""}"><em>${vals[i] || ""}</em><i style="height:${vals[i] / max * 80}%"></i><span>${i === 6 ? "今天" : W[d.getDay()]}</span></div>`).join("");
+  const by = {}; ok.forEach(x => by[x.subject] = (by[x.subject] || 0) + x.min);
+  const m = Math.max(1, ...Object.values(by));
+  $("#subj").innerHTML = Object.keys(by).length ? SUBJECTS.filter(([n]) => by[n]).map(([n, c]) => `<div class="r"><span style="width:36px">${n}</span><span class="bar"><i style="width:${by[n] / m * 100}%;background:${c}"></i></span><span style="width:60px;text-align:right">${by[n]} 分</span></div>`).join("") : `<p class="small muted" style="margin:0">完成第一輪後，這裡會顯示每一科讀了多久。</p>`;
+}
+
+// ---------- 讀書房間（Supabase Realtime presence：只同步在線的人，不存進資料庫） ----------
+const sb = window.supabase ? window.supabase.createClient("https://bbydhrcyxxwxtbtemszb.supabase.co", "sb_publishable_hlbBn6LWqC5oLdCS32lchw_xzZeIph7") : null;
+let room = null, roomCode = "", members = {};
+const params = new URLSearchParams(location.search);
+const newCode = () => [...Array(5)].map(() => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+function presenceData(){
+  return {name:S.name || "同學", mode:T.mode === "focus" || T.mode === "break" ? T.mode : "idle", endAt:T.endAt || 0, subject:T.mode === "focus" ? T.subject : "", today:minutesOn(dayKey())};
+}
+function pushPresence(){ if(room) room.track(presenceData()).catch(() => {}); }
+async function joinRoom(code){
+  if(!sb){ toast("讀書房間暫時連不上", "請檢查網路後再試一次。"); return; }
+  code = code.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  if(code.length < 4){ toast("房間代碼不太對", "代碼是 5 個英文字母和數字。"); return; }
+  if(!S.name){ toast("先取一個暱稱", "同學會看到這個名字。"); $("#nameIn") && $("#nameIn").focus(); return; }
+  await leaveRoom(true);
+  roomCode = code;
+  room = sb.channel("study-room:" + code, {config:{presence:{key:S.client}}});
+  room.on("presence", {event:"sync"}, () => { members = room.presenceState(); renderRoom(); });
+  room.subscribe(s => {
+    if(s === "SUBSCRIBED"){ pushPresence(); history.replaceState(null, "", "?room=" + code); renderRoom(); }
+    else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT"){ toast("讀書房間連線中斷", "會自動再試一次。"); }
+  });
+  renderRoom();
+}
+async function leaveRoom(quiet){
+  if(room){ try{ await room.untrack(); await sb.removeChannel(room); }catch(e){} }
+  room = null; roomCode = ""; members = {};
+  if(!quiet){ history.replaceState(null, "", location.pathname); renderRoom(); }
+}
+function renderRoom(){
+  const el = $("#roomCard");
+  if(!room){
+    el.innerHTML = `<h2>讀書房間</h2>
+      <p class="small muted" style="margin:0 0 6px">和同學一起讀：看得到誰正在專心、今天讀了多久。不用開鏡頭，也不用註冊。</p>
+      <label class="small" style="font-weight:800">你的暱稱<div class="row" style="margin-top:4px"><input id="nameIn" maxlength="12" placeholder="同學會看到這個名字" value="${esc(S.name)}"></div></label>
+      <div class="row"><button class="btn sm" id="mkRoom">建立房間</button><input id="codeIn" maxlength="8" placeholder="輸入房間代碼" value="${esc(params.get("room") || "")}" style="text-transform:uppercase"><button class="btn sm ghost" id="joinBtn">加入</button></div>
+      <p class="small muted" style="margin:8px 0 0">請不要用真實全名。房間只在大家開著這個頁面時存在，不會留下紀錄。</p>`;
+    const nameIn = $("#nameIn");
+    nameIn.onchange = () => { S.name = nameIn.value.trim().slice(0, 12); save(); };
+    $("#mkRoom").onclick = () => { S.name = nameIn.value.trim().slice(0, 12); save(); joinRoom(newCode()); };
+    $("#joinBtn").onclick = () => { S.name = nameIn.value.trim().slice(0, 12); save(); joinRoom($("#codeIn").value); };
+    return;
+  }
+  const list = Object.entries(members).map(([k, v]) => ({k, ...v[v.length - 1]}));
+  const order = {focus:0, break:1, idle:2};
+  list.sort((a, b) => (order[a.mode] - order[b.mode]) || (b.today - a.today));
+  const sum = list.reduce((a, b) => a + (b.today || 0), 0), focusing = list.filter(m => m.mode === "focus").length;
+  el.innerHTML = `<h2>讀書房間 <span class="r">${list.length} 人在線・${focusing} 人專心中</span></h2>
+    <div class="row" style="margin-top:0"><div><div class="small muted">房間代碼</div><div class="code">${esc(roomCode)}</div></div><button class="btn sm" id="copyLink">複製邀請連結</button><button class="btn sm warn" id="leave">離開</button></div>
+    <div class="members" id="members">${list.map(m => `<div class="mem ${m.mode} ${m.k === S.client ? "me" : ""}"><span class="dot"></span><span class="nm">${esc(m.name)}${m.k === S.client ? "（你）" : ""}</span>
+      <span class="st">${m.mode === "focus" ? `專心中${m.subject ? "・" + esc(m.subject) : ""}・剩 <b data-end="${m.endAt}">${fmt(m.endAt - Date.now())}</b>` : m.mode === "break" ? `休息中・剩 <b data-end="${m.endAt}">${fmt(m.endAt - Date.now())}</b>` : "還沒開始"}<br>今天 <b>${m.today || 0}</b> 分鐘</span></div>`).join("") || `<p class="small muted">連線中⋯⋯</p>`}</div>
+    <p class="small muted" style="margin:10px 0 0">大家今天一共讀了 <b>${sum}</b> 分鐘。</p>`;
+  $("#copyLink").onclick = async () => {
+    const url = `${location.origin}${location.pathname}?room=${roomCode}`;
+    try{ await navigator.clipboard.writeText(url); toast("已複製邀請連結", "貼到群組，同學點開就能加入。"); }
+    catch(e){ prompt("複製這個連結傳給同學：", url); }
+  };
+  $("#leave").onclick = () => leaveRoom(false);
+}
+// 房間裡的倒數每秒更新（不用重畫整個列表）
+setInterval(() => { document.querySelectorAll("[data-end]").forEach(b => b.textContent = fmt(+b.dataset.end - Date.now())); }, 1000);
+
+// ---------- 聲音：結束時的提示音 ----------
+let AC = null;
+function audio(){ try{ AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if(AC.state === "suspended") AC.resume(); }catch(e){} return AC; }
+function chime(good){
+  const a = audio(); if(!a) return;
+  (good ? [659, 784, 988, 1319] : [440, 330]).forEach((f, i) => {
+    const t = a.currentTime + i * .16, o = a.createOscillator(), g = a.createGain();
+    o.type = "sine"; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.18, t + .02); g.gain.exponentialRampToValueAtTime(.001, t + .9);
+    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 1);
+  });
+}
+let toastTimer = null;
+function toast(msg, sub = ""){
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const el = document.createElement("div"); el.className = "toast"; el.innerHTML = esc(msg) + (sub ? `<small>${esc(sub)}</small>` : "");
+  document.body.appendChild(el); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.remove(), 3500);
+}
+
+function renderAll(){ renderIsland(); renderTimer(); renderStats(); }
+renderAll(); renderRoom();
+// 帶著 ?room=代碼 打開：有暱稱就直接加入
+if(params.get("room") && S.name) joinRoom(params.get("room"));
+</script>
+</body>
+</html>
