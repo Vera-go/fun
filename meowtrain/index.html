@@ -771,10 +771,14 @@ function drawAdopter(t){
   heart(c, 0, s * .16, s * .12, "#FF5C8A");
   c.restore();
   // 對話框：畫出想要的貓
-  const n = A.want.length, bw = s * (.12 + n * .5), bx = x - bw / 2, by = y - s * 1.15;
+  const n = A.want.length, bw = s * (.12 + n * .5), W = COLS * s;
+  const below = A.y < 2;                                   // 太靠上面：對話框畫在人的下面
+  const bx = Math.min(Math.max(x - bw / 2, s * .08), W - bw - s * .08), by = below ? y + s * .62 : y - s * 1.15;
   c.save(); c.fillStyle = "#fff"; c.strokeStyle = INK; c.lineWidth = Math.max(1, s * .04);
   c.beginPath(); c.roundRect(bx, by, bw, s * .52, s * .12); c.fill(); c.stroke();
-  c.beginPath(); c.moveTo(x - s * .08, by + s * .52); c.lineTo(x, by + s * .66); c.lineTo(x + s * .08, by + s * .52); c.fill(); c.stroke();
+  const ty = below ? by : by + s * .52, tip = below ? by - s * .14 : by + s * .66;
+  c.beginPath(); c.moveTo(x - s * .08, ty); c.lineTo(x, tip); c.lineTo(x + s * .08, ty); c.fill(); c.stroke();
+  c.beginPath(); c.moveTo(x - s * .06, ty); c.lineTo(x + s * .06, ty); c.strokeStyle = "#fff"; c.lineWidth = Math.max(1, s * .05); c.stroke();
   c.restore();
   A.want.forEach((id, k) => drawCat(ctx, bx + s * (.31 + k * .5), by + s * .3, s * .5, id, {mood:"happy"}));
 }
@@ -1186,7 +1190,7 @@ function updateRareHint(){
   const el = document.getElementById("rareHint"); if(!el || !G) return;
   const n = G.train.length, next = TIERS.find(t => t.need > n);
   el.innerHTML = `會遇到：${TIERS.slice(0, unlockedTier() + 1).map((t, i) => `<i style="background:${TIER_BG[i]}">${t.name}</i>`).join(" ")}` +
-    (next ? `<br><span class="muted">再收編 ${next.need - n} 隻，就會開始遇到「${next.name}」的貓</span>` : `<br><span class="muted">所有稀有度都開放了！</span>`);
+    (next ? `<br><span class="muted">再收編 ${next.need - n} 隻（隊伍 ${next.need} 隻），就會開始遇到${TIERS.indexOf(next) >= 4 ? `比${TIERS[TIERS.indexOf(next) - 1].name}更稀有的` : ""}「${next.name}」的貓</span>` : `<br><span class="muted">所有稀有度都開放了！</span>`);
 }
 // 側邊的最高紀錄（這一局的隊伍超過紀錄時會即時更新）
 function updateRecordBox(){
