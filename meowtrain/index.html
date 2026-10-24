@@ -170,7 +170,7 @@ const INK = "#3A2A20";
 // ---------- 貓咪品種（花色、眼睛、小知識） ----------
 // tier：0 普通、1 少見、2 稀有、3 傳說、4 夢幻、5 神話（隊伍夠長才會遇到，見 TIERS）
 // 其他外觀：fluffy 長毛、tufts 耳尖長毛、bigEars 大耳朵、shortLegs 短腿、wide 圓臉、eye2 另一隻眼睛的顏色、
-//          bobtail 短尾巴、foldEars 摺耳、paw 舉手、halo 光環、crown 皇冠、dark 深色（臉上的線改用淺色）
+//          bobtail 短尾巴、foldEars 摺耳、paw 舉手、halo 光環、crown 皇冠、bowtie 藍色領結、dark 深色（臉上的線改用淺色）
 const BREEDS = [
   {id:"orange",  tier:0, name:"橘貓",     base:"#F6A64A", eye:"#7FB33A", fact:"橘貓大多是公貓，因為決定橘色的基因在 X 染色體上。"},
   {id:"calico",  tier:0, name:"三花貓",   base:"#FFFDF8", eye:"#D9A531", fact:"三花貓有白、橘、黑三種顏色，幾乎都是母貓。"},
@@ -198,7 +198,7 @@ const BREEDS = [
   {id:"fold",    tier:2, name:"蘇格蘭摺耳貓", base:"#C5CBD3", eye:"#E39B3A", wide:true, foldEars:true, fact:"耳朵往前摺是軟骨的基因問題，容易關節疼痛，很多獸醫不建議繁殖。"},
   {id:"sphynx",  tier:3, name:"斯芬克斯無毛貓", base:"#F0C6B4", eye:"#7FC08A", bigEars:true, fact:"幾乎沒有毛，摸起來像溫暖的麂皮；怕冷也怕曬，還要常常洗澡。"},
   {id:"oddeye",  tier:3, name:"異色瞳白貓", base:"#FFFFFF", eye:"#5AA8F0", eye2:"#F2C230", fact:"兩隻眼睛顏色不一樣叫「異色瞳」，在日本被叫做「金目銀目」，代表好運。"},
-  {id:"malecalico", tier:3, name:"公三花貓", base:"#FFFDF8", eye:"#D9A531", fact:"三花貓幾乎都是母貓，公三花大約幾千隻才有一隻，在日本被當成幸運的象徵。"},
+  {id:"malecalico", tier:3, name:"公三花貓", base:"#FFFDF8", eye:"#D9A531", bowtie:true, fact:"三花貓幾乎都是母貓，公三花大約幾千隻才有一隻，在日本被當成幸運的象徵。"},
   {id:"maneki",  tier:3, name:"招財貓",   base:"#FFFFFF", eye:"#2B2A2E", paw:true, fact:"招財貓是日本的吉祥物：舉右手招財，舉左手招客人。"},
   {id:"rainbow", tier:4, name:"彩虹貓",   base:"#FFFFFF", eye:"#7C5CE0", fact:"貓看得到的顏色比人少，主要看得到藍色和綠色，可能看不出自己是彩虹色。"},
   {id:"starry",  tier:4, name:"星空貓",   base:"#26305F", eye:"#FFD447", dark:true, fact:"貓的眼睛後面有一層會反光的「照膜」，所以晚上眼睛會發亮，在暗處比人看得清楚。"},
@@ -374,6 +374,15 @@ function drawCat(c, x, y, s, breedId, opt = {}){
   c.lineWidth = lw; c.strokeStyle = INK;
   // 害怕的汗
   if(mood === "scared"){ c.beginPath(); c.moveTo(hw * .9, hy - r * .5); c.quadraticCurveTo(hw * 1.18, hy - r * .1, hw * .98, hy); c.quadraticCurveTo(hw * .78, hy - r * .1, hw * .9, hy - r * .5); c.fillStyle = "#8FD0FF"; c.fill(); c.lineWidth = lw * .7; c.stroke(); }
+  // 公三花：藍色領結（和一般的三花貓分得出來）
+  if(b.bowtie){
+    const ty = hy + hh * .98, w = r * .42;
+    c.lineWidth = lw * .9; c.strokeStyle = INK; c.fillStyle = "#2F6FD6";
+    c.beginPath(); c.moveTo(0, ty); c.lineTo(-w, ty - r * .22); c.lineTo(-w, ty + r * .22); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0, ty); c.lineTo(w, ty - r * .22); c.lineTo(w, ty + r * .22); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.arc(0, ty, r * .1, 0, Math.PI * 2); c.fillStyle = "#1E4FA8"; c.fill(); c.stroke();
+    c.lineWidth = lw;
+  }
   // 招財貓：舉起來的手和紅色項圈、金鈴鐺
   if(b.paw){
     c.lineWidth = lw;
