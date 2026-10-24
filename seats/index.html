@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>抽座位分組</title>
+<meta name="description" content="輸入全班名單，一鍵抽座位、分組或抽人；可以設定誰不要同組、誰要坐前面。">
+<meta property="og:title" content="抽座位分組｜班級小幫手">
+<meta property="og:description" content="輸入全班名單，一鍵抽座位、分組或抽人；可以設定誰不要同組、誰要坐前面。">
+<meta name="theme-color" content="#FFF7EC">
+<style>
+:root{--bg:#FFF7EC;--card:#fff;--ink:#2B2340;--muted:#857B95;--line:#EDE3D4;--acc:#7A5AF0;--acc2:#FF8A5B;--good:#2FA58A;--warn:#D65A4A}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+header h1{margin:0;font-size:24px;font-weight:900}
+header .sub{font-size:13px;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:20px;padding:16px;box-shadow:0 2px 0 var(--line),0 8px 24px rgba(43,35,64,.06);margin-bottom:16px}
+.card h2{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:8px}
+.card h2 .r{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:#FFFCF7;min-width:0}
+textarea{width:100%;resize:vertical;line-height:1.6}
+label{font-size:13px;font-weight:800;color:var(--muted);display:grid;gap:4px}
+.btn{border:0;border-radius:12px;padding:10px 16px;font:inherit;font-size:15px;font-weight:900;cursor:pointer;background:var(--acc);color:#fff;box-shadow:0 3px 0 #5A3DC8}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #5A3DC8}
+.btn.ghost{background:#F3EEFF;color:var(--ink);box-shadow:0 3px 0 #DDD3F7}
+.btn.warn{background:#FCECE9;color:var(--warn);box-shadow:0 3px 0 #F0D3CE}
+.btn.big{font-size:20px;padding:14px 28px;border-radius:16px}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.row > label{flex:1;min-width:90px}
+.tabs{display:flex;gap:4px;background:#F1E9DC;border-radius:99px;padding:4px;margin-bottom:14px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:99px;padding:9px 6px;font:inherit;font-size:15px;font-weight:900;color:var(--muted);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(43,35,64,.1)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#F6F0FF;border-radius:99px;padding:4px 10px;font-size:13px;font-weight:800}
+.chip button{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;padding:0 0 0 2px}
+/* 結果 */
+.stage{min-height:200px}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.group{border-radius:18px;padding:12px;background:#fff;border:3px solid var(--c)}
+.group h3{margin:0 0 8px;font-size:17px;color:var(--c);display:flex;align-items:center;gap:6px}
+.group .nm{display:block;background:color-mix(in srgb,var(--c) 12%,#fff);border-radius:10px;padding:7px 10px;margin-bottom:5px;font-weight:800;font-size:17px;animation:drop .35s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes drop{from{opacity:0;transform:translateY(-14px) scale(.8)}}
+.board{text-align:center;margin:0 auto 12px;background:#3E5A4A;color:#fff;border-radius:10px;padding:6px;font-weight:900;letter-spacing:6px;max-width:320px}
+.seats{display:grid;gap:8px;margin:0 auto}
+.seat{border-radius:12px;min-height:54px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:16px;background:#fff;border:2px solid var(--line);padding:4px;word-break:break-all;line-height:1.2}
+.seat.off{background:transparent;border:2px dashed #E3D8C6;color:#C9BCA8;font-size:12px;font-weight:700}
+.seat.rolling{color:var(--muted);background:#FBF7FF}
+.seat.set{animation:pop .4s cubic-bezier(.3,1.6,.5,1);background:#F3EEFF;border-color:#CDBDFB}
+.seat.front{box-shadow:inset 0 -4px 0 #FFC48C}
+@keyframes pop{from{transform:scale(.6)}}
+.editgrid .seat{cursor:pointer;min-height:40px;font-size:12px;color:var(--muted)}
+.pick{text-align:center;padding:20px 0}
+.pick .name{font-size:clamp(44px,9vw,96px);font-weight:900;min-height:1.3em;color:var(--acc)}
+.pick .name.final{animation:pop .5s cubic-bezier(.3,1.6,.5,1);color:var(--acc2)}
+.picked{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+.warnbox{background:#FFF1EE;color:#8A3B2B;border-radius:12px;padding:8px 12px;font-size:13.5px;margin-top:10px}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#fff;border-radius:14px;padding:10px 16px;font-weight:800;box-shadow:0 8px 30px rgba(43,35,64,.18);z-index:20;max-width:92vw;text-align:center}
+.toast small{display:block;font-weight:600;color:var(--muted);margin-top:2px}
+/* 全螢幕投影 */
+body.present .grid{grid-template-columns:1fr}
+body.present .setup,body.present header,body.present .portal-foot{display:none}
+body.present .seat{font-size:22px;min-height:70px}
+body.present .group .nm{font-size:22px}
+.portal-foot{text-align:center;color:#857B95;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#857B95;text-decoration:none}.portal-foot svg{display:inline-block}.portal-foot a:hover,.portal-foot a:focus-visible{text-decoration:underline;outline:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="7" y="6" width="34" height="8" rx="3" fill="#3E5A4A"/><g fill="#fff" stroke="#2B2340" stroke-width="2"><rect x="7" y="19" width="10" height="9" rx="2.5"/><rect x="19" y="19" width="10" height="9" rx="2.5"/><rect x="31" y="19" width="10" height="9" rx="2.5"/><rect x="7" y="31" width="10" height="9" rx="2.5"/><rect x="31" y="31" width="10" height="9" rx="2.5"/></g><rect x="19" y="31" width="10" height="9" rx="2.5" fill="#FF8A5B" stroke="#2B2340" stroke-width="2"/><circle cx="24" cy="35.5" r="1.8" fill="#fff"/></svg>
+    <div><h1>抽座位分組</h1><div class="sub">輸入全班名單，一鍵抽座位、分組或抽人</div></div>
+  </header>
+  <div class="grid">
+    <div class="setup">
+      <div class="card">
+        <h2>名單 <span class="r" id="count"></span></h2>
+        <div class="row" style="margin-bottom:8px"><label>班級<select id="cls"></select></label><button class="btn sm ghost" data-act="newCls">＋ 新增</button><button class="btn sm ghost" data-act="renCls">改名</button></div>
+        <textarea id="names" rows="10" placeholder="一行一個名字（可以直接從 Excel 貼上整欄）"></textarea>
+        <p class="small muted" style="margin:6px 0 0">名單只存在這個瀏覽器裡，不會上傳。</p>
+      </div>
+      <div class="card">
+        <h2>特別安排</h2>
+        <label>不要同組／不要坐隔壁的兩個人</label>
+        <div class="row" style="margin-top:4px"><select id="avA"></select><select id="avB"></select><button class="btn sm" data-act="addAvoid">加入</button></div>
+        <div class="chips" id="avoidList" style="margin-top:8px"></div>
+        <label style="margin-top:12px">要坐前面的人（例如視力、聽力需要）</label>
+        <div class="row" style="margin-top:4px"><select id="frSel"></select><button class="btn sm" data-act="addFront">加入</button></div>
+        <div class="chips" id="frontList" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="tabs" id="tabs"><button data-mode="seat">抽座位</button><button data-mode="group">分組</button><button data-mode="pick">抽人</button></div>
+        <div id="opts"></div>
+      </div>
+      <div class="card stage" id="stage"></div>
+    </div>
+  </div>
+</div>
+<!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
+<footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
+
+<script>
+/* =========================================================
+   抽座位分組（許願池 #20）
+   - 抽座位：設定幾排幾列、點格子可以設成空位（走道），要坐前面的人優先排在前面幾排，不要坐隔壁的兩個人不會相鄰
+   - 分組：分成幾組或每組幾人，不要同組的兩個人會分開
+   - 抽人：從名單抽 1 個或幾個人（可以設定抽過的不再抽）
+   名單、設定只存在瀏覽器（localStorage），可以存好幾個班級。
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
+const GROUP_COLORS = ["#7A5AF0", "#FF8A5B", "#2FA58A", "#E0559B", "#3D8BE0", "#C9A227", "#8C6BD9", "#E2683C", "#1F9E9E", "#B5517E"];
+
+// ---------- 存檔：可以有好幾個班級 ----------
+const KEY = "seats.v1";
+const blankCls = () => ({names:[], avoid:[], front:[], rows:6, cols:6, off:[], frontRows:2, gMode:"count", gN:6, picked:[], noRepeat:true, last:null});
+let D = {classes:{"我的班級":blankCls()}, cur:"我的班級", mode:"seat"};
+try{ const v = JSON.parse(localStorage.getItem(KEY) || "null"); if(v && v.classes && Object.keys(v.classes).length) D = Object.assign(D, v); }catch(e){}
+if(!D.classes[D.cur]) D.cur = Object.keys(D.classes)[0];
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} };
+const C = () => D.classes[D.cur];
+
+// ---------- 名單 ----------
+function readNames(){
+  const seen = new Set(), out = [];
+  $("#names").value.split(/\r?\n|\t|,|，|、/).map(s => s.trim()).filter(Boolean).forEach(n => { n = n.slice(0, 12); if(!seen.has(n)){ seen.add(n); out.push(n); } });
+  return out.slice(0, 80);
+}
+function syncNames(){
+  const c = C(); c.names = readNames();
+  c.avoid = c.avoid.filter(([a, b]) => c.names.includes(a) && c.names.includes(b));
+  c.front = c.front.filter(n => c.names.includes(n));
+  c.picked = c.picked.filter(n => c.names.includes(n));
+  save(); renderSide(); renderOpts();
+}
+function renderSide(){
+  const c = C();
+  $("#cls").innerHTML = Object.keys(D.classes).map(k => `<option ${k === D.cur ? "selected" : ""}>${esc(k)}</option>`).join("");
+  if(document.activeElement !== $("#names")) $("#names").value = c.names.join("\n");
+  $("#count").textContent = c.names.length ? `${c.names.length} 人` : "";
+  const opts = `<option value="">選一個人</option>` + c.names.map(n => `<option>${esc(n)}</option>`).join("");
+  $("#avA").innerHTML = opts; $("#avB").innerHTML = opts; $("#frSel").innerHTML = opts;
+  $("#avoidList").innerHTML = c.avoid.map(([a, b], i) => `<span class="chip">${esc(a)} ✕ ${esc(b)}<button data-delav="${i}" aria-label="刪除">×</button></span>`).join("") || `<span class="small muted">還沒有設定</span>`;
+  $("#frontList").innerHTML = c.front.map((n, i) => `<span class="chip">${esc(n)}<button data-delfr="${i}" aria-label="刪除">×</button></span>`).join("") || `<span class="small muted">還沒有設定</span>`;
+}
+
+// ---------- 選項 ----------
+function renderOpts(){
+  const c = C();
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.mode === D.mode));
+  const n = c.names.length;
+  let h = "";
+  if(D.mode === "seat"){
+    const seats = c.rows * c.cols - c.off.length;
+    h = `<div class="row"><label>幾排（前後）<input id="oRows" type="number" min="1" max="12" value="${c.rows}"></label><label>每排幾個座位<input id="oCols" type="number" min="1" max="12" value="${c.cols}"></label><label>前面幾排算「前面」<input id="oFront" type="number" min="1" max="6" value="${c.frontRows}"></label></div>
+      <p class="small muted" style="margin:8px 0 4px">點下面的格子可以設成空位或走道（再點一次恢復）。座位 ${seats} 個${n > seats ? `，<b style="color:var(--warn)">比人數少 ${n - seats} 個</b>` : ""}。</p>
+      <div class="board">講 台</div>
+      <div class="seats editgrid" style="grid-template-columns:repeat(${c.cols},1fr);max-width:${c.cols * 70}px">${[...Array(c.rows * c.cols)].map((_, i) => `<div class="seat ${c.off.includes(i) ? "off" : ""}" data-off="${i}">${c.off.includes(i) ? "空位" : ""}</div>`).join("")}</div>
+      <div class="row" style="margin-top:14px;justify-content:center"><button class="btn big" data-act="go" ${n ? "" : "disabled"}>抽座位！</button></div>`;
+  }else if(D.mode === "group"){
+    const per = c.gMode === "count" ? Math.ceil(n / Math.max(1, c.gN)) : c.gN;
+    h = `<div class="row"><label>分組方式<select id="oGMode"><option value="count" ${c.gMode === "count" ? "selected" : ""}>分成幾組</option><option value="size" ${c.gMode === "size" ? "selected" : ""}>每組幾個人</option></select></label><label>${c.gMode === "count" ? "組數" : "每組人數"}<input id="oGN" type="number" min="1" max="40" value="${c.gN}"></label></div>
+      <p class="small muted" style="margin:8px 0 0">${n ? (c.gMode === "count" ? `${n} 人分成 ${c.gN} 組，每組大約 ${per} 人。` : `${n} 人，每組 ${c.gN} 人，會分成 ${Math.ceil(n / Math.max(1, c.gN))} 組。`) : ""}</p>
+      <div class="row" style="margin-top:14px;justify-content:center"><button class="btn big" data-act="go" ${n ? "" : "disabled"}>分組！</button></div>`;
+  }else{
+    const left = c.noRepeat ? c.names.filter(x => !c.picked.includes(x)).length : n;
+    h = `<div class="row"><label>一次抽幾個人<input id="oPickN" type="number" min="1" max="20" value="${c.pickN || 1}"></label>
+      <label style="flex-direction:row;display:flex;align-items:center;gap:8px;color:var(--ink);align-self:center"><input id="oNoRep" type="checkbox" ${c.noRepeat ? "checked" : ""} style="width:20px;height:20px"> 抽過的不再抽</label></div>
+      <p class="small muted" style="margin:8px 0 0">${c.noRepeat ? `還有 ${left} 人沒被抽過。${c.picked.length ? `<button class="btn sm ghost" data-act="resetPick">全部重來</button>` : ""}` : ""}</p>
+      <div class="row" style="margin-top:14px;justify-content:center"><button class="btn big" data-act="go" ${left ? "" : "disabled"}>抽！</button></div>`;
+  }
+  $("#opts").innerHTML = h;
+}
+
+// ---------- 抽的邏輯 ----------
+const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const conflict = (c, a, b) => c.avoid.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+// 分組：先洗牌，再一個一個放進「人最少、而且沒有衝突」的組；試很多次找沒有衝突的結果
+function makeGroups(c){
+  const n = c.names.length, k = c.gMode === "count" ? Math.max(1, Math.min(n, c.gN)) : Math.max(1, Math.ceil(n / Math.max(1, c.gN)));
+  for(let tries = 0; tries < 400; tries++){
+    const groups = [...Array(k)].map(() => []);
+    let ok = true;
+    // 有限制的人先放，比較容易成功
+    const limited = new Set(c.avoid.flat());
+    const order = [...shuffle(c.names.filter(x => limited.has(x))), ...shuffle(c.names.filter(x => !limited.has(x)))];
+    for(const nm of order){
+      const cand = groups.map((g, i) => i).filter(i => !groups[i].some(o => conflict(c, nm, o)));
+      if(!cand.length){ ok = false; break; }
+      const min = Math.min(...cand.map(i => groups[i].length));
+      const best = shuffle(cand.filter(i => groups[i].length === min));
+      groups[best[0]].push(nm);
+    }
+    if(ok) return {groups:groups.map(shuffle), warn:""};
+  }
+  // 真的排不開：照洗牌結果，提醒老師
+  const groups = [...Array(k)].map(() => []);
+  shuffle(c.names).forEach((nm, i) => groups[i % k].push(nm));
+  return {groups, warn:"「不要同組」的設定太多，有些人沒辦法分開，請手動調整。"};
+}
+// 抽座位：要坐前面的人先放在前面幾排，其他人放剩下的位子；不要坐隔壁的兩個人不能前後左右相鄰
+function makeSeats(c){
+  const all = [...Array(c.rows * c.cols).keys()].filter(i => !c.off.includes(i));
+  const front = all.filter(i => Math.floor(i / c.cols) < c.frontRows);
+  const near = (i, j) => { const r1 = Math.floor(i / c.cols), c1 = i % c.cols, r2 = Math.floor(j / c.cols), c2 = j % c.cols; return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1; };
+  for(let tries = 0; tries < 400; tries++){
+    const map = {}, used = new Set();
+    let ok = true;
+    const fr = shuffle(c.front), rest = shuffle(c.names.filter(x => !c.front.includes(x)));
+    const place = (nm, pool) => {
+      const cand = shuffle(pool.filter(i => !used.has(i) && !Object.entries(map).some(([o, s]) => conflict(c, nm, o) && near(i, s))));
+      if(!cand.length) return false;
+      map[nm] = cand[0]; used.add(cand[0]); return true;
+    };
+    for(const nm of fr) if(!place(nm, front) && !place(nm, all)){ ok = false; break; }
+    if(ok) for(const nm of rest) if(!place(nm, all)){ ok = false; break; }
+    if(ok){ const seat = {}; Object.entries(map).forEach(([nm, i]) => seat[i] = nm); return {seat, warn:""}; }
+  }
+  const seat = {}; shuffle(all).slice(0, c.names.length).forEach((s, i) => seat[s] = c.names[i]);
+  return {seat, warn:"「不要坐隔壁」的設定太多，有些人沒辦法分開，請手動調整。"};
+}
+
+// ---------- 動畫和結果 ----------
+let busy = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function go(){
+  if(busy) return; const c = C(); if(!c.names.length) return;
+  busy = true; audio();
+  if(D.mode === "seat") await goSeats(c);
+  else if(D.mode === "group") await goGroups(c);
+  else await goPick(c);
+  busy = false; save();
+}
+async function goSeats(c){
+  if(c.names.length > c.rows * c.cols - c.off.length){ toast("座位不夠", "請多加幾排，或把空位改回座位。"); return; }
+  const {seat, warn} = makeSeats(c);
+  const cells = [...Array(c.rows * c.cols).keys()];
+  $("#stage").innerHTML = resultHead("座位表") + `<div class="board">講 台</div><div class="seats" style="grid-template-columns:repeat(${c.cols},1fr);max-width:${c.cols * 130}px">${cells.map(i => `<div class="seat ${c.off.includes(i) ? "off" : seat[i] ? "rolling" : ""} ${seat[i] && c.front.includes(seat[i]) ? "front" : ""}" data-i="${i}">${c.off.includes(i) ? "" : ""}</div>`).join("")}</div>${warn ? `<div class="warnbox">${esc(warn)}</div>` : ""}`;
+  const els = [...document.querySelectorAll("#stage .seat.rolling")];
+  // 名字像拉霸一樣跑一下，再從前排開始一個一個定下來
+  const t0 = Date.now();
+  while(Date.now() - t0 < 900){ els.forEach(e => e.textContent = c.names[Math.floor(Math.random() * c.names.length)]); tick(); await sleep(70); }
+  for(const e of els){
+    e.textContent = seat[e.dataset.i]; e.classList.remove("rolling"); e.classList.add("set"); tick(true);
+    els.filter(x => x.classList.contains("rolling")).forEach(x => x.textContent = c.names[Math.floor(Math.random() * c.names.length)]);
+    await sleep(Math.max(25, 900 / els.length));
+  }
+  c.last = {mode:"seat", seat, rows:c.rows, cols:c.cols, off:c.off.slice()};
+  ding();
+}
+async function goGroups(c){
+  const {groups, warn} = makeGroups(c);
+  $("#stage").innerHTML = resultHead("分組結果") + `<div class="groups">${groups.map((g, i) => `<div class="group" style="--c:${GROUP_COLORS[i % GROUP_COLORS.length]}"><h3>第 ${i + 1} 組<span class="small muted" style="margin-left:auto">${g.length} 人</span></h3><div data-g="${i}"></div></div>`).join("")}</div>${warn ? `<div class="warnbox">${esc(warn)}</div>` : ""}`;
+  // 輪流發到每一組，像發牌一樣
+  const max = Math.max(...groups.map(g => g.length));
+  const delay = Math.max(40, Math.min(160, 2400 / c.names.length));
+  for(let r = 0; r < max; r++) for(let i = 0; i < groups.length; i++){
+    const nm = groups[i][r]; if(!nm) continue;
+    const s = document.createElement("span"); s.className = "nm"; s.textContent = nm;
+    document.querySelector(`[data-g="${i}"]`).appendChild(s); tick(true);
+    await sleep(delay);
+  }
+  c.last = {mode:"group", groups};
+  ding();
+}
+async function goPick(c){
+  const pool = c.noRepeat ? c.names.filter(x => !c.picked.includes(x)) : c.names.slice();
+  const k = Math.max(1, Math.min(pool.length, c.pickN || 1));
+  const chosen = shuffle(pool).slice(0, k);
+  $("#stage").innerHTML = `<div class="pick"><div class="name" id="pName"></div><div class="picked" id="pList"></div></div>`;
+  for(const who of chosen){
+    const el = $("#pName"); el.classList.remove("final");
+    const t0 = Date.now(); let wait = 40;
+    while(Date.now() - t0 < 1300){ el.textContent = c.names[Math.floor(Math.random() * c.names.length)]; tick(); await sleep(wait); wait *= 1.08; }
+    el.textContent = who; void el.offsetWidth; el.classList.add("final"); ding();
+    if(c.noRepeat) c.picked.push(who);
+    const chip = document.createElement("span"); chip.className = "chip"; chip.style.fontSize = "18px"; chip.textContent = who; $("#pList").appendChild(chip);
+    if(chosen.length > 1) await sleep(700);
+  }
+  c.last = {mode:"pick", chosen};
+  renderOpts();
+}
+function resultHead(title){
+  return `<h2>${title}<span class="r"><button class="btn sm ghost" data-act="copy">複製文字</button> <button class="btn sm ghost" data-act="present">投影模式</button> <button class="btn sm" data-act="go">再抽一次</button></span></h2>`;
+}
+// 上一次的結果（重新整理頁面後還看得到）
+function renderLast(){
+  const c = C(), L = c.last;
+  if(!L || L.mode !== D.mode){
+    $("#stage").innerHTML = `<div class="empty">${c.names.length ? `按上面的「${D.mode === "seat" ? "抽座位" : D.mode === "group" ? "分組" : "抽"}」，結果會出現在這裡。<br>上課要投影時，可以按「投影模式」把字放大。` : "先在左邊輸入全班名單（一行一個名字）。"}</div>`;
+    return;
+  }
+  if(L.mode === "seat"){
+    $("#stage").innerHTML = resultHead("座位表") + `<div class="board">講 台</div><div class="seats" style="grid-template-columns:repeat(${L.cols},1fr);max-width:${L.cols * 130}px">${[...Array(L.rows * L.cols).keys()].map(i => `<div class="seat ${L.off.includes(i) ? "off" : ""} ${L.seat[i] && c.front.includes(L.seat[i]) ? "front" : ""}">${esc(L.seat[i] || "")}</div>`).join("")}</div>`;
+  }else if(L.mode === "group"){
+    $("#stage").innerHTML = resultHead("分組結果") + `<div class="groups">${L.groups.map((g, i) => `<div class="group" style="--c:${GROUP_COLORS[i % GROUP_COLORS.length]}"><h3>第 ${i + 1} 組<span class="small muted" style="margin-left:auto">${g.length} 人</span></h3>${g.map(n => `<span class="nm" style="animation:none">${esc(n)}</span>`).join("")}</div>`).join("")}</div>`;
+  }else{
+    $("#stage").innerHTML = `<div class="pick"><div class="name">${esc(L.chosen[L.chosen.length - 1] || "")}</div><div class="picked">${L.chosen.map(n => `<span class="chip" style="font-size:18px">${esc(n)}</span>`).join("")}</div></div>`;
+  }
+}
+function resultText(){
+  const L = C().last; if(!L) return "";
+  if(L.mode === "group") return L.groups.map((g, i) => `第 ${i + 1} 組：${g.join("、")}`).join("\n");
+  if(L.mode === "seat"){
+    const lines = ["（講台）"];
+    for(let r = 0; r < L.rows; r++) lines.push([...Array(L.cols).keys()].map(cc => { const i = r * L.cols + cc; return L.off.includes(i) ? "（空）" : (L.seat[i] || "—"); }).join("\t"));
+    return lines.join("\n");
+  }
+  return L.chosen.join("、");
+}
+
+// ---------- 聲音 ----------
+let AC = null;
+function audio(){ try{ AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if(AC.state === "suspended") AC.resume(); }catch(e){} return AC; }
+function tone(f, len, vol, type = "triangle"){
+  const a = AC; if(!a) return;
+  const t = a.currentTime, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + len);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + len + .02);
+}
+const tick = big => tone(big ? 880 : 660 + Math.random() * 200, .05, big ? .06 : .03);
+const ding = () => { [784, 988, 1319].forEach((f, i) => setTimeout(() => tone(f, .5, .12, "sine"), i * 110)); };
+
+// ---------- 操作 ----------
+let typing = null;
+$("#names").addEventListener("input", () => { clearTimeout(typing); typing = setTimeout(syncNames, 400); });
+$("#names").addEventListener("blur", syncNames);
+$("#cls").addEventListener("change", e => { D.cur = e.target.value; save(); renderSide(); renderOpts(); renderLast(); });
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if(!b || busy) return; D.mode = b.dataset.mode; save(); renderOpts(); renderLast(); });
+document.addEventListener("change", e => {
+  const c = C(), id = e.target.id, v = +e.target.value;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, Math.round(x || a)));
+  if(id === "oRows"){ c.rows = clamp(v, 1, 12); c.off = c.off.filter(i => i < c.rows * c.cols); }
+  else if(id === "oCols"){ const old = c.cols; c.cols = clamp(v, 1, 12); if(old !== c.cols) c.off = []; }
+  else if(id === "oFront") c.frontRows = clamp(v, 1, 6);
+  else if(id === "oGMode") c.gMode = e.target.value;
+  else if(id === "oGN") c.gN = clamp(v, 1, 40);
+  else if(id === "oPickN") c.pickN = clamp(v, 1, 20);
+  else if(id === "oNoRep") c.noRepeat = e.target.checked;
+  else return;
+  save(); renderOpts();
+});
+document.addEventListener("click", e => {
+  const c = C();
+  const off = e.target.closest("[data-off]");
+  if(off){ const i = +off.dataset.off; c.off = c.off.includes(i) ? c.off.filter(x => x !== i) : [...c.off, i]; save(); renderOpts(); return; }
+  const dav = e.target.closest("[data-delav]"); if(dav){ c.avoid.splice(+dav.dataset.delav, 1); save(); renderSide(); return; }
+  const dfr = e.target.closest("[data-delfr]"); if(dfr){ c.front.splice(+dfr.dataset.delfr, 1); save(); renderSide(); return; }
+  const a = e.target.closest("[data-act]"); if(!a) return;
+  const act = a.dataset.act;
+  if(act === "go") go();
+  else if(act === "addAvoid"){
+    const x = $("#avA").value, y = $("#avB").value;
+    if(!x || !y || x === y){ toast("請選兩個不同的人", ""); return; }
+    if(!conflict(c, x, y)) c.avoid.push([x, y]); save(); renderSide();
+  }else if(act === "addFront"){
+    const x = $("#frSel").value; if(!x) return;
+    if(!c.front.includes(x)) c.front.push(x); save(); renderSide();
+  }else if(act === "newCls"){
+    const nm = (prompt("新班級的名稱（例如：301、二年三班）") || "").trim().slice(0, 12);
+    if(!nm) return; if(D.classes[nm]){ toast("已經有這個班級了", ""); return; }
+    D.classes[nm] = blankCls(); D.cur = nm; save(); renderSide(); renderOpts(); renderLast();
+  }else if(act === "renCls"){
+    const nm = (prompt("新的班級名稱", D.cur) || "").trim().slice(0, 12);
+    if(!nm || nm === D.cur) return; if(D.classes[nm]){ toast("已經有這個班級了", ""); return; }
+    D.classes[nm] = D.classes[D.cur]; delete D.classes[D.cur]; D.cur = nm; save(); renderSide();
+  }else if(act === "resetPick"){ c.picked = []; save(); renderOpts(); }
+  else if(act === "copy"){
+    const t = resultText();
+    navigator.clipboard.writeText(t).then(() => toast("已複製", "可以貼到 LINE、Excel 或 Word。"), () => prompt("複製下面的文字：", t));
+  }else if(act === "present"){
+    document.body.classList.toggle("present");
+    a.textContent = document.body.classList.contains("present") ? "結束投影" : "投影模式";
+    if(document.body.classList.contains("present") && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    else if(document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  }
+});
+document.addEventListener("fullscreenchange", () => { if(!document.fullscreenElement && document.body.classList.contains("present")){ document.body.classList.remove("present"); renderLast(); } });
+let toastTimer = null;
+function toast(msg, sub){
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const el = document.createElement("div"); el.className = "toast"; el.innerHTML = esc(msg) + (sub ? `<small>${esc(sub)}</small>` : "");
+  document.body.appendChild(el); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.remove(), 3000);
+}
+renderSide(); renderOpts(); renderLast();
+</script>
+</body>
+</html>

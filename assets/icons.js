@@ -44,6 +44,8 @@
     study: () => ring("#BFE9F1") + `<ellipse cx="20" cy="27" rx="13" ry="4.5" fill="#F3D9A4" stroke="${K}" stroke-width="1.6"/><ellipse cx="20" cy="25.5" rx="10" ry="3.2" fill="#7CCB8E"/><rect x="18.8" y="14" width="2.4" height="11" rx="1" fill="#8A5A3B"/><circle cx="20" cy="13" r="6.5" fill="#3FAE6E" stroke="${K}" stroke-width="1.6"/><circle cx="17.6" cy="11" r="1.8" fill="#7AD69A"/><path d="M7 31 q2 -1.5 4 0 t4 0 M25 31 q2 -1.5 4 0 t4 0" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round"/>`,
     // 段考倒數：月曆和打勾
     plan: () => ring("#E3E5FB") + `<rect x="10" y="11" width="20" height="19" rx="4" fill="#fff" stroke="${K}" stroke-width="1.8"/><path d="M10 15.5 a4 4 0 0 1 4 -4.5 H26 a4 4 0 0 1 4 4.5 V17 H10 Z" fill="#5B5FD9"/><path d="M15 8.5 V13 M25 8.5 V13" stroke="${K}" stroke-width="2" stroke-linecap="round"/><path d="M14.5 23.5 l3.2 3.2 l7.6 -7.6" fill="none" stroke="#2FA58A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+    // 抽座位分組：講台和座位，有一個被抽中
+    seats: () => ring("#FFF1E3") + `<rect x="11" y="9" width="18" height="4.5" rx="1.6" fill="#3E5A4A"/><g fill="#fff" stroke="${K}" stroke-width="1.5"><rect x="10" y="17" width="5.5" height="5" rx="1.4"/><rect x="17.25" y="17" width="5.5" height="5" rx="1.4"/><rect x="24.5" y="17" width="5.5" height="5" rx="1.4"/><rect x="10" y="24.5" width="5.5" height="5" rx="1.4"/><rect x="24.5" y="24.5" width="5.5" height="5" rx="1.4"/></g><rect x="17.25" y="24.5" width="5.5" height="5" rx="1.4" fill="#FF8A5B" stroke="${K}" stroke-width="1.5"/>`,
     portal: () => ring("#FFD60A") + g(`<path d="M16 2 L19.6 11 L29 11.6 L21.8 17.8 L24.2 27 L16 22 L7.8 27 L10.2 17.8 L3 11.6 L12.4 11 Z" fill="#FFFFFF" stroke="${K}" stroke-width="2" stroke-linejoin="round"/>`),
     idea: () => ring("#FFFDF5") + g(`<path d="M11 24 Q6 19 6 14 Q6 6 16 6 Q26 6 26 14 Q26 19 21 24 Z" fill="#FFF3A3" stroke="${K}" stroke-width="2" stroke-linejoin="round"/><rect x="11" y="24" width="10" height="5" rx="1.5" fill="#D9D9D9" stroke="${K}" stroke-width="2"/><path d="M16 1.5 V3.5 M4.5 8 L6.5 9.5 M27.5 8 L25.5 9.5" stroke="${K}" stroke-width="1.8" stroke-linecap="round"/>`),
   };
@@ -68,7 +70,7 @@
   window.SiteIcons = {
     /** 功能小圖示：wish、sprout、flower、moon、chat、news、done、book、toolbox */
     icon: (name, size = 24) => wrap(32, ICONS[name] || "", size, "wicon"),
-    /** 網站徽章：restaurant、wheel、english、nostrings、lighthouse、meowtrain、study、plan、portal、idea */
+    /** 網站徽章：restaurant、wheel、english、nostrings、lighthouse、meowtrain、study、plan、seats、portal、idea */
     badge: (name, size = 32) => wrap(40, (BADGES[name] || (() => ""))(), size, "wbadge"),
     /** 線條圖示：calc、bubbles、lock、unlock、moon、volume、mute、trophy、headset、anchor、star（fill 填 "currentColor" 就是實心） */
     line: (name, size = 18, fill = "none") => `<svg class="wline" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${fill}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${LINE[name] || ""}</svg>`,
