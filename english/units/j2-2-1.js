@@ -1,0 +1,810 @@
+/* 單元檔：由 index.html 在選到這個單元時載入，內容都會透過 registerUnit() 登記 */
+(function(){
+/* =========================================================
+   內容資料：國二下學期 第一次段考（通用範圍）
+   單字格式：[單字, 詞性, 中文, [[例句, 中文, 文法說明] x3], null, null, 插圖]
+   插圖："表情符號|標籤" 為概念卡（抽象的字用），其他的字畫在下面的 ILLUS
+   主題：健康與生病、身體狀況與建議、校園規則與生活、天氣變化對生活的影響、發音課用字
+   ========================================================= */
+const J2_2_1_WORDS = [
+/* ---------- 健康與生病 ---------- */
+["sick","adj.","生病的",[
+ ["I was sick yesterday, so I didn't go to school.","我昨天生病了，所以沒去上學。","so 後面接「結果」：生病（原因）→ 沒去上學（結果）。yesterday 是過去，用 was 和 didn't。"],
+ ["When Amy is sick, her mom makes chicken soup for her.","艾咪生病的時候，她媽媽會煮雞湯給她喝。","when 子句放在句子前面，後面要加逗號。說的是平常的習慣，所以用現在簡單式。"],
+ ["You look sick. You should go home and rest.","你看起來不太舒服，你應該回家休息。","look + 形容詞 sick，表示「看起來……」。should 後面接原形動詞 go。"]],null,null,null],
+["fever","n.","發燒",[
+ ["Ben has a fever, so he is staying in bed.","班發燒了，所以他躺在床上休息。","have a fever 是「發燒」，fever 前面要加 a。so 後面接結果。"],
+ ["If you have a fever, you should see a doctor.","如果你發燒了，就應該去看醫生。","if 子句放前面要加逗號；should + 原形 see。"],
+ ["My little brother had a high fever last night.","我弟弟昨晚發高燒。","「發高燒」是 have a high fever；last night 是過去，用 had。"]],null,null,null],
+["cough","n./v.","咳嗽",[
+ ["I have a bad cough. I can't stop coughing.","我咳得很厲害，一直停不下來。","have a cough 是「咳嗽」；stop + V-ing 表示「停止做某事」。"],
+ ["Cover your mouth when you cough.","咳嗽的時候要遮住嘴巴。","when 子句放在句子後面，前面不用加逗號。Cover 開頭是祈使句。"],
+ ["Though Tom was coughing, he still finished the race.","雖然湯姆一直在咳嗽，他還是跑完了比賽。","though 表示「雖然」，後面就不能再加 but。"]],null,null,null],
+["headache","n.","頭痛",[
+ ["I have a headache because I stayed up late.","我頭痛，因為我熬夜了。","because 後面接「原因」。have a headache 的 a 不能省略。"],
+ ["After I took some medicine, my headache went away.","我吃了藥以後，頭痛就好了。","after 子句放前面，後面加逗號。go away 是「消失」，過去式是 went away。"],
+ ["Loud music gives me a headache.","很吵的音樂讓我頭痛。","give + 人 + 東西：給某人……。這裡是「讓我頭痛」。"]],null,null,null],
+["stomachache","n.","胃痛；肚子痛",[
+ ["Kevin ate too much ice cream, so he has a stomachache.","凱文吃太多冰淇淋，所以肚子痛。","so 接結果。stomach（胃）+ ache（痛）= 胃痛。"],
+ ["If you have a stomachache, don't eat spicy food.","如果你肚子痛，就不要吃辣的東西。","if 子句後面可以接祈使句：don't + 原形動詞。"],
+ ["She had a stomachache before the exam.","她考試前肚子痛。","before 後面可以接名詞 the exam，這時 before 是介系詞。"]],null,null,"🤢|肚子痛"],
+["toothache","n.","牙痛",[
+ ["I have a toothache. I should see a dentist.","我牙痛，我應該去看牙醫。","have a toothache；should + 原形 see。"],
+ ["Eat less candy, or you will get a toothache.","少吃點糖果，不然你會牙痛。","祈使句 + or（否則）+ 結果。will + 原形 get。"],
+ ["Mia couldn't sleep because she had a toothache.","米亞睡不著，因為她牙痛。","because 接原因，前面的 couldn't sleep 是結果。"]],null,null,"🦷|牙痛"],
+["sore throat","n.","喉嚨痛",[
+ ["I have a sore throat, so I can't sing today.","我喉嚨痛，所以今天沒辦法唱歌。","sore 是「痠痛的」，throat 是「喉嚨」；have a sore throat。"],
+ ["Drink some warm water when you have a sore throat.","喉嚨痛的時候喝點溫水。","when 子句放後面，前面不用逗號。"],
+ ["He has a sore throat because he shouted too much at the game.","他喉嚨痛，因為他在比賽時喊得太用力了。","because + 原因；shouted 是 shout 的過去式。"]],null,null,"🗣️|喉嚨痛"],
+["runny nose","n.","流鼻水",[
+ ["I have a runny nose. Can I have a tissue?","我在流鼻水，可以給我一張面紙嗎？","have a runny nose 是「流鼻水」。runny 是「流動的」。"],
+ ["When it gets cold, I often get a runny nose.","天氣一變冷，我就常常流鼻水。","when 子句放前面要加逗號。get cold 是「變冷」。"],
+ ["You have a runny nose, don't you?","你在流鼻水，對吧？","肯定句後面接否定的附加問句；have 是一般動詞，所以用 don't you?"]],null,null,"🤧|流鼻水"],
+["catch a cold","phr.","感冒",[
+ ["Put on your jacket, or you will catch a cold.","穿上外套，不然你會感冒。","祈使句 + or + 結果；will + 原形 catch。"],
+ ["I caught a cold after I played in the rain.","我在雨中玩了之後就感冒了。","catch 的過去式是 caught。after 子句放後面，不用逗號。"],
+ ["If you don't wash your hands, you may catch a cold.","如果你不洗手，可能會感冒。","if 子句用現在式 don't wash，表示未來的條件。may 是「可能」。"]],null,null,"🤧|感冒"],
+["flu","n.","流行性感冒",[
+ ["Many students got the flu last week.","上週很多學生得了流感。","get the flu 是「得流感」，flu 前面常加 the。got 是 get 的過去式。"],
+ ["You should get a flu shot before winter comes.","你應該在冬天來之前打流感疫苗。","before 子句說未來的事，要用現在式 comes，不能用 will come。"],
+ ["The flu is worse than a cold, isn't it?","流感比一般感冒嚴重，對吧？","肯定句 The flu is... 後面接 isn't it?，代名詞用 it。"]],null,null,"🦠|流感"],
+["medicine","n.","藥",[
+ ["Take this medicine three times a day.","這個藥一天吃三次。","「吃藥」英文用 take medicine，不用 eat。three times a day 是「一天三次」。"],
+ ["After you take the medicine, you will feel better.","吃了藥以後，你就會覺得好一點。","after 子句說未來的事，用現在式 take；主要子句才用 will。"],
+ ["Though the medicine tastes bad, it works well.","雖然這藥很難吃，但效果很好。","though 和 but 只能選一個，這裡用了 though，後面就不能加 but。"]],null,null,null],
+["pill","n.","藥丸",[
+ ["Take one pill after each meal.","每餐飯後吃一顆藥丸。","pill 是可數名詞：one pill、two pills。after each meal 是「每餐飯後」。"],
+ ["The pill is too big. I can't swallow it.","這顆藥丸太大了，我吞不下去。","too + 形容詞：太……。swallow 是「吞」。"],
+ ["Don't forget to take your pills before you go to bed.","睡覺前別忘了吃藥。","forget to + 原形：忘記去做某事。before 子句放後面不用逗號。"]],null,null,"💊|藥丸"],
+["clinic","n.","診所",[
+ ["My mom took me to the clinic because I had a fever.","我發燒了，所以媽媽帶我去診所。","because 接原因。take 人 to 地方：帶某人去某處。"],
+ ["The clinic opens at nine, doesn't it?","診所九點開門，對吧？","主詞 The clinic 是第三人稱單數、一般動詞 opens，所以附加問句用 doesn't it?"],
+ ["There is a clinic near our school.","我們學校附近有一間診所。","There is + 單數名詞，表示「某處有……」。"]],null,null,null],
+["vitamin","n.","維他命",[
+ ["Fruit has a lot of vitamin C.","水果有很多維他命 C。","vitamin C 是「維他命 C」。fruit 是不可數名詞，用 has。"],
+ ["You should take vitamins if you don't eat vegetables.","如果你不吃蔬菜，就應該吃維他命。","if 子句放後面不用逗號；主要子句用 should。"],
+ ["My grandma takes vitamins every morning, doesn't she?","我奶奶每天早上吃維他命，對吧？","主詞 My grandma 是第三人稱單數、一般動詞，附加問句用 doesn't she?"]],null,null,"🍊|維他命"],
+["patient","n./adj.","病人；有耐心的",[
+ ["The doctor has many patients today.","醫生今天有很多病人。","patient 當名詞是「病人」，複數加 s。"],
+ ["The nurse is very patient with the children.","那位護士對孩子們非常有耐心。","patient 當形容詞是「有耐心的」，be patient with + 人。"],
+ ["What a patient teacher Mr. Lin is!","林老師是多麼有耐心的老師啊！","感嘆句：What + a + 形容詞 + 單數名詞 + 主詞 + 動詞！"]],null,null,"🧑‍⚕️|病人；耐心"],
+["rest","n./v.","休息",[
+ ["You look tired. You should get some rest.","你看起來很累，應該休息一下。","get some rest 是「休息一下」，rest 在這裡是名詞。"],
+ ["Let's rest for ten minutes, shall we?","我們休息十分鐘，好嗎？","Let's 開頭的句子，附加問句固定用 shall we?"],
+ ["After the doctor saw me, I went home and rested.","醫生幫我看完診後，我就回家休息了。","rest 當動詞，過去式是 rested；after 子句放前面加逗號。"]],null,null,"🛌|休息"],
+["health","n.","健康",[
+ ["Health is more important than money.","健康比金錢重要。","health 是不可數名詞，前面不加 a。"],
+ ["Smoking is bad for your health.","抽菸對你的健康有害。","be bad for... 是「對……不好」；be good for... 是「對……好」。"],
+ ["Because my grandpa takes good care of his health, he is still strong.","因為爺爺很注意自己的健康，所以他還是很強壯。","because 子句放前面要加逗號，而且後面不能再加 so。"]],null,null,"❤️‍🩹|健康"],
+["healthy","adj.","健康的",[
+ ["Eating vegetables keeps you healthy.","吃蔬菜讓你保持健康。","keep + 人 + 形容詞：讓某人保持……的狀態。"],
+ ["If you want to be healthy, you should sleep early.","如果你想要健康，就應該早點睡。","if 子句用現在式 want；主要子句用 should。"],
+ ["What a healthy breakfast!","多麼健康的早餐啊！","What + a + 形容詞 + 單數名詞！breakfast 是可數的一餐，所以有 a。"]],null,null,"🥗|健康的"],
+["pain","n.","疼痛",[
+ ["I have a pain in my back.","我背痛。","have a pain in + 身體部位：某個地方痛。"],
+ ["The pain went away after I rested.","休息以後就不痛了。","go away 是「消失」；after 子句放後面不用逗號。"],
+ ["Tell the nurse if you feel any pain.","如果你覺得哪裡痛，就告訴護士。","if 子句放後面不用加逗號。any 常用在 if 子句裡。"]],null,null,"😣|疼痛"],
+["hurt","v.","受傷；疼痛；弄痛",[
+ ["My leg hurts when I walk.","我走路的時候腳會痛。","hurt 當「痛」時，身體部位當主詞：My leg hurts.。"],
+ ["Be careful, or you will hurt yourself.","小心一點，不然你會受傷。","hurt 的過去式和現在式一樣都是 hurt。hurt yourself 是「弄傷自己」。"],
+ ["Jack hurt his arm when he fell off his bike.","傑克從腳踏車上摔下來時，傷了手臂。","這句是過去的事，hurt 的過去式還是 hurt。fall 的過去式是 fell。"]],null,null,"🩹|受傷"],
+["temperature","n.","體溫；溫度",[
+ ["The nurse took my temperature.","護士幫我量了體溫。","take one's temperature 是「量體溫」。"],
+ ["The temperature will drop tomorrow, so wear a coat.","明天會降溫，所以要穿外套。","temperature 也可以指「氣溫」；so 後面接結果。"],
+ ["If your temperature is over 38 degrees, you have a fever.","如果體溫超過 38 度，你就是發燒了。","if 子句用現在式 is；degree 是「度」。"]],null,null,"🌡️|溫度"],
+["sneeze","v.","打噴嚏",[
+ ["I always sneeze when I clean my room.","我打掃房間時總是會打噴嚏。","when 子句放後面不用逗號。always 放在一般動詞前面。"],
+ ["Cover your nose when you sneeze, will you?","打噴嚏時遮住鼻子，好嗎？","祈使句後面的附加問句常用 will you?"],
+ ["Though I sneezed many times, I didn't catch a cold.","雖然我打了好幾次噴嚏，但沒有感冒。","though 子句放前面加逗號，後面不能再加 but。"]],null,null,"🤧|打噴嚏"],
+["serious","adj.","嚴重的；認真的",[
+ ["Don't worry. It's not serious.","別擔心，不嚴重。","serious 是「嚴重的」，not serious 是「不嚴重」。"],
+ ["If the pain gets serious, go to the hospital.","如果疼痛變嚴重了，就去醫院。","get + 形容詞：變得……。if 子句用現在式 gets。"],
+ ["Why are you so serious today?","你今天怎麼這麼嚴肅？","serious 也可以是「認真的；嚴肅的」。"]],null,null,"⚠️|嚴重的"],
+["weak","adj.","虛弱的；弱的",[
+ ["I felt weak after I had the flu.","得流感之後我覺得全身無力。","feel + 形容詞 weak；felt 是 feel 的過去式。"],
+ ["Grandma is old and weak, so we help her walk.","奶奶年紀大又虛弱，所以我們扶她走路。","so 接結果；help + 人 + 原形動詞。"],
+ ["Though he is weak in math, he is good at English.","雖然他數學很弱，但英文很好。","be weak in 是「……方面很弱」；be good at 是「擅長……」。"]],null,null,"🥴|虛弱"],
+/* ---------- 身體狀況與建議 ---------- */
+["should","aux.","應該",[
+ ["You should drink more water.","你應該多喝水。","should 後面接原形動詞，不管主詞是誰都不變。"],
+ ["You shouldn't play video games all night.","你不應該整晚打電動。","should not 縮寫成 shouldn't，後面接原形 play。"],
+ ["What should I do if I have a fever?","如果我發燒了，應該怎麼辦？","疑問句把 should 移到主詞前面：What should I do?"]],null,null,"👉|應該"],
+["advice","n.","建議；忠告",[
+ ["Can you give me some advice?","你可以給我一些建議嗎？","advice 是不可數名詞，不能說 an advice 或 advices，要說 some advice 或 a piece of advice。"],
+ ["The doctor's advice was simple: rest and drink water.","醫生的建議很簡單：休息和喝水。","advice 是不可數名詞，動詞用單數的 was。"],
+ ["If you follow my advice, you will feel better soon.","如果你聽我的建議，很快就會好一點。","follow one's advice 是「聽從某人的建議」。if 子句用現在式 follow。"]],null,null,"💡|建議"],
+["exercise","n./v.","運動；練習",[
+ ["You should exercise for thirty minutes every day.","你應該每天運動三十分鐘。","exercise 當動詞，should + 原形 exercise。"],
+ ["Exercise is good for your health.","運動對你的健康有益。","exercise 當「運動」是不可數名詞，當主詞動詞用 is。"],
+ ["After we finish the exercises in the book, we can go home.","我們做完課本裡的練習題就可以回家。","exercise 當「練習題」時是可數名詞，可以加 s。"]],null,null,null],
+["habit","n.","習慣",[
+ ["Washing your hands is a good habit.","洗手是一個好習慣。","動名詞 Washing your hands 當主詞，動詞用單數 is。"],
+ ["Staying up late is a bad habit, isn't it?","熬夜是個壞習慣，對吧？","主詞是動名詞片語時，附加問句用 it：isn't it?"],
+ ["Because Tim has good habits, he seldom gets sick.","因為提姆有好習慣，所以他很少生病。","because 子句放前面加逗號，後面不加 so。seldom 是「很少」。"]],null,null,"🔁|習慣"],
+["vegetable","n.","蔬菜",[
+ ["You should eat more vegetables and fruit.","你應該多吃蔬菜和水果。","vegetable 是可數名詞，「多吃蔬菜」用複數 vegetables。"],
+ ["Though I don't like vegetables, I eat them every day.","雖然我不喜歡蔬菜，但我每天都吃。","though 子句放前面加逗號，後面不能加 but。"],
+ ["Mom always cooks vegetables for dinner.","媽媽晚餐總是會煮蔬菜。","always 表示習慣，用現在簡單式；主詞 Mom 是單數，動詞加 s。"]],null,null,null],
+["diet","n.","飲食；節食",[
+ ["A healthy diet has lots of fruit and vegetables.","健康的飲食有很多蔬果。","diet 是「日常飲食」，不一定是減肥。"],
+ ["My sister is on a diet, so she doesn't eat dessert.","我姊姊在節食，所以不吃甜點。","be on a diet 是「節食」；so 接結果。"],
+ ["If you change your diet, you will feel better.","如果你改變飲食，會覺得好一點。","if 子句用現在式 change，主要子句用 will feel。"]],null,null,"🥗|飲食"],
+["dizzy","adj.","頭暈的",[
+ ["I feel dizzy. I need to sit down.","我覺得頭暈，需要坐下來。","feel + 形容詞 dizzy。need to + 原形：需要做……。"],
+ ["If you feel dizzy, you should lie down and rest.","如果你覺得頭暈，就應該躺下來休息。","if 子句用現在式 feel，主要子句用 should + 原形。"],
+ ["When I stood up too fast, I got dizzy.","我站起來太快的時候，就頭暈了。","when 子句放前面加逗號；get dizzy 是「變得頭暈」。"]],null,null,"😵‍💫|頭暈"],
+["stay up","phr.","熬夜；不睡",[
+ ["Don't stay up too late.","不要熬夜到太晚。","stay up late 是「熬夜」。Don't + 原形 是否定的祈使句。"],
+ ["I stayed up to study for the test, so I'm sleepy now.","我熬夜念書準備考試，所以現在很想睡。","so 接結果；stay 的過去式是 stayed。"],
+ ["If you stay up tonight, you will be tired tomorrow.","如果你今晚熬夜，明天就會很累。","if 子句用現在式 stay，主要子句用 will be。"]],null,null,"🌙|熬夜"],
+["bandage","n.","繃帶",[
+ ["The nurse put a bandage on my knee.","護士在我膝蓋上貼了繃帶。","put a bandage on + 部位：在……貼上繃帶。"],
+ ["Change the bandage after you take a shower.","洗完澡後換一下繃帶。","after 子句放後面不用逗號。"],
+ ["Though the bandage is small, it stops the bleeding.","雖然繃帶很小，但能止血。","though 後面不能再加 but。"]],null,null,"🩹|繃帶"],
+["thirsty","adj.","口渴的",[
+ ["I'm thirsty. Can I have some water?","我好渴，可以給我一點水嗎？","be thirsty 是「口渴」；hungry 是「餓」，不要搞混。"],
+ ["After I played basketball, I was very thirsty.","打完籃球後，我非常口渴。","after 子句放前面加逗號，過去的事用 was。"],
+ ["Drink some water before you get thirsty.","在你口渴之前就要喝點水。","before 子句說未來，用現在式 get。get thirsty 是「變得口渴」。"]],null,null,null],
+["sleepy","adj.","想睡的",[
+ ["I always feel sleepy after lunch.","我午餐後總是很想睡。","feel + 形容詞 sleepy。after 在這裡是介系詞，後面接名詞 lunch。"],
+ ["The baby is sleepy, so let's turn off the light.","寶寶想睡了，我們關燈吧。","so 接結果；let's + 原形 turn off。"],
+ ["How sleepy I am!","我好想睡啊！","How + 形容詞 + 主詞 + 動詞！是另一種感嘆句。"]],null,null,null],
+/* ---------- 校園規則與生活 ---------- */
+["rule","n.","規則；規定",[
+ ["We must follow the school rules.","我們必須遵守校規。","follow the rules 是「遵守規則」。must + 原形 follow。"],
+ ["One of the rules is \"No running in the hallway.\"","其中一條規定是「走廊上不准奔跑」。","one of the + 複數名詞，是「……之一」，動詞用單數 is。"],
+ ["If you break the rules, the teacher will be angry.","如果你違反規定，老師會生氣。","break the rules 是「違反規則」；if 子句用現在式 break。"]],null,null,"📜|規則"],
+["uniform","n.","制服",[
+ ["We wear our school uniforms on Mondays.","我們每週一穿學校制服。","on Mondays 表示「每個星期一」，是習慣，用現在簡單式。"],
+ ["Though the uniform is ugly, everyone has to wear it.","雖然制服很醜，大家還是得穿。","though 子句放前面加逗號，後面不能再加 but。"],
+ ["Your uniform is dirty, isn't it?","你的制服髒了，對吧？","Your uniform 用代名詞 it；肯定句接否定問句 isn't it?"]],null,null,null],
+["break","n./v.","下課休息；打破",[
+ ["We have a ten-minute break after each class.","每節課後我們有十分鐘的下課時間。","break 當名詞是「休息時間」；ten-minute 當形容詞時 minute 不加 s。"],
+ ["Let's take a break, shall we?","我們休息一下，好嗎？","take a break 是「休息一下」；Let's 句子的附加問句用 shall we?"],
+ ["Who broke the window?","誰打破了窗戶？","break 當動詞是「打破」，過去式是 broke。"]],null,null,"☕|休息時間"],
+["bell","n.","鐘；鈴",[
+ ["When the bell rings, class begins.","鐘聲一響，就開始上課了。","when 子句放前面加逗號；the bell 是單數，ring 加 s。"],
+ ["Don't leave before the bell rings.","鐘聲響之前不要離開。","before 子句用現在式 rings；Don't + 原形 是否定祈使句。"],
+ ["The bell rang, but the teacher kept talking.","鐘聲響了，但老師還在講話。","ring 的過去式是 rang；keep + V-ing 是「一直做……」。"]],null,null,null],
+["on time","phr.","準時",[
+ ["Please come to school on time.","請準時到校。","on time 是「準時」，in time 是「及時」，兩個不一樣。"],
+ ["If you aren't on time, you will miss the bus.","如果你沒準時，就會錯過公車。","if 子句用現在式 aren't；主要子句用 will miss。"],
+ ["Lisa is always on time, isn't she?","麗莎總是很準時，對吧？","always 不影響附加問句：前面是 is，後面就用 isn't she?"]],null,null,"⏰|準時"],
+["absent","adj.","缺席的",[
+ ["Who is absent today?","今天誰缺席？","be absent 是「缺席」；相反詞是 present（出席的）。"],
+ ["Tom was absent from school because he had the flu.","湯姆因為得了流感沒來上學。","be absent from + 地方/活動；because 接原因。"],
+ ["When you are absent, you should ask a classmate for the notes.","你缺席的時候，應該向同學借筆記。","when 子句放前面加逗號；ask + 人 + for + 東西：向某人要……。"]],null,null,"🪑|缺席"],
+["principal","n.","校長",[
+ ["The principal gave a speech this morning.","校長今天早上發表了演說。","give a speech 是「演講」，give 的過去式是 gave。"],
+ ["Our principal is kind, isn't he?","我們的校長人很好，對吧？","Our principal 是一位男性，附加問句用 he：isn't he?"],
+ ["If you break the rule again, you will go to the principal's office.","如果你再違規，就要去校長室。","if 子句用現在式 break；principal's office 是「校長室」。"]],null,null,null],
+["hallway","n.","走廊",[
+ ["Don't run in the hallway.","不要在走廊上奔跑。","Don't + 原形 run 是否定祈使句。in the hallway 是「在走廊上」。"],
+ ["The hallway is wet because it rained this morning.","走廊是濕的，因為今天早上下過雨。","because 接原因。"],
+ ["I met my teacher in the hallway after class.","下課後我在走廊上遇到老師。","met 是 meet 的過去式。after class 的 class 前面不加 the。"]],null,null,null],
+["allow","v.","允許",[
+ ["We aren't allowed to use phones in class.","我們上課時不准用手機。","be allowed to + 原形：被允許做……。"],
+ ["My parents allow me to watch TV after I finish my homework.","我寫完功課後，爸媽才准我看電視。","allow + 人 + to + 原形：允許某人做某事。after 子句放後面不加逗號。"],
+ ["Food isn't allowed in the library.","圖書館裡不准帶食物。","be not allowed 是「不被允許」。"]],null,null,"✅|允許"],
+["follow","v.","遵守；跟隨",[
+ ["Students should follow the rules.","學生應該遵守規定。","should + 原形 follow。"],
+ ["Follow me, and I'll show you the nurse's office.","跟我來，我帶你去保健室。","祈使句 + and + 結果：做了……就會……。nurse's office 是「保健室」。"],
+ ["If you follow the doctor's advice, you'll get well soon.","如果你聽醫生的話，很快就會康復。","if 子句用現在式 follow，主要子句用 will。get well 是「康復」。"]],null,null,"👣|遵守；跟隨"],
+["cheat","v.","作弊；欺騙",[
+ ["Don't cheat on the exam.","考試不要作弊。","cheat on the exam 是「考試作弊」。Don't + 原形 是否定祈使句。"],
+ ["If you cheat, you will get a zero.","如果你作弊，就會得零分。","if 子句用現在式 cheat，主要子句用 will get。"],
+ ["He didn't cheat, did he?","他沒有作弊，對吧？","前面是否定的 didn't，附加問句用肯定 did he?"]],null,null,"🙈|作弊"],
+["attend","v.","參加；出席；上（學）",[
+ ["All students must attend the meeting.","所有學生都必須參加這場集會。","attend 後面直接接活動，不用加 to。"],
+ ["I couldn't attend class because I had a fever.","我因為發燒沒辦法去上課。","because 接原因；couldn't + 原形 attend。"],
+ ["If you attend every class, you will learn a lot.","如果你每堂課都出席，就會學到很多。","if 子句用現在式 attend，主要子句用 will learn。"]],null,null,"🙋|出席"],
+["return","v.","歸還；回來",[
+ ["Please return the book before Friday.","請在週五前還書。","return + 東西 是「歸還」。before 後面接星期名稱。"],
+ ["When I return home, I'll call you.","我回到家就打給你。","when 子句說未來的事，用現在式 return；主要子句用 will。"],
+ ["He returned the umbrella after the rain stopped.","雨停了之後，他把傘還了。","after 子句放後面不用逗號。returned 是規則過去式。"]],null,null,"↩️|歸還"],
+["polite","adj.","有禮貌的",[
+ ["It's polite to say \"thank you.\"","說「謝謝」是有禮貌的。","It's + 形容詞 + to + 原形：做……是……的。"],
+ ["What a polite boy he is!","他是多麼有禮貌的男孩啊！","What + a + 形容詞 + 單數名詞 + 主詞 + 動詞！"],
+ ["Be polite to your teachers.","對老師要有禮貌。","be polite to + 人：對某人有禮貌。"]],null,null,"🙇|有禮貌"],
+["exam","n.","考試",[
+ ["We have an exam next week.","我們下週有一場考試。","exam 是母音開頭，前面用 an。"],
+ ["Before the exam starts, put your books away.","考試開始前，把書收起來。","before 子句放前面加逗號，說未來的事用現在式 starts。"],
+ ["Though I studied hard, I didn't do well on the exam.","雖然我很用功，但這次考試沒考好。","though 後面不能加 but。do well on the exam 是「考得好」。"]],null,null,"📝|考試"],
+["punish","v.","處罰",[
+ ["The teacher will punish students who break the rules.","老師會處罰違反規定的學生。","punish + 人：處罰某人。who break the rules 說明是哪些學生。"],
+ ["If you cheat, the school will punish you.","如果你作弊，學校會處罰你。","if 子句用現在式 cheat，主要子句用 will punish。"],
+ ["Tom was punished because he was late again.","湯姆被處罰了，因為他又遲到了。","was punished 是「被處罰」；because 接原因。"]],null,null,"⛔|處罰"],
+["sweat","v./n.","流汗；汗水",[
+ ["I sweat a lot when I play basketball.","我打籃球的時候流很多汗。","when 子句放後面不用逗號。a lot 是「很多」。"],
+ ["It's so humid that I'm covered in sweat.","天氣悶到我全身都是汗。","sweat 當名詞是「汗水」，不可數。so + 形容詞 + that：太……以至於……。"],
+ ["After you sweat, drink some water.","流汗之後要喝點水。","after 子句放前面加逗號，主要子句是祈使句。"]],null,null,"💦|流汗"],
+/* ---------- 天氣變化對生活的影響 ---------- */
+["flood","n./v.","水災；淹水",[
+ ["The heavy rain caused a flood in the town.","大雨讓小鎮淹水了。","flood 當名詞是「水災」；cause 是「造成」。"],
+ ["If it keeps raining, the streets will flood.","如果一直下雨，街道就會淹水。","if 子句用現在式 keeps，主要子句用 will flood。keep + V-ing：一直……。"],
+ ["School was closed because of the flood.","因為淹水，學校停課了。","because of 後面接名詞 the flood。"]],null,null,"🌊|淹水"],
+["chilly","adj.","冷颼颼的",[
+ ["It's chilly this morning, so wear a jacket.","今天早上冷颼颼的，所以要穿外套。","chilly 是「有點冷、涼颼颼的」；so 接結果。"],
+ ["When it gets chilly, I drink hot soup.","天氣變涼的時候，我會喝熱湯。","when 子句放前面加逗號；get chilly 是「變冷」。"],
+ ["It's a chilly day, isn't it?","今天好冷喔，對吧？","It's = It is，附加問句用 isn't it?"]],null,null,"🥶|冷颼颼"],
+["freezing","adj.","極冷的；冰凍的",[
+ ["It's freezing outside! Put on your coat.","外面冷死了！穿上外套。","freezing 比 cold 更冷，是「冷得要結冰」。"],
+ ["If it's freezing tomorrow, we will stay indoors.","如果明天很冷，我們就待在室內。","if 子句用現在式 is，主要子句用 will stay。"],
+ ["How freezing the water is!","這水好冰啊！","How + 形容詞 + 主詞 + 動詞！"]],null,null,"🧊|極冷"],
+["wet","adj.","濕的",[
+ ["My shoes got wet in the rain.","我的鞋子被雨淋濕了。","get wet 是「弄濕、變濕」。"],
+ ["Your hair is wet. Dry it, or you'll catch a cold.","你的頭髮是濕的，把它吹乾，不然會感冒。","祈使句 + or + 結果。"],
+ ["The ground is wet, so the PE class will be indoors.","地上濕濕的，所以體育課會在室內上。","so 接結果。"]],null,null,"💧|濕的"],
+["dry","adj./v.","乾的；把……弄乾",[
+ ["It's very dry in winter, so drink more water.","冬天很乾燥，所以要多喝水。","dry 當形容詞是「乾燥的」；so 接結果。"],
+ ["Dry your hands after you wash them.","洗完手後把手擦乾。","dry 當動詞是「弄乾」。after 子句放後面不用逗號。"],
+ ["The clothes didn't dry because it rained all day.","因為整天下雨，衣服都沒乾。","because 接原因；didn't + 原形 dry。"]],null,null,"🏜️|乾的"],
+["cancel","v.","取消",[
+ ["They canceled the game because of the rain.","因為下雨，他們取消了比賽。","because of + 名詞。美式英文 canceled 只有一個 l，英式寫 cancelled。"],
+ ["If it rains tomorrow, the trip will be canceled.","如果明天下雨，旅行就會取消。","if 子句用現在式 rains 表示未來；will be canceled 是「會被取消」。"],
+ ["The school canceled classes when the typhoon came.","颱風來的時候，學校停課了。","when 子句放後面不用逗號。"]],null,null,"❌|取消"],
+["raincoat","n.","雨衣",[
+ ["Take your raincoat. It's going to rain.","帶上你的雨衣，快要下雨了。","be going to 可以表示「看到跡象的預測」。"],
+ ["When it rains, I wear a raincoat to school.","下雨的時候，我穿雨衣上學。","when 子句放前面加逗號。"],
+ ["This raincoat is yours, isn't it?","這件雨衣是你的，對吧？","主詞 This raincoat 在附加問句裡用 it。"]],null,null,null],
+["foggy","adj.","有霧的",[
+ ["It's foggy this morning, so drive slowly.","今天早上起霧了，所以開慢一點。","fog（霧）+ g + y = foggy。so 接結果。"],
+ ["When it's foggy, I can't see the mountains.","起霧的時候，我看不到山。","when 子句放前面加逗號。"],
+ ["It was foggy, wasn't it?","剛才霧很大，對吧？","過去式 was 的附加問句用 wasn't it?"]],null,null,"🌫️|有霧的"],
+["humid","adj.","潮濕的；悶熱的",[
+ ["Taiwan is hot and humid in summer.","台灣夏天又熱又潮濕。","humid 是空氣「很潮濕」；wet 是東西「濕濕的」。"],
+ ["How humid it is today!","今天好悶啊！","How + 形容詞 + 主詞 + 動詞！"],
+ ["Though it's humid, it isn't very hot.","雖然很潮濕，但沒有很熱。","though 後面不能再加 but。"]],null,null,"🥵|潮濕悶熱"],
+["outdoor","adj.","戶外的",[
+ ["We have outdoor activities on Fridays.","我們每週五有戶外活動。","outdoor 是形容詞，放在名詞前面；副詞是 outdoors。"],
+ ["If it rains, the outdoor concert will be canceled.","如果下雨，戶外音樂會就會取消。","if 子句用現在式 rains。"],
+ ["Swimming is my favorite outdoor sport.","游泳是我最喜歡的戶外運動。","outdoor 修飾名詞 sport；相反詞是 indoor（室內的）。"]],null,null,"🏕️|戶外的"],
+["slippery","adj.","滑的",[
+ ["The floor is slippery. Be careful!","地板很滑，小心！","slippery 是「滑的」，常用在地板、路面。"],
+ ["When the road is wet, it gets slippery.","路面濕的時候會變滑。","when 子句放前面加逗號；get + 形容詞 是「變得……」。"],
+ ["The stairs are slippery, aren't they?","樓梯很滑，對吧？","主詞 The stairs 是複數，附加問句用 aren't they?"]],null,null,"⛸️|滑的"],
+["forecast","n.","預報",[
+ ["The weather forecast says it will rain tomorrow.","氣象預報說明天會下雨。","weather forecast 是「氣象預報」；forecast 是單數，動詞用 says。"],
+ ["Before you go hiking, check the forecast.","去爬山之前，先查一下氣象預報。","before 子句放前面加逗號。go hiking 是「去健行」。"],
+ ["The forecast was wrong, wasn't it?","氣象預報不準，對吧？","was 的附加問句用 wasn't it?"]],null,null,"📡|預報"],
+["heat","n.","熱；高溫",[
+ ["I can't stand the heat in summer.","我受不了夏天的高溫。","heat 是名詞「熱」，形容詞是 hot。can't stand 是「受不了」。"],
+ ["Because of the heat, we had PE class indoors.","因為天氣太熱，我們在室內上體育課。","because of 後面接名詞 the heat。"],
+ ["Stay out of the heat, or you will feel sick.","不要待在高溫的地方，不然你會不舒服。","祈使句 + or + 結果。stay out of 是「待在……外面、避開」。"]],null,null,"🔥|高溫"],
+/* ---------- 發音課用字 ---------- */
+["honest","adj.","誠實的",[
+ ["He is an honest boy.","他是個誠實的男孩。","honest 的 h 不發音，開頭是母音 /ɑ/，所以前面用 an，不用 a。"],
+ ["Be honest with me. Did you break the vase?","跟我說實話，是你打破花瓶的嗎？","be honest with + 人：對某人誠實。"],
+ ["What an honest girl she is!","她是多麼誠實的女孩啊！","h 不發音，所以感嘆句用 What an + honest。"]],null,null,"😇|誠實的"],
+["whole","adj.","全部的；整個的",[
+ ["I stayed in bed the whole day.","我一整天都躺在床上。","the whole day = all day（一整天）。whole 的 w 不發音，唸起來和 hole（洞）一樣。"],
+ ["The whole class caught the flu.","全班都得了流感。","the whole class 是「全班」，看成一個團體，動詞用單數過去式 caught。"],
+ ["Did you eat the whole cake?","你把整個蛋糕吃完了嗎？","the whole + 單數名詞：整個……。"]],null,null,"🟢|整個的"],
+["answer","v./n.","回答；答案",[
+ ["Can you answer this question?","你能回答這個問題嗎？","answer 當動詞，後面直接接 the question，不用加 to。"],
+ ["I know the answer, but I'm too shy to say it.","我知道答案，但我太害羞不敢說。","answer 當名詞是「答案」。but 連接相反的意思。"],
+ ["When the phone rings, please answer it.","電話響的時候，請接一下。","answer the phone 是「接電話」。when 子句放前面加逗號。"]],null,null,"🙋|回答"],
+["giant","n./adj.","巨人；巨大的",[
+ ["The giant in the story is very kind.","故事裡的巨人非常善良。","giant 當名詞是「巨人」。g 後面接 i，唸 /dʒ/。"],
+ ["What a giant cake!","好大的一個蛋糕啊！","giant 當形容詞是「巨大的」，What + a + 形容詞 + 單數名詞！"],
+ ["A giant tree fell down during the storm.","暴風雨期間一棵大樹倒下了。","during 後面接名詞；fall 的過去式是 fell。"]],null,null,null],
+["age","n.","年齡",[
+ ["He started to play the piano at the age of five.","他五歲就開始彈鋼琴。","at the age of + 數字：在……歲的時候。"],
+ ["People of all ages need enough sleep.","各個年齡層的人都需要充足的睡眠。","of all ages 是「各個年齡的」。"],
+ ["When I was your age, I walked to school.","我在你這個年紀的時候，都是走路上學。","when 子句放前面加逗號；說過去的事用過去式。"]],null,null,"🎂|年齡"]
+];
+
+const J2_2_1_GRAMMAR = [
+{ id:"g1", title:"副詞子句 when / before / after",
+  intro:"when（當……的時候）、before（在……之前）、after（在……之後）可以帶出一個「子句」（有主詞和動詞的一小句），用來說明主要的事情「什麼時候」發生。這種子句叫做「時間副詞子句」，它不能自己單獨成為一句，一定要配一個主要子句。",
+  table:[["連接詞","意思","例句"],["when","當……的時候","When I got home, my mom was cooking."],["before","在……之前","Wash your hands before you eat."],["after","在……之後","After I finished my homework, I watched TV."],["子句放前面","子句 + 逗號 + 主要子句","Before the bell rings, sit down."],["子句放後面","主要子句 + 子句（不加逗號）","Sit down before the bell rings."]],
+  points:[
+   "子句放在句子前面時，子句結束要加逗號：When it rains, I stay home.；放在後面時不用逗號：I stay home when it rains.。",
+   "子句和主要子句的順序可以對調，意思不變：After I ate lunch, I took a nap. = I took a nap after I ate lunch.。",
+   "說「未來」的事時，when / before / after 子句要用現在式代替未來式：When I get home, I will call you.，不能說 When I will get home。",
+   "子句不能單獨成為一句：When I was sick. 是不完整的句子，要加上主要子句：When I was sick, I stayed in bed.。",
+   "before 和 after 也可以當介系詞，後面接名詞或 V-ing：before dinner、after school、after eating lunch。",
+   "一句話裡只能有一個連接詞把兩句連起來：When I got home, I ate dinner.，不能說 When I got home, and I ate dinner.。"],
+  ex:[
+   ["When I was sick, my mom took me to the clinic.","我生病的時候，媽媽帶我去診所。","when 子句放前面，後面要加逗號；過去的事兩邊都用過去式。"],
+   ["Wash your hands before you eat.","吃東西前要洗手。","before 子句放後面，前面不加逗號。"],
+   ["After the bell rang, everyone ran out of the classroom.","鐘聲響了以後，大家都跑出教室。","after 子句放前面加逗號；ring 的過去式是 rang。"],
+   ["I will call you when I get home.","我到家時會打給你。","說未來的事，when 子句用現在式 get，主要子句才用 will。"],
+   ["Before you go to bed, take this medicine.","睡覺前把這個藥吃了。","before 子句放前面加逗號，主要子句是祈使句。"]]},
+{ id:"g2", title:"because / so、though / but",
+  intro:"because（因為）帶出「原因」，so（所以）帶出「結果」；though（雖然）和 but（但是）用來連接兩個「意思相反、出乎意料」的句子。中文常說「因為……所以……」「雖然……但是……」，可是英文一句話裡只能選一個！",
+  table:[["連接詞","帶出什麼","例句"],["because","原因","I stayed home because I was sick."],["so","結果","I was sick, so I stayed home."],["though（although）","讓步：雖然……","Though it rained, we went out."],["but","轉折：但是……","It rained, but we went out."],["常考陷阱","because 和 so 不能一起用；though 和 but 不能一起用","Because I was sick, so I stayed home. ❌"]],
+  points:[
+   "because 後面接原因，so 後面接結果；兩個只能選一個：Because I was tired, I went to bed early. = I was tired, so I went to bed early.。",
+   "though 和 but 只能選一個：Though he was sick, he went to school. = He was sick, but he went to school.，不能說 Though he was sick, but he went to school.。",
+   "because 子句、though 子句放前面時要加逗號；so 和 but 前面通常加逗號：It was late, so we went home.。",
+   "because 後面接「句子」；because of 後面接「名詞」：We stayed home because of the typhoon.。",
+   "although 和 though 意思一樣，用法也一樣，都不能和 but 一起用。",
+   "回答 Why 問句時，可以只用 because 子句回答：Why were you absent? — Because I had a fever.。"],
+  ex:[
+   ["I didn't go to school because I had a fever.","我沒去上學，因為我發燒了。","because 後面接原因。"],
+   ["I had a fever, so I didn't go to school.","我發燒了，所以沒去上學。","so 後面接結果；同一個意思，換成 so 就不能再用 because。"],
+   ["Though the medicine is bitter, I take it every day.","雖然藥很苦，我每天還是會吃。","though 子句放前面加逗號，後面不加 but。"],
+   ["The medicine is bitter, but I take it every day.","藥很苦，但我每天都會吃。","換成 but，前面就不能有 though。"],
+   ["The game was canceled because of the storm.","比賽因為暴風雨取消了。","because of 後面接名詞 the storm。"]]},
+{ id:"g3", title:"if 條件句：用現在式說未來",
+  intro:"if 是「如果」，可以帶出一個「條件」。當我們說「如果明天……，就會……」這種未來可能發生的事時，有一個很重要的規則：if 子句要用現在式，主要子句才用 will（或 can、should、祈使句）。",
+  table:[["句型","結構","例句"],["if 子句在前","If + 主詞 + 現在式, 主詞 + will + 原形","If it rains tomorrow, we will stay home."],["if 子句在後","主詞 + will + 原形 + if + 主詞 + 現在式","We will stay home if it rains tomorrow."],["搭配 should / can","If + 現在式, 主詞 + should / can + 原形","If you have a fever, you should see a doctor."],["搭配祈使句","If + 現在式, 原形動詞……","If you feel sick, tell the teacher."],["否定的條件","If + 主詞 + don't / doesn't + 原形, …","If you don't hurry, you will be late."]],
+  points:[
+   "if 子句不能用 will：If it will rain tomorrow 是錯的，要說 If it rains tomorrow。主要子句才用 will。",
+   "主詞是第三人稱單數時，if 子句的動詞要加 s：If it rains、If he comes、If she has time。",
+   "if 子句放前面要加逗號：If you are tired, take a rest.；放後面不加：Take a rest if you are tired.。",
+   "主要子句除了 will，也常用 can、should、may 或祈使句：If you finish early, you can go home.。",
+   "if 子句的否定用 don't / doesn't + 原形：If he doesn't eat breakfast, he will be hungry.。",
+   "When 和 If 不一樣：when 是「一定會發生，當……的時候」；if 是「不一定會發生，如果……」。兩種子句說未來都用現在式。"],
+  ex:[
+   ["If it rains tomorrow, we will stay home.","如果明天下雨，我們就待在家裡。","if 子句用現在式 rains，主要子句用 will stay。"],
+   ["If you have a sore throat, you should drink warm water.","如果你喉嚨痛，就應該喝溫水。","主要子句用 should + 原形。"],
+   ["I will go to the clinic if I don't feel better.","如果我沒有好一點，我就會去診所。","if 子句放後面不加逗號；否定用 don't feel。"],
+   ["If Ben gets up late, he will miss the bus.","如果班晚起，他就會錯過公車。","主詞 Ben 是第三人稱單數，if 子句的 get 加 s。"],
+   ["If you are cold, put on your jacket.","如果你覺得冷，就穿上外套。","主要子句可以是祈使句，用原形動詞開頭。"]]},
+{ id:"g4", title:"附加問句與感嘆句 What / How",
+  intro:"附加問句是在句子後面加上一個小問句，表示「……，對吧？」「……，不是嗎？」。規則是：前面肯定，後面就否定；前面否定，後面就肯定。感嘆句是用來表達強烈的感覺，有 What 和 How 兩種開頭。",
+  table:[["句型","規則","例句"],["be 動詞","肯定句 + be 動詞否定 + 代名詞？","You are tired, aren't you?"],["助動詞","肯定句 + 助動詞否定 + 代名詞？","She can swim, can't she?"],["一般動詞","用 do / does / did 來問","He likes math, doesn't he?"],["否定句","否定句 + 肯定的附加問句？","They didn't come, did they?"],["Let's / 祈使句","Let's …, shall we? ／ 祈使句, will you?","Let's go, shall we?"],["What 感嘆句","What + a / an + 形容詞 + 單數名詞 (+ 主詞 + 動詞)!","What a nice day (it is)!"],["How 感嘆句","How + 形容詞 / 副詞 (+ 主詞 + 動詞)!","How cold (it is)!"]],
+  points:[
+   "附加問句的主詞一定用代名詞：Tom is sick, isn't he?，不能說 isn't Tom?；this / that 用 it，these / those 用 they。",
+   "前面是一般動詞時，附加問句看時態和主詞選 don't / doesn't / didn't：You like it, don't you?、She went home, didn't she?。",
+   "前面有 can、will、should 等助動詞，附加問句就用同一個助動詞：You will come, won't you?、We should go, shouldn't we?。",
+   "Let's 開頭的句子，附加問句固定用 shall we?；祈使句後面常用 will you?：Close the door, will you?。",
+   "What 感嘆句後面接名詞：What a cute dog!；單數可數名詞要有 a / an，複數或不可數名詞不加：What nice weather!（weather 不可數，不能說 What a nice weather!）。",
+   "How 感嘆句後面接形容詞或副詞，沒有名詞：How cute the dog is!、How fast he runs!；不能說 How a cute dog!。"],
+  ex:[
+   ["You have a fever, don't you?","你發燒了，對吧？","have 是一般動詞，主詞 you，附加問句用 don't you?"],
+   ["Amy isn't absent today, is she?","艾咪今天沒缺席，對吧？","前面是否定，附加問句用肯定 is she?"],
+   ["Let's take a break, shall we?","我們休息一下，好嗎？","Let's 開頭固定用 shall we?"],
+   ["What a slippery floor (it is)!","多麼滑的地板啊！","What + a + 形容詞 + 單數名詞；後面的 it is 可以省略。"],
+   ["How humid it is today!","今天好悶熱啊！","How + 形容詞 + 主詞 + 動詞！"]]}
+];
+
+/* 文法測驗：[題目, [選項 x4], 正確答案索引, 解析, 文法編號] */
+const J2_2_1_QUIZ = [
+ ["___ I got home, my mom was cooking dinner.",["Because","So","When","But"],2,"「我到家的時候，媽媽正在煮晚餐」，表示時間用 When。","g1"],
+ ["哪一句的標點正確？",["Before I go to bed I brush my teeth.","Before I go to bed, I brush my teeth.","I brush my teeth, before I go to bed.","Before, I go to bed I brush my teeth."],1,"before 子句放在句子前面時，子句結束要加逗號；放後面時不用逗號。","g1"],
+ ["I will call you when I ___ home.",["get","will get","got","getting"],0,"when 子句說未來的事，要用現在式 get，主要子句才用 will。","g1"],
+ ["Wash your hands ___ you eat. Don't forget!",["after","so","but","before"],3,"吃東西「之前」要洗手，用 before。","g1"],
+ ["___ the movie ended, we went to a restaurant.",["Though","After","So","If"],1,"電影結束「之後」我們去餐廳，用 After。","g1"],
+ ["哪一句是完整、正確的句子？",["When I was sick.","When I was sick, and I stayed home.","When I was sick, I stayed home.","I was sick when."],2,"when 子句不能單獨成句，要配一個主要子句；而且不能再多加 and。","g1"],
+ ["Lily always drinks some milk ___ going to bed.",["before","so","because","when she"],0,"before 也可以當介系詞，後面接 V-ing：before going to bed。","g1"],
+ ["After the bell ___, the students ran out of the classroom.",["rings","rang","will ring","ringing"],1,"主要子句 ran 是過去式，after 子句也用過去式 rang。","g1"],
+ ["When the typhoon ___ next week, school will be closed.",["came","will come","comes","coming"],2,"next week 是未來，但 when 子句要用現在式 comes 代替未來式。","g1"],
+ ["I didn't go to school ___ I had a fever.",["so","but","though","because"],3,"「我發燒了」是沒上學的原因，用 because。","g2"],
+ ["It was raining, ___ we stayed home.",["because","so","though","if"],1,"下雨（原因）→ 待在家裡（結果），結果前面用 so。","g2"],
+ ["哪一句正確？",["Because I was tired, so I went to bed early.","Because I was tired, I went to bed early.","I was tired, because I went to bed early.","Because tired, I went to bed early."],1,"because 和 so 不能同時出現；because 後面要接完整的句子。","g2"],
+ ["___ it was cold, Ben didn't wear a jacket.",["Though","Because","So","But"],0,"天氣冷卻沒穿外套，意思相反、出乎意料，用 Though（雖然）。","g2"],
+ ["哪一句正確？",["Though he was sick, but he went to school.","He was sick, but he went to school.","Though he was sick, so he went to school.","He was sick, though but he went to school."],1,"though 和 but 只能選一個。","g2"],
+ ["The game was canceled ___ the storm.",["because","so","though","because of"],3,"the storm 是名詞，前面用 because of；because 後面要接句子。","g2"],
+ ["Why were you absent yesterday? — ___ I had a stomachache.",["So","But","Though","Because"],3,"回答 Why 問句，用 Because + 原因。","g2"],
+ ["The medicine tastes bad, ___ it works well.",["but","because","so","if"],0,"藥很難吃，但是很有效，前後意思相反，用 but。","g2"],
+ ["Mia studied hard, ___ she passed the exam.",["though","but","because of","so"],3,"很用功（原因）→ 考試及格（結果），用 so。","g2"],
+ ["If it ___ tomorrow, we will stay home.",["will rain","rains","rained","rain"],1,"if 子句用現在式代替未來式；主詞 it 是第三人稱單數，所以用 rains。","g3"],
+ ["If you have a fever, you ___ see a doctor.",["should","shouldn't to","are","did"],0,"主要子句用 should + 原形：you should see a doctor。","g3"],
+ ["哪一句正確？",["If it will be sunny, we will go hiking.","If it is sunny, we go to hiking will.","If it is sunny, we will go hiking.","If it sunny, we will go hiking."],2,"if 子句用現在式 is，主要子句用 will + 原形 go。","g3"],
+ ["We ___ late if we don't hurry.",["are being","were","be","will be"],3,"if 子句是現在式 don't hurry，主要子句說未來的結果，用 will be。","g3"],
+ ["If Tom ___ breakfast, he will be hungry in class.",["doesn't eat","don't eat","won't eat","didn't eat"],0,"主詞 Tom 是第三人稱單數，if 子句的否定用 doesn't + 原形 eat。","g3"],
+ ["If you feel cold, ___ your jacket.",["putting on","put on","will put on","puts on"],1,"主要子句是祈使句，用原形動詞 put on 開頭。","g3"],
+ ["哪一句的標點正確？",["If you are tired you should rest.","You should rest, if you are tired.","If you are tired, you should rest.","If, you are tired you should rest."],2,"if 子句放前面要加逗號；放後面就不用。","g3"],
+ ["If she ___ time this weekend, she will visit her grandma.",["will have","has","have","having"],1,"if 子句用現在式；主詞 she 是第三人稱單數，用 has。","g3"],
+ ["下面哪一句的 if 子句用錯了？",["If you study hard, you will pass.","If it snows, we can build a snowman.","If he will come, I will be happy.","If you are free, call me."],2,"if 子句不能用 will，要改成 If he comes, I will be happy.。","g3"],
+ ["You are tired, ___?",["are you","don't you","isn't it","aren't you"],3,"前面是肯定的 be 動詞 are，附加問句用否定 aren't you?","g4"],
+ ["Tom likes basketball, ___?",["doesn't he","isn't he","don't he","doesn't Tom"],0,"likes 是一般動詞，主詞 Tom 是第三人稱單數，用 doesn't he?；附加問句的主詞要用代名詞。","g4"],
+ ["They didn't come to the party, ___?",["didn't they","did they","do they","were they"],1,"前面是否定 didn't，附加問句用肯定 did they?","g4"],
+ ["Let's go to the library, ___?",["will we","don't we","shall we","won't you"],2,"Let's 開頭的句子，附加問句固定用 shall we?","g4"],
+ ["Amy can swim, ___?",["can't she","doesn't she","isn't she","can she"],0,"前面有助動詞 can，附加問句用同一個助動詞的否定：can't she?","g4"],
+ ["___ a cute puppy it is!",["How","What","Which","So"],1,"後面有名詞 a cute puppy，用 What 開頭。","g4"],
+ ["___ fast he runs!",["What a","What","How a","How"],3,"後面直接接副詞 fast，沒有名詞，用 How。","g4"],
+ ["哪一句正確？",["What a nice weather!","How nice weather!","What nice weather!","How a nice weather!"],2,"weather 是不可數名詞，What 感嘆句不加 a：What nice weather!","g4"],
+ ["Close the door, ___?",["will you","shall we","don't you","do you"],0,"祈使句後面的附加問句常用 will you?","g4"]
+];
+
+/* =========================================================
+   上課模式腳本（安安老師）
+   say：老師講的話，{ } 裡面用英文語音唸
+   board：黑板內容 [英文, [要標亮的字], 是否為錯誤示範]
+   chant：口訣
+   ask：隨堂提問，答錯會有針對性的回饋，再給一題 again 練習
+   ========================================================= */
+const J2_2_1_CLASS = {
+g1:[
+ {say:"哈囉同學！我是安安老師。國二下學期第一課，我們來學怎麼把兩件事「黏」在一起，說清楚它們發生的時間。先聽這句：{When I was sick, my mom took me to the clinic.} 我生病的時候，媽媽帶我去診所。", board:[["When I was sick, my mom took me to the clinic.",["When"]]]},
+ {say:"這句話其實是兩小句：{I was sick} 和 {my mom took me to the clinic}。用 {when} 把它們連起來，前面那一小句就叫做「when 子句」，用來說明主要的事情是什麼時候發生的。", board:[["When I was sick",["When"]],["my mom took me to the clinic",["took"]]]},
+ {say:"除了 when，還有兩個好朋友：{before} 是「在……之前」，{after} 是「在……之後」。", board:[["Wash your hands before you eat.",["before"]],["After I finished my homework, I watched TV.",["After"]]]},
+ {ask:{q:"___ I finished dinner, I washed the dishes.（吃完飯之後洗碗）", opts:["Before","After","When"], ans:1,
+   ok:"答對！先吃完飯，「之後」才洗碗，用 After。",
+   bad:{0:"Before 是「在……之前」，可是洗碗是吃完飯以後的事喔！",2:"When 是「當……的時候」，這句要強調先後順序「之後」，用 After 最好。"},
+   again:{q:"Brush your teeth ___ you go to bed.（睡覺前刷牙）", opts:["after","before","so"], ans:1, exp:"睡覺「之前」刷牙，用 before。"}}},
+ {say:"接下來是考試最愛考的「逗號」！子句放在句子前面，子句結束要加逗號；子句放在後面，就不用逗號。", board:[["When it rains, I stay home.",["When",","]],["I stay home when it rains.",["when"]],["I stay home, when it rains.",[],true]]},
+ {say:"跟老師唸口訣！", chant:"子句放前面，逗號跟著來；子句放後面，逗號不用來！"},
+ {ask:{q:"哪一句的標點正確？", opts:["After I get home, I play basketball.","After I get home I play basketball.","I play basketball, after I get home."], ans:0,
+   ok:"太棒了！after 子句放前面，結束的地方要加逗號。",
+   bad:{1:"after 子句放在前面，子句結束要加一個逗號喔！",2:"after 子句放在後面時，前面不用加逗號。"},
+   again:{q:"哪一句的標點正確？", opts:["Before the bell rings sit down.","Sit down before the bell rings.","Sit down, before the bell rings."], ans:1, exp:"before 子句放在後面，不用加逗號。"}}},
+ {say:"再來一個超級重要的規則！說「未來」的事時，when、before、after 子句裡面要用「現在式」，不能用 will。主要子句才用 will。", board:[["When I get home, I will call you.",["get","will call"]],["When I will get home, I will call you.",[],true]]},
+ {say:"這個規則也有口訣，記起來！", chant:"時間子句說未來，用現在式，will 不能來！"},
+ {ask:{q:"After the rain ___, we will go out.", opts:["will stop","stops","stopped"], ans:1,
+   ok:"對！after 子句說未來的事，用現在式 stops；主詞 the rain 是單數，要加 s。",
+   bad:{0:"時間子句裡不能用 will 喔！主要子句才用 will。",2:"stopped 是過去式，可是我們還沒出去，是未來的事，要用現在式。"},
+   again:{q:"I will call you when I ___ to Taipei.", opts:["get","will get","got"], ans:0, exp:"when 子句說未來，用現在式 get。"}}},
+ {say:"最後提醒兩個陷阱。第一：when 子句不能自己成為一句，{When I was sick.} 這樣是不完整的。第二：已經有 when 了，就不能再加 and 或 so 把兩句連起來。", board:[["When I was sick.",[],true],["When I was sick, and I stayed home.",[],true],["When I was sick, I stayed home.",["When"]]]},
+ {say:"小補充：before 和 after 也可以當介系詞，後面直接接名詞或 V-ing，像 {before dinner}、{after school}、{after eating lunch}。", board:[["before dinner   after school",["before","after"]],["after eating lunch",["after","eating"]]]},
+ {ask:{say:"最後一題，挑戰看看！", q:"哪一句正確？", opts:["When I got home, and I ate dinner.","When I got home, I ate dinner.","When I got home. I ate dinner."], ans:1,
+   ok:"完美！一個 when 就把兩句連起來了，不用再加 and。",
+   bad:{0:"when 已經負責把兩句連起來了，不能再多一個 and。",2:"When I got home. 不能自己成為一句，要用逗號接主要子句。"},
+   again:{q:"哪一句正確？", opts:["Before I went out, I closed the window.","Before I went out, so I closed the window.","Before I went out."], ans:0, exp:"before 子句加逗號，後面直接接主要子句。"}}},
+ {say:"恭喜你學會時間副詞子句！複習兩個口訣：子句放前面，逗號跟著來；時間子句說未來，用現在式，will 不能來！下一課要學 because 和 though！", end:true}
+],
+g2:[
+ {say:"同學好！今天來學四個連接詞：{because}、{so}、{though}、{but}。先看 because 和 so。because 是「因為」，後面接原因；so 是「所以」，後面接結果。", board:[["I stayed home because I was sick.",["because"]],["I was sick, so I stayed home.",["so"]]]},
+ {say:"兩句意思完全一樣！只是一個從原因開始講，一個從結果開始講。可是中文習慣說「因為……所以……」，很多同學就寫出這種句子：", board:[["Because I was sick, so I stayed home.",[],true]]},
+ {say:"錯！英文一句話裡，because 和 so 只能選一個！要嘛說 {Because I was sick, I stayed home.}，要嘛說 {I was sick, so I stayed home.}", board:[["Because I was sick, I stayed home.",["Because"]],["I was sick, so I stayed home.",["so"]],["Because I was sick, so I stayed home.",[],true]]},
+ {say:"口訣來囉！", chant:"because 和 so，只能選一個！"},
+ {ask:{q:"I was very tired, ___ I went to bed early.", opts:["because","so","though"], ans:1,
+   ok:"答對！很累是原因，早睡是結果，結果前面用 so。",
+   bad:{0:"because 後面要接原因，可是「早睡」是結果喔。",2:"though 是「雖然」，前後意思要相反才用。"},
+   again:{q:"Ben didn't come ___ he had a fever.", opts:["so","because","but"], ans:1, exp:"「他發燒」是原因，用 because。"}}},
+ {say:"接下來是 though 和 but。though 是「雖然」，but 是「但是」，用在前後意思相反、出乎意料的時候：生病了，卻還是去上學。", board:[["Though he was sick, he went to school.",["Though"]],["He was sick, but he went to school.",["but"]]]},
+ {say:"一樣的陷阱又來了！中文說「雖然……但是……」，英文只能選一個。", chant:"though 和 but，也只能選一個！", board:[["Though he was sick, but he went to school.",[],true]]},
+ {ask:{q:"哪一句正確？", opts:["Though it was cold, but I went swimming.","Though it was cold, I went swimming.","Though it was cold, so I went swimming."], ans:1,
+   ok:"很好！用了 though，後面就不能再加 but。",
+   bad:{0:"though 和 but 只能選一個，把 but 拿掉就對了。",2:"天氣冷卻去游泳，是出乎意料，不是因果，不能用 so；而且 though 後面也不能接 so。"},
+   again:{q:"哪一句正確？", opts:["The medicine is bitter, but I take it.","Though the medicine is bitter, but I take it.","The medicine is bitter, though but I take it."], ans:0, exp:"只用一個 but 就好。"}}},
+ {say:"怎麼分辨要用 so 還是 but？問自己：後面的事情是「理所當然」，還是「出乎意料」？下雨所以帶傘，理所當然，用 so；下雨卻沒帶傘，出乎意料，用 but。", board:[["It was raining, so I took an umbrella.",["so"]],["It was raining, but I didn't take an umbrella.",["but"]]]},
+ {ask:{q:"Mia studied hard, ___ she failed the test.", opts:["so","because","but"], ans:2,
+   ok:"對！很用功卻考不及格，出乎意料，用 but。",
+   bad:{0:"so 表示理所當然的結果，可是用功卻不及格是出乎意料的。",1:"because 後面要接原因，「考不及格」不是用功的原因喔。"},
+   again:{q:"Mia studied hard, ___ she passed the test.", opts:["but","so","though"], ans:1, exp:"用功所以及格，理所當然的結果，用 so。"}}},
+ {say:"最後一個小陷阱：because 後面要接「句子」；如果後面只有名詞，要用 {because of}。", board:[["We stayed home because it rained.",["because"]],["We stayed home because of the rain.",["because of"]],["We stayed home because the rain.",[],true]]},
+ {ask:{say:"最後一題！", q:"The trip was canceled ___ the typhoon.", opts:["because","because of","so"], ans:1,
+   ok:"完美！the typhoon 是名詞，前面用 because of。",
+   bad:{0:"because 後面要接一個句子，the typhoon 只是名詞。",2:"so 後面要接結果，而且也要接句子。"},
+   again:{q:"The trip was canceled because ___.", opts:["the typhoon","a typhoon came","of a typhoon came"], ans:1, exp:"because 後面接完整的句子：a typhoon came。"}}},
+ {say:"太厲害了！記住兩個口訣：because 和 so，只能選一個；though 和 but，也只能選一個！下一課要學 if 條件句。", end:true}
+],
+g3:[
+ {say:"同學好！明天要校外教學，可是天氣預報說可能會下雨，怎麼辦？我們可以說：{If it rains tomorrow, we will stay home.} 如果明天下雨，我們就待在家。", board:[["If it rains tomorrow, we will stay home.",["If","rains","will stay"]]]},
+ {say:"{if} 是「如果」。if 帶出的小句子叫「if 子句」，說的是「條件」；後面那句是「結果」。", board:[["If it rains tomorrow,",["If"]],["we will stay home.",["will stay"]]]},
+ {say:"注意看！明明是明天的事，if 子句卻用現在式 {rains}，不能用 will rain。這是 if 條件句最重要的規則：if 子句用現在式代替未來式，主要子句才用 will。", board:[["If it rains tomorrow, ...",["rains"]],["If it will rain tomorrow, ...",[],true]]},
+ {say:"口訣唸三遍！", chant:"if 子句用現在，will 留給後面來！"},
+ {ask:{q:"If it ___ sunny tomorrow, we will go to the beach.", opts:["will be","is","was"], ans:1,
+   ok:"答對！if 子句用現在式 is。",
+   bad:{0:"if 子句不能用 will 喔！will 留給後面的主要子句。",2:"was 是過去式，可是 tomorrow 是明天，要用現在式代替未來式。"},
+   again:{q:"If you ___ hard, you will pass the exam.", opts:["study","will study","studied"], ans:0, exp:"if 子句用現在式 study。"}}},
+ {say:"再來注意主詞！if 子句是現在式，所以主詞是第三人稱單數時，動詞要加 s 或 es：{If it rains}、{If he comes}、{If she has time}。", board:[["If it rains, ...",["rains"]],["If he comes, ...",["comes"]],["If she has time, ...",["has"]]]},
+ {ask:{q:"If Tom ___ to the party, I will be happy.", opts:["come","comes","will come"], ans:1,
+   ok:"很好！主詞 Tom 是第三人稱單數，用 comes。",
+   bad:{0:"Tom 是一個人，第三人稱單數，動詞要加 s。",2:"if 子句不能用 will！"},
+   again:{q:"If she ___ a fever, she should stay home.", opts:["have","has","will have"], ans:1, exp:"主詞 she，have 要變成 has。"}}},
+ {say:"主要子句不一定用 will，也可以用 {can}、{should}，或是祈使句。像生病的時候，醫生最常說：{If you have a fever, you should see a doctor.}", board:[["If you have a fever, you should see a doctor.",["should"]],["If you finish early, you can go home.",["can"]],["If you feel sick, tell the teacher.",["tell"]]]},
+ {say:"標點跟上一課一樣：if 子句放前面加逗號，放後面不用逗號。", chant:"子句放前面，逗號跟著來！", board:[["If you are tired, take a rest.",["If",","]],["Take a rest if you are tired.",["if"]]]},
+ {ask:{q:"If you have a sore throat, you ___ drink some warm water.", opts:["should","shoulds","should to"], ans:0,
+   ok:"對！should 後面直接接原形 drink，should 也不會加 s。",
+   bad:{1:"should 不管主詞是誰都不變，沒有 shoulds 喔。",2:"should 後面直接接原形動詞，不用加 to。"},
+   again:{q:"If you feel cold, ___ your jacket.", opts:["puts on","put on","will put on"], ans:1, exp:"主要子句是祈使句，用原形 put on 開頭。"}}},
+ {say:"否定的條件呢？if 子句裡用 {don't} 或 {doesn't} 加原形動詞：{If you don't hurry, you will be late.} 如果你不快一點，就會遲到。", board:[["If you don't hurry, you will be late.",["don't hurry"]],["If he doesn't eat breakfast, he will be hungry.",["doesn't eat"]]]},
+ {ask:{say:"最後一題！", q:"哪一句正確？", opts:["If it will snow, we will build a snowman.","If it snows, we will build a snowman.","If it snows, we built a snowman."], ans:1,
+   ok:"完美！if 子句用現在式 snows，主要子句用 will build。",
+   bad:{0:"if 子句不能用 will 喔！",2:"如果下雪，「將來」會堆雪人，主要子句要用 will build。"},
+   again:{q:"哪一句正確？", opts:["If he doesn't come, we will start without him.","If he won't come, we will start without him.","If he don't come, we will start without him."], ans:0, exp:"if 子句否定用 doesn't + 原形；主詞 he 用 doesn't。"}}},
+ {say:"if 條件句學會了！記住：if 子句用現在，will 留給後面來；主要子句也可以用 can、should 或祈使句。下一課是附加問句和感嘆句！", end:true}
+],
+g4:[
+ {say:"同學好！你看到同學一直咳嗽，想問「你感冒了，對吧？」英文可以說：{You have a cold, don't you?} 句子後面這個小問句，叫做「附加問句」。", board:[["You have a cold, don't you?",["don't you"]]]},
+ {say:"附加問句的第一個規則：前面肯定，後面否定；前面否定，後面肯定。像蹺蹺板一樣，一邊上去、一邊下來！", board:[["You are tired, aren't you?",["are","aren't"]],["You aren't tired, are you?",["aren't","are you"]]]},
+ {say:"口訣來囉！", chant:"前面肯定後面否，前面否定後面肯！"},
+ {say:"第二個規則：附加問句用什麼動詞，要看前面的句子。有 be 動詞就用 be 動詞；有 can、will、should 就用同一個助動詞；如果是一般動詞，就請 do、does、did 來幫忙。主詞一定換成代名詞。", board:[["Tom is sick, isn't he?",["is","isn't he"]],["Amy can swim, can't she?",["can","can't she"]],["He likes math, doesn't he?",["likes","doesn't he"]],["They went home, didn't they?",["went","didn't they"]]]},
+ {ask:{q:"Your brother plays tennis, ___?", opts:["isn't he","doesn't he","don't he"], ans:1,
+   ok:"答對！plays 是一般動詞，主詞是第三人稱單數，用 doesn't he?",
+   bad:{0:"plays 是一般動詞，不是 be 動詞，要用 do / does 來問。",2:"主詞 your brother 是第三人稱單數，要用 doesn't。"},
+   again:{q:"You went to the clinic, ___?", opts:["didn't you","don't you","weren't you"], ans:0, exp:"went 是過去式的一般動詞，用 didn't you?"}}},
+ {ask:{q:"Lisa isn't absent today, ___?", opts:["isn't she","is Lisa","is she"], ans:2,
+   ok:"很好！前面是否定 isn't，後面就用肯定 is；主詞換成代名詞 she。",
+   bad:{0:"前面已經是否定了，後面要用肯定喔！",1:"附加問句的主詞要用代名詞，Lisa 要換成 she。"},
+   again:{q:"You can't come, ___?", opts:["can't you","can you","do you"], ans:1, exp:"前面否定 can't，後面用肯定 can you?"}}},
+ {say:"兩個特別的句型要背起來！Let's 開頭的句子，附加問句固定用 {shall we}；祈使句後面常用 {will you}。", chant:"Let's 開頭配 shall we，祈使句後配 will you！", board:[["Let's take a break, shall we?",["Let's","shall we"]],["Close the window, will you?",["Close","will you"]]]},
+ {ask:{q:"Let's go to the nurse's office, ___?", opts:["shall we","don't we","will we"], ans:0,
+   ok:"對！Let's 開頭，附加問句固定用 shall we?",
+   bad:{1:"Let's 不是一般的肯定句，要用 shall we。",2:"Let's 的附加問句是 shall we，不是 will we。"},
+   again:{q:"Open the door, ___?", opts:["shall we","will you","do you"], ans:1, exp:"祈使句後面用 will you?"}}},
+ {say:"接下來是感嘆句，用來表達「好……啊！」。第一種用 {What}，後面一定有名詞：{What a cute dog!}；第二種用 {How}，後面接形容詞或副詞，沒有名詞：{How cute the dog is!}", board:[["What a cute dog (it is)!",["What","dog"]],["How cute the dog is!",["How","cute"]]]},
+ {say:"口訣記起來！", chant:"What 後面有名詞，How 後面形容詞！"},
+ {say:"What 感嘆句有個陷阱：單數可數名詞要加 a 或 an；複數或不可數名詞就不加。weather 是不可數名詞，所以「天氣真好」要說 {What nice weather!}，不能說 What a nice weather!", board:[["What an honest boy!",["an"]],["What nice weather!",["weather"]],["What a nice weather!",[],true],["How a nice day!",[],true]]},
+ {ask:{q:"___ a slippery floor!", opts:["How","What","So"], ans:1,
+   ok:"答對！後面有名詞 a slippery floor，用 What。",
+   bad:{0:"How 後面要直接接形容詞，可是這裡有 a 和名詞 floor。",2:"感嘆句用 What 或 How 開頭。"},
+   again:{q:"___ humid it is today!", opts:["What","How","What a"], ans:1, exp:"後面是形容詞 humid，沒有名詞，用 How。"}}},
+ {ask:{say:"最後一題！", q:"The kids are noisy, ___?", opts:["aren't they","aren't the kids","don't they"], ans:0,
+   ok:"完美！be 動詞 are 配否定 aren't，主詞換成代名詞 they。",
+   bad:{1:"附加問句的主詞要用代名詞 they。",2:"前面是 be 動詞 are，附加問句也要用 be 動詞。"},
+   again:{q:"This is your raincoat, ___?", opts:["isn't this","isn't it","is it"], ans:1, exp:"this 在附加問句裡要換成 it：isn't it?"}}},
+ {say:"國二下第一次段考的文法全部上完了！複習口訣：前面肯定後面否，前面否定後面肯；Let's 配 shall we；What 後面有名詞，How 後面形容詞。考試加油！", end:true}
+]};
+
+Object.assign(PH, {
+  sick:"s:c i:short_i ck:ck", fever:"f:c e:long_e v:c er:er", cough:"c:c ough:exc",
+  headache:"h:c ea:exc d:c a:a_e ch:ch_k e:silent_e",
+  stomachache:"st:blend o:o_uh m:c a:schwa ch:ch_k a:a_e ch:ch_k e:silent_e",
+  toothache:"t:c oo:oo_l th:th a:a_e ch:ch_k e:silent_e",
+  "sore throat":"s:c ore:ore _:space th:th r:c oa:oa t:c",
+  "runny nose":"r:c u:short_u nn:double y:y_i _:space n:c o:o_e s:s_z e:silent_e",
+  "catch a cold":"c:c a:short_a tch:tch _:space a:schwa _:space c:c o:long_o l:c d:c",
+  flu:"fl:blend u:long_u", medicine:"m:c e:short_e d:c i:schwa c:soft_c i:schwa n:c e:silent",
+  pill:"p:c i:short_i ll:double", clinic:"cl:blend i:short_i n:c i:short_i c:c",
+  vitamin:"v:c i:long_i t:c a:schwa m:c i:short_i n:c", patient:"p:c a:long_a ti:exc e:schwa n:c t:c",
+  rest:"r:c e:short_e s:c t:c", health:"h:c ea:exc l:c th:th", healthy:"h:c ea:exc l:c th:th y:y_i",
+  pain:"p:c ai:ai n:c", hurt:"h:c ur:ur t:c",
+  temperature:"t:c e:short_e m:c p:c e:schwa r:c a:schwa ture:exc",
+  sneeze:"sn:blend ee:ee z:c e:silent_e", serious:"s:c e:exc r:c i:long_e ou:schwa s:c",
+  weak:"w:c ea:ea k:c",
+  should:"sh:sh ou:oo_s l:silent d:c", advice:"a:schwa d:c v:c i:i_e c:soft_c e:silent_e",
+  exercise:"e:short_e x:x_ks er:er c:soft_c i:i_e s:s_z e:silent_e", habit:"h:c a:short_a b:c i:short_i t:c",
+  vegetable:"v:c e:short_e g:soft_g e:silent t:c a:schwa b:c le:le", diet:"d:c i:long_i e:schwa t:c",
+  dizzy:"d:c i:short_i zz:double y:y_i", "stay up":"st:blend ay:ay _:space u:short_u p:c",
+  bandage:"b:c a:short_a n:c d:c a:schwa g:soft_g e:silent_e", thirsty:"th:th ir:ir s:c t:c y:y_i", sleepy:"sl:blend ee:ee p:c y:y_i",
+  rule:"r:c u:long_u l:c e:silent_e", uniform:"u:long_u n:c i:schwa f:c or:or m:c",
+  break:"br:blend ea:exc k:c", bell:"b:c e:short_e ll:double",
+  "on time":"o:short_o n:c _:space t:c i:i_e m:c e:silent_e", absent:"a:short_a b:c s:c e:schwa n:c t:c",
+  principal:"pr:blend i:short_i n:c c:soft_c i:schwa p:c a:schwa l:c", hallway:"h:c all:all w:c ay:ay",
+  allow:"a:schwa ll:double ow:ow_ou", follow:"f:c o:short_o ll:double ow:ow_o", cheat:"ch:ch ea:ea t:c",
+  attend:"a:schwa tt:double e:short_e n:c d:c", return:"r:c e:schwa t:c ur:ur n:c",
+  polite:"p:c o:schwa l:c i:i_e t:c e:silent_e", exam:"e:schwa x:exc a:short_a m:c",
+  punish:"p:c u:short_u n:c i:short_i sh:sh", sweat:"sw:blend ea:exc t:c",
+  flood:"fl:blend oo:exc d:c", chilly:"ch:ch i:short_i ll:double y:y_i", freezing:"fr:blend ee:ee z:c i:short_i ng:ng",
+  wet:"w:c e:short_e t:c", dry:"dr:blend y:y_ai", cancel:"c:c a:short_a n:c c:soft_c e:schwa l:c",
+  raincoat:"r:c ai:ai n:c c:c oa:oa t:c", foggy:"f:c o:short_o gg:double y:y_i", humid:"h:c u:long_u m:c i:short_i d:c",
+  outdoor:"ou:ou t:c d:c oo:exc r:c", slippery:"sl:blend i:short_i pp:double er:er y:y_i",
+  forecast:"f:c ore:ore c:c a:short_a s:c t:c", heat:"h:c ea:ea t:c",
+  honest:"h:silent o:short_o n:c e:schwa s:c t:c", whole:"wh:exc o:o_e l:c e:silent_e",
+  answer:"a:short_a n:c s:c w:silent er:er", giant:"g:soft_g i:long_i a:schwa n:c t:c", age:"a:a_e g:soft_g e:silent_e"
+});
+Object.assign(EXC_NOTE, {
+  flood:"flood 的 oo 唸短 u /ʌ/，像「ㄜ」，不唸「嗚」。blood（血）也是這樣唸。",
+  cough:"cough 的 ough 唸 /ɔf/，像「烤夫」，gh 唸成 /f/。ough 有很多種唸法，要一個一個記。",
+  headache:"head 的 ea 唸短 e /ɛ/，不唸長長的「一」。後面的 ache 唸 /eɪk/，ch 唸 /k/。",
+  patient:"ti 夾在字中間、後面接母音時，常唸 /ʃ/（像「噓」）：pa‧tient 唸「配‧遜特」。",
+  health:"health 的 ea 唸短 e /ɛ/，和 head、bread 一樣，不唸長長的「一」。",
+  healthy:"healthy 的 ea 唸短 e /ɛ/，和 health、head 一樣。",
+  temperature:"字尾 ture 唸 /tʃɚ/，像「去兒」，和 picture、future 一樣。",
+  serious:"serious 的 er 唸 /ɪr/，像「一兒」，不是捲舌的 /ɚ/。字尾 ous 輕輕唸 /əs/。",
+  sweat:"sweat 的 ea 唸短 e /ɛ/，和 head、health 一樣，不唸長長的「一」。",
+  break:"break 的 ea 唸長 a /eɪ/，像字母 A，不唸長長的「一」。great、steak 也是這樣。",
+  exam:"exam 的 x 唸 /gz/，像「各茲」，不是 /ks/。重音在第二個音節：ex‧AM。exact、example 也是這樣。",
+  outdoor:"door 的 oo 唸 /ɔ/，和 or 一樣，不唸「嗚」。floor 也是這樣。",
+  whole:"whole 的 wh 唸 /h/，w 不發音，和 who、whose 一樣。whole 唸起來和 hole（洞）一模一樣。"
+});
+/* ---------- 4 堂自然發音課（安安老師） ---------- */
+const J2_2_1_PHONICS = [
+  {id:"p1", title:"句子的語調：降調和升調"},
+  {id:"p2", title:"附加問句的兩種語調"},
+  {id:"p3", title:"不發音的 h 和 w"},
+  {id:"p4", title:"c 和 g 的軟音"}
+];
+const J2_2_1_PHONICS_CLASS = {
+p1:[
+ {say:"同學好！今天的發音課不是唸單字，而是唸「句子」。英文句子唸起來有高有低，像坐雲霄飛車，這叫做「語調」。句尾聲音往下掉叫「降調」，用 ↘ 表示；句尾往上揚叫「升調」，用 ↗ 表示。", board:[["↘ 降調：聲音往下掉",["↘"],false,true],["↗ 升調：聲音往上揚",["↗"],false,true]]},
+ {say:"第一種：一般的直述句，用降調。聽聽看：{I have a headache.} 句尾的 ache 往下掉，表示「我說完了」。", board:[["I have a headache. ↘",["↘"],false,true],["It's raining outside. ↘",["↘"],false,true]]},
+ {say:"第二種：Yes / No 問句，也就是可以用 Yes 或 No 回答的問句，用升調。聽聽看：{Are you sick?} 句尾往上揚，表示「我在問你喔」。", board:[["Are you sick? ↗",["↗"],false,true],["Do you have a fever? ↗",["↗"],false,true],["Can I borrow your pen? ↗",["↗"],false,true]]},
+ {say:"口訣來囉！", chant:"Yes / No 問句尾巴翹，直述句尾巴往下掉！"},
+ {ask:{q:"Do you have a cough? 句尾要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:1,
+   ok:"答對！Do 開頭的問句可以用 Yes 或 No 回答，是 Yes / No 問句，用升調。",
+   bad:{0:"這句可以用 Yes 或 No 回答，是 Yes / No 問句，句尾要往上揚喔！"},
+   again:{q:"Is the clinic open? 句尾要用什麼語調？", opts:["↗ 升調","↘ 降調"], ans:0, exp:"Is 開頭、可以用 Yes / No 回答，用升調。"}}},
+ {say:"第三種：Wh- 問句，就是 what、where、when、who、why、how 開頭的問句。它們雖然是問句，卻要用降調！因為答案不是 Yes 或 No，而是要對方說出一個資訊。", board:[["What's wrong? ↘",["↘"],false,true],["Where does it hurt? ↘",["↘"],false,true],["How do you feel? ↘",["↘"],false,true]]},
+ {say:"這是最容易唸錯的地方！很多同學看到問號就上揚，Wh- 問句要記得往下掉。", chant:"Wh- 問句雖然問，尾巴還是往下沉！"},
+ {ask:{q:"What's wrong with you? 句尾要用什麼語調？", opts:["↗ 升調","↘ 降調"], ans:1,
+   ok:"很好！What 開頭的 Wh- 問句，用降調。",
+   bad:{0:"看到問號不一定要上揚喔！What 開頭的問句不能用 Yes / No 回答，要用降調。"},
+   again:{q:"Why were you absent? 句尾要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:0, exp:"Why 開頭的 Wh- 問句，用降調。"}}},
+ {say:"整理一下：直述句 ↘，Wh- 問句 ↘，Yes / No 問句 ↗。祈使句和感嘆句呢？也是降調：{Take this medicine.} {What a nice day!}", board:[["Take this medicine. ↘",["↘"],false,true],["What a nice day! ↘",["↘"],false,true],["How do you feel? ↘",["↘"],false,true],["Are you OK? ↗",["↗"],false,true]]},
+ {ask:{q:"下面哪一句的句尾要用升調？", opts:["Where is the nurse's office?","Is this your umbrella?","Close the window, please."], ans:1,
+   ok:"對！Is 開頭的 Yes / No 問句，用升調。",
+   bad:{0:"Where 開頭是 Wh- 問句，要用降調。",2:"這是祈使句，用降調。"},
+   again:{q:"下面哪一句的句尾要用升調？", opts:["Can you help me?","Who is your teacher?","I'm thirsty."], ans:0, exp:"Can 開頭的 Yes / No 問句，用升調。"}}},
+ {say:"最後一個小補充：選擇問句「A 還是 B」，A 用升調，最後的 B 用降調：{Do you want tea ↗ or coffee ↘?} 就像在說：選項一、選項二，說完了！", board:[["Tea ↗ or coffee ↘?",["↗","↘"],false,true]]},
+ {ask:{say:"最後一題！", q:"How old are you? 句尾要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:0,
+   ok:"太棒了！How 開頭也是 Wh- 問句，用降調。",
+   bad:{1:"How 開頭的問句也是 Wh- 問句，句尾要往下掉。"},
+   again:{q:"Are you thirsty? 句尾要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:1, exp:"Are 開頭的 Yes / No 問句，用升調。"}}},
+ {say:"語調課完成！記住：直述句、Wh- 問句、祈使句、感嘆句，尾巴往下掉；Yes / No 問句，尾巴往上翹。下一課要學附加問句的語調！", end:true}
+],
+p2:[
+ {say:"同學好！上一堂文法課學了附加問句，像 {You're tired, aren't you?} 你知道嗎？附加問句可以唸兩種語調，意思還不一樣喔！", board:[["You're tired, aren't you?",["aren't you"],false,true]]},
+ {say:"第一種：降調 ↘。當你「很確定」，只是想請對方同意你的時候用。像看到同學一直打哈欠，你很確定他很累，就說 {You're tired, aren't you?} 尾巴往下掉。意思是「你很累，對吧！」", board:[["You're tired, aren't you? ↘",["↘"],false,true],["（我很確定，只是要你同意）",[]]]},
+ {say:"第二種：升調 ↗。當你「真的不確定」，想問對方答案的時候用。像你不知道明天有沒有考試，就說 {We have a test tomorrow, don't we?} 尾巴往上揚。意思是「明天有考試嗎？」", board:[["We have a test tomorrow, don't we? ↗",["↗"],false,true],["（我真的不知道，想問你）",[]]]},
+ {say:"口訣唸起來！", chant:"確定就下降，不確定就上揚！"},
+ {ask:{q:"窗外在下大雨，你看著窗外跟同學說：It's raining, isn't it? 要用什麼語調？", opts:["↗ 升調","↘ 降調"], ans:1,
+   ok:"答對！你親眼看到在下雨，很確定，只是要同學同意，用降調。",
+   bad:{0:"你都看到在下雨了，很確定，不是真的在問，所以用降調。"},
+   again:{q:"天氣很好，你跟朋友說：It's a nice day, isn't it? 要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:0, exp:"天氣好是很確定的事，只是想聊天、請對方同意，用降調。"}}},
+ {ask:{q:"你不記得診所幾點開門，問媽媽：The clinic opens at nine, doesn't it? 要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:1,
+   ok:"很好！你真的不確定，想問答案，用升調。",
+   bad:{0:"你不記得、不確定，是真的在問問題，要用升調喔。"},
+   again:{q:"你不確定同學有沒有帶雨傘，問他：You have an umbrella, don't you? 要用什麼語調？", opts:["↗ 升調","↘ 降調"], ans:0, exp:"真的不確定，想知道答案，用升調。"}}},
+ {say:"重點整理：前面的句子都一樣，只有附加問句的語調不同，意思就不同。降調是「對吧！」，升調是「是嗎？」", board:[["She is sick, isn't she? ↘ 她生病了，對吧！",["↘"],false,true],["She is sick, isn't she? ↗ 她生病了，是嗎？",["↗"],false,true]]},
+ {say:"另外，前面的句子本身是直述句，所以逗號前面的句子用降調，再看你確不確定，決定附加問句要降還是升。", board:[["You like it ↘, don't you ↘?",["↘"],false,true],["You like it ↘, don't you ↗?",["↗"],false,true]]},
+ {say:"Let's 和祈使句的附加問句，通常是禮貌地邀請或請求：{Let's take a break, shall we?} {Open the window, will you?} 尾巴常常輕輕上揚，聽起來比較客氣。", chant:"邀請請求要客氣，尾巴輕輕往上提！", board:[["Let's take a break, shall we? ↗",["↗"],false,true],["Open the window, will you? ↗",["↗"],false,true]]},
+ {ask:{q:"降調的附加問句，意思比較像是？", opts:["我真的不知道，請告訴我","我很確定，請你同意我","我很生氣"], ans:1,
+   ok:"對！降調表示說話的人很確定，只是要對方附和。",
+   bad:{0:"真的不知道、想問答案，要用升調。",2:"語調降下來不代表生氣，而是表示很確定。"},
+   again:{q:"升調的附加問句，意思比較像是？", opts:["我真的不確定，想問你","我很確定","我說完了"], ans:0, exp:"升調表示真的不確定，是在問問題。"}}},
+ {ask:{say:"最後一題！", q:"你看到弟弟滿身大汗，很確定他剛運動完：You played basketball, didn't you? 要用什麼語調？", opts:["↗ 升調","↘ 降調"], ans:1,
+   ok:"完美！滿身大汗就是證據，你很確定，用降調。",
+   bad:{0:"你都看到他滿身大汗了，很確定，用降調就好。"},
+   again:{q:"你不確定老師今天有沒有來：The teacher is absent today, isn't she? 要用什麼語調？", opts:["↘ 降調","↗ 升調"], ans:1, exp:"不確定，想問答案，用升調。"}}},
+ {say:"附加問句的語調學會了！確定就下降，不確定就上揚。下次說英文的時候，記得用語調表達你的意思喔！下一課是不發音的字母。", end:true}
+],
+p3:[
+ {say:"同學好！英文裡有些字母很害羞，明明寫在那裡，卻不出聲。今天要認識兩個害羞的字母：{h} 和 {w}。", board:[["hour   honest",["h"],false,true],["whole   answer",["w"],false,true]]},
+ {say:"先看 h。你學過 {hour}，小時。它唸起來像 {our}，h 完全不發音！{honest} 誠實的，也一樣，開頭直接唸母音。", board:[["hour = our",["h"],false,true],["honest",["h"],false,true]]},
+ {say:"h 不發音會影響冠詞！a 和 an 是看「開頭的聲音」，不是看字母。hour 和 honest 開頭的聲音是母音，所以要用 an：{an hour}、{an honest boy}。", board:[["an hour",["an"]],["an honest boy",["an"]],["a hour",[],true]]},
+ {say:"口訣記起來！", chant:"a 和 an 看聲音，不看字母！"},
+ {ask:{q:"「一個誠實的女孩」要怎麼說？", opts:["a honest girl","an honest girl"], ans:1,
+   ok:"答對！honest 的 h 不發音，開頭是母音的聲音，用 an。",
+   bad:{0:"honest 的 h 不發音喔！開頭聽起來是母音，要用 an。"},
+   again:{q:"「一個小時」要怎麼說？", opts:["an hour","a hour"], ans:0, exp:"hour 的 h 不發音，用 an hour。"}}},
+ {say:"要小心，不是每個 h 都不發音！{hurt}、{health}、{habit} 的 h 都要唸出來，所以是 {a habit}、{a headache}。不發音的只有少數字：hour、honest、honor 等等。", board:[["a habit   a headache",["h"],false,true],["an hour   an honest boy",["h"],false,true]]},
+ {say:"再來看 w。wh 開頭的字通常唸 /w/，像 {white}、{what}。可是 wh 後面接 o 的時候，常常唸成 /h/，w 不發音：{who}、{whose}、{whole}。", board:[["who   whose   whole",["wh"],false,true],["white   what   when",["wh"],false,true]]},
+ {say:"這個口訣幫你記！", chant:"wh 遇到 o，w 就躲起來，只唸 h！"},
+ {ask:{q:"whole 的開頭要怎麼唸？", opts:["唸 /w/，像 white","唸 /h/，w 不發音"], ans:1,
+   ok:"很好！wh 後面接 o，w 不發音。whole 唸起來和 hole（洞）一模一樣。",
+   bad:{0:"whole 的 wh 後面接 o，w 不發音，要唸 /h/。"},
+   again:{q:"who 的開頭要怎麼唸？", opts:["/h/","/w/"], ans:0, exp:"who 的 w 不發音，唸 /h/。"}}},
+ {say:"還有一個常考的：{answer}。中間的 w 不發音，唸起來像「安色」。另外 {two} 的 w、{write} 開頭的 w，也都不發音！", board:[["answer",["w"],false,true],["two",["w"],false,true],["write",["w"],false,true]]},
+ {ask:{q:"下面哪一個字的 w 不發音？", opts:["window","answer","weak"], ans:1,
+   ok:"對！answer 中間的 w 不發音。",
+   bad:{0:"window 的 w 要唸出來喔。",2:"weak 的 w 要唸出來。"},
+   again:{q:"下面哪一個字的 h 不發音？", opts:["hour","hurt","habit"], ans:0, exp:"hour 的 h 不發音，唸起來像 our。"}}},
+ {ask:{say:"最後一題！", q:"下面哪一個字的 w 要唸出來？", opts:["whole","who","wet"], ans:2,
+   ok:"太棒了！wet 的 w 要唸 /w/。whole 和 who 的 w 都不發音。",
+   bad:{0:"whole 的 wh 後面接 o，w 不發音。",1:"who 的 w 不發音，唸 /h/。"},
+   again:{q:"下面哪一個字的 h 要唸出來？", opts:["honest","hour","health"], ans:2, exp:"health 的 h 要唸出來；honest 和 hour 的 h 不發音。"}}},
+ {say:"不發音的字母課完成！記住：hour、honest 的 h 不發音，要用 an；wh 遇到 o，w 躲起來；answer、two、write 的 w 不發音。最後一課要學 c 和 g 的軟音！", end:true}
+],
+p4:[
+ {say:"同學好！c 和 g 都有兩種聲音。c 平常唸 /k/，像 {cat}；g 平常唸 /g/，像 {go}。這叫「硬音」。可是遇到某些字母時，它們會變「軟」！", board:[["c = /k/：cat   clinic",["c"],false,true],["g = /g/：go   foggy",["g"],false,true]]},
+ {say:"先看 c。c 後面接 e、i、y 的時候，唸 /s/，像蛇的「嘶」聲，這叫軟音。像 {city}、{cell}、{cancel}、{medicine}。", board:[["city   cell",["ci","ce"],false,true],["cancel",["ce"],false,true],["medicine",["ci"],false,true]]},
+ {say:"口訣唸三遍！", chant:"c 遇到 e、i、y，就唸 /s/！"},
+ {ask:{q:"cancel 這個字裡有兩個 c，哪一個唸 /s/？", opts:["第一個 c","第二個 c"], ans:1,
+   ok:"答對！第二個 c 後面接 e，唸 /s/；第一個 c 後面接 a，唸 /k/。",
+   bad:{0:"第一個 c 後面接 a，是硬音 /k/。後面接 e 的第二個 c 才唸 /s/。"},
+   again:{q:"medicine 的 c 要怎麼唸？", opts:["/k/","/s/"], ans:1, exp:"c 後面接 i，唸 /s/。"}}},
+ {say:"c 後面接 a、o、u 或子音的時候，還是唸硬音 /k/：{cat}、{cold}、{cut}、{clinic}。有些字兩種都有喔！{bicycle}：第一個 c 接 y 唸 /s/，第二個 c 接 l 唸 /k/。", board:[["cat   cold   cut   clinic",["c"],false,true],["bicycle",["cy","cl"],false,true]]},
+ {say:"再來看 g。g 後面接 e、i、y 的時候，常常唸 /dʒ/，像「居」的聲音：{giant}、{age}、{energy}、{vegetable}、{dangerous}。", board:[["giant",["gi"],false,true],["age",["ge"],false,true],["energy",["gy"],false,true],["dangerous",["ge"],false,true]]},
+ {say:"g 的口訣！", chant:"g 遇到 e、i、y，常常唸 /dʒ/！"},
+ {ask:{q:"giant 的 g 要怎麼唸？", opts:["/g/，像 go","/dʒ/，像「居」"], ans:1,
+   ok:"很好！g 後面接 i，唸軟音 /dʒ/。",
+   bad:{0:"g 後面接 i，這裡要唸軟音 /dʒ/ 喔。"},
+   again:{q:"age 的 g 要怎麼唸？", opts:["/dʒ/","/g/"], ans:0, exp:"g 後面接 e，唸 /dʒ/。"}}},
+ {say:"注意！為什麼老師說 g 是「常常」唸 /dʒ/？因為 g 有不少例外：{get}、{give}、{girl}、{gift} 的 g 後面雖然接 e 或 i，還是唸硬音 /g/。c 的規則比較穩，g 的例外要特別記！", board:[["get   give   girl   gift",["ge","gi"],false,true]]},
+ {say:"還有一個小祕密：雙寫的 gg 通常唸硬音。像 {foggy}，雖然 gg 後面接 y，還是唸 /g/。", board:[["foggy",["gg"],false,true],["energy",["gy"],false,true]]},
+ {ask:{q:"下面哪一個字的 g 唸硬音 /g/？", opts:["giant","girl","age"], ans:1,
+   ok:"對！girl 是例外，g 後面接 i 卻唸硬音 /g/。",
+   bad:{0:"giant 的 g 唸軟音 /dʒ/。",2:"age 的 g 唸軟音 /dʒ/。"},
+   again:{q:"下面哪一個字的 g 唸軟音 /dʒ/？", opts:["get","foggy","energy"], ans:2, exp:"energy 的 g 後面接 y，唸 /dʒ/；get 是例外，foggy 的 gg 唸硬音。"}}},
+ {ask:{say:"最後一題！", q:"下面哪一個字的 c 唸 /s/？", opts:["clinic","cough","principal"], ans:2,
+   ok:"太棒了！principal 的 c 後面接 i，唸 /s/。",
+   bad:{0:"clinic 的兩個 c 後面都不是 e、i、y，都唸 /k/。",1:"cough 的 c 後面接 o，唸 /k/。"},
+   again:{q:"下面哪一個字的 c 唸 /k/？", opts:["exercise","advice","clinic"], ans:2, exp:"clinic 的 c 後面接 l 和字尾，都唸 /k/；exercise 和 advice 的 c 後面接 i、e，唸 /s/。"}}},
+ {say:"自然發音全部上完了！今天學到：c 遇到 e、i、y 唸 /s/；g 遇到 e、i、y 常唸 /dʒ/，但 get、give、girl 是例外。加上語調和不發音的字母，你的英文會越唸越道地！快去玩「拼字挑戰」吧！", end:true}
+]};
+
+/* ---------- 插圖用的小物件（只在這個單元使用） ---------- */
+const J221 = {
+  thermo: (x, y, s, level, c) => grp(x, y, s, `<rect x="-6" y="-34" width="12" height="46" rx="6" fill="#fff" stroke="#9ca3af" stroke-width="1.5"/><rect x="-2.5" y="${12 - level}" width="5" height="${level}" rx="2" fill="${c}"/><circle cy="16" r="9" fill="${c}" stroke="#9ca3af" stroke-width="1.5"/>`),
+  bottle: (x, y, s, c = "#f97316") => grp(x, y, s, `<rect x="-11" y="-30" width="22" height="9" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/><rect x="-14" y="-22" width="28" height="42" rx="5" fill="${c}"/><rect x="-10" y="-12" width="20" height="20" rx="2" fill="#fff"/><path d="M0 -8 V4 M-6 -2 H6" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>`),
+  pill: (x, y, s, c = "#60a5fa", rot = 0) => grp(x, y, s, `<rect x="-12" y="-5" width="24" height="10" rx="5" fill="#fff" stroke="#cbd5e1" stroke-width="1"/><path d="M0 -5 H-7 A5 5 0 0 0 -7 5 H0 Z" fill="${c}"/>`, rot),
+  bed: (x, y, s, c = "#93c5fd") => grp(x, y, s, `<rect x="-46" y="-4" width="92" height="14" rx="3" fill="#a86d36"/><rect x="-50" y="-30" width="8" height="46" rx="3" fill="#8b5a2b"/><rect x="42" y="-16" width="8" height="32" rx="3" fill="#8b5a2b"/><rect x="-40" y="-14" width="22" height="11" rx="5" fill="#fff" stroke="#e5e7eb"/><path d="M-18 -10 Q14 -18 44 -10 V-2 H-18 Z" fill="${c}"/>`),
+  cross: (x, y, s, c = "#ef4444") => grp(x, y, s, `<path d="M-4 -12 H4 V-4 H12 V4 H4 V12 H-4 V4 H-12 V-4 H-4 Z" fill="${c}"/>`),
+  clinic: (x, y, s) => grp(x, y, s, `<rect x="-40" y="-34" width="80" height="58" rx="3" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><rect x="-44" y="-40" width="88" height="8" rx="2" fill="#60a5fa"/><circle cy="-18" r="10" fill="#fff" stroke="#ef4444" stroke-width="1.5"/>` + grp(0, -18, .6, `<path d="M-4 -12 H4 V-4 H12 V4 H4 V12 H-4 V4 H-12 V-4 H-4 Z" fill="#ef4444"/>`) + `<rect x="-32" y="-4" width="16" height="12" rx="1" fill="#bae6fd"/><rect x="16" y="-4" width="16" height="12" rx="1" fill="#bae6fd"/><rect x="-8" y="0" width="16" height="24" rx="2" fill="#94a3b8"/>`),
+  tooth: (x, y, s) => grp(x, y, s, `<path d="M-14 -14 C-14 -24 -4 -22 0 -18 C4 -22 14 -24 14 -14 C14 -4 10 0 9 10 C8 18 4 18 3 10 C2 4 -2 4 -3 10 C-4 18 -8 18 -9 10 C-10 0 -14 -4 -14 -14 Z" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/><ellipse cx="-6" cy="-12" rx="2.5" ry="4" fill="#e0f2fe"/>`),
+  cup: (x, y, s) => grp(x, y, s, `<path d="M-12 -16 L12 -16 L9 16 L-9 16 Z" fill="#e0f2fe" stroke="#93c5fd" stroke-width="1.5"/><path d="M-10.5 -4 L10.5 -4 L9 16 L-9 16 Z" fill="#60a5fa"/>`),
+  bolt: (x, y, s, c = "#facc15") => grp(x, y, s, `<path d="M4 -24 L-10 2 H0 L-6 24 L12 -6 H2 Z" fill="${c}"/>`),
+  bell: (x, y, s) => grp(x, y, s, `<path d="M0 -24 V-30" stroke="#92400e" stroke-width="3"/><path d="M-18 12 C-18 -6 -14 -22 0 -22 C14 -22 18 -6 18 12 Z" fill="#fbbf24"/><rect x="-22" y="10" width="44" height="6" rx="3" fill="#f59e0b"/><circle cy="20" r="4.5" fill="#b45309"/><path d="M-8 -14 Q-12 -4 -11 6" stroke="#fde68a" stroke-width="3" fill="none" stroke-linecap="round"/>`),
+  waves: (x, y, s, c = "#f59e0b") => grp(x, y, s, `<path d="M-6 -8 Q-12 0 -6 8 M-12 -14 Q-22 0 -12 14" stroke="${c}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`),
+  puff: (x, y, s) => grp(x, y, s, `<circle r="5" fill="#e5e7eb"/><circle cx="8" cy="-3" r="4" fill="#e5e7eb"/><circle cx="14" cy="2" r="3" fill="#e5e7eb"/>`),
+  broccoli: (x, y, s) => grp(x, y, s, `<path d="M-3 0 L-4 16 H4 L3 0 Z" fill="#86efac"/><circle cx="-8" cy="-4" r="8" fill="#16a34a"/><circle cx="8" cy="-4" r="8" fill="#16a34a"/><circle cy="-11" r="9" fill="#22c55e"/>`),
+  tomato: (x, y, s) => grp(x, y, s, `<circle r="12" fill="#ef4444"/><path d="M0 -12 L-5 -15 L-2 -10 L0 -16 L2 -10 L5 -15 Z" fill="#16a34a"/><ellipse cx="-4" cy="-3" rx="2.5" ry="4" fill="#fff" opacity=".4"/>`),
+  zzz: (x, y, c = "#6366f1") => txt(x, y, "Z", 12, c) + txt(x + 9, y - 9, "z", 10, c) + txt(x + 16, y - 16, "z", 8, c),
+  hall: () => `<path d="M0 0 L58 42 V82 L0 120 Z" fill="#fde68a"/><path d="M160 0 L102 42 V82 L160 120 Z" fill="#fde68a"/><path d="M0 120 L58 82 H102 L160 120 Z" fill="#d6c4a8"/><rect x="58" y="42" width="44" height="40" fill="#e0f2fe"/><path d="M18 22 L36 35 V80 L18 92 Z" fill="#a86d36"/><path d="M142 22 L124 35 V80 L142 92 Z" fill="#a86d36"/><path d="M68 100 H92 M64 108 H96" stroke="#c4b393" stroke-width="2"/>`
+};
+const J2 = J221;
+
+/* ---------- 單字插圖（其他抽象的字用單字陣列第 7 欄的概念卡） ---------- */
+Object.assign(ILLUS, {
+  sick: () => svgWrap("#eef2ff", J2.bed(80, 92, 1.3) + P({x:80, y:72, s:.6, tilt:-90, eyes:"closed", mood:"wavy", oc:"#93c5fd"}) + `<path d="M57 70 Q92 60 136 70 V84 H57 Z" fill="#93c5fd"/>` + J2.thermo(134, 36, .6, 36, "#ef4444")),
+  fever: () => svgWrap("#fff1f2", ground("#fecdd3") + kid(62, {eyes:"worry", mood:"wavy", acc:["sweat"], oc:"#fb7185"}) + J2.thermo(126, 60, 1.2, 40, "#ef4444") + txt(126, 22, "39°C", 13, "#ef4444")),
+  cough: () => svgWrap("#f0f9ff", ground() + kid(66, {mood:"o", eyes:"closed", oc:"#38bdf8"}) + J2.puff(92, 56, 1) + J2.puff(106, 44, .8) + txt(126, 36, "cough!", 12, "#0369a1")),
+  headache: () => svgWrap("#fef9c3", ground() + kid(80, {eyes:"worry", mood:"wavy", oc:"#a78bfa"}) + J2.waves(58, 44, 1) + grp(102, 44, 1, `<path d="M6 -8 Q12 0 6 8 M12 -14 Q22 0 12 14" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linecap="round"/>`) + spark(80, 12, .8, "#f59e0b")),
+  medicine: () => svgWrap("#f0fdf4", J2.bottle(58, 62, 1.5) + J2.pill(116, 54, 1.1, "#60a5fa", -20) + J2.pill(126, 84, 1, "#f472b6", 25)),
+  clinic: () => svgWrap("#ecfeff", ground() + J2.clinic(80, 78, 1.1) + O.cloud(30, 22, .7) + O.cloud(132, 18, .6)),
+  exercise: () => svgWrap("#ecfdf5", ground() + O.sun(130, 26, .7) + kid(56, {pose:"cheer", mood:"open", acc:["sweat"], oc:"#22c55e"}) + girlP(108, {pose:"cheer", mood:"open", oc:"#f97316"})),
+  vegetable: () => svgWrap("#f7fee7", O.carrot(46, 66, 1.4) + J2.broccoli(86, 60, 1.6) + J2.tomato(126, 74, 1.3)),
+  thirsty: () => svgWrap("#fff7ed", ground("#f3dfc3") + O.sun(30, 26, .8) + kid(78, {eyes:"worry", mood:"open", acc:["sweat"], oc:"#f97316"}) + J2.cup(126, 72, 1.2)),
+  sleepy: () => svgWrap("#1e2a4a", ground("#2b3a63") + grp(126, 30, 1, `<circle r="13" fill="#fde68a"/><circle cx="6" cy="-4" r="11" fill="#1e2a4a"/>`) + kid(70, {eyes:"closed", mood:"o", oc:"#818cf8"}) + J2.zzz(96, 40, "#c7d2fe")),
+  uniform: () => svgWrap("#eef3ff", ground() + O.school(80, 52, .55) + kid(52, {hair:"short", oc:"#f8fafc", lc:"#1e3a8a", acc:["tie"], mood:"open"}) + girlP(108, {oc:"#1e3a8a", acc:["ribbon", "tie"], mood:"open"})),
+  bell: () => svgWrap("#fffbeb", J2.bell(80, 58, 1.6) + spark(30, 34, .9) + spark(130, 34, .9) + txt(80, 108, "RING!", 13, "#b45309")),
+  principal: () => svgWrap("#f5f3ff", O.school(112, 66, .6) + P({x:52, y:108, hair:"bald", hc:"#6b7280", oc:"#475569", acc:["tie", "glasses"], mood:"open", pose:"wave"})),
+  hallway: () => svgWrap("#fef3c7", J2.hall() + kid(80, {s:.55, y:104, oc:"#5b8def"})),
+  raincoat: () => svgWrap("#e0f2fe", ground("#93c5fd") + O.cloud(80, 20, 1, "#cbd5e1") + O.rain(26, 40) + O.rain(96, 44) + kid(80, {oc:"#facc15", mood:"open", acc:["cap"]})),
+  giant: () => svgWrap("#ecfdf5", ground() + P({x:62, y:110, s:1.15, hair:"short", hc:"#7c3f1d", oc:"#16a34a", mood:"open", pose:"wave"}) + kid(130, {s:.42, pose:"cheer", mood:"open"}))
+});
+
+/* ---------- 記憶小撇步 ---------- */
+Object.assign(MEMO, {
+  sick:"sick 唸起來像「戲課」：一上戲劇課就裝病，喊說「I'm sick!」",
+  fever:"fever 唸起來像「飛佛」：發燒燒到頭昏昏，好像要飛起來了。",
+  cough:"cough 唸起來像「烤夫」：烤肉的師傅被煙嗆到一直咳嗽。gh 唸 /f/。",
+  headache:"head（頭）+ ache（痛）＝頭痛。ache 唸「欸克」。",
+  stomachache:"stomach（胃）+ ache（痛）＝胃痛、肚子痛。",
+  toothache:"tooth（牙齒）+ ache（痛）＝牙痛。",
+  "sore throat":"sore（痠痛的）+ throat（喉嚨）＝喉嚨痛。throat 唸起來像「輸肉特」。",
+  "runny nose":"run（跑）+ ny ＝ runny（會流動的）+ nose（鼻子）：鼻水一直往下跑，就是流鼻水。",
+  "catch a cold":"catch（抓到）+ a cold（感冒）：被感冒抓到了，就是感冒了。",
+  flu:"flu 唸起來像「福禄」：得了流感，福祿都飛走了！它是 influenza 的簡寫。",
+  medicine:"medicine 和 medical（醫療的）是一家人：med 開頭的字常跟「醫」有關。",
+  pill:"pill 唸起來像「皮喔」：藥丸外面有一層「皮」。",
+  clinic:"clinic 唸「克里尼克」：診所比醫院小，感冒、發燒先去附近的 clinic 看。",
+  vitamin:"vitamin 唸「外他命」，和中文「維他命」唸起來很像，要活力就靠它！",
+  patient:"patient 唸「配遜特」：病人（patient）在診所要很有耐心（patient）地等看醫生，一個字兩個意思一起記。",
+  rest:"rest 唸起來像「瑞斯特」：休息（rest）一下，再重新開始（restart）。",
+  health:"heal（治療）+ th ＝健康。病治好了，就健康了。",
+  healthy:"health（健康）+ y ＝健康的。",
+  pain:"pain 和 paint（油漆）只差一個 t：被油漆桶砸到腳，好痛（pain）！",
+  hurt:"hurt 唸起來像「喝特」：喝太快燙到嘴，好痛！",
+  temperature:"temperature 唸「天破了去兒」：溫度太高，天都破了！",
+  sneeze:"sneeze 唸起來像打噴嚏的聲音「哈～斯尼～」，兩個 e 拉長長的。",
+  serious:"serious 唸起來像「西瑞爾斯」：事情很嚴重，大家都很「嚴肅」。",
+  weak:"weak 和 week（星期）唸法一樣：考了一整個星期（week），身體好虛弱（weak）。",
+  should:"should 的 l 不發音，唸「休的」：你「休」息一下「的」話比較好，你應該休息！",
+  advice:"advice 是名詞（建議），advise 是動詞（建議）：c 是名詞、s 是動詞。",
+  exercise:"exercise 唸「A 克色賽斯」：每天運動，讓身體變 A 級！",
+  habit:"habit 唸起來像「哈比特」：哈比人每天都有固定的習慣。",
+  vegetable:"vegetable 唸起來只有三拍「VEJ‧ta‧ble」，中間的 e 常常吞掉。table（桌子）上擺滿蔬菜！",
+  diet:"diet 唸「呆餓特」：節食太久，餓到發呆！",
+  dizzy:"dizzy 唸「低記」：轉圈圈轉太多次，頭暈到記不住東西。中間是兩個 z。",
+  "stay up":"stay（停留）+ up（醒著、起來）：一直醒著不睡，就是熬夜。",
+  bandage:"band（帶子）+ age ＝ 繃帶，就是一條綁傷口的帶子。",
+  thirsty:"thirsty 開頭和 thirty（三十）很像：三十度的大熱天，好口渴！",
+  sleepy:"sleep（睡覺）+ y ＝想睡的。",
+  rule:"rule 和 ruler（尺）是一家人：規則就像一把尺，用來量對錯。",
+  uniform:"uni（一個）+ form（形式）＝大家都穿同一種樣子，就是制服。",
+  break:"break 是「打破」：打破上課的時間，休息一下！過去式是 broke。",
+  bell:"bell 唸起來像「貝兒」：下課鐘聲響，貝兒跑出去玩。",
+  "on time":"on（剛好在上面）+ time（時間）：剛好踩在時間點上，就是準時。",
+  absent:"ab（離開）+ sent：人離開了不在這裡，就是缺席。相反詞是 present（出席的）。",
+  principal:"principal 的 prin 和 prince（王子）、prime（第一的）有關：學校裡排第一的人，就是校長。",
+  hallway:"hall（大廳）+ way（路）＝連到大廳的路，就是走廊。",
+  allow:"allow 唸「呃勞」：老師允許了，就不用「勞」煩再問了。",
+  follow:"follow 唸「發樓」：跟著我走，一起「發」現這棟「樓」。",
+  cheat:"cheat 唸「器特」：考試作弊（cheat）的人，偷看別人考卷就像在吃（eat）別人的分數。",
+  attend:"at（在）+ tend：人在那裡，就是出席。名詞是 attendance（出席）。",
+  return:"re（再、回）+ turn（轉）＝轉回來，就是歸還、回來。",
+  polite:"polite 唸「破來特」：有禮貌的人敲門才進來，不會破門而入。",
+  exam:"exam 是 examination 的簡寫：考試就是「檢查」你學會了沒。",
+  punish:"punish 唸「趴逆噓」：上課趴著又叛逆，老師就會處罰你，噓！",
+  sweat:"sweat 唸「斯威特」，和 sweet（甜的）長得很像：吃甜的（sweet）跑太快，流了一身汗（sweat）。",
+  flood:"flood 唸起來像「福辣的」：淹水了，大家急得像吃到辣的一樣跳腳！",
+  chilly:"chilly 和 chili（辣椒）唸起來一樣：天氣冷颼颼的，就想吃辣椒暖身體！",
+  freezing:"freeze（結冰）去 e 加 ing ＝ freezing：冷到快要結冰了！",
+  wet:"wet 唸起來像「威特」：下雨天全身濕答答。",
+  dry:"dry 唸起來像「抓伊」：把濕衣服抓起來晾乾。",
+  cancel:"cancel 唸「肯手」：大家都肯放手，活動就取消了。",
+  raincoat:"rain（雨）+ coat（外套）＝下雨天穿的外套，就是雨衣。",
+  foggy:"fog（霧）+ g + y ＝有霧的。短母音後面加 y 要多寫一個 g。",
+  humid:"humid 唸「休米德」：濕氣重到想去「休」息。h 要唸出來喔。",
+  outdoor:"out（外面）+ door（門）＝門外面的，就是戶外的。",
+  slippery:"slip（滑倒）+ p + ery ＝滑的。地板滑就容易 slip（滑倒）。",
+  forecast:"fore（事先）+ cast（丟出去）＝事先把消息丟出來，就是預報。",
+  heat:"hot（熱的）的名詞是 heat（熱）：ea 唸長長的「一」，像熱到喊「一～」。",
+  honest:"honest 的 h 不發音，唸「阿呢斯特」，前面要用 an：an honest boy。",
+  whole:"whole 和 hole（洞）唸法一模一樣：整個（whole）甜甜圈中間有個洞（hole）。",
+  answer:"answer 中間的 w 不發音，唸「安色」：回答出正確答案，心就安了。",
+  giant:"giant 唸「家嗯特」：巨人一家都很大。g 後面接 i 唸 /dʒ/。",
+  age:"age 唸起來像字母 A 加「居」：A 居的年紀多大？g 後面接 e 唸 /dʒ/。"
+});
+
+registerUnit("j2-2-1", {name:"國二 下學期 第一次段考", sub:"副詞子句 when / before / after、because / so、though / but、if 條件句、附加問句與感嘆句", words:J2_2_1_WORDS, grammar:J2_2_1_GRAMMAR, quiz:J2_2_1_QUIZ, classes:Object.assign({}, J2_2_1_CLASS, J2_2_1_PHONICS_CLASS), phonics:J2_2_1_PHONICS});
+})();

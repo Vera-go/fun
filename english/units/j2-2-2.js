@@ -1,0 +1,746 @@
+/* 單元檔：由 index.html 在選到這個單元時載入，內容都會透過 registerUnit() 登記 */
+(function(){
+/* =========================================================
+   內容資料：國二下學期 第二次段考（通用範圍）
+   單字格式：[單字, 詞性, 中文, [[例句, 中文, 文法說明] x3], null, null, 插圖]
+   插圖："表情符號|標籤" 為概念卡（抽象的字用），其他的字畫在下面的 ILLUS
+   ========================================================= */
+const J2_2_2_WORDS = [
+["smartphone","n.","智慧型手機",[
+ ["My dad lets me use his smartphone on weekends.","爸爸週末讓我用他的智慧型手機。","let + 人 + 原形動詞 use，不能說 lets me to use。"],
+ ["I spent 8,000 dollars on my new smartphone.","我花了八千元買新的智慧型手機。","人 + spend + 錢 + on + 東西。spend 的過去式是 spent。"],
+ ["Do you know how to turn off this smartphone?","你知道怎麼把這支智慧型手機關機嗎？","how to + 原形動詞，表示「怎麼做……」。turn off 是「關掉」。"]]],
+["computer","n.","電腦",[
+ ["Can you show me how to use this computer?","你可以示範給我看怎麼用這台電腦嗎？","show + 人 + how to V，表示「示範給某人看怎麼做」。"],
+ ["He spends too much time playing computer games.","他花太多時間玩電腦遊戲。","人 + spend + 時間 + V-ing。spend 後面接 playing，不能接 to play。"],
+ ["The teacher had us turn off the computers.","老師叫我們把電腦關掉。","have + 人 + 原形動詞，表示「叫某人去做」。turn off 是原形，前面不能加 to。"]]],
+["internet","n.","網際網路",[
+ ["I learned how to cook on the Internet.","我在網路上學會了怎麼煮菜。","learn how to V 是「學會怎麼做」。「網路」常寫成 the Internet，前面要加 the。"],
+ ["It takes only a few seconds to find the answer on the Internet.","在網路上找答案只要幾秒鐘。","It takes + 時間 + to V，表示「做某事要花多少時間」。"],
+ ["My parents don't let me surf the Internet after ten.","我爸媽不讓我十點以後上網。","let 的否定是 don't let + 人 + 原形 surf。surf the Internet 是「上網」。"]],null,null,"🌐|網路"],
+["online","adv./adj.","在網路上；線上的",[
+ ["Many students take classes online now.","現在很多學生在線上上課。","online 當副詞，放在動詞片語後面，表示「在網路上」。"],
+ ["Is it safe to pay online?","在網路上付錢安全嗎？","It is + 形容詞 + to V，It 代替後面的 to pay online。"],
+ ["She spends two hours a day chatting online.","她每天花兩個小時在網路上聊天。","spend + 時間 + V-ing。主詞 She 是第三人稱單數，spend 要加 s。"]],null,null,"💻|線上"],
+["app","n.","應用程式",[
+ ["This app teaches you how to learn English words.","這個應用程式教你怎麼學英文單字。","teach + 人 + how to V，表示「教某人怎麼做」。"],
+ ["It costs nothing to download the app.","下載這個應用程式不用錢。","It costs + 錢 + to V。costs nothing 就是「免費」。"],
+ ["I don't know which app to choose.","我不知道要選哪一個應用程式。","which + 名詞 + to V，表示「該選哪一個……」。"]]],
+["message","n.","訊息",[
+ ["Mom had me send a message to Dad.","媽媽叫我傳訊息給爸爸。","have + 人 + 原形 send。had 是 have 的過去式，後面的 send 不變。"],
+ ["I didn't know what to say in the message.","我不知道訊息裡要說什麼。","what to V 表示「該……什麼」。to 後面用原形 say。"],
+ ["It took me five minutes to write the message.","我花了五分鐘寫那則訊息。","It takes + 人 + 時間 + to V，過去式用 took。"]]],
+["download","v.","下載",[
+ ["Can you tell me how to download this song?","你可以告訴我怎麼下載這首歌嗎？","tell + 人 + how to V，表示「告訴某人怎麼做」。"],
+ ["It took ten minutes to download the movie.","下載那部電影花了十分鐘。","It took + 時間 + to V，took 是 take 的過去式。"],
+ ["Dad doesn't let me download games on his phone.","爸爸不讓我在他的手機下載遊戲。","doesn't let + 人 + 原形 download。"]]],
+["website","n.","網站",[
+ ["You can find the bus times on the website.","你可以在網站上找到公車時刻。","「在網站上」用介系詞 on。"],
+ ["This website shows you where to eat in Tainan.","這個網站告訴你在台南可以去哪裡吃東西。","show + 人 + where to V，表示「該去哪裡……」。"],
+ ["The website is too slow to use.","這個網站太慢了，沒辦法用。","too + 形容詞 + to V，表示「太……而不能……」，本身就有否定的意思。"]],null,null,"🖥️|網站"],
+["email","n./v.","電子郵件；寄電子郵件",[
+ ["I got an email from my teacher.","我收到老師寄來的電子郵件。","email 是母音 e 開頭，前面用 an。"],
+ ["Please email me when to meet.","請寄電子郵件告訴我什麼時候見面。","email 也可以當動詞。when to V 表示「什麼時候該……」。"],
+ ["It takes me an hour to answer all my emails.","回覆所有的電子郵件要花我一個小時。","It takes + 人 + 時間 + to V。hour 的 h 不發音，所以是 an hour。"]]],
+["password","n.","密碼",[
+ ["I forgot my password again!","我又忘記我的密碼了！","forgot 是 forget 的過去式。"],
+ ["Don't let other people know your password.","不要讓別人知道你的密碼。","let + 人 + 原形 know。否定祈使句用 Don't 開頭。"],
+ ["I don't remember how to change my password.","我不記得怎麼改密碼了。","remember + how to V，表示「記得怎麼做」。"]],null,null,"🔑|密碼"],
+["screen","n.","螢幕",[
+ ["The screen is too small for me to read.","螢幕太小了，我看不清楚。","too + 形容詞 + for 人 + to V。read 後面不用再加 it。"],
+ ["Don't look at the screen for too long.","不要盯著螢幕看太久。","look at 是「看著」。for too long 是「太久」。"],
+ ["Bright screens make my eyes tired.","太亮的螢幕讓我的眼睛很累。","make + 受詞 + 形容詞：make my eyes tired，表示「使……變得……」。"]],null,null,"📱|螢幕"],
+["video","n.","影片",[
+ ["We watched a video about how to make dumplings.","我們看了一部教人怎麼包水餃的影片。","about 後面可以接 how to V，how to make 是「怎麼做」。"],
+ ["He spent all afternoon making a video.","他花了一整個下午做影片。","spend + 時間 + V-ing，過去式是 spent。"],
+ ["The funny video made everyone laugh.","那部好笑的影片讓大家都笑了。","make + 人 + 原形動詞 laugh。made 是過去式，laugh 保持原形。"]]],
+["laptop","n.","筆記型電腦",[
+ ["My laptop is light enough to carry to school.","我的筆電夠輕，可以帶去學校。","形容詞 + enough + to V。enough 要放在 light 的後面。"],
+ ["How much did you pay for your laptop?","你的筆電花了多少錢買的？","人 + pay + 錢 + for + 東西。問價錢用 How much。"],
+ ["My sister let me borrow her laptop.","姊姊讓我借用她的筆電。","let 三態同形，這裡的 let 是過去式，後面接原形 borrow。"]]],
+["battery","n.","電池",[
+ ["My phone battery is too low to make a call.","我手機的電量太低，沒辦法打電話。","too + 形容詞 + to V。make a call 是「打電話」。"],
+ ["It takes two hours to charge the battery.","把電池充飽要兩個小時。","It takes + 時間 + to V。charge 是「充電」。"],
+ ["These batteries cost 60 dollars.","這些電池要六十元。","東西 + cost + 錢。主詞是複數，所以 cost 不加 s。battery 是子音 + y，複數改成 ies。"]]],
+["text","v./n.","傳訊息；簡訊",[
+ ["Text me when you get home.","你到家的時候傳訊息給我。","text 當動詞：text + 人，表示「傳訊息給某人」。"],
+ ["Mom made me stop texting at dinner.","媽媽要我吃晚餐時不准再傳訊息。","make + 人 + 原形 stop；stop + V-ing 是「停止做……」。"],
+ ["I don't know what to text back.","我不知道要回什麼訊息。","what to V；text back 是「回訊息」。"]],null,null,"💬|傳訊息"],
+["distance","n.","距離",[
+ ["The distance from my home to school is two kilometers.","我家到學校的距離是兩公里。","from A to B 表示「從 A 到 B」。主詞 The distance 是單數，用 is。"],
+ ["What's the distance between Taipei and Tainan?","台北和台南之間的距離是多少？","between A and B 表示「在 A 和 B 之間」。"],
+ ["You can see the mountains in the distance.","你可以看到遠方的山。","in the distance 是「在遠處」。"]],null,null,"📏|距離"],
+["traffic","n.","交通；車流",[
+ ["The traffic is too heavy to drive fast.","車流太多，沒辦法開快車。","車多要說 heavy traffic，不說 many traffic。too + 形容詞 + to V。"],
+ ["It took us an hour to get there because of the traffic.","因為交通的關係，我們花了一個小時才到那裡。","It took + 人 + 時間 + to V。because of 後面接名詞。"],
+ ["There is a lot of traffic in the morning.","早上車很多。","traffic 是不可數名詞，用 a lot of，不能加 s，動詞用 is。"]]],
+["parking lot","n.","停車場",[
+ ["Dad spent ten minutes looking for a space in the parking lot.","爸爸花了十分鐘在停車場找車位。","spend + 時間 + V-ing。look for 是「尋找」。"],
+ ["It costs 40 dollars to park in this parking lot for an hour.","在這個停車場停一小時要四十元。","It costs + 錢 + to V。park 當動詞是「停車」。"],
+ ["The parking lot is too full to park in.","停車場太滿了，停不進去。","too + 形容詞 + to V。park in 的 in 不能省。"]]],
+["highway","n.","公路；高速公路",[
+ ["We drove on the highway to Taichung.","我們走高速公路開車去台中。","drove 是 drive 的過去式。「在公路上」用 on。"],
+ ["It takes two hours to get to Taichung on the highway.","走高速公路到台中要兩個小時。","It takes + 時間 + to V。get to + 地點 是「到達」。"],
+ ["The highway is too crowded to drive on during holidays.","放假的時候高速公路太擠了，根本開不動。","too + 形容詞 + to V。drive on 的 on 不能省，原本是 drive on the highway。"]]],
+["crosswalk","n.","斑馬線；行人穿越道",[
+ ["Always use the crosswalk when you cross the street.","過馬路的時候一定要走斑馬線。","when 連接兩個句子。always 放在祈使句的最前面。"],
+ ["My mom taught me how to cross the street at the crosswalk.","媽媽教我怎麼在斑馬線過馬路。","teach + 人 + how to V，taught 是過去式。"],
+ ["Wait at the crosswalk until the light turns green.","在斑馬線等到變綠燈。","until 表示「直到……」。turn green 是「變成綠色」。"]]],
+["far","adj./adv.","遠的；遠地",[
+ ["The airport is too far to walk to.","機場太遠了，走路到不了。","too + 形容詞 + to V。walk to 的 to 是介系詞，不能省略。"],
+ ["How far is it from your home to the station?","你家到車站有多遠？","問距離用 How far。"],
+ ["My school isn't far. It takes only five minutes to walk there.","我的學校不遠，走路只要五分鐘。","It takes + 時間 + to V。there 是副詞，前面不加 to。"]],null,null,"🗺️|遠的"],
+["near","adj./prep.","近的；在……附近",[
+ ["Is there a bus stop near here?","這附近有公車站嗎？","near here 是「這附近」。"],
+ ["The park is near enough to walk to.","公園夠近，走路就到得了。","形容詞 + enough + to V。enough 放在 near 後面。"],
+ ["We live near the school, so we don't spend much time on the road.","我們住在學校附近，所以不用花很多時間在路上。","spend + 時間 + on + 名詞。"]],null,null,"📍|附近"],
+["second","n.","秒",[
+ ["It takes only a few seconds to send a message.","傳訊息只要幾秒鐘。","It takes + 時間 + to V。a few seconds 是「幾秒鐘」。"],
+ ["Wait a second. Let me think.","等一下，讓我想想。","Let me + 原形動詞，表示「讓我……」。"],
+ ["Amy finished the puzzle in thirty seconds.","艾美三十秒就完成拼圖了。","in + 一段時間 表示「在……之內」。second 加 s 變複數。"]],null,null,"⏱️|秒"],
+["arrive","v.","抵達",[
+ ["What time did you arrive at the station?","你幾點到車站的？","arrive at + 小地點，arrive in + 大地方（城市、國家）。"],
+ ["The train arrived in Kaohsiung at noon.","火車中午抵達高雄。","高雄是城市，用 arrive in。"],
+ ["It took us three hours to arrive in Hualien.","我們花了三個小時才到花蓮。","It took + 人 + 時間 + to V，to 後面用原形 arrive。"]],null,null,"🏁|抵達"],
+["leave","v.","離開；出發；遺留",[
+ ["Don't leave your phone on the bus.","不要把手機忘在公車上。","leave + 東西 + 地點 是「把東西留在（忘在）……」。"],
+ ["I don't know when to leave for the airport.","我不知道什麼時候該出發去機場。","when to V；leave for + 地點 是「出發前往……」。"],
+ ["The teacher didn't let us leave early.","老師沒讓我們提早離開。","didn't let + 人 + 原形 leave。"]],null,null,"🚪|離開"],
+["on foot","phr.","步行",[
+ ["I go to school on foot every day.","我每天走路上學。","on foot 是「步行」，等於 walk to school。不說 by foot。"],
+ ["It takes twenty minutes to get there on foot.","走路到那裡要二十分鐘。","It takes + 時間 + to V。"],
+ ["Is the station near enough to go to on foot?","車站夠近，可以走路去嗎？","形容詞 + enough + to V。"]],null,null,"🚶|步行"],
+["kilometer","n.","公里",[
+ ["The park is three kilometers from here.","公園離這裡三公里。","超過一公里，kilometer 要加 s。"],
+ ["I run five kilometers every morning.","我每天早上跑五公里。","every morning 是習慣，用現在簡單式。"],
+ ["Ten kilometers is too far for me to walk.","十公里對我來說太遠了，走不完。","距離當成一個整體，用單數 is。too + 形容詞 + for 人 + to V。"]],null,null,"📏|公里"],
+["spend","v.","花費（時間、金錢）",[
+ ["I spend an hour on my homework every night.","我每天晚上花一個小時寫功課。","人 + spend + 時間 + on + 名詞。"],
+ ["She spent 500 dollars on a new bag.","她花了五百元買新包包。","spend 的過去式是 spent。花錢買東西用 spend + 錢 + on + 東西。"],
+ ["Don't spend too much time playing games.","不要花太多時間玩遊戲。","spend + 時間 + V-ing，不能說 spend time to play。"]],null,null,"💸|花費"],
+["save","v.","存（錢）；節省",[
+ ["I save 100 dollars every week.","我每週存一百元。","save + 錢 是「存錢」。"],
+ ["Taking the MRT saves a lot of time.","搭捷運可以省很多時間。","動名詞 Taking the MRT 當主詞，當成單數，動詞加 s：saves。"],
+ ["My parents let me save my allowance in the bank.","爸媽讓我把零用錢存在銀行。","let + 人 + 原形 save。"]]],
+["fare","n.","車資；交通費",[
+ ["The bus fare is 15 dollars.","公車車資是十五元。","fare 是搭車要付的錢。主詞 The bus fare 是單數，用 is。"],
+ ["How much does it cost to take the MRT? The fare is 25 dollars.","搭捷運要多少錢？車資是二十五元。","問花多少錢：How much does it cost to V?"],
+ ["I paid the taxi fare with my allowance.","我用零用錢付了計程車費。","pay 的過去式是 paid。with 表示「用……」。"]],null,null,"🎫|車資"],
+["change","n.","零錢；找的錢",[
+ ["Here is your change.","這是找您的錢。","change 當名詞是「找的錢、零錢」，不可數，不加 s。"],
+ ["Do you have enough change to buy a drink?","你有足夠的零錢買飲料嗎？","enough + 名詞 + to V。"],
+ ["The clerk forgot to give me my change.","店員忘了找我錢。","forget + to V 表示「忘記要去做」。"]],null,null,"🪙|零錢"],
+["allowance","n.","零用錢",[
+ ["My parents give me an allowance of 500 dollars a month.","我爸媽每個月給我五百元零用錢。","allowance 是母音開頭，前面用 an。a month 是「每個月」。"],
+ ["I spend most of my allowance on books.","我大部分的零用錢都花在書上。","spend + 錢 + on + 名詞。"],
+ ["I don't know what to buy with my allowance.","我不知道要用零用錢買什麼。","what to V，表示「該……什麼」。"]],null,null,"💰|零用錢"],
+["coin","n.","硬幣",[
+ ["I put ten-dollar coins in my piggy bank.","我把十元硬幣放進撲滿。","ten-dollar 當形容詞時，dollar 不加 s。"],
+ ["Do you have enough coins to buy a drink?","你有足夠的硬幣買飲料嗎？","enough + 名詞 + to V。enough 放在名詞 coins 的前面。"],
+ ["My grandpa taught me how to collect old coins.","爺爺教我怎麼收集舊硬幣。","teach + 人 + how to V。"]]],
+["wallet","n.","皮夾；錢包",[
+ ["I left my wallet at home.","我把錢包忘在家裡了。","left 是 leave 的過去式。"],
+ ["There isn't enough money in my wallet to pay for lunch.","我錢包裡的錢不夠付午餐。","enough + 名詞 + to V。"],
+ ["Mom made me put my wallet in my bag.","媽媽要我把錢包放進包包。","make + 人 + 原形 put。"]]],
+["bank","n.","銀行",[
+ ["My dad works in a bank.","我爸爸在銀行工作。","「在銀行」用 in a bank。"],
+ ["Mom taught me how to save money in the bank.","媽媽教我怎麼把錢存在銀行。","teach + 人 + how to V。"],
+ ["Do you know when to go to the bank? It closes at 3:30.","你知道什麼時候該去銀行嗎？它三點半就關門了。","when to V。主詞 It 是單數，closes 加 es。"]]],
+["earn","v.","賺（錢）",[
+ ["I earn some money by walking my neighbor's dog.","我幫鄰居遛狗賺一些錢。","by + V-ing 表示「藉由……的方式」。"],
+ ["He earned enough money to buy a new bike.","他賺了足夠的錢買新腳踏車。","enough + 名詞 + to V。"],
+ ["It takes a long time to earn money.","賺錢要花很長的時間。","It takes + 時間 + to V。"]],null,null,"🪙|賺錢"],
+["piggy bank","n.","撲滿",[
+ ["I put my coins in my piggy bank every day.","我每天把硬幣放進撲滿。","every day 是習慣，用現在簡單式。"],
+ ["It took me a year to fill my piggy bank.","我花了一年才把撲滿裝滿。","It took + 人 + 時間 + to V。"],
+ ["Dad didn't let me open my piggy bank.","爸爸不讓我打開撲滿。","didn't let + 人 + 原形 open。"]],null,null,"🐷|撲滿"],
+["borrow","v.","借（入）",[
+ ["Can I borrow your pen?","我可以借你的筆嗎？","borrow 是「向別人借來」：borrow + 東西 + from + 人。"],
+ ["I borrowed some money from my brother.","我向哥哥借了一些錢。","borrow 是規則動詞，過去式加 ed。"],
+ ["Mom doesn't let me borrow money from my friends.","媽媽不讓我跟朋友借錢。","let + 人 + 原形 borrow。"]],null,null,"🤲|借入"],
+["lend","v.","借（出）",[
+ ["Can you lend me your eraser?","你可以借我你的橡皮擦嗎？","lend 是「借給別人」：lend + 人 + 東西。"],
+ ["He lent me 100 dollars yesterday.","他昨天借我一百元。","lend 的過去式是 lent。"],
+ ["My brother is kind enough to lend me his laptop.","我哥哥人很好，願意借我筆電。","形容詞 + enough + to V。"]],null,null,"🤝|借出"],
+["goal","n.","目標",[
+ ["My goal is to save 3,000 dollars this year.","我今年的目標是存三千元。","be 動詞 + to V，說明目標是什麼。"],
+ ["Can you tell me how to reach my goal?","你可以告訴我怎麼達成目標嗎？","tell + 人 + how to V。reach a goal 是「達成目標」。"],
+ ["It takes time to reach a big goal.","達成大目標需要時間。","It takes + 時間 + to V。"]],null,null,"🎯|目標"],
+["learn","v.","學習",[
+ ["I want to learn how to swim this summer.","我今年夏天想學游泳。","learn how to V 是「學會怎麼……」。"],
+ ["We learn English online every Saturday.","我們每週六在網路上學英文。","every Saturday 是習慣，用現在簡單式。"],
+ ["It takes time to learn a new language.","學一種新的語言需要時間。","It takes + 時間 + to V。time 不加 s 表示「時間」。"]],null,null,"📚|學習"],
+["mistake","n.","錯誤",[
+ ["Everyone makes mistakes.","每個人都會犯錯。","make a mistake 是「犯錯」。Everyone 當單數，make 加 s。"],
+ ["The teacher had us correct our mistakes.","老師叫我們訂正錯誤。","have + 人 + 原形 correct。"],
+ ["I don't know where the mistake is.","我不知道錯誤在哪裡。","where 後面接「主詞 + 動詞」時，句子要用直述句順序：where the mistake is。"]],null,null,"❌|錯誤"],
+["explain","v.","解釋",[
+ ["Can you explain how to use this app?","你可以解釋一下怎麼用這個應用程式嗎？","explain + how to V。"],
+ ["The teacher explained the rule again and again.","老師一再解釋那條規則。","again and again 是「一再地」。"],
+ ["Let me explain.","讓我解釋一下。","Let me + 原形動詞。"]],null,null,"🧑‍🏫|解釋"],
+["understand","v.","了解；懂",[
+ ["I don't understand what to do next.","我不懂接下來要做什麼。","what to V 當 understand 的受詞。"],
+ ["Is this book easy enough for you to understand?","這本書夠簡單，你看得懂嗎？","形容詞 + enough + for 人 + to V。"],
+ ["The question is too difficult for me to understand.","這個問題太難了，我看不懂。","too + 形容詞 + for 人 + to V。understand 後面不加 it。"]],null,null,"💡|了解"],
+["remember","v.","記得",[
+ ["Do you remember how to get to Grandma's house?","你記得怎麼去奶奶家嗎？","remember + how to V。get to 是「到達」。"],
+ ["Remember to take your wallet.","記得帶你的錢包。","remember + to V 表示「記得要去做」。"],
+ ["I can't remember my password.","我想不起我的密碼。","can't 後面接原形 remember。"]],null,null,"🧠|記得"],
+["forget","v.","忘記",[
+ ["Don't forget to turn off the computer.","別忘了關電腦。","forget + to V 表示「忘記要去做」。"],
+ ["I forgot where to meet my friends.","我忘了要去哪裡和朋友碰面。","forgot 是 forget 的過去式；forget + where to V。"],
+ ["My little brother often forgets his password.","我弟弟常常忘記他的密碼。","often 是頻率副詞，主詞第三人稱單數，forget 加 s。"]],null,null,"😵|忘記"],
+["solve","v.","解決；解答",[
+ ["Can you show me how to solve this math problem?","你可以示範給我看怎麼解這題數學嗎？","show + 人 + how to V。"],
+ ["It took us an hour to solve the problem.","我們花了一個小時解決這個問題。","It took + 人 + 時間 + to V。"],
+ ["He is smart enough to solve the puzzle.","他夠聰明，解得開這個謎題。","形容詞 + enough + to V。"]],null,null,"🧩|解決"],
+["problem","n.","問題",[
+ ["No problem!","沒問題！","別人道謝或請你幫忙時，可以回答 No problem.。"],
+ ["Traffic is a big problem in this city.","交通是這個城市的一大問題。","traffic 是不可數名詞，前面不加 a。"],
+ ["I don't know how to solve this problem.","我不知道怎麼解決這個問題。","how to + 原形 solve。"]],null,null,"❓|問題"],
+["idea","n.","主意；想法",[
+ ["That's a good idea!","那是個好主意！","idea 是母音開頭，單獨用要說 an idea，前面有 good 就用 a。"],
+ ["I have no idea what to do.","我完全不知道該怎麼辦。","have no idea 是「完全不知道」，後面可以接 what to V。"],
+ ["Your idea made everyone happy.","你的主意讓大家都很開心。","make + 人 + 形容詞，表示「使某人……」。"]],null,null,"💡|主意"],
+["let","v.","讓；允許",[
+ ["Let me help you.","讓我幫你。","let + 人 + 原形動詞 help。"],
+ ["My parents let me stay up late on Fridays.","我爸媽星期五讓我晚點睡。","stay up late 是「熬夜、晚睡」。"],
+ ["Let's take the MRT. It's faster.","我們搭捷運吧，比較快。","Let's = Let us，用來提議「我們一起……吧」。"]],null,null,"👌|讓"],
+["information","n.","資訊",[
+ ["You can find a lot of information on the Internet.","你可以在網路上找到很多資訊。","information 是不可數名詞，不加 s，用 a lot of 或 much。"],
+ ["This website tells you how to get bus information.","這個網站告訴你怎麼查公車資訊。","tell + 人 + how to V。"],
+ ["It took me a long time to find the information.","我花了很久時間才找到那個資訊。","It took + 人 + 時間 + to V。"]],null,null,"ℹ️|資訊"],
+["television","n.","電視",[
+ ["I spend an hour watching television every evening.","我每天傍晚花一小時看電視。","spend + 時間 + V-ing。television 常簡稱 TV。"],
+ ["Mom doesn't let me watch television before I finish my homework.","寫完作業前，媽媽不讓我看電視。","let + 人 + 原形 watch。"],
+ ["The television is too old to fix.","這台電視太舊了，修不好了。","too + 形容詞 + to V。to fix 後面不再加 it。"]]],
+["decision","n.","決定",[
+ ["It's your decision.","這是你的決定。","decision 是 decide 的名詞。"],
+ ["Making a decision is not easy for me.","做決定對我來說不容易。","make a decision 是「做決定」。動名詞當主詞用 is。"],
+ ["He made a decision to save more money.","他決定要存更多錢。","make a decision to V = decide to V。"]],null,null,"✅|決定"],
+["discussion","n.","討論",[
+ ["We had a discussion about how to save money.","我們討論了要怎麼存錢。","have a discussion about + 名詞；about 後面可以接 how to V。"],
+ ["The teacher had us join the class discussion.","老師叫我們參加班上的討論。","have + 人 + 原形 join。"],
+ ["After a long discussion, we decided where to go.","經過一番長時間的討論，我們決定了要去哪裡。","decide + where to V。"]],null,null,"🗣️|討論"],
+["direction","n.","方向",[
+ ["Can you give me directions to the station?","你可以告訴我去車站怎麼走嗎？","directions 用複數時，常指「怎麼走的指示」。"],
+ ["I don't know which direction to go.","我不知道該往哪個方向走。","which + 名詞 + to V。"],
+ ["We walked in the wrong direction.","我們走錯方向了。","「往……方向」的介系詞用 in。"]],null,null,"🧭|方向"],
+["curious","adj.","好奇的",[
+ ["Kids are curious about new technology.","小孩對新科技很好奇。","be curious about + 名詞，表示「對……好奇」。"],
+ ["I'm curious to know how to make an app.","我很好奇，想知道怎麼做應用程式。","know 後面接 how to V。"],
+ ["His strange question made me curious.","他奇怪的問題讓我很好奇。","make + 人 + 形容詞，表示「使某人……」。"]],null,null,"🧐|好奇的"],
+["various","adj.","各式各樣的",[
+ ["This app has various games for kids.","這個應用程式有各式各樣給小孩玩的遊戲。","various 後面接複數名詞 games。"],
+ ["You can pay in various ways at this store.","在這家店可以用各種方式付錢。","in various ways 是「用各種方式」。"],
+ ["We learned various ways to save money.","我們學到各種存錢的方法。","ways to V 表示「做……的方法」。"]],null,null,"🌈|各式各樣"],
+["positive","adj.","正面的；積極的",[
+ ["Try to be positive when you make a mistake.","犯錯的時候，試著保持正面的態度。","try to + 原形動詞；形容詞前面要有 be 動詞。"],
+ ["My teacher always makes us feel positive.","老師總是讓我們覺得很正面。","make + 人 + 原形 feel，不能說 makes us to feel。"],
+ ["The Internet can have a positive effect on learning.","網路可以對學習有正面的影響。","have a positive effect on + 名詞。"]],null,null,"😊|正面的"],
+["active","adj.","活躍的；有活力的",[
+ ["My grandpa is still very active.","我爺爺還是很有活力。","active 是形容詞，放在 be 動詞後面。"],
+ ["She is active in class discussions.","她在課堂討論中很積極。","be active in + 名詞，表示「在……方面很積極」。"],
+ ["Our coach makes us run every morning to stay active.","教練每天早上要我們跑步，保持活力。","make + 人 + 原形 run；to stay active 表示目的「為了……」。"]],null,null,"🏃|有活力的"],
+["generous","adj.","大方的；慷慨的",[
+ ["My uncle is generous. He often lends me money.","我叔叔很大方，常常借我錢。","lend + 人 + 東西。often 放在一般動詞前面。"],
+ ["It was generous of you to pay for my lunch.","你幫我付午餐錢，真是太大方了。","It is + 形容詞 + of 人 + to V，用來稱讚人的個性。pay for + 東西。"],
+ ["Grandma is generous enough to buy us ice cream every Sunday.","奶奶很大方，每個星期天都買冰淇淋給我們。","形容詞 + enough + to V。"]],null,null,"🎁|大方的"],
+["creative","adj.","有創意的",[
+ ["Her video is very creative.","她的影片很有創意。","creative 是形容詞，放在 be 動詞後面。"],
+ ["The art teacher lets us be creative.","美術老師讓我們盡情發揮創意。","let + 人 + 原形 be，不能說 let us are。"],
+ ["He is creative enough to make his own app.","他夠有創意，能自己做應用程式。","形容詞 + enough + to V。"]],null,null,"🎨|有創意的"],
+["technology","n.","科技",[
+ ["Technology makes our lives easier.","科技讓我們的生活更方便。","make + 受詞 + 形容詞。easier 是 easy 的比較級。"],
+ ["My grandma is learning how to use new technology.","我奶奶正在學怎麼使用新科技。","learn how to V。is learning 是現在進行式。"],
+ ["Technology changes very fast.","科技變化得很快。","technology 是不可數名詞，當主詞時動詞加 s。"]],null,null,"🤖|科技"],
+["practical","adj.","實用的",[
+ ["This app is very practical for students.","這個應用程式對學生很實用。","practical for + 人，表示「對……很實用」。"],
+ ["Dad taught me some practical ways to save money.","爸爸教了我一些實用的存錢方法。","ways to V 表示「做……的方法」。"],
+ ["A laptop is more practical than a big computer for me.","對我來說，筆電比大電腦更實用。","practical 是多音節形容詞，比較級用 more practical。"]],null,null,"🧰|實用的"],
+["convenient","adj.","方便的",[
+ ["The MRT is fast and convenient.","捷運又快又方便。","convenient 是形容詞，放在 be 動詞後面。"],
+ ["It's convenient to pay online.","在網路上付錢很方便。","It is + 形容詞 + to V。"],
+ ["Is ten o'clock convenient for you?","十點你方便嗎？","convenient for + 人。不能說 Are you convenient?，主詞要是時間或事情。"]],null,null,"🏪|方便的"],
+["simple","adj.","簡單的",[
+ ["The rules are simple enough for kids to understand.","規則夠簡單，小孩子也看得懂。","形容詞 + enough + for 人 + to V。"],
+ ["Let me show you a simple way to remember new words.","我來教你一個記新單字的簡單方法。","let + 人 + 原形 show；a way to V 是「做……的方法」。"],
+ ["It's simple to download the app.","下載這個應用程式很簡單。","It is + 形容詞 + to V。"]],null,null,"👍|簡單的"]
+];
+
+const J2_2_2_GRAMMAR = [
+{ id:"g1", title:"四個「花」：take、spend、cost、pay",
+  intro:"中文都說「花」，英文卻有四個字！花「時間」用 take 或 spend，花「錢」用 cost、spend 或 pay。最重要的是看主詞：主詞是「人」用 spend、pay；主詞是虛主詞 It 或「東西」用 take、cost。",
+  table:[["動詞","主詞","公式","例子"],["take（花時間）","It（事情）","It takes + (人) + 時間 + to V","It takes me 20 minutes to walk to school."],["spend（花時間、錢）","人","人 + spend + 時間/錢 + on + 名詞","I spend two hours on my homework."],["spend（花時間、錢）","人","人 + spend + 時間/錢 + V-ing","I spend two hours doing my homework."],["cost（花錢）","東西","東西 + cost + (人) + 錢","The bag cost me 500 dollars."],["cost（花錢）","It（事情）","It costs + (人) + 錢 + to V","It costs 30 dollars to take the bus."],["pay（付錢）","人","人 + pay + 錢 + for + 東西","I paid 500 dollars for the bag."]],
+  points:[
+   "先看主詞！主詞是人：spend、pay。主詞是 It 或東西：take、cost。不能說 I take 20 minutes to walk... 也不能說 It spends me...。",
+   "take 只能花「時間」，cost 和 pay 只能用在「錢」，spend 時間和錢都可以。",
+   "spend 後面接 on + 名詞，或直接接 V-ing：spend an hour on homework / spend an hour doing homework，不能接 to V。",
+   "It takes / It costs 後面接 to + 原形動詞：It takes ten minutes to get there.",
+   "三態要背熟：take - took - taken；spend - spent - spent；cost - cost - cost（三態同形）；pay - paid - paid（不是 payed）。",
+   "常考問句：How long does it take to...?（要花多久？）、How much does it cost to...?（要花多少錢？）、How much did you pay for...?（你花多少錢買……？）。pay 的東西前面要加 for。"],
+  ex:[
+   ["It takes me fifteen minutes to get to school by bike.","我騎腳踏車到學校要花十五分鐘。","主詞是虛主詞 It，花時間用 takes，後面接 to get。"],
+   ["Amy spends two hours a day practicing the piano.","艾美每天花兩個小時練鋼琴。","主詞是人，用 spend + 時間 + V-ing。"],
+   ["The new phone cost my dad 20,000 dollars.","那支新手機花了我爸爸兩萬元。","主詞是東西，用 cost + 人 + 錢。cost 的過去式還是 cost。"],
+   ["I paid 120 dollars for the movie ticket.","我付了一百二十元買電影票。","pay + 錢 + for + 東西，過去式是 paid。"],
+   ["How long does it take to fly to Japan?","搭飛機去日本要多久？","問花多少時間：How long does it take to V?"]]},
+{ id:"g2", title:"too…to 和 …enough to",
+  intro:"too + 形容詞 + to V 表示「太……而不能……」，句子裡沒有 not，卻有否定的意思。形容詞 + enough + to V 表示「夠……所以可以……」，是肯定的意思。",
+  table:[["句型","意思","例子"],["too + 形容詞/副詞 + to V","太……而不能……","He is too young to drive."],["too + 形容詞 + for 人 + to V","對某人來說太……而不能……","The box is too heavy for me to carry."],["形容詞/副詞 + enough + to V","夠……可以……","She is old enough to drive."],["enough + 名詞 + to V","有足夠的……可以……","I have enough money to buy it."]],
+  points:[
+   "too…to 本身就是否定的意思，不要再加 not：He is too tired to walk.（他太累了，走不動）。",
+   "enough 的位置是陷阱！形容詞、副詞放在 enough 前面：old enough、fast enough；名詞放在 enough 後面：enough money、enough time。不能說 enough old。",
+   "to 後面一定接原形動詞：too hot to drink，不能說 too hot to drinking。",
+   "too 和 very 不一樣：very 只是「很」，too 是「太過頭、做不到」。The tea is very hot. 還是可以喝；The tea is too hot to drink. 就是不能喝。",
+   "主詞就是要做的那個東西時，to V 後面不要再加 it：The box is too heavy for me to carry.（不說 carry it）。",
+   "改寫題：too + 形容詞 + to V = so + 形容詞 + that + 主詞 + can't；形容詞 + enough + to V = so + 形容詞 + that + 主詞 + can。"],
+  ex:[
+   ["The tea is too hot to drink.","這茶太燙了，不能喝。","too + 形容詞 + to V，表示「太……而不能……」。"],
+   ["This math problem is too difficult for me to solve.","這題數學太難了，我解不出來。","加上 for me 表示「對我來說」。solve 後面不加 it。"],
+   ["Ben is tall enough to reach the top shelf.","班夠高，搆得到最上層的架子。","形容詞 tall 放在 enough 前面。"],
+   ["We don't have enough time to finish the work.","我們沒有足夠的時間完成工作。","名詞 time 放在 enough 後面。"],
+   ["She ran fast enough to catch the bus.","她跑得夠快，趕上了公車。","副詞 fast 也放在 enough 前面。"]]},
+{ id:"g3", title:"疑問詞 + to V：how to、what to、where to、when to",
+  intro:"疑問詞後面加上 to + 原形動詞，就變成一個名詞片語，意思是「該怎麼做、該做什麼、該去哪裡、該什麼時候做」。它常常放在 know、learn、decide、tell、teach、show 這些動詞後面。",
+  table:[["片語","意思","例子"],["how to V","如何……；怎麼……","I don't know how to swim."],["what to V","該……什麼","I don't know what to say."],["where to V","該去哪裡……","Tell me where to go."],["when to V","該什麼時候……","We decided when to leave."],["which (+ 名詞) + to V","該選哪一個……","I can't decide which one to buy."]],
+  points:[
+   "疑問詞 + to V 當名詞用，常放在 know、learn、decide、forget、remember 後面：I learned how to cook.",
+   "也可以放在「動詞 + 人」後面：tell / teach / show / ask + 人 + 疑問詞 + to V：Can you tell me how to get to the station?",
+   "改寫題：疑問詞 + to V = 疑問詞 + 主詞 + should + 原形動詞。I don't know what to do. = I don't know what I should do.",
+   "to 後面一定接原形動詞，不能說 how to swimming、what to bought。",
+   "what to V 的動詞後面不要再加受詞，因為 what 就是受詞：I don't know what to buy.（不說 what to buy it）。",
+   "常考陷阱：沒有 why to 的用法！要說 I don't know why I should go.。"],
+  ex:[
+   ["Can you teach me how to use this app?","你可以教我怎麼用這個應用程式嗎？","teach + 人 + how to V。"],
+   ["I don't know what to buy for Mom's birthday.","我不知道要買什麼給媽媽當生日禮物。","what to V 是「該……什麼」。"],
+   ["Please tell me where to get off the bus.","請告訴我要在哪裡下公車。","tell + 人 + where to V。get off 是「下車」。"],
+   ["We can't decide when to leave for the airport.","我們沒辦法決定什麼時候出發去機場。","decide + when to V。"],
+   ["I don't know which one to choose. = I don't know which one I should choose.","我不知道要選哪一個。","疑問詞 + to V = 疑問詞 + 主詞 + should + 原形動詞。"]]},
+{ id:"g4", title:"使役動詞 make / let / have + 人 + 原形動詞",
+  intro:"使役動詞是「叫別人去做事」的動詞，最常考的有三個：make（迫使）、let（允許）、have（叫、請）。它們有一個超級重要的規則：後面接「人 + 原形動詞」，中間絕對不能加 to！",
+  table:[["使役動詞","意思","公式","例子"],["make","使、迫使（常是不得不做）","make + 人 + 原形動詞","Mom made me clean my room."],["let","讓、允許","let + 人 + 原形動詞","Dad lets me use his laptop."],["have","叫、請（安排別人去做）","have + 人 + 原形動詞","The teacher had us read the story."],["make（+ 形容詞）","使……變得……","make + 人 + 形容詞","The news made me happy."]],
+  points:[
+   "使役動詞 + 人 + 原形動詞，不加 to：make me cry，不能說 make me to cry；let him go，不能說 let him to go。",
+   "人要用受格：let me、make him、have them，不能說 let I。",
+   "時態變化在使役動詞上，後面的原形動詞永遠不變：She made me wash the dishes.（不是 washed）。He lets me go.（不是 goes）。",
+   "三態要記：make - made；let - let（三態同形）；have - had。",
+   "Let's = Let us，用來提議「我們一起……吧」：Let's go to the park.",
+   "比一比：tell、ask、want 後面接「人 + to V」：Mom told me to clean my room.；使役動詞不加 to：Mom made me clean my room.。"],
+  ex:[
+   ["My mom makes me go to bed at ten.","我媽媽要我十點上床睡覺。","make + 人 + 原形 go。"],
+   ["The teacher let us use our phones in class today.","老師今天讓我們在課堂上用手機。","let 的過去式還是 let，後面接原形 use。"],
+   ["Dad had me wash the car last Sunday.","爸爸上星期天叫我洗車。","have 的過去式是 had，後面的 wash 不變。"],
+   ["The sad movie made her cry.","那部悲傷的電影讓她哭了。","made + 人 + 原形 cry，不能說 made her to cry 或 made her cried。"],
+   ["Let me carry the bag for you.","讓我幫你提袋子。","Let me + 原形動詞，表示「讓我來……」。"]]}
+];
+
+/* 文法測驗：[題目, [選項 x4], 正確答案索引, 解析, 文法編號] */
+const J2_2_2_QUIZ = [
+ ["It ___ me twenty minutes to walk to school.",["spends","costs","takes","pays"],2,"主詞是虛主詞 It，花的是「時間」，用 It takes + 人 + 時間 + to V。","g1"],
+ ["I ___ two hours on my homework last night.",["spent","took","cost","paid"],0,"主詞是人 I，花時間用 spend + 時間 + on + 名詞，過去式是 spent。","g1"],
+ ["The new laptop ___ my dad 30,000 dollars.",["took","spent","paid","cost"],3,"主詞是東西 The new laptop，花錢用 cost + 人 + 錢。","g1"],
+ ["How much did you ___ for the ticket?",["cost","pay","spend","take"],1,"後面有 for the ticket，主詞是人 you，用 pay + 錢 + for + 東西。","g1"],
+ ["Amy spends a lot of time ___ online.",["chat","to chat","chatting","chats"],2,"spend + 時間 + V-ing，不能接 to V。","g1"],
+ ["It costs 25 dollars ___ the MRT to the zoo.",["take","to take","taking","took"],1,"It costs + 錢 + to V，所以用 to take。","g1"],
+ ["He ___ 500 dollars for the shoes yesterday.",["payed","pays","spent","paid"],3,"後面有 for the shoes，要用 pay。pay 的過去式是 paid，不是 payed。spend 要搭配 on，不搭配 for。","g1"],
+ ["How long does it ___ you to get to school?",["take","spend","cost","pay"],0,"問「花多久時間」：How long does it take + 人 + to V?","g1"],
+ ["哪一句正確？",["I paid the book 100 dollars.","The book took me 100 dollars.","I spent 100 dollars on the book.","It spent me 100 dollars to buy the book."],2,"人 + spend + 錢 + on + 東西。pay 要說 pay 100 dollars for the book；take 不能花錢；It 當主詞不能用 spend。","g1"],
+ ["Tom is too young ___ a car.",["drive","to drive","driving","drives"],1,"too + 形容詞 + to + 原形動詞。","g2"],
+ ["She is ___ to reach the top shelf. She can get the book.",["enough tall","tall too","tall enough","too tall"],2,"她拿得到書，是肯定的意思，用「形容詞 + enough + to V」，tall 要放在 enough 前面。","g2"],
+ ["The box is too heavy for me to ___.",["carry","carry it","carrying","carried"],0,"主詞 The box 就是要搬的東西，to carry 後面不要再加 it。","g2"],
+ ["I don't have ___ to buy the game.",["money enough","enough money","too money","money too"],1,"名詞要放在 enough 後面：enough money。","g2"],
+ ["The tea is ___ hot to drink. Let's wait a minute.",["very","enough","so","too"],3,"「太燙而不能喝」用 too + 形容詞 + to V。very 和 so 不能直接接 to V。","g2"],
+ ["He ran fast ___ to catch the bus.",["too","very","enough","so"],2,"副詞 fast + enough + to V，表示「跑得夠快，可以……」。","g2"],
+ ["The question is so difficult that I can't answer it. = The question is ___ difficult for me ___ answer.",["too / to","enough / to","so / to","very / that"],0,"so + 形容詞 + that + 主詞 + can't = too + 形容詞 + to V。","g2"],
+ ["Is the park near ___ to walk to?",["too","enough","very","much"],1,"「夠近，可以走路去」用 near enough to V。","g2"],
+ ["哪一句正確？",["He is enough strong to carry the box.","He is strong enough to carries the box.","He is too strong carry the box.","He is strong enough to carry the box."],3,"形容詞放在 enough 前面，to 後面接原形 carry。","g2"],
+ ["I don't know ___ to use this app.",["why","who","what","how"],3,"「怎麼用」是 how to use。use 後面已經有受詞 this app，所以不能用 what。英文沒有 why to 的用法。","g3"],
+ ["Can you tell me where ___ the bus?",["take","taking","to take","took"],2,"疑問詞 + to + 原形動詞：where to take。","g3"],
+ ["We can't decide ___ to eat for dinner.",["how","what","where","when"],1,"「該吃什麼」用 what to eat。","g3"],
+ ["Please tell me ___ to leave. Is seven o'clock OK?",["what","how","which","when"],3,"後面在問時間，「什麼時候該出發」用 when to leave。","g3"],
+ ["I don't know what to do. = I don't know what I ___ do.",["should","can't","am","did"],0,"疑問詞 + to V = 疑問詞 + 主詞 + should + 原形動詞。","g3"],
+ ["Mom showed me how ___ dumplings.",["make","to make","making","made"],1,"how + to + 原形動詞：how to make。","g3"],
+ ["I don't know ___ one to choose, the red one or the blue one.",["what","where","which","how"],2,"在幾個選項中「選哪一個」，用 which one to V。","g3"],
+ ["哪一句正確？",["I don't know what to say it.","I don't know what to say.","I don't know what saying.","I don't know what to said."],1,"what 已經是 say 的受詞，後面不能再加 it；to 後面要用原形 say。","g3"],
+ ["The teacher taught us ___ to write an email.",["what","which","why","how"],3,"「教我們怎麼寫」用 how to write。write 後面已經有 an email，不能再用 what。","g3"],
+ ["Mom made me ___ my room.",["clean","to clean","cleaning","cleaned"],0,"make + 人 + 原形動詞，不能加 to。","g4"],
+ ["Dad let me ___ his laptop yesterday.",["used","to use","use","using"],2,"let + 人 + 原形動詞。yesterday 是過去，但時態已經表現在 let 上，use 保持原形。","g4"],
+ ["The teacher had us ___ the story aloud.",["reading","read","to read","reads"],1,"have + 人 + 原形動詞：had us read。","g4"],
+ ["The movie made me ___.",["sadly","to cry","sad","crying"],2,"make + 人 + 形容詞：made me sad。也可以說 made me cry，但不能加 to，也不能用 crying。","g4"],
+ ["Please let ___ help you.",["I","my","mine","me"],3,"let 後面的人要用受格 me。","g4"],
+ ["Mom ___ me do the dishes every night.",["makes","tells","asks","wants"],0,"後面是 me + 原形 do，要用使役動詞 makes。tells、asks、wants 後面要接 me to do。","g4"],
+ ["Mom told me ___ my homework first.",["do","to do","doing","did"],1,"tell 不是使役動詞，要用 tell + 人 + to V。","g4"],
+ ["___ go to the library together.",["Let's","Let","Lets","Let we"],0,"Let's = Let us，用來提議「我們一起……吧」。","g4"],
+ ["哪一句正確？",["My parents let me to go out.","My parents let me goes out.","My parents made me stay home.","My parents made me stayed home."],2,"使役動詞 + 人 + 原形動詞：made me stay，不加 to，也不用過去式或加 s。","g4"]
+];
+
+/* =========================================================
+   上課模式腳本（安安老師）
+   say：老師講的話，{ } 裡面用英文語音唸
+   board：黑板內容 [英文, [要標亮的字], 是否為錯誤示範]
+   chant：口訣
+   ask：隨堂提問，答錯會有針對性的回饋，再給一題 again 練習
+   ========================================================= */
+const J2_2_2_CLASS = {
+g1:[
+ {say:"哈囉同學！安安老師先問你：「我花了二十分鐘走路上學」、「我花了五百元買包包」，兩個都是「花」，英文是同一個字嗎？答案是：不一定！英文的「花」有四個：{take}、{spend}、{cost}、{pay}。", board:[["take   spend   cost   pay",["take","spend","cost","pay"]]]},
+ {say:"分辨它們的第一招：看主詞！主詞是「人」，用 {spend} 或 {pay}；主詞是 {It} 或「東西」，用 {take} 或 {cost}。", board:[["人 → spend / pay",["spend","pay"]],["It / 東西 → take / cost",["take","cost"]]]},
+ {say:"第二招：看花的是什麼。花「時間」用 take、spend；花「錢」用 cost、spend、pay。spend 最萬用，時間和錢都可以花！來，口訣先記起來！", chant:"人花 spend、pay，It 花 take、cost；時間 take，錢 cost，spend 兩樣都能花！"},
+ {say:"先看 {take}：{It takes me twenty minutes to walk to school.} 公式是 It takes + 人 + 時間 + to V。It 是虛主詞，真正的主角是後面的 to walk to school。", board:[["It takes me twenty minutes to walk to school.",["It","takes","to walk"]],["I take twenty minutes to walk to school.",[],true]]},
+ {ask:{say:"換你試試！", q:"It ___ me an hour to finish my homework.", opts:["spends","takes","costs"], ans:1,
+   ok:"答對了！主詞是 It，花的是時間 an hour，用 takes。",
+   bad:{0:"spend 的主詞要是「人」，這裡主詞是 It，要用 takes。",2:"cost 是花「錢」，an hour 是時間，要用 takes。"},
+   again:{q:"How long does it ___ to get to the airport?", opts:["take","cost","pay"], ans:0, exp:"問花多久時間：How long does it take to V?"}}},
+ {say:"再來是 {spend}，主詞是人。後面有兩種接法：spend + 時間或錢 + {on} + 名詞，或是 spend + 時間或錢 + {V-ing}。{I spend two hours on my homework.} {I spend two hours doing my homework.}", board:[["I spend two hours on my homework.",["spend","on"]],["I spend two hours doing my homework.",["spend","doing"]],["I spend two hours to do my homework.",[],true]]},
+ {ask:{q:"Ken spends a lot of time ___ video games.", opts:["to play","play","playing"], ans:2,
+   ok:"很棒！spend + 時間 + V-ing，所以是 playing。",
+   bad:{0:"spend 後面不能接 to V，要用 V-ing：playing。",1:"spend + 時間後面要接 V-ing，原形 play 不對。"},
+   again:{q:"She spent 500 dollars ___ a new bag.", opts:["for","on","to"], ans:1, exp:"spend + 錢 + on + 東西。"}}},
+ {say:"第三個 {cost}，主詞是東西或 It，只能花錢。{The bag cost me 500 dollars.} {It costs 30 dollars to take the bus.} 特別注意，cost 是三態同形，過去式還是 cost！", board:[["The bag cost me 500 dollars.",["cost"]],["It costs 30 dollars to take the bus.",["costs","to take"]],["cost - cost - cost",["cost"]]]},
+ {say:"最後是 {pay}，主詞是人，公式是 pay + 錢 + {for} + 東西：{I paid 500 dollars for the bag.} 過去式是 {paid}，不是 payed 喔！", board:[["I paid 500 dollars for the bag.",["paid","for"]],["I payed 500 dollars for the bag.",[],true]]},
+ {ask:{q:"How much did you ___ for your new shoes?", opts:["cost","pay","take"], ans:1,
+   ok:"太好了！主詞是人 you，後面有 for，用 pay。",
+   bad:{0:"cost 的主詞是東西，這裡主詞是 you，要用 pay。",2:"take 是花時間，這裡問錢，而且後面有 for，要用 pay。"},
+   again:{q:"Dad ___ 300 dollars for the pizza.", opts:["paid","payed","cost"], ans:0, exp:"pay 的過去式是 paid。"}}},
+ {say:"把四個字放在一起比一比，這張表一定要抄下來！", board:[["It takes + 人 + 時間 + to V",["takes"]],["人 + spend + 時間/錢 + on N / V-ing",["spend"]],["東西 + cost + 人 + 錢 / It costs + 錢 + to V",["cost","costs"]],["人 + pay + 錢 + for + 東西",["pay"]]]},
+ {ask:{say:"最後一題，考試最愛的陷阱！", q:"哪一句是正確的？", opts:["The book took me 200 dollars.","I paid 200 dollars on the book.","I spent 200 dollars on the book."], ans:2,
+   ok:"完美！人 + spend + 錢 + on + 東西。",
+   bad:{0:"take 只能花時間，花錢要用 cost：The book cost me 200 dollars.",1:"pay 要搭配 for：I paid 200 dollars for the book."},
+   again:{q:"哪一句是正確的？", opts:["It costs 50 dollars to take the bus.","It spends 50 dollars to take the bus.","I cost 50 dollars to take the bus."], ans:0, exp:"It costs + 錢 + to V。spend 的主詞要是人，cost 的主詞不能是人。"}}},
+ {say:"四個「花」過關！複習口訣：人花 spend、pay，It 花 take、cost；時間 take，錢 cost，spend 兩樣都能花。spend 接 on 或 V-ing，pay 接 for，It takes、It costs 接 to V。去文法測驗試試看吧！", end:true}
+],
+g2:[
+ {say:"同學好！如果安安老師說「這杯茶太燙了，不能喝」，英文要怎麼說？是 {The tea is very hot.} 嗎？這樣只有說「很燙」，沒有說「不能喝」喔。", board:[["The tea is very hot.",["very"]],["The tea is too hot to drink.",["too","to drink"]]]},
+ {say:"答案是 {The tea is too hot to drink.} 公式是 too + 形容詞 + to V，意思是「太……而不能……」。神奇的是，句子裡沒有 not，卻有「不能」的意思！", board:[["too + 形容詞 + to V",["too","to"]],["He is too young to drive.",["too young","to drive"]]]},
+ {say:"所以千萬不要再加 not！{He is too tired to walk.} 就是「他太累了，走不動」。", board:[["He is too tired to walk.",["too","to walk"]],["He is too tired not to walk.",[],true]]},
+ {say:"口訣唸起來！", chant:"too 加 to，太過頭，做不到！"},
+ {ask:{say:"換你選！", q:"The box is too heavy ___.", opts:["to carry","carrying","not to carry"], ans:0,
+   ok:"答對！too + 形容詞 + to + 原形 carry。",
+   bad:{1:"too 後面要接 to + 原形動詞，不能用 V-ing。",2:"too...to 本身就是否定，不要再加 not！"},
+   again:{q:"Lisa is too sick ___ to school.", opts:["go","to go","going"], ans:1, exp:"too + 形容詞 + to + 原形動詞：too sick to go。"}}},
+ {say:"想說「對誰來說」太難，就在中間加 {for} + 人：{The question is too difficult for me to answer.} 還有一個小細節：主詞就是要回答的東西，所以 answer 後面不要再加 it！", board:[["The question is too difficult for me to answer.",["for me","to answer"]],["The question is too difficult for me to answer it.",[],true]]},
+ {say:"接下來是好消息版本：形容詞 + {enough} + to V，「夠……所以可以……」。{She is old enough to drive.} 她年紀夠大，可以開車了！", board:[["形容詞 + enough + to V",["enough"]],["She is old enough to drive.",["old enough","to drive"]]]},
+ {say:"enough 的位置是考試最愛的陷阱！形容詞放在 enough 的前面，名詞放在 enough 的後面：{old enough}、{enough money}。", board:[["old enough   fast enough",["old enough","fast enough"]],["enough money   enough time",["enough money","enough time"]],["enough old",[],true]]},
+ {say:"跟老師唸！", chant:"形容詞在 enough 前，名詞在 enough 後！"},
+ {ask:{q:"Ben is ___ to reach the top shelf.", opts:["enough tall","tall enough","too tall"], ans:1,
+   ok:"太棒了！形容詞 tall 要放在 enough 前面。",
+   bad:{0:"位置反了！形容詞要放在 enough 前面：tall enough。",2:"too tall to reach 是「太高而搆不到」，意思不合理喔。"},
+   again:{q:"I don't have ___ to buy the game.", opts:["money enough","enough money","too money"], ans:1, exp:"名詞放在 enough 後面：enough money。"}}},
+ {say:"考試還很愛考改寫：too + 形容詞 + to V 等於 so + 形容詞 + that + 主詞 + {can't}；形容詞 + enough + to V 等於 so + 形容詞 + that + 主詞 + {can}。", board:[["He is too tired to walk.",["too","to"]],["= He is so tired that he can't walk.",["so","that","can't"]],["She is old enough to drive.",["enough","to"]],["= She is so old that she can drive.",["so","that","can"]]]},
+ {ask:{q:"The tea is so hot that I can't drink it. = The tea is ___ hot for me to drink.", opts:["very","enough","too"], ans:2,
+   ok:"正確！so...that...can't 可以改成 too...to。",
+   bad:{0:"very 只是「很」，沒有「不能」的意思，也不能接 to V。",1:"enough 要放在形容詞後面，而且是「夠……可以」，意思相反了。"},
+   again:{q:"He is so strong that he can carry the box. = He is strong ___ to carry the box.", opts:["too","enough","so"], ans:1, exp:"so...that...can 改成 形容詞 + enough + to V。"}}},
+ {say:"too…to 和 enough to 都過關了！複習：too 加 to，太過頭，做不到，不要再加 not；形容詞在 enough 前，名詞在 enough 後；主詞就是受詞時，to V 後面不加 it。", end:true}
+],
+g3:[
+ {say:"同學好！你有沒有遇過這種情況：拿到新手機，卻「不知道怎麼用」？英文可以說 {I don't know how to use it.} 今天的主角就是這個 {how to}！", board:[["I don't know how to use it.",["how to use"]]]},
+ {say:"公式超簡單：疑問詞 + to + 原形動詞。它就變成一個名詞片語，可以放在 know、learn、decide 這些動詞後面。", board:[["疑問詞 + to + 原形動詞",["to"]],["I learned how to swim.",["how to swim"]]]},
+ {say:"四個最常考的：{how to} 怎麼做、{what to} 該做什麼、{where to} 該去哪裡、{when to} 該什麼時候。還有 {which to}，該選哪一個。", board:[["how to swim 怎麼游泳",["how to"]],["what to say 該說什麼",["what to"]],["where to go 該去哪裡",["where to"]],["when to leave 什麼時候該離開",["when to"]]]},
+ {say:"編成口訣一起唸！", chant:"how 怎麼、what 什麼、where 哪裡、when 何時，後面加上 to 原形！"},
+ {ask:{q:"I don't know ___ to say.", opts:["how","what","where"], ans:1,
+   ok:"答對！「不知道該說什麼」是 what to say。",
+   bad:{0:"how to say 是「怎麼說」，可是 say 後面沒有要說的東西，這裡要問「說什麼」，用 what。",2:"where to 是「去哪裡」，和 say 搭不起來。"},
+   again:{q:"Can you tell me ___ to go? I'm lost.", opts:["where","what","when"], ans:0, exp:"迷路了，要問「該去哪裡」：where to go。"}}},
+ {say:"疑問詞 + to V 也常常放在「動詞 + 人」的後面：{Can you tell me how to get to the station?} {Mom taught me how to cook.}", board:[["Can you tell me how to get to the station?",["tell me","how to get"]],["Mom taught me how to cook.",["taught me","how to cook"]]]},
+ {say:"小心！to 後面一定是原形動詞：{how to swim}，不能說 how to swimming。", board:[["how to swim",["to swim"]],["how to swimming",[],true]]},
+ {ask:{q:"Dad showed me how ___ the bike.", opts:["fixing","to fix","fixed"], ans:1,
+   ok:"讚！how + to + 原形 fix。",
+   bad:{0:"to 不能省略，而且後面要用原形：how to fix。",2:"疑問詞後面要接 to + 原形動詞，不能用過去式。"},
+   again:{q:"We can't decide when ___.", opts:["to leave","leave","leaving"], ans:0, exp:"when + to + 原形動詞：when to leave。"}}},
+ {say:"考試最愛考改寫：疑問詞 + to V，可以改成「疑問詞 + 主詞 + {should} + 原形動詞」。{I don't know what to do.} 等於 {I don't know what I should do.}", board:[["I don't know what to do.",["what to do"]],["= I don't know what I should do.",["what I should do"]]]},
+ {ask:{q:"Please tell me where to buy tickets. = Please tell me where I ___ buy tickets.", opts:["should","shouldn't","to"], ans:0,
+   ok:"正確！where to buy = where I should buy。",
+   bad:{1:"shouldn't 是「不應該」，意思完全相反了。",2:"改寫後要用 should，不能再用 to。"},
+   again:{q:"I don't know what I should wear. = I don't know what ___ wear.", opts:["to","should","I"], ans:0, exp:"what I should wear = what to wear。"}}},
+ {say:"兩個陷阱要小心！第一，what 本身就是受詞，後面不要再加 it：{I don't know what to buy.} 第二，英文沒有 why to！", board:[["I don't know what to buy.",["what to buy"]],["I don't know what to buy it.",[],true],["I don't know why to go.",[],true]]},
+ {ask:{say:"最後挑戰！", q:"哪一句是正確的？", opts:["I don't know what to do it.","I don't know which one to choose.","I don't know how to doing it."], ans:1,
+   ok:"完美！which one to choose 是「該選哪一個」。",
+   bad:{0:"what 已經是 do 的受詞了，後面不能再加 it。",2:"to 後面要用原形動詞：how to do it。"},
+   again:{q:"哪一句是正確的？", opts:["Tell me when to start.","Tell me when to started.","Tell me when start."], ans:0, exp:"when + to + 原形動詞：when to start。"}}},
+ {say:"疑問詞 + to V 過關！複習口訣：how 怎麼、what 什麼、where 哪裡、when 何時，後面加上 to 原形。還有：疑問詞 + to V = 疑問詞 + 主詞 + should + 原形動詞，而且沒有 why to！", end:true}
+],
+g4:[
+ {say:"同學好！在家裡是不是常聽到：「媽媽叫我整理房間」、「爸爸讓我玩手機」？英文要用「使役動詞」：{make}、{let}、{have}，它們專門用來叫別人做事！", board:[["make   let   have",["make","let","have"]]]},
+ {say:"先記住它們的個性：{make} 是「迫使」，常常是不得不做；{let} 是「允許、讓」；{have} 是「叫、請」，安排別人去做。", board:[["Mom made me clean my room.",["made"]],["Dad lets me play games.",["lets"]],["The teacher had us read the story.",["had"]]]},
+ {say:"最重要的規則來了！使役動詞 + 人 + {原形動詞}，中間絕對不能加 to！", board:[["Mom made me clean my room.",["made me clean"]],["Mom made me to clean my room.",[],true]]},
+ {say:"口訣大聲唸三遍！", chant:"make、let、have，叫人做事，後面原形不加 to！"},
+ {ask:{say:"換你選！", q:"My mom made me ___ the dishes.", opts:["wash","to wash","washing"], ans:0,
+   ok:"答對！make + 人 + 原形 wash，不加 to。",
+   bad:{1:"使役動詞後面不能加 to！要說 made me wash。",2:"使役動詞後面接原形動詞，不能用 V-ing。"},
+   again:{q:"Dad lets me ___ his laptop.", opts:["using","to use","use"], ans:2, exp:"let + 人 + 原形 use。"}}},
+ {say:"時態只改在使役動詞身上，後面的原形動詞永遠不變。make 的過去式是 {made}，have 是 {had}，let 三態同形還是 {let}。", board:[["She made me wash the car.",["made","wash"]],["She made me washed the car.",[],true],["He lets me go. / He let me go yesterday.",["lets","let","go"]]]},
+ {ask:{q:"Yesterday the teacher had us ___ a story.", opts:["wrote","write","writing"], ans:1,
+   ok:"讚！had 已經表示過去了，後面的 write 保持原形。",
+   bad:{0:"過去的時間只表現在 had 上，後面的動詞要用原形 write。",2:"have + 人 + 原形動詞，不能用 V-ing。"},
+   again:{q:"Mom let me ___ to the movies last night.", opts:["go","went","to go"], ans:0, exp:"let + 人 + 原形 go，過去式表現在 let 上。"}}},
+ {say:"使役動詞後面的人要用「受格」：{let me}、{make him}、{have them}。最常聽到的 {Let's} 就是 Let us 的縮寫，用來提議「我們一起……吧」：{Let's go!}", board:[["Let me help you.",["me"]],["Let I help you.",[],true],["Let's go to the park.",["Let's"]]]},
+ {ask:{q:"Please let ___ try.", opts:["I","me","my"], ans:1,
+   ok:"正確！let 後面的人要用受格 me。",
+   bad:{0:"I 是主格，放在 let 後面要用受格 me。",2:"my 是所有格，後面要接名詞，這裡要用受格 me。"},
+   again:{q:"Mom made ___ clean the kitchen.", opts:["they","them","their"], ans:1, exp:"make 後面的人用受格 them。"}}},
+ {say:"make 還有一個用法：make + 人 + 形容詞，「使某人變得……」：{The news made me happy.} {Tests make me nervous.}", board:[["The news made me happy.",["made me happy"]],["Tests make me nervous.",["make me nervous"]]]},
+ {say:"最後比一比，最容易混淆！tell、ask、want 不是使役動詞，後面要接人 + {to V}；make、let、have 才是不加 to。", board:[["Mom told me to clean my room.",["told","to clean"]],["Mom made me clean my room.",["made","clean"]]]},
+ {say:"比較的口訣也記下來！", chant:"tell、ask、want 要加 to，make、let、have 不加 to！"},
+ {ask:{say:"最後挑戰，考試最愛考！", q:"哪一句是正確的？", opts:["Mom asked me clean my room.","Mom made me to clean my room.","Mom made me clean my room."], ans:2,
+   ok:"完美！make + 人 + 原形 clean。",
+   bad:{0:"ask 不是使役動詞，要說 asked me to clean。",1:"make 是使役動詞，後面不加 to。"},
+   again:{q:"哪一句是正確的？", opts:["Dad told me go to bed.","Dad told me to go to bed.","Dad made me to go to bed."], ans:1, exp:"tell + 人 + to V；make + 人 + 原形，不加 to。"}}},
+ {say:"恭喜你！國二下學期第二次段考的文法全部上完了！最後複習：make、let、have，叫人做事，後面原形不加 to；tell、ask、want 要加 to。去文法測驗大顯身手吧！", end:true}
+]};
+
+Object.assign(PH, {
+  smartphone:"sm:blend ar:ar t:c ph:ph o:o_e n:c e:silent_e", computer:"c:c o:schwa m:c p:c u:long_u t:c er:er",
+  internet:"i:short_i n:c t:c er:er n:c e:short_e t:c", online:"o:short_o n:c l:c i:i_e n:c e:silent_e",
+  app:"a:short_a pp:double", message:"m:c e:short_e ss:double a:schwa g:soft_g e:silent_e",
+  download:"d:c ow:ow_ou n:c l:c oa:oa d:c", website:"w:c e:short_e b:c s:c i:i_e t:c e:silent_e",
+  email:"e:long_e m:c ai:ai l:c", password:"p:c a:short_a ss:double w:c or:schwa_r d:c",
+  screen:"scr:blend ee:ee n:c", video:"v:c i:short_i d:c e:long_e o:long_o",
+  laptop:"l:c a:short_a p:c t:c o:short_o p:c", battery:"b:c a:short_a tt:double er:er y:y_i",
+  text:"t:c e:short_e x:x_ks t:c", distance:"d:c i:short_i st:blend a:schwa n:c c:soft_c e:silent_e",
+  traffic:"tr:blend a:short_a ff:double i:short_i c:c", "parking lot":"p:c ar:ar k:c i:short_i ng:ng _:space l:c o:short_o t:c",
+  highway:"h:c igh:igh w:c ay:ay", crosswalk:"cr:blend o:short_o ss:double w:c a:exc l:silent k:c",
+  far:"f:c ar:ar", near:"n:c ear:ear", second:"s:c e:short_e c:c o:schwa n:c d:c",
+  arrive:"a:schwa rr:double i:i_e v:c e:silent_e", leave:"l:c ea:ea v:c e:silent",
+  "on foot":"o:short_o n:c _:space f:c oo:oo_s t:c", kilometer:"k:c i:short_i l:c o:schwa m:c e:long_e t:c er:er",
+  spend:"sp:blend e:short_e n:c d:c", save:"s:c a:a_e v:c e:silent_e", fare:"f:c are:are",
+  change:"ch:ch a:long_a n:c g:soft_g e:silent_e", allowance:"a:schwa ll:double ow:ow_ou a:schwa n:c c:soft_c e:silent_e",
+  coin:"c:c oi:oi n:c", wallet:"w:c a:exc ll:double e:schwa t:c", bank:"b:c a:short_a nk:nk",
+  earn:"ear:exc n:c", "piggy bank":"p:c i:short_i gg:double y:y_i _:space b:c a:short_a nk:nk", borrow:"b:c o:short_o rr:double ow:ow_o",
+  lend:"l:c e:short_e n:c d:c", goal:"g:c oa:oa l:c", learn:"l:c ear:exc n:c",
+  mistake:"m:c i:short_i st:blend a:a_e k:c e:silent_e", explain:"e:schwa x:x_ks pl:blend ai:ai n:c",
+  understand:"u:short_u n:c d:c er:er st:blend a:short_a n:c d:c", remember:"r:c e:schwa m:c e:short_e m:c b:c er:er",
+  forget:"f:c or:schwa_r g:c e:short_e t:c", solve:"s:c o:short_o l:c v:c e:silent",
+  problem:"pr:blend o:short_o b:c l:c e:schwa m:c", idea:"i:long_i d:c e:long_e a:schwa", let:"l:c e:short_e t:c",
+  information:"i:short_i n:c f:c or:schwa_r m:c a:long_a tion:tion", television:"t:c e:short_e l:c e:schwa v:c i:short_i sion:exc",
+  decision:"d:c e:schwa c:soft_c i:short_i sion:exc", discussion:"d:c i:short_i s:c c:c u:short_u ssion:exc",
+  direction:"d:c i:long_i r:c e:short_e c:c tion:tion", curious:"c:c u:long_u r:c i:long_e ou:schwa s:c",
+  various:"v:c a:exc r:c i:long_e ou:schwa s:c", positive:"p:c o:short_o s:s_z i:schwa t:c i:short_i v:c e:silent",
+  active:"a:short_a c:c t:c i:short_i v:c e:silent", generous:"g:soft_g e:short_e n:c er:er ou:schwa s:c",
+  creative:"cr:blend e:long_e a:long_a t:c i:short_i v:c e:silent", technology:"t:c e:short_e ch:ch_k n:c o:short_o l:c o:schwa g:soft_g y:y_i",
+  practical:"pr:blend a:short_a c:c t:c i:short_i c:c a:schwa l:c", convenient:"c:c o:schwa n:c v:c e:long_e n:c ie:exc n:c t:c",
+  simple:"s:c i:short_i m:c p:c le:le"
+});
+Object.assign(EXC_NOTE, {
+  various:"a 在 r 前面常唸 /ɛ/，像 parent、Mary，所以 various 唸 /ˈvɛriəs/。",
+  convenient:"ie 在 convenient 裡唸 /jə/，像「耶」輕輕帶過：con-VEN-ient。",
+  crosswalk:"walk 的 a 唸 /ɔ/，後面的 l 不發音，所以 crosswalk 唸 /ˈkrɔsˌwɔk/。talk、walk 都是這樣。",
+  wallet:"w 後面的 a 常唸 /ɑ/，像 want、watch、wallet，不唸短 a /æ/。",
+  earn:"ear 在 earn、learn、early 裡不唸「一爾」，而是唸捲舌的 /ɝ/，和 her、bird 的母音一樣。",
+  learn:"ear 在 learn 裡唸捲舌的 /ɝ/，不唸 ear（耳朵）的 /ɪr/。",
+  television:"母音後面的 sion 唸 /ʒən/，像「巡」帶一點震動；television 的重音在第一個音節 TEL，是例外。",
+  decision:"母音 i 後面的 sion 唸 /ʒən/，喉嚨要震動；重音在 sion 前面的 ci：de-CI-sion。",
+  discussion:"ssion（兩個 s）一定唸無聲的 /ʃən/，和 tion 一樣；重音在前面的 cus：dis-CUS-sion。"
+});
+/* ---------- 4 堂自然發音課（安安老師） ---------- */
+const J2_2_2_PHONICS = [
+  {id:"p1", title:"字尾 -tion /ʃən/ 和 -sion /ʒən/、/ʃən/"},
+  {id:"p2", title:"字尾 -ous /əs/ 和 -ive /ɪv/"},
+  {id:"p3", title:"字家族的重音搬家：photo → photographer"},
+  {id:"p4", title:"口語縮讀：wanna、gonna、hafta"}
+];
+const J2_2_2_PHONICS_CLASS = {
+p1:[
+ {say:"同學好！今天要認識一個很常見的字尾：<<tion>>。國一學過的 {station}、{vacation} 都有它。tion 不照字母唸，整組唸 /ʃən/，像中文的「遜」！", board:[["station   vacation",["tion","tion"],false,true],["information",["tion"],false,true]]},
+ {say:"這個單元的 {information}、{direction} 也是 tion 結尾。t 在這裡不唸 /t/，變成 /ʃ/，像要別人安靜的「噓」。", board:[["information",["tion"],false,true],["direction",["tion"],false,true]]},
+ {say:"口訣先記！", chant:"tion 唸「遜」，t 變成噓！"},
+ {ask:{say:"聽聽看！", q:"information 的 tion 唸什麼？", opts:["/tɪɑn/","/ʃən/","/ʒən/"], ans:1,
+   ok:"答對！tion 整組唸 /ʃən/，像「遜」。",
+   bad:{0:"tion 不能一個字母一個字母唸，整組唸 /ʃən/。",2:"/ʒən/ 是母音後面的 sion 的唸法，tion 一律唸 /ʃən/。"},
+   again:{q:"direction 的字尾唸什麼？", opts:["/ʃən/","/tən/","/ʒən/"], ans:0, exp:"tion 唸 /ʃən/。"}}},
+ {say:"接下來是 <<sion>>，它有兩種唸法！第一種：前面是母音，sion 唸有聲的 /ʒən/，喉嚨要震動，像 {television}、{decision}。", board:[["television",["sion"],false,true],["decision",["sion"],false,true]]},
+ {say:"第二種：前面是 <<ss>> 或子音 l、n，sion 唸無聲的 /ʃən/，跟 tion 一樣，像 {discussion}，還有 {mansion}（大豪宅）。", board:[["discussion",["ssion"],false,true],["mansion",["sion"],false,true]]},
+ {say:"把 sion 的規則編成口訣！", chant:"母音加 sion 喉嚨震，ss 加 sion 輕輕噓！"},
+ {ask:{q:"decision 的 sion 唸什麼？", opts:["/ʃən/","/sɪɑn/","/ʒən/"], ans:2,
+   ok:"讚！sion 前面是母音 i，所以唸有聲的 /ʒən/。",
+   bad:{0:"sion 前面是母音 i，要唸有聲的 /ʒən/，喉嚨會震動。",1:"sion 要整組唸，不能拆開唸。"},
+   again:{q:"discussion 的 ssion 唸什麼？", opts:["/ʒən/","/ʃən/","/sən/"], ans:1, exp:"ss 後面的 sion 唸無聲的 /ʃən/。"}}},
+ {say:"還有一個很好用的秘密：tion、sion 結尾的字，重音幾乎都在它前面那個音節！{in-for-MA-tion}、{de-CI-sion}、{di-REC-tion}、{dis-CUS-sion}。", board:[["informAtion",["A"],false,true],["decIsion",["I"],false,true],["dirEction",["E"],false,true]]},
+ {ask:{q:"information 的重音在哪裡？", opts:["IN","FOR","MA"], ans:2,
+   ok:"太好了！重音在 tion 前面的音節：in-for-MA-tion。",
+   bad:{0:"重音不在第一個音節喔，tion 前面的 MA 才是重音。",1:"for 在這裡要輕輕唸，重音在 tion 前面的 MA。"},
+   again:{q:"decision 的重音在哪裡？", opts:["DE","CI","SION"], ans:1, exp:"sion 前面的 CI 是重音：de-CI-sion。"}}},
+ {say:"不過有一個大例外：{television}！它的重音在第一個音節 TEL：{TEL-e-vi-sion}。這個字要特別記。", board:[["TELevision",["TEL"],false,true]]},
+ {say:"最後一個小技巧：tion、sion 是名詞的字尾。看到 decide 的名詞是 {decision}，discuss 的名詞是 {discussion}，direct 的名詞是 {direction}，拼字就不會錯！", board:[["decide → decision",["sion"],false,true],["discuss → discussion",["ssion"],false,true],["direct → direction",["tion"],false,true]]},
+ {ask:{say:"最後一題！", q:"decide 的名詞怎麼拼？", opts:["decition","decision","decidsion"], ans:1,
+   ok:"完美！decide 去掉 de 換成 sion：decision。",
+   bad:{0:"聲音是有聲的 /ʒən/，要拼 sion：decision。",2:"d 要去掉，直接拼 decision。"},
+   again:{q:"inform 的名詞怎麼拼？", opts:["informasion","information","informtion"], ans:1, exp:"inform + ation：information，唸 /ʃən/ 拼 tion。"}}},
+ {say:"tion、sion 過關！記住：tion 唸「遜」；母音加 sion 喉嚨震，ss 加 sion 輕輕噓；重音在 tion、sion 前面一個音節，television 例外。下一課來認識 -ous 和 -ive！", end:true}
+],
+p2:[
+ {say:"今天要學兩個形容詞的字尾：<<ous>> 和 <<ive>>！看到它們，你就知道這個字很可能是形容詞。先聽 ous：{generous}、{curious}、{various}。", board:[["generous   curious",["ous","ous"],false,true],["various",["ous"],false,true]]},
+ {say:"ous 有三個字母，可是只唸輕輕的 /əs/，像「餓斯」很快帶過。o 和 u 合起來變成一個弱音，不要唸成「歐屋斯」！", board:[["generous = gen-er-ous /ˈdʒɛnərəs/",["ous"],false,true],["curious = cu-ri-ous",["ous"],false,true]]},
+ {say:"口訣先唸！", chant:"ous 輕輕唸 /əs/，三個字母一個音！"},
+ {ask:{q:"generous 的 ous 唸什麼？", opts:["/aʊs/","/əs/","/oʊs/"], ans:1,
+   ok:"答對！ous 輕輕唸 /əs/。",
+   bad:{0:"ou 在 house 裡唸 /aʊ/，可是在字尾 ous 要輕輕唸 /əs/。",2:"ous 不唸長 o，要輕輕帶過唸 /əs/。"},
+   again:{q:"curious 的 ous 唸什麼？", opts:["/əs/","/us/","/aʊs/"], ans:0, exp:"ous 一律輕輕唸 /əs/。"}}},
+ {say:"小心拼字！ous 聽起來和 us 一樣，可是形容詞字尾要拼 <<ous>>，不能少了 o：{generous}，不是 generus。", board:[["generous",["ous"],false,true],["generus",[],true]]},
+ {ask:{q:"curi ＿＿＿（好奇的）字尾要填？", opts:["us","ous","ose"], ans:1,
+   ok:"讚！curi + ous = curious。",
+   bad:{0:"聲音很像，可是形容詞字尾要拼 ous。",2:"ose 是像 nose 的拼法，形容詞字尾要拼 ous。"},
+   again:{q:"vari ＿＿＿（各式各樣的）字尾要填？", opts:["ous","us","is"], ans:0, exp:"various，字尾拼 ous。"}}},
+ {say:"接下來是 <<ive>>：{active}、{creative}、{positive}。注意！ive 的 i 唸短短的 /ɪ/，e 不發音，整組唸 /ɪv/。", board:[["active   creative",["ive","ive"],false,true],["positive",["ive"],false,true]]},
+ {say:"這是一個大陷阱！你學過魔法 e，像 {five}、{drive}、{arrive} 的 i 唸 I。可是 ive 當字尾、而且不是重音的時候，魔法 e 就失靈了，i 只唸短短的 /ɪ/！", board:[["five   drive   arrive → /aɪv/",["ive","ive","ive"],false,true],["active   positive → /ɪv/",["ive","ive"],false,true]]},
+ {say:"把它編成口訣！", chant:"字尾 ive 不重讀，魔法 e 失靈唸 /ɪv/！"},
+ {ask:{q:"positive 的 ive 唸什麼？", opts:["/aɪv/","/ɪv/","/iv/"], ans:1,
+   ok:"太棒了！形容詞字尾 ive 唸短短的 /ɪv/。",
+   bad:{0:"/aɪv/ 是 five、arrive 的唸法，字尾 ive 不重讀時唸 /ɪv/。",2:"不要拉長音，ive 的 i 是短短的 /ɪ/。"},
+   again:{q:"哪一個字的 ive 唸 /aɪv/？", opts:["active","creative","arrive"], ans:2, exp:"arrive 的重音在 rive，魔法 e 有效，唸 /aɪv/。"}}},
+ {say:"ous 和 ive 常常是從別的字變來的形容詞：nerve（神經）→ {nervous}、vary（變化）→ {various}、act → {active}、create → {creative}。", board:[["nerve → nervous",["ous"],false,true],["vary → various",["ous"],false,true],["act → active",["ive"],false,true],["create → creative",["ive"],false,true]]},
+ {ask:{say:"最後一題！", q:"哪一組字尾的唸法是對的？", opts:["curious /aʊs/、active /aɪv/","curious /əs/、active /ɪv/","curious /us/、active /iv/"], ans:1,
+   ok:"完美！ous 唸 /əs/，ive 唸 /ɪv/。",
+   bad:{0:"ous 不唸 /aʊs/，形容詞字尾 ive 也不唸 /aɪv/。",2:"ous 要輕輕唸 /əs/，ive 的 i 是短短的 /ɪ/。"},
+   again:{q:"creative 的字尾唸什麼？", opts:["/ɪv/","/aɪv/","/eɪv/"], ans:0, exp:"形容詞字尾 ive 唸 /ɪv/。"}}},
+ {say:"ous、ive 過關！記住：ous 輕輕唸 /əs/，三個字母一個音；字尾 ive 不重讀，魔法 e 失靈唸 /ɪv/。下一課要看重音怎麼搬家！", end:true}
+],
+p3:[
+ {say:"同學好！今天要玩一個「重音搬家」的遊戲。先聽：{photo}，重音在第一個音節 PHO。可是變成 {photographer}（攝影師），重音就搬到第二個音節 TOG 了！", board:[["PHOto",["PHO"],false,true],["phoTOGrapher",["TOG"],false,true]]},
+ {say:"同一個字家族，加了字尾以後，重音常常會搬家。唸錯重音，外國人可能會聽不懂喔！再聽一組：{science}，重音在 SCI；{scientific}，重音搬到 TIF。", board:[["SCIence",["SCI"],false,true],["scienTIFic",["TIF"],false,true]]},
+ {say:"口訣先唸！", chant:"字尾一加上，重音就搬家！"},
+ {say:"搬家規則一：字尾 <<tion>>、<<sion>>、<<ic>>、<<ity>>，重音在它們前面的那個音節。{in-for-MA-tion}、{de-CI-sion}、{sci-en-TIF-ic}、{ac-TIV-i-ty}。", board:[["informAtion",["A"],false,true],["decIsion",["I"],false,true],["scienTIFic",["TIF"],false,true],["acTIVity",["TIV"],false,true]]},
+ {ask:{q:"scientific 的重音在哪裡？", opts:["SCI","EN","TIF"], ans:2,
+   ok:"答對！ic 前面的音節 TIF 是重音：sci-en-TIF-ic。",
+   bad:{0:"science 的重音在 SCI，可是加了 ic 重音就搬家了，搬到 TIF。",1:"en 要輕輕唸，ic 前面的 TIF 才是重音。"},
+   again:{q:"activity 的重音在哪裡？", opts:["AC","TIV","TY"], ans:1, exp:"ity 前面的 TIV 是重音：ac-TIV-i-ty。"}}},
+ {say:"搬家規則二：字尾 <<grapher>>、<<graphy>>、<<ology>>，重音在倒數第三個音節，也就是 graph、log 前面那個。{pho-TOG-ra-pher}、{tech-NOL-o-gy}。", board:[["phoTOGrapher",["TOG"],false,true],["techNOLogy",["NOL"],false,true]]},
+ {ask:{q:"technology 的重音在哪裡？", opts:["TECH","NOL","GY"], ans:1,
+   ok:"讚！ology 前面的音節 NOL 是重音：tech-NOL-o-gy。",
+   bad:{0:"tech 在這裡要輕輕唸，重音在 NOL。",2:"字尾 gy 從來不是重音，重音在 NOL。"},
+   again:{q:"photographer 的重音在哪裡？", opts:["PHO","TOG","PHER"], ans:1, exp:"pho-TOG-ra-pher，重音在 TOG。"}}},
+ {say:"重音搬家的時候，母音的聲音也會跟著變！{photo} 的第二個 o 本來唸長 o，到了 {photographer} 變成重音，唸成「啊」/ɑ/；而第一個 o 不重讀，就變成輕輕的 /ə/。", board:[["photo /ˈfoʊtoʊ/",["o"],false,true],["photographer /fəˈtɑɡrəfɚ/",["o"],false,true]]},
+ {say:"再看兩組：{decide} 重音在 CIDE，名詞 {decision} 重音在 CI；{create} 重音在 ATE，形容詞 {creative} 重音還是在 A。", board:[["deCIDE → deCIsion",["CIDE","CI"],false,true],["creATE → creAtive",["ATE","A"],false,true]]},
+ {ask:{q:"photographer 和 photo，哪一個重音在第一個音節？", opts:["photo","photographer","兩個都是"], ans:0,
+   ok:"正確！PHO-to 重音在第一個音節，photographer 重音搬到 TOG 了。",
+   bad:{1:"photographer 的重音搬到第二個音節 TOG 了。",2:"加了 grapher 以後重音會搬家，所以兩個不一樣。"},
+   again:{q:"science 和 scientific，哪一個重音在第一個音節？", opts:["scientific","science","兩個都是"], ans:1, exp:"SCI-ence 重音在第一個音節；scientific 搬到 TIF。"}}},
+ {say:"這招在考試的「重音題」很好用：先看字尾，再數音節。tion、sion、ic、ity 往前一個；graphy、ology 往前兩個（倒數第三個）。", board:[["-tion / -sion / -ic / -ity → 前一個音節",["tion","sion","ic","ity"],false,true],["-graphy / -ology → 倒數第三個音節",["graphy","ology"],false,true]]},
+ {ask:{say:"最後一題！", q:"哪一個字的重音唸錯了？", opts:["in-for-MA-tion","pho-TOG-ra-pher","TECH-no-lo-gy"], ans:2,
+   ok:"眼睛真利！technology 要唸 tech-NOL-o-gy。",
+   bad:{0:"information 的重音在 MA，是對的。",1:"photographer 的重音在 TOG，是對的。"},
+   again:{q:"哪一個字的重音唸錯了？", opts:["de-CI-sion","SCI-en-tif-ic","ac-TIV-i-ty"], ans:1, exp:"scientific 要唸 sci-en-TIF-ic。"}}},
+ {say:"重音搬家過關！記住：字尾一加上，重音就搬家；tion、sion、ic、ity 重音在前一個音節，graphy、ology 在倒數第三個。最後一課要學外國人說話時的「偷懶唸法」！", end:true}
+],
+p4:[
+ {say:"同學好！看英文影片的時候，你有沒有聽過 {wanna} 或 {gonna}？這不是新單字，是外國人說話太快時的「縮讀」。今天教你聽懂它們！", board:[["want to → wanna",["wanna"]],["going to → gonna",["gonna"]]]},
+ {say:"第一個：{want to} 說快了變成 {wanna}。t 和 t 碰在一起，t 被吃掉了。{I want to go home.} 聽起來像 {I wanna go home.}", board:[["I want to go home.",["want to"]],["I wanna go home.（口語聽到的）",["wanna"]]]},
+ {say:"第二個：{going to} 說快了變成 {gonna}。{I'm going to watch TV.} 聽起來像 {I'm gonna watch TV.}", board:[["I'm going to watch TV.",["going to"]],["I'm gonna watch TV.（口語聽到的）",["gonna"]]]},
+ {say:"第三個：{have to} 說快了變成「hafta」，{has to} 變成「hasta」，v 被後面的 t 影響，變成無聲的 /f/。{I have to go.} 聽起來像 hafta go。", board:[["I have to go.",["have to"]],["She has to work.",["has to"]]]},
+ {say:"最重要的規則！這些只是「聽」的時候會遇到，寫作文、考試寫句子一定要寫完整的 want to、going to、have to！", chant:"wanna、gonna 聽得懂，寫字一定要寫完整！"},
+ {ask:{say:"聽聽看！", q:"聽到 I wanna play games. 原本的句子是？", opts:["I want to play games.","I want a play games.","I wanted play games."], ans:0,
+   ok:"答對！wanna 是 want to 的縮讀。",
+   bad:{1:"wanna 不是 want a，後面接的是動詞 play，所以是 want to。",2:"wanna 是現在式的 want to，不是過去式。"},
+   again:{q:"聽到 We're gonna leave. 原本的句子是？", opts:["We're going leave.","We're going to leave.","We gone leave."], ans:1, exp:"gonna 是 going to 的縮讀。"}}},
+ {say:"陷阱來了！gonna 只能用在「going to + 動詞」表示「將要」。如果 going to 後面是地點，像 {I'm going to school.}，就不會唸成 gonna！", board:[["I'm going to eat. → gonna ✓",["going to eat"]],["I'm going to school. → 不能唸 gonna",["going to school"]]]},
+ {ask:{q:"哪一句的 going to 可以唸成 gonna？", opts:["I'm going to the park.","I'm going to buy a phone.","She's going to Taipei."], ans:1,
+   ok:"讚！going to 後面接動詞 buy，表示「將要」，才能唸 gonna。",
+   bad:{0:"going to 後面是地點 the park，這裡是真的「去」，不能唸 gonna。",2:"going to 後面是地點 Taipei，不能唸 gonna。"},
+   again:{q:"哪一句的 going to 可以唸成 gonna？", opts:["He's going to school.","He's going to study.","He's going to the bank."], ans:1, exp:"going to 後面接動詞 study 才能唸 gonna。"}}},
+ {say:"同樣的，wanna 只能取代 want to。主詞是第三人稱單數的 {He wants to}，就不會變成 wanna，因為多了一個 s！", board:[["I want to → wanna",["want to"]],["He wants to → 不唸 wanna",["wants to"]]]},
+ {ask:{q:"寫作文的時候，哪一句是對的？", opts:["I wanna learn how to cook.","I want to learn how to cook.","I gonna learn how to cook."], ans:1,
+   ok:"正確！寫作一定要寫完整的 want to。",
+   bad:{0:"wanna 只是口語聽到的唸法，寫作要寫 want to。",2:"gonna 不能寫在作文裡，而且前面還少了 am。"},
+   again:{q:"寫作文的時候，哪一句是對的？", opts:["I hafta go now.","I have to go now.","I has to go now."], ans:1, exp:"寫作要寫完整的 have to；主詞 I 用 have。"}}},
+ {say:"最後再送你一個：{got to} 會唸成「gotta」，意思和 have to 很像，「必須」。{I've got to go.} 聽起來像 I've gotta go。一樣只用來聽懂喔！", board:[["I've got to go.",["got to"]],["I've gotta go.（口語聽到的）",["gotta"]]]},
+ {say:"自然發音全部上完了！總複習：tion 唸「遜」，sion 看前面唸 /ʒən/ 或 /ʃən/；ous 唸 /əs/、ive 唸 /ɪv/；字尾一加上，重音就搬家；wanna、gonna、hafta 聽得懂，寫字一定要寫完整。快去玩「拼字挑戰」試試身手吧！", end:true}
+]};
+
+/* ---------- 單字插圖（抽象的字用單字陣列第 7 欄的概念卡） ---------- */
+const j222Phone = (x, y, s, sc = "#bfe6ff", inner = "") => grp(x, y, s, `<rect x="-17" y="-30" width="34" height="60" rx="7" fill="#1f2937"/><rect x="-14" y="-24" width="28" height="44" rx="2" fill="${sc}"/><rect x="-5" y="-28" width="10" height="2" rx="1" fill="#4b5563"/><circle cx="0" cy="25" r="2.2" fill="#4b5563"/>${inner}`);
+const j222Laptop = (x, y, s, inner = "") => grp(x, y, s, `<rect x="-34" y="-46" width="68" height="44" rx="4" fill="#374151"/><rect x="-30" y="-42" width="60" height="36" rx="2" fill="#bfe6ff"/>${inner}<path d="M-42 -2 L42 -2 L48 6 L-48 6 Z" fill="#9ca3af"/><rect x="-10" y="-1" width="20" height="3" rx="1.5" fill="#6b7280"/>`);
+const j222Coin = (x, y, s) => grp(x, y, s, `<circle r="12" fill="#f59e0b"/><circle r="9" fill="#fbbf24"/>` + txt(0, 4.5, "$", 12, "#b45309", 900));
+const j222Car = (x, y, s, c = "#ef4444") => grp(x, y, s, `<path d="M-26 4 L-26 -6 Q-24 -10 -16 -10 L-10 -20 L12 -20 L18 -10 Q26 -10 26 -4 L26 4 Z" fill="${c}"/><path d="M-8 -17 L0 -17 L0 -11 L-12 -11 Z M3 -17 L10 -17 L15 -11 L3 -11 Z" fill="#bfe6ff"/><circle cx="-14" cy="5" r="5.5" fill="#374151"/><circle cx="14" cy="5" r="5.5" fill="#374151"/>`);
+const j222Road = (y) => `<rect x="0" y="${y}" width="160" height="${120 - y}" fill="#4b5563"/>` + [0, 1, 2, 3, 4].map(i => `<rect x="${6 + i * 34}" y="${y + (120 - y) / 2 - 1.5}" width="18" height="3" fill="#fff"/>`).join("");
+
+Object.assign(ILLUS, {
+  smartphone: () => svgWrap("#eef4ff", j222Phone(80, 60, 1.5, "#bfe6ff", [-8, 0, 8].map((xx, i) => `<rect x="${xx - 3}" y="-18" width="6" height="6" rx="1.5" fill="${["#ef4444", "#22c55e", "#f59e0b"][i]}"/><rect x="${xx - 3}" y="-8" width="6" height="6" rx="1.5" fill="${["#8b5cf6", "#3b82f6", "#ec4899"][i]}"/>`).join("")) + spark(122, 30, .9) + spark(38, 84, .7)),
+  computer: () => svgWrap("#f1f5f9", `<rect x="34" y="16" width="92" height="60" rx="5" fill="#374151"/><rect x="39" y="21" width="82" height="48" rx="2" fill="#bfe6ff"/><path d="M48 32 H96 M48 42 H110 M48 52 H86" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/><rect x="72" y="76" width="16" height="12" fill="#6b7280"/><rect x="56" y="88" width="48" height="5" rx="2" fill="#4b5563"/><rect x="36" y="98" width="76" height="12" rx="3" fill="#d1d5db"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map(i => `<rect x="${40 + i * 9}" y="101" width="6" height="2.5" rx="1" fill="#9ca3af"/><rect x="${40 + i * 9}" y="105" width="6" height="2.5" rx="1" fill="#9ca3af"/>`).join("") + `<ellipse cx="128" cy="104" rx="7" ry="9" fill="#e5e7eb" stroke="#9ca3af"/>`),
+  laptop: () => svgWrap("#fff7ed", O.desk(80, 104, 1.6) + j222Laptop(80, 82, .9, `<path d="M-6 -32 L8 -24 L-6 -16 Z" fill="#ef4444"/>`) + O.book(138, 74, .4, "#22c55e")),
+  app: () => svgWrap("#f5f3ff", j222Phone(60, 60, 1.4, "#ede9fe", [[-7, -16, "#ef4444"], [7, -16, "#22c55e"], [-7, -2, "#3b82f6"], [7, -2, "#f59e0b"], [-7, 12, "#ec4899"]].map(([xx, yy, c]) => `<rect x="${xx - 5}" y="${yy - 5}" width="10" height="10" rx="3" fill="${c}"/>`).join("")) + `<rect x="106" y="40" width="34" height="34" rx="9" fill="#8b5cf6"/>` + star(123, 57, 10, "#fff") + O.arrow(92, 58, true, "#a78bfa")),
+  message: () => svgWrap("#ecfdf5", j222Phone(52, 62, 1.35, "#f0fdf4") + bubble(110, 34, "Hi!", 44) + `<rect x="92" y="62" width="44" height="22" rx="10" fill="#22c55e"/>` + txt(114, 77, "OK", 11, "#fff") + heart(140, 96, .6)),
+  download: () => svgWrap("#e0f2fe", O.cloud(80, 30, 1.4) + `<path d="M80 40 V82" stroke="#22c55e" stroke-width="8" stroke-linecap="round"/><path d="M64 70 L80 88 L96 70 Z" fill="#22c55e"/><path d="M40 92 V104 H120 V92" stroke="#2563eb" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`),
+  email: () => svgWrap("#fef3c7", `<rect x="30" y="34" width="100" height="64" rx="6" fill="#fff" stroke="#f59e0b" stroke-width="2.5"/><path d="M30 38 L80 72 L130 38" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linejoin="round"/>` + `<circle cx="128" cy="34" r="14" fill="#ef4444"/>` + txt(128, 39.5, "@", 15, "#fff", 900) + spark(26, 24, .7)),
+  battery: () => svgWrap("#f0fdf4", `<rect x="26" y="38" width="100" height="48" rx="8" fill="#fff" stroke="#374151" stroke-width="4"/><rect x="126" y="52" width="10" height="20" rx="3" fill="#374151"/>` + [0, 1, 2, 3].map(i => `<rect x="${33 + i * 23}" y="45" width="18" height="34" rx="3" fill="#22c55e"/>`).join("") + `<path d="M82 22 L70 46 L80 46 L74 66 L92 38 L82 38 L88 22 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/>`),
+  video: () => svgWrap("#1f2937", `<rect x="20" y="18" width="120" height="74" rx="8" fill="#ef4444"/><path d="M68 38 L98 55 L68 72 Z" fill="#fff"/><rect x="20" y="100" width="120" height="5" rx="2.5" fill="#6b7280"/><rect x="20" y="100" width="50" height="5" rx="2.5" fill="#ef4444"/><circle cx="70" cy="102.5" r="5" fill="#fff"/>`),
+  "parking lot": () => svgWrap("#e5e7eb", `<rect x="0" y="50" width="160" height="70" fill="#6b7280"/>` + [0, 1, 2, 3, 4].map(i => `<rect x="${14 + i * 30}" y="56" width="3" height="56" fill="#fff"/>`).join("") + j222Car(30, 92, .75, "#ef4444") + j222Car(90, 92, .75, "#3b82f6") + j222Car(120, 92, .75, "#facc15") + `<rect x="128" y="8" width="4" height="40" fill="#374151"/><rect x="114" y="6" width="32" height="28" rx="5" fill="#2563eb"/>` + txt(130, 28, "P", 20, "#fff", 900) + O.tree(24, 42, .5)),
+  highway: () => svgWrap("#dbeafe", O.sun(130, 22, .5) + `<path d="M0 60 Q40 44 80 56 T160 50 L160 120 L0 120 Z" fill="#bbf7d0"/><path d="M66 56 L94 56 L150 120 L10 120 Z" fill="#4b5563"/><path d="M79 60 L81 60 L82 70 L78 70 Z M77 78 L83 78 L84 92 L76 92 Z M75 100 L85 100 L86 116 L74 116 Z" fill="#fde047"/>` + j222Car(108, 104, .7, "#3b82f6") + O.tree(22, 72, .4) + `<rect x="128" y="62" width="26" height="14" rx="2" fill="#16a34a"/>` + txt(141, 72, "1", 9, "#fff")),
+  crosswalk: () => svgWrap("#e0f2fe", `<rect x="0" y="74" width="160" height="46" fill="#4b5563"/>` + [0, 1, 2, 3, 4, 5, 6].map(i => `<rect x="${12 + i * 21}" y="82" width="12" height="32" fill="#fff"/>`).join("") + kid(70, {s:.7, y:100, pose:"wave"}) + `<rect x="138" y="26" width="4" height="48" fill="#374151"/><rect x="130" y="12" width="20" height="28" rx="4" fill="#1f2937"/><circle cx="140" cy="20" r="4" fill="#4b5563"/><circle cx="140" cy="32" r="4" fill="#22c55e"/>`),
+  traffic: () => svgWrap("#e5e7eb", j222Road(66) + j222Car(30, 84, .8, "#ef4444") + j222Car(80, 84, .8, "#3b82f6") + j222Car(130, 84, .8, "#facc15") + j222Car(54, 110, .8, "#22c55e") + j222Car(108, 110, .8, "#a855f7") + `<rect x="10" y="12" width="20" height="44" rx="5" fill="#1f2937"/><circle cx="20" cy="22" r="5" fill="#ef4444"/><circle cx="20" cy="34" r="5" fill="#4b5563"/><circle cx="20" cy="46" r="5" fill="#4b5563"/>` + bubble(108, 30, "!!!", 40)),
+  coin: () => svgWrap("#fffbeb", [0, 1, 2, 3].map(i => `<ellipse cx="56" cy="${96 - i * 8}" rx="22" ry="7" fill="#f59e0b" stroke="#b45309" stroke-width="1.2"/>`).join("") + j222Coin(108, 62, 2.2) + spark(132, 26, .8) + spark(30, 34, .7)),
+  wallet: () => svgWrap("#fdf4ff", `<rect x="46" y="30" width="62" height="30" rx="3" fill="#86efac" stroke="#16a34a"/>` + txt(77, 50, "100", 11, "#166534", 900) + `<rect x="30" y="48" width="100" height="56" rx="10" fill="#92400e"/><rect x="30" y="48" width="100" height="14" rx="6" fill="#78350f"/><rect x="104" y="70" width="30" height="20" rx="6" fill="#78350f"/><circle cx="116" cy="80" r="3.5" fill="#fbbf24"/>` + j222Coin(136, 38, .9)),
+  bank: () => svgWrap("#f1f5f9", ground("#e2e8f0") + `<path d="M22 42 L80 16 L138 42 Z" fill="#64748b"/><rect x="24" y="42" width="112" height="7" fill="#94a3b8"/>` + [34, 58, 94, 118].map(xx => `<rect x="${xx}" y="50" width="9" height="44" fill="#e2e8f0" stroke="#94a3b8"/>`).join("") + `<rect x="70" y="62" width="20" height="32" rx="2" fill="#475569"/><rect x="20" y="94" width="120" height="8" fill="#94a3b8"/>` + txt(80, 38, "BANK", 9, "#fff", 900) + j222Coin(80, 54, .55)),
+  save: () => svgWrap("#fff1f2", ground("#fecdd3") + `<ellipse cx="80" cy="74" rx="38" ry="28" fill="#f9a8d4"/><circle cx="114" cy="66" r="9" fill="#f9a8d4" stroke="#ec4899" stroke-width="1.5"/><circle cx="111" cy="65" r="1.6" fill="#be185d"/><circle cx="117" cy="65" r="1.6" fill="#be185d"/><circle cx="98" cy="58" r="2.4" fill="${INK}"/><path d="M58 48 L64 38 L70 48 Z" fill="#f472b6"/><rect x="70" y="47" width="22" height="4" rx="2" fill="#be185d"/><rect x="58" y="96" width="9" height="10" rx="3" fill="#f472b6"/><rect x="92" y="96" width="9" height="10" rx="3" fill="#f472b6"/><path d="M42 70 Q34 66 38 60" stroke="#f472b6" stroke-width="3" fill="none" stroke-linecap="round"/>` + j222Coin(81, 28, .9) + O.arrow(81, 40, false, "#f59e0b")),
+  television: () => svgWrap("#fef9c3", `<path d="M66 26 L54 8 M94 26 L106 8" stroke="#374151" stroke-width="3" stroke-linecap="round"/><rect x="24" y="26" width="112" height="72" rx="10" fill="#92400e"/><rect x="32" y="34" width="80" height="56" rx="6" fill="#bfe6ff"/>` + O.sun(56, 54, .5) + `<path d="M32 90 L58 66 L78 84 L94 72 L112 90 Z" fill="#86efac"/><circle cx="124" cy="46" r="5" fill="#fbbf24"/><circle cx="124" cy="62" r="5" fill="#fbbf24"/><rect x="40" y="98" width="8" height="12" fill="#78350f"/><rect x="112" y="98" width="8" height="12" fill="#78350f"/>`)
+});
+/* ---------- 記憶小提示 ---------- */
+Object.assign(MEMO, {
+  smartphone:"smart（聰明的）+ phone（電話）＝聰明的電話，就是智慧型手機！",
+  computer:"compute（計算）+ er（……的東西）＝會計算的機器，就是電腦。",
+  internet:"inter（互相）+ net（網子）＝全世界互相連起來的大網子，就是網際網路。",
+  online:"on（在……上）+ line（線）＝在線上，就是「在網路上」。",
+  app:"app 是 application（應用程式）的前三個字母，短短的好記。",
+  message:"message 開頭是 mess（一團亂）：訊息太多，手機一團亂！",
+  download:"down（往下）+ load（裝載）＝從網路上往下裝進手機，就是下載；相反是 upload（上傳）。",
+  website:"web（蜘蛛網、網路）+ site（地點）＝網路上的地點，就是網站。",
+  email:"e（electronic 電子的）+ mail（信件）＝電子郵件。",
+  password:"pass（通過）+ word（字）＝讓你通過的那個字，就是密碼。",
+  screen:"screen 唸起來像「史固令」：手機螢幕要固定好，不然會摔破。",
+  video:"video 唸起來像「味地歐」：看美食影片，好像嘗到了味道。",
+  laptop:"lap（大腿）+ top（上面）＝放在大腿上用的電腦，就是筆電。",
+  battery:"bat（球棒）+ tery：電池像一根小小的球棒，充滿電力。",
+  text:"text 唸起來像「太死」：一直傳訊息，手指都累死了！",
+  distance:"dis（分開）+ stance（站立）＝分開站，中間隔著的就是距離。",
+  traffic:"traffic 唸起來像「催肥刻」：塞車時一直催油門，催到車子都肥了。",
+  "parking lot":"park（停車）+ ing + lot（一塊地）＝停車用的一塊地，就是停車場。",
+  highway:"high（高的）+ way（路）＝高等級的大路，就是公路、高速公路。",
+  crosswalk:"cross（穿過）+ walk（走路）＝走路穿過馬路的地方，就是斑馬線。",
+  far:"far 唸起來像「發」：發射到很遠很遠的地方。",
+  near:"near 和 ear（耳朵）只差一個 n：靠得夠近，才能在耳邊說悄悄話。",
+  second:"second 唸起來像「塞肯」：一秒鐘就塞得滿滿的。second 也有「第二」的意思。",
+  arrive:"ar + rive（像 river 河）：搭船順著河，終於抵達了。",
+  leave:"leave 和 leaf（葉子）很像：秋天葉子離開樹枝，就是 leave。",
+  "on foot":"on（在……上）+ foot（腳）＝站在自己的腳上，就是走路去。",
+  kilometer:"kilo（一千）+ meter（公尺）＝一千公尺，就是一公里。",
+  spend:"spend 結尾是 end（結束）：錢一直花，很快就結束了！",
+  save:"save 唸起來像「誰福」：存錢的人最有福氣。",
+  fare:"fare 和 far（遠的）只差一個 e：坐得越遠，車資越多！",
+  change:"change 是「改變」：一張大鈔改變成一堆小錢，就是零錢、找的錢。",
+  allowance:"allow（允許）+ ance：爸媽允許你自由花的錢，就是零用錢。",
+  coin:"coin 唸起來像「扣因」：硬幣掉到地上「扣」的一聲。",
+  wallet:"wall（牆）+ et：錢包像一面小牆，把錢包圍起來。",
+  bank:"bank 唸起來像「辦客」：銀行幫客人辦事情。",
+  earn:"earn 和 learn 只差一個 l：學（learn）會本領，才能賺（earn）錢。",
+  "piggy bank":"piggy（小豬）+ bank（銀行）＝小豬造型的銀行，就是撲滿！",
+  borrow:"borrow 唸起來像「巴肉」：跟朋友借一塊肉來吃。borrow 是借入，lend 是借出。",
+  lend:"lend 結尾是 end：借出去的東西，要等很久才結束拿回來。lend 是借出，borrow 是借入。",
+  goal:"goal 唸起來像「夠」：目標達成，夠了！足球射門得分也叫 goal。",
+  learn:"learn 裡面有 ear（耳朵）：學習要用耳朵仔細聽。",
+  mistake:"mis（錯）+ take（拿）＝拿錯了，就是錯誤。",
+  explain:"ex（出來）+ plain（清楚的）＝把事情清楚地說出來，就是解釋。",
+  understand:"under（在下面）+ stand（站）：站在下面看清楚，就懂了。",
+  remember:"re（再）+ member（成員）：再次想起每個成員，就是記得。",
+  forget:"for + get（得到）：得到之後轉頭就忘了。過去式是 forgot。",
+  solve:"solve 唸起來像「搜福」：搜尋到方法，問題就解決了，好幸福！",
+  problem:"problem 唸起來像「趴不爛」：問題太多，趴在桌上都不想動。",
+  idea:"idea 唸起來像「愛迪兒」：愛迪生的點子最多了！",
+  let:"let 唸起來像「累」：讓我來吧，你別累了。let 後面接原形動詞，不加 to。",
+  information:"inform（通知）+ ation：通知你的消息，就是資訊。tion 唸「遜」。",
+  television:"tele（遠的）+ vision（視覺）＝看到很遠地方的畫面，就是電視。",
+  decision:"decide 的名詞：去掉 de 換成 sion，decision 就是做好的決定。",
+  discussion:"discuss（討論）+ ion：大家一起討論的那件事，就是 discussion。",
+  direction:"direct（指引）+ ion：指引你往哪裡走，就是方向。",
+  curious:"cure（治療）+ ious：醫生對怎麼治病總是很好奇。ous 輕輕唸 /əs/。",
+  various:"vary（變化）把 y 改成 i + ous：有很多變化的，就是各式各樣的。",
+  positive:"posit（放）+ ive：把心放在好的那一面，就是正面的。ive 唸 /ɪv/。",
+  active:"act（行動）+ ive：一直在行動的，就是有活力的。",
+  generous:"gener（像 general 全部的）+ ous：把全部都分給大家，真大方！",
+  creative:"create（創造）+ ive：很會創造的，就是有創意的。",
+  technology:"techno（技術）+ logy（學問）＝研究技術的學問，就是科技。",
+  practical:"practice（練習）去掉 e 換成 al：練習用得到的，就是實用的。",
+  convenient:"con（一起）+ veni（來）：大家都能一起來，就是方便的。",
+  simple:"simple 唸起來像「心剖」：把心剖開來看，簡簡單單、一目了然。"
+});
+registerUnit("j2-2-2", {name:"國二 下學期 第二次段考", sub:"take / spend / cost / pay、too…to 與 enough to、疑問詞 + to V、使役動詞 make / let / have", words:J2_2_2_WORDS, grammar:J2_2_2_GRAMMAR, quiz:J2_2_2_QUIZ, classes:Object.assign({}, J2_2_2_CLASS, J2_2_2_PHONICS_CLASS), phonics:J2_2_2_PHONICS});
+})();
