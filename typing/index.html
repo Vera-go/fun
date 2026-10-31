@@ -494,7 +494,9 @@ function tick(ok, done){
 // ---------- 操作 ----------
 document.addEventListener("keydown", onKey);
 $("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if(!b) return; S.mode = b.dataset.mode; save(); startLesson(); });
-$("#lessons").addEventListener("click", e => { const b = e.target.closest("[data-les]"); if(!b) return; S.idx[S.mode] = +b.dataset.les; save(); startLesson(); b.blur(); });
+$("#lessons").addEventListener("click", e => { const b = e.target.closest("[data-les]"); if(!b) return; S.idx[S.mode] = +b.dataset.les; save(); startLesson(); b.blur();
+  // 手機上課程列表很長，練習區在它下面：點了課程要帶使用者過去，不然看起來像沒反應
+  if(innerWidth <= 860) $("#practice").scrollIntoView({behavior:"smooth", block:"start"}); });
 $("#restart").onclick = e => { e.target.blur(); startLesson(); };
 $("#res").addEventListener("click", e => {
   const a = e.target.closest("[data-act]"); if(!a) return;
