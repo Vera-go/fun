@@ -151,6 +151,37 @@ const CARDS = {
       {t:"h", en:"Can you teach me some Chinese words?", zh:"你可以教我一些中文嗎？"},
       {t:"h", en:"How do you say this in Chinese?", zh:"這個中文怎麼說？"}
     ]},
+    {g:"飲食和口味", items:[
+      {t:"m", en:"Is there any food you can't eat, or any food you don't like?", zh:"有沒有什麼不能吃，或不喜歡吃的東西？"},
+      {t:"m", en:"Are you allergic to anything? Nuts, seafood, milk, eggs?", zh:"你有對什麼過敏嗎？堅果、海鮮、牛奶、蛋？"},
+      {t:"m", en:"Are you vegetarian? Do you eat beef or pork?", zh:"你吃素嗎？你吃牛肉或豬肉嗎？"},
+      {t:"m", en:"What would you like for breakfast? Toast, eggs, or rice porridge?", zh:"你早餐想吃什麼？吐司、蛋，還是稀飯？"},
+      {t:"m", en:"What do you want to drink? Water, juice, milk, or tea?", zh:"你想喝什麼？水、果汁、牛奶，還是茶？"},
+      {t:"h", en:"I don't eat meat. Is there any in this?", zh:"我不吃肉。這個裡面有肉嗎？"},
+      {t:"h", en:"I'm allergic to peanuts. Does this have peanuts?", zh:"我對花生過敏。這個有花生嗎？"},
+      {t:"h", en:"I don't like this very much. Sorry. Can I have something else?", zh:"我不太喜歡這個，抱歉。我可以吃別的嗎？"},
+      {t:"h", en:"Could I have some water, please?", zh:"可以給我一杯水嗎？"},
+      {t:"m", en:"No problem. You don't have to eat everything. Tell me what you like.", zh:"沒問題，不用每樣都吃完。告訴我你喜歡什麼。"}
+    ]},
+    {g:"想家和心情", items:[
+      {t:"m", en:"How are you feeling today? Are you OK?", zh:"你今天感覺怎麼樣？還好嗎？"},
+      {t:"m", en:"It's normal to feel homesick. You can tell me anytime.", zh:"想家是正常的。隨時都可以跟我說。"},
+      {t:"m", en:"Do you want to call or message your family? You can use our Wi-Fi.", zh:"你想打給或傳訊息給家人嗎？可以用我們的 Wi-Fi。"},
+      {t:"m", en:"Do you want some time alone? That's OK too.", zh:"你想自己安靜一下嗎？這樣也可以。"},
+      {t:"m", en:"Everything is new, so it's normal to feel tired. Take your time.", zh:"一切都是新的，會累是正常的。慢慢來。"},
+      {t:"h", en:"I feel a bit nervous about school tomorrow.", zh:"我對明天上學有點緊張。"},
+      {t:"h", en:"I'm a bit tired. Can I rest in my room?", zh:"我有點累。我可以在房間休息嗎？"},
+      {t:"h", en:"Thank you for looking after me.", zh:"謝謝你們照顧我。"}
+    ]},
+    {g:"學校和朋友", items:[
+      {t:"m", en:"What time does school start? I will make sure you are ready.", zh:"學校幾點開始？我會讓你準時準備好。"},
+      {t:"m", en:"Do you need help with your homework or with Chinese?", zh:"你需要幫忙功課或中文嗎？"},
+      {t:"m", en:"Did you eat lunch at school? What did you have?", zh:"你中午在學校吃飯了嗎？吃了什麼？"},
+      {t:"m", en:"If a friend invites you out, please tell me first, and tell me where you will go.", zh:"如果朋友邀你出去，請先告訴我，也告訴我你要去哪裡。"},
+      {t:"h", en:"Can I join a school club or activity?", zh:"我可以參加學校的社團或活動嗎？"},
+      {t:"h", en:"My friend invited me to go out. Is it OK?", zh:"朋友邀我出去，可以嗎？"},
+      {t:"h", en:"Can you help me with my homework?", zh:"你可以幫我寫功課嗎？"}
+    ]},
     {g:"聽不懂的時候", items:[
       {t:"m", en:"Sorry, I didn't understand. Can you type it into the translator?", zh:"抱歉我沒聽懂。可以打進翻譯軟體嗎？"},
       {t:"h", en:"Sorry, can you say that again, more slowly?", zh:"抱歉，可以再說一次，慢一點嗎？"},
@@ -180,6 +211,34 @@ const CARDS = {
       {t:"h", en:"Can I go out with my friends this weekend?", zh:"這個週末我可以跟朋友出去嗎？"},
       {t:"h", en:"Can I call my parents tonight?", zh:"我今晚可以打給爸媽嗎？"}
     ]},
+    {g:"時差和睡覺", items:[
+      {t:"m", en:"You may feel tired because of the time difference. It's OK to rest.", zh:"因為時差你可能會累，休息沒關係。"},
+      {t:"m", en:"Breakfast is at what time? I'll wake you up if you want.", zh:"早餐什麼時候？你需要的話我叫你起床。"},
+      {t:"m", en:"Please tell me if you can't sleep. We can find a solution.", zh:"如果你睡不著請告訴我，我們一起想辦法。"},
+      {t:"m", en:"It's cold at night. Do you need another blanket?", zh:"晚上很冷，你需要多一條毯子嗎？"},
+      {t:"h", en:"I can't sleep. Can I have a warm drink?", zh:"我睡不著。我可以喝點熱的嗎？"},
+      {t:"h", en:"Can you wake me up at seven, please?", zh:"可以請你七點叫我起床嗎？"},
+      {t:"h", en:"It's too cold. Can I have another blanket?", zh:"太冷了。可以多給我一條毯子嗎？"}
+    ]},
+    {g:"洗澡、洗衣和垃圾分類", items:[
+      {t:"m", en:"Please wait a few minutes for the hot water. Turn this handle to change the temperature.", zh:"請等幾分鐘熱水來。轉這個把手可以調水溫。"},
+      {t:"m", en:"Please don't use too much water. Showers are about ten minutes.", zh:"請不要用太多水，洗澡大約十分鐘。"},
+      {t:"m", en:"Please put your dirty clothes here. I will wash them with you.", zh:"請把髒衣服放這裡，我們一起洗。"},
+      {t:"m", en:"In Taiwan we separate our rubbish. This is for general waste, this is for recycling.", zh:"在台灣垃圾要分類。這個是一般垃圾，這個是回收。"},
+      {t:"m", en:"The rubbish truck plays music when it comes. We take the rubbish out to it.", zh:"垃圾車來的時候會放音樂，我們把垃圾拿出去。"},
+      {t:"h", en:"Where do I put this rubbish?", zh:"這個垃圾要丟在哪裡？"},
+      {t:"h", en:"Can I use the hair dryer?", zh:"我可以用吹風機嗎？"},
+      {t:"h", en:"Sorry, I forgot to turn off the light.", zh:"抱歉，我忘了關燈。"}
+    ]},
+    {g:"錢和買東西", items:[
+      {t:"m", en:"Do you have Taiwan dollars? Do you want to go to the bank or ATM?", zh:"你有台幣嗎？要不要去銀行或提款機？"},
+      {t:"m", en:"Most small shops take cash only. Some places accept cards.", zh:"小店大多只收現金，有些地方可以刷卡。"},
+      {t:"m", en:"This is your EasyCard. You can use it on buses, the MRT and in convenience stores.", zh:"這是你的悠遊卡，可以搭公車、捷運，也能在便利商店付款。"},
+      {t:"m", en:"Please tell me before you buy something expensive.", zh:"買貴的東西前請先跟我說。"},
+      {t:"h", en:"Can I buy a SIM card or a phone plan?", zh:"我可以買 SIM 卡或手機方案嗎？"},
+      {t:"h", en:"How much is this in Australian dollars?", zh:"這個換成澳幣多少錢？"},
+      {t:"h", en:"Where is the nearest convenience store?", zh:"最近的便利商店在哪裡？"}
+    ]},
     {g:"不舒服的時候", items:[
       {t:"m", en:"Are you OK? Do you feel sick?", zh:"你還好嗎？會不舒服嗎？"},
       {t:"m", en:"Where does it hurt?", zh:"哪裡痛？"},
@@ -208,6 +267,35 @@ const CARDS = {
       {t:"h", en:"Where are we going next? How long will it take?", zh:"我們下一站要去哪裡？要多久？"},
       {t:"h", en:"I'm tired. Can we sit down for a bit?", zh:"我累了。我們可以坐一下嗎？"},
       {t:"h", en:"I'm cold. Can we go somewhere warm?", zh:"我覺得冷。我們可以去暖和的地方嗎？"}
+    ]},
+    {g:"搭公車和捷運", items:[
+      {t:"v", en:"Does this bus go to this place?", zh:"這班公車有到這裡嗎？"},
+      {t:"v", en:"Please tell me when we arrive at this stop.", zh:"到這一站的時候請告訴我。"},
+      {t:"v", en:"Excuse me, I'd like to put money on my EasyCard.", zh:"請問，我要加值悠遊卡。"},
+      {t:"v", en:"Which exit should I take?", zh:"我要走哪個出口？"},
+      {t:"v", en:"Where is the platform for this line?", zh:"這條線的月台在哪裡？"},
+      {t:"h", en:"Which stop is it? How many more stops?", zh:"是哪一站？還有幾站？"},
+      {t:"h", en:"I think we got on the wrong train. What should we do?", zh:"我們好像搭錯車了。怎麼辦？"},
+      {t:"h", en:"I feel carsick. Can we get off for a minute?", zh:"我有點暈車。我們可以先下車一下嗎？"}
+    ]},
+    {g:"在餐廳", items:[
+      {t:"v", en:"Do you have an English menu?", zh:"有英文菜單嗎？"},
+      {t:"v", en:"What do you recommend?", zh:"你推薦什麼？"},
+      {t:"v", en:"Is this dish spicy?", zh:"這道菜辣嗎？"},
+      {t:"v", en:"We would like to order, please.", zh:"我們要點餐。"},
+      {t:"v", en:"Can we have the bill, please?", zh:"麻煩買單。"},
+      {t:"v", en:"Can we split the bill?", zh:"可以分開付嗎？"},
+      {t:"v", en:"Can I have a takeaway box, please?", zh:"可以給我一個外帶盒嗎？"},
+      {t:"v", en:"Can I have a fork or a spoon, please?", zh:"可以給我叉子或湯匙嗎？"},
+      {t:"h", en:"I can't use chopsticks very well. Can you teach me?", zh:"我筷子用得不太好，你可以教我嗎？"}
+    ]},
+    {g:"買伴手禮", items:[
+      {t:"v", en:"How much is this? Is there a better price if I buy two?", zh:"這個多少錢？買兩個有比較便宜嗎？"},
+      {t:"v", en:"Can you wrap it as a gift, please?", zh:"可以幫我包成禮物嗎？"},
+      {t:"v", en:"Is it OK to take this to Australia?", zh:"這個可以帶去澳洲嗎？"},
+      {t:"v", en:"How long does this keep?", zh:"這個可以放多久？"},
+      {t:"h", en:"What is a good gift to take home for my family?", zh:"帶回家給我家人，什麼比較適合？"},
+      {t:"h", en:"Can we go to a shop for pineapple cakes and tea?", zh:"我們可以去買鳳梨酥和茶嗎？"}
     ]},
     {g:"走散了怎麼辦", items:[
       {t:"m", en:"If we lose each other, stay where you are and call me.", zh:"如果走散了，請待在原地並打給我。"},
@@ -276,6 +364,32 @@ const PLANS = {
     tip:"北部冬天常下雨。這個方案不用走很多路，適合第一個週末、她還在適應的時候。"}
 };
 
+const SOS_CARDS = [
+    {g:"需要幫忙", items:[
+      {t:"h", en:"I need help. Please call this number.", zh:"我需要幫忙。請打這支電話。"},
+      {t:"h", en:"I'm lost. I'm at this address.", zh:"我迷路了。我在這個地址。"},
+      {t:"h", en:"Please call my host family.", zh:"請打給我的接待家庭。"},
+      {t:"h", en:"Please call my school.", zh:"請打給我的學校。"},
+      {t:"m", en:"Stay calm. I'm coming to get you. Tell me where you are.", zh:"別慌，我去接你。告訴我你在哪裡。"}
+    ]},
+    {g:"身體不舒服", items:[
+      {t:"m", en:"Do you have a fever, a cough or a sore throat?", zh:"你有發燒、咳嗽或喉嚨痛嗎？"},
+      {t:"m", en:"Do you take any medicine? Do you have a health condition?", zh:"你有在吃藥嗎？有什麼身體狀況嗎？"},
+      {t:"m", en:"Please bring your passport copy and your travel insurance card to the doctor.", zh:"看醫生請帶護照影本和旅遊保險卡。"},
+      {t:"h", en:"I have a cold. I have a sore throat.", zh:"我感冒了。我喉嚨痛。"},
+      {t:"h", en:"I have a fever. I feel dizzy.", zh:"我發燒了。我覺得頭暈。"},
+      {t:"h", en:"I have a rash. I think I'm allergic to something.", zh:"我起了疹子。我想我對什麼過敏。"},
+      {t:"h", en:"I hurt my ankle. It hurts when I walk.", zh:"我的腳踝受傷了，走路會痛。"},
+      {t:"h", en:"I need to buy some medicine. Where is the pharmacy?", zh:"我想買藥。藥局在哪裡？"},
+      {t:"h", en:"I need a doctor. I'm allergic to this.", zh:"我需要看醫生。我對這個過敏。"}
+    ]},
+    {g:"跟醫生或藥師說", items:[
+      {t:"v", en:"I don't feel well. I need to see a doctor.", zh:"我不舒服，我想看醫生。"},
+      {t:"v", en:"I'm allergic to this medicine.", zh:"我對這個藥過敏。"},
+      {t:"v", en:"I'm a foreign student. I don't speak Chinese well.", zh:"我是外國學生，中文不太好。"},
+      {t:"v", en:"Can you speak slowly, or write it down?", zh:"可以說慢一點，或寫下來嗎？"}
+    ]}
+];
 const SOS_FIELDS = [
   ["name","她的名字 Her name"],["host","接待家庭聯絡人 Host contact"],["phone","接待家庭電話 Host phone"],
   ["addr","家裡地址（英文）Home address"],["school","學校聯絡人和電話 School contact"],["allergy","過敏和飲食 Allergies / diet"],["other","其他 Other"]
@@ -348,11 +462,8 @@ function sosView(){
   return `<div class="note noprint">把資料填好，印出來貼在家裡，或給她的手機拍照存起來。資料只存在這支手機，不會上傳。</div>
     <div class="card"><h2>緊急聯絡卡 Emergency card</h2><div style="display:grid;gap:8px;margin-top:8px">${SOS_FIELDS.map(([k, label]) => `<label>${esc(label)}<input data-sos="${k}" value="${esc(S.sos[k] || "")}"></label>`).join("")}</div>
     <div class="bar noprint" style="margin-top:12px"><button class="btn" id="sosCopy">複製成文字</button><button class="btn ghost" id="sosPrint">列印</button></div></div>
-    <div class="card noprint"><h2>常用緊急句卡</h2>${[
-      {t:"h", en:"I need help. Please call this number.", zh:"我需要幫忙。請打這支電話。"},
-      {t:"h", en:"I'm lost. I'm at this address.", zh:"我迷路了。我在這個地址。"},
-      {t:"h", en:"I need a doctor. I'm allergic to this.", zh:"我需要看醫生。我對這個過敏。"}
-    ].map((c, i) => phraseCard(c, i, "sos")).join("")}<p class="hint">台灣的緊急電話：報警 110，火警和救護車 119。</p></div>`;
+    <div class="card noprint"><p class="hint" style="margin:0">台灣的緊急電話：報警 110，火警和救護車 119。非緊急的身體不舒服，先告訴接待家庭，再決定要不要看醫生。</p></div>
+    ${SOS_CARDS.map((grp, gi) => `<div class="card noprint"><div class="group">${esc(grp.g)}</div>${grp.items.map((c, i) => phraseCard(c, i, "sos" + gi)).join("")}</div>`).join("")}`;
 }
 function render(){
   document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
@@ -364,7 +475,7 @@ function render(){
   else v.innerHTML = `<div class="bar"><label class="chk"><input type="checkbox" id="slow" ${S.slow ? "checked" : ""}> 念慢一點</label><span class="sp"></span></div>` + cardsView(tab);
 }
 function cardAt(g, i){
-  if(g === "sos") return [{t:"h", en:"I need help. Please call this number.", zh:"我需要幫忙。請打這支電話。"},{t:"h", en:"I'm lost. I'm at this address.", zh:"我迷路了。我在這個地址。"},{t:"h", en:"I need a doctor. I'm allergic to this.", zh:"我需要看醫生。我對這個過敏。"}][i];
+  if(String(g).startsWith("sos")) return SOS_CARDS[+String(g).slice(3)].items[i];
   return CARDS[tab][g].items[i];
 }
 function openShow(big, sm, lang){
