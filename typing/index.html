@@ -132,7 +132,7 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .diff.en{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:14.5px}
 .d-sub{background:#FFDADA;color:var(--bad);border-radius:3px}
 .d-ins{background:#FFE4B8;color:#8A5300;border-radius:3px;text-decoration:line-through}
-.d-del{color:#9AA6BE;border-radius:3px;outline:1.5px dashed #B7C1D6;outline-offset:-1px}
+.d-del{color:#6E7A93;background:#E9EDF5;border-radius:3px;outline:1.5px dashed #7F8BA6;outline-offset:-1px}
 .legend{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:6px}
 .portal-foot{text-align:center;color:#6E7A93;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#6E7A93;text-decoration:none}.portal-foot svg{display:inline-block}.portal-foot a:hover,.portal-foot a:focus-visible{text-decoration:underline;outline:none}
 </style>
@@ -183,7 +183,7 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
         <b style="color:var(--ink)">測驗規則</b>（參考 TQC 中文輸入認證、考選部電腦打字實地測驗）<br>
         ・<b>不能修改</b>：不能退格、刪除或移動游標，打錯了就繼續往下打。<br>
         ・第一個字打下去開始計時，時間到自動交卷，也可以提早交卷。<br>
-        ・交卷後逐字比對原文：<b>錯打</b>（打錯字）、<b>漏打</b>（少打）、<b>多打</b>（多打）都算錯誤。<br>
+        ・邊打邊在原文標出錯字，交卷後逐字比對：<b>錯打</b>（打錯字）、<b>漏打</b>（少打）、<b>多打</b>（多打）都算錯誤。<br>
         ・中文用自己習慣的輸入法，標點要用<b>全形</b>（，。「」？）。<br>
         ・<b>錯誤率要低於 10% 才及格</b>。<br>
         ・中文淨速＝（正確字數－錯誤字數）÷ 分鐘；TQC 分級：每分鐘 15 字實用級、30 字進階級、80 字專業級（正式考試是 10 分鐘）。<br>
@@ -196,6 +196,7 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
         <div class="ptop"><h2 id="aTitle"></h2>
           <div class="live"><span class="pill">剩 <b id="aLeft">0:00</b></span><span class="pill">已打 <b id="aCount">0</b> <span id="aCountU"></span></span></div></div>
         <div class="orig" id="aOrig"></div>
+        <div class="legend"><span><span class="d-sub">錯</span> 打錯（滑過看你打成什麼）</span><span><span class="d-del">漏</span> 漏打</span><span><span class="d-ins">多</span> 多打</span></div>
         <textarea class="ainput" id="aInput" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="在這裡打字"></textarea>
         <div class="btns"><button class="btn ghost sm" id="aRestart">重新開始</button><button class="btn sm" id="aSubmit">交卷</button></div>
         <div class="ov top" id="aOv" hidden><div class="res wide" id="aRes"></div></div>
@@ -538,13 +539,30 @@ function renderArtSide(){
   $("#aBest").innerHTML = [1, 3, 5, 10].map(m => { const b = S.artBest[S.art.lang + m];
     return `<div class="brow"><span>${m} 分鐘</span>${b ? `<b>${b.net} ${artUnit()}</b><span class="muted">${b.lv ? b.lv + "・" : ""}正確率 ${b.acc}・${b.date}</span>` : `<span class="muted">還沒有紀錄</span>`}</div>`; }).join("");
 }
-// 原文：打到哪裡就變淡，畫面跟著捲
-function renderArt(){
-  const o = A.orig, typed = [...ta.value], p = Math.min(typed.length, o.length);
+// 原文：邊打邊比對，打對的變淡、打錯標紅、漏打虛線框、多打標橘色，畫面跟著捲
+// （輸入法選字中還沒送出的字先不比）
+let artRaf = 0;
+function renderArt(){ if(!artRaf) artRaf = requestAnimationFrame(drawArt); }
+function drawArt(){
+  artRaf = 0; if(!A) return;
+  const o = A.orig, typed = [...(A.composing ? A.locked : ta.value).replace(/\n/g, " ")];
+  const ops = alignText(o, typed);
+  let html = "", run = "", p = 0;
+  const flush = () => { if(run){ html += `<span class="past">${esc(run)}</span>`; run = ""; } };
+  for(const x of ops){
+    if(x.t !== "ins") p++;
+    if(x.t === "ok"){ run += x.a; continue; }
+    flush();
+    html += x.t === "sub" ? `<span class="d-sub" title="打成「${esc(x.b)}」">${esc(x.a)}</span>`
+      : x.t === "del" ? `<span class="d-del" title="漏打">${esc(x.a)}</span>`
+      : `<span class="d-ins" title="多打">${esc(x.b)}</span>`;
+  }
+  flush();
   const box = $("#aOrig");
-  box.innerHTML = `<span class="past">${esc(o.slice(0, p).join(""))}</span><span class="here" id="aHere"></span>${esc(o.slice(p).join(""))}`;
+  box.innerHTML = html + `<span class="here" id="aHere"></span>${esc(o.slice(p).join(""))}`;
   box.scrollTop = Math.max(0, $("#aHere").offsetTop - 50);
-  $("#aCount").textContent = S.art.lang === "en" ? typed.length : typed.filter(c => c.trim()).length;
+  const all = [...ta.value];
+  $("#aCount").textContent = S.art.lang === "en" ? all.length : all.filter(c => c.trim()).length;
   artTime();
 }
 function artTime(){
