@@ -110,6 +110,25 @@ table.score td:nth-child(even){font-weight:900;color:var(--acc);text-align:right
 @media(max-width:520px){.ibtn .lbl{display:none}}
 .tip{font-size:12.5px;color:var(--muted);text-align:center;margin:8px 0 0}
 @media(hover:hover) and (pointer:fine){.pad{display:none}}
+/* 雙人連線 */
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.duoform{display:flex;gap:6px;align-items:flex-end;margin:10px 0;text-align:left}
+.duoform label{flex:1;font-size:13px;font-weight:800;color:var(--muted)}
+.duoform input{display:block;width:100%;margin-top:3px;font:inherit;font-size:16px;border:2px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--ink)}
+.duomsg{background:#FFF0EC;border-radius:10px;padding:6px 10px;font-weight:800;font-size:14px}
+.duocode{font-size:42px;letter-spacing:10px;font-weight:900;color:var(--acc);margin:0;line-height:1.2}
+.duoplayers{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0}
+.duop{flex:1;max-width:160px;border:3px solid var(--c,#E6D6C2);border-radius:14px;padding:6px;background:#FFF9F0;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:112px;justify-content:center;position:relative}
+.duop canvas{width:56px;height:56px}
+.duop b{font-size:15px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.duop span{font-size:12px;color:var(--muted);font-weight:800}
+.duop.empty{border-style:dashed;color:var(--muted);font-weight:800;font-size:13px}
+.duop .crown{position:absolute;top:-12px;background:#FFD447;border:2px solid var(--line);border-radius:99px;padding:0 8px;font-size:12px;font-weight:900;color:var(--ink)}
+.duoplayers .vs{font-size:18px;color:var(--acc2)}
+table.duores td{text-align:center}
+table.duores td:first-child{text-align:left;color:var(--muted);font-weight:800}
+table.duores td:nth-child(even){color:inherit}
+table.duores b{font-size:16px}
 .portal-foot{text-align:center;color:#8A7462;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#8A7462;text-decoration:none}.portal-foot svg{display:inline-block}.portal-foot a:hover,.portal-foot a:focus-visible{text-decoration:underline;outline:none}
 </style>
 </head>
@@ -157,14 +176,16 @@ table.score td:nth-child(even){font-weight:900;color:var(--acc);text-align:right
 
 <script>
 /* =========================================================
-   喵喵列車長（許願池 #17）
+   喵喵列車長（許願池 #17；雙人連線 #22 在 duo.js）
    玩法像貪吃蛇：帶頭的貓（列車長）一直往前走，沿路收編流浪貓，隊伍越來越長。
    - 健康食物：大家開心；不健康的食物：有貓變胖（健康食物可以讓胖貓瘦回來）
    - 金色貓罐罐：多一次復活
    - 撞牆或撞到同伴：貓咪散開或疊成貓山；還有復活次數就重新排好繼續
    所有圖都是用程式畫的，沒有用圖片和 emoji。
    ========================================================= */
-const COLS = 13, ROWS = 15;
+let COLS = 13, ROWS = 15;   // 雙人連線用比較大的棋盤（duo.js 會改）
+// 雙人連線進行中（duo.js）：操作、畫面都交給它
+const duoOn = () => typeof DUO !== "undefined" && DUO.on;
 const INK = "#3A2A20";
 
 // ---------- 貓咪品種（花色、眼睛、小知識） ----------
@@ -754,8 +775,8 @@ function updateAdoptHint(){
   if(!A){ el.innerHTML = G.train.length >= 6 ? `<span class="muted">等一下會有人來領養貓。</span>` : `<span class="muted">隊伍 6 隻以上，就會有人來領養貓。</span>`; return; }
   el.innerHTML = `<b>${esc(A.who)}</b>想領養：${A.want.map(id => `${esc(BY[id].name)}${G.train.slice(1).some(c => c.breed === id) ? "" : "（隊伍裡沒有）"}`).join("、")}`;
 }
-function drawAdopter(t){
-  const A = G.adopter, s = CELL, x = (A.x + .5) * s, y = (A.y + .5) * s;
+function drawAdopter(t, A = G.adopter){
+  const s = CELL, x = (A.x + .5) * s, y = (A.y + .5) * s;
   if(A.until - t < 3000 && Math.floor(t / 160) % 2) return;
   const c = ctx, lw = Math.max(1.2, s * .045);
   c.save(); c.translate(x, y + Math.sin(t / 300) * s * .03); c.lineWidth = lw; c.strokeStyle = INK;
@@ -807,6 +828,7 @@ function spawnFood(){
 
 // ---------- 操作 ----------
 function turn(d){
+  if(duoOn()) return DUO.turn(d);
   audio();
   if(state === "menu" || state === "over") return;
   if(state === "paused") return;
@@ -1028,8 +1050,12 @@ async function submitScore(){
   const R = save.rec;
   lbStatus = "上傳中⋯⋯"; renderLbBox();
   try{
-    const res = await rpc("meowtrain_submit", {p_client:save.client, p_name:save.name, p_score:R.score, p_len:Math.max(1, R.len), p_kinds:R.kinds, p_leader:R.leader || save.leader});
-    lbStatus = `已上傳！最高分 ${res.score} 排第 <b>${res.score_rank}</b> 名、最長隊伍 ${res.len} 隻排第 <b>${res.len_rank}</b> 名（共 ${res.players} 人）`;
+    const body = {p_client:save.client, p_name:save.name, p_score:R.score, p_len:Math.max(1, R.len), p_kinds:R.kinds, p_leader:R.leader || save.leader};
+    // 送養數（資料庫還沒更新到 v12 的話，不帶送養數再傳一次）
+    let res;
+    try{ res = await rpc("meowtrain_submit", {...body, p_adopted:R.adopted}); }
+    catch(e){ if(/function|p_adopted|PGRST/i.test(e.message)) res = await rpc("meowtrain_submit", body); else throw e; }
+    lbStatus = `已上傳！最高分 ${res.score} 排第 <b>${res.score_rank}</b> 名、最長隊伍 ${res.len} 隻排第 <b>${res.len_rank}</b> 名${res.adopted_rank ? `、送養 ${res.adopted} 隻排第 <b>${res.adopted_rank}</b> 名` : ""}（共 ${res.players} 人）`;
   }catch(e){
     lbStatus = /invalid score/.test(e.message) ? "這個成績上傳不了。" : /too many/.test(e.message) ? "上傳太快了，等幾秒再試。" : "上傳失敗，可能是網路有問題。";
   }
@@ -1047,9 +1073,9 @@ function renderLbBox(){
 }
 async function showRank(back, by = "score"){
   overlayBack = back;
-  const tabs = `<div class="lbtabs"><button class="${by === "score" ? "on" : ""}" data-act="rankscore">最高分</button><button class="${by === "len" ? "on" : ""}" data-act="ranklen">最長隊伍</button></div>`;
+  const tabs = `<div class="lbtabs"><button class="${by === "score" ? "on" : ""}" data-act="rankscore">最高分</button><button class="${by === "len" ? "on" : ""}" data-act="ranklen">最長隊伍</button><button class="${by === "adopted" ? "on" : ""}" data-act="rankadopt">送養</button></div>`;
   showOverlay(`<h2>排行榜</h2>${tabs}<div class="lblist" id="lbList"><p class="muted">載入中⋯⋯</p></div>
-    <p class="muted small">${save.name ? `你的名字：${esc(save.name)}` : "還沒上榜：玩完一局後留下名字就會上傳。"}</p>
+    <p class="muted small">${by === "adopted" ? "送養排行榜算的是累計送養幾隻（單人和雙人都算）。" : ""}${save.name ? `你的名字：${esc(save.name)}` : "還沒上榜：玩完一局後留下名字就會上傳。"}</p>
     <div class="btns"><button class="btn acc" data-act="back">回去</button></div>`);
   let rows;
   try{ rows = await rpc("meowtrain_top", {p_by:by, p_client:save.client, p_limit:20}); }
@@ -1064,7 +1090,7 @@ async function showRank(back, by = "score"){
     row.appendChild(miniCanvas(34, (c, px) => drawCat(c, px / 2, px * .56, px * .9, BY[r.leader] ? r.leader : "orange", {leader:true})));
     const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = r.name + (r.mine ? "（你）" : "");
     const v = document.createElement("span"); v.className = "v";
-    v.innerHTML = by === "len" ? `<b>${r.len}</b> 隻<small>${r.score} 分</small>` : `<b>${r.score}</b> 分<small>隊伍 ${r.len} 隻</small>`;
+    v.innerHTML = by === "len" ? `<b>${r.len}</b> 隻<small>${r.score} 分</small>` : by === "adopted" ? `<b>${r.adopted || 0}</b> 隻<small>累計送養</small>` : `<b>${r.score}</b> 分<small>隊伍 ${r.len} 隻</small>`;
     row.append(nm, v); list.appendChild(row);
   });
 }
@@ -1073,6 +1099,7 @@ async function showRank(back, by = "score"){
 let lastTs = 0;
 function loop(ts){
   const dt = Math.min(100, ts - (lastTs || ts)); lastTs = ts;
+  if(duoOn()){ DUO.frame(dt); requestAnimationFrame(loop); return; }
   if(G && state !== "paused" && state !== "menu"){
     G.t += dt;
     G.train.forEach(c => { c.happy = Math.max(0, c.happy - dt); c.scared = Math.max(0, c.scared - dt); if(c.puff) c.puff = Math.max(0, c.puff - dt); });
@@ -1226,12 +1253,13 @@ function hideOverlay(){ ov.hidden = true; }
 let overlayBack = null;   // 從圖鑑或說明回去哪裡
 
 function showMenu(){
+  if(duoOn()) DUO.leave();
   state = "menu"; setMusic(false);
   showOverlay(`<h2>選一隻貓當列車長</h2>
     <p class="muted">列車長會一直往前走，沿路收編流浪貓。少見、稀有的貓收編過以後，也可以當列車長。</p>
     <div class="pick" id="pick"></div>
     <p id="pickName" style="font-weight:900;margin:2px 0"></p>
-    <div class="btns"><button class="btn acc" data-act="start">出發！</button><button class="btn" data-act="help">怎麼玩</button></div>
+    <div class="btns"><button class="btn acc" data-act="start">出發！</button><button class="btn" data-act="duo">雙人連線</button><button class="btn" data-act="help">怎麼玩</button></div>
     ${save.rec.games ? `<p class="muted" style="font-size:13px">最高分 ${save.rec.score}・最長隊伍 ${save.rec.len} 隻・圖鑑 ${Object.keys(save.seen).length} / ${BREEDS.length}</p>` : ""}`);
   const pick = document.getElementById("pick");
   BREEDS.forEach(b => {
@@ -1283,6 +1311,7 @@ function showHelp(back){
       <li>撞到<b>牆壁</b>或<b>自己的隊伍</b>就會出事。快撞到的貓咪會嚇到發抖、喵喵叫。</li>
       <li>還有<b>復活次數</b>的話，大家會重新排好隊繼續走。</li>
       <li>手累了隨時按<b>暫停</b>（空白鍵），休息一下再繼續。</li>
+      <li>想跟朋友比賽：選單按<b>雙人連線</b>，一個人開房間，另一個人輸入房間碼，各自用自己的電腦或手機玩。</li>
     </ol>
     <div class="legend" id="legend"></div>
     <h3 class="sh">怎麼算分數</h3>
@@ -1306,13 +1335,14 @@ panel.addEventListener("click", e => {
   const a = e.target.closest("[data-act]"); if(!a) return;
   audio();
   const act = a.dataset.act;
-  if(act === "start" || act === "again"){ newGame(); }
+  if(act.startsWith("duo")){ DUO.act(act, a); }
+  else if(act === "start" || act === "again"){ newGame(); }
   else if(act === "menu"){ showMenu(); }
   else if(act === "resume"){ resume(); }
   else if(act === "book"){ showBook(state === "over" ? "over" : "menu"); }
   else if(act === "help"){ showHelp("menu"); }
   else if(act === "rank"){ showRank(state === "over" ? "over" : "menu"); }
-  else if(act === "rankscore" || act === "ranklen"){ showRank(overlayBack, act === "ranklen" ? "len" : "score"); }
+  else if(act === "rankscore" || act === "ranklen" || act === "rankadopt"){ showRank(overlayBack, {ranklen:"len", rankadopt:"adopted"}[act] || "score"); }
   else if(act === "lbsave"){
     const v = (document.getElementById("lbName").value || "").trim();
     if(!v || v.length > 12){ document.getElementById("lbName").focus(); return; }
@@ -1320,24 +1350,26 @@ panel.addEventListener("click", e => {
   }
   else if(act === "lbrename"){ e.preventDefault(); save.name = ""; persist(); lbStatus = ""; renderLbBox(); }
   else if(act === "back"){
-    if(overlayBack === "over") gameOver();
+    if(overlayBack === "duo") DUO.panel();
+    else if(overlayBack === "over") gameOver();
     else if(overlayBack === "paused"){ showOverlay(`<h2>暫停中</h2><p class="muted">貓咪們在原地等你。</p><div class="btns"><button class="btn acc" data-act="resume">繼續</button><button class="btn" data-act="menu">換列車長／重來</button></div>`); }
     else showMenu();
   }
 });
 document.getElementById("bPause").onclick = () => { audio(); if(state === "menu" || state === "over") return; togglePause(); };
 document.getElementById("bMusic").onclick = () => { save.music = !save.music; persist(); musicLabel(); if(state === "play") setMusic(true); else setMusic(false); };
+const backTo = () => duoOn() ? "duo" : state === "paused" ? "paused" : state === "over" ? "over" : "menu";
 document.getElementById("bBook").onclick = () => {
   if(state === "play" || state === "ready") togglePause();
-  showBook(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
+  showBook(backTo());
 };
 document.getElementById("bRank").onclick = () => {
   if(state === "play" || state === "ready") togglePause();
-  showRank(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
+  showRank(backTo());
 };
 document.getElementById("bHelp").onclick = () => {
   if(state === "play" || state === "ready") togglePause();
-  showHelp(state === "paused" ? "paused" : state === "over" ? "over" : "menu");
+  showHelp(backTo());
 };
 
 // ---------- 開始 ----------
@@ -1348,5 +1380,6 @@ resize(); addEventListener("resize", () => { resize(); });
 showMenu();
 requestAnimationFrame(loop);
 </script>
+<script src="duo.js"></script>
 </body>
 </html>
