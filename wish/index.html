@@ -161,7 +161,7 @@ function wishHtml(w, opts = {}) {
       <div class="t">${esc(w.title)}</div>
       ${w.detail ? `<div class="d">${esc(w.detail)}</div>` : ""}
       ${w.admin_note ? `<div class="note">${SiteIcons.icon("chat", 18)} 薇拉小姐：${esc(w.admin_note)}</div>` : ""}
-      <div class="meta">${fresh ? `<span class="badge new">${SiteIcons.icon("news", 16)}有新消息</span>` : ""}${badge}<span class="sitetag">${SiteIcons.badge(site.badge, 18)}${esc(site.name)}</span><span>${esc(w.author_name)}・${day(w.created_at)}</span>
+      <div class="meta">${fresh ? `<span class="badge new">${SiteIcons.icon("news", 16)}有新消息</span>` : ""}${badge}<span class="sitetag">${SiteIcons.badge(site.badge, 18)}${esc(site.name)}</span><span>#${w.id}・${esc(w.author_name)}・${day(w.created_at)}</span>
         ${w.status === "done" && w.done_at ? `<span>${day(w.done_at)} 完成</span>` : ""}
         ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">去看看 →</a>` : ""}
         ${w.is_author && w.status === "open" && !admin ? `<a href="#" data-del="${w.id}">刪除</a>` : ""}</div>
