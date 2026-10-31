@@ -490,6 +490,11 @@ function contestOf(key){
 function snap(){ HIST.push(JSON.stringify(S.look)); if(HIST.length > 40) HIST.shift(); }
 function undo(){ if(!HIST.length){ toast("沒有可以復原的了"); return; } S.look = JSON.parse(HIST.pop()); save(); render(); }
 $("bUndo").onclick = undo;
+// 重新開始：整套換回一開始的樣子（按錯可以按「復原」救回來）
+$("bReset").onclick = () => {
+  if(!confirm("要清除現在的穿搭，從頭開始嗎？（按錯可以按「復原」救回來）")) return;
+  snap(); S.look = clone(DEFAULT_LOOK); save(); render(); toast("重新開始了！");
+};
 addEventListener("keydown", e => { if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); undo(); } });
 
 // ---------- 換上別人的穿搭（穿搭牆、分享連結）：還沒解鎖的限定單品先拿掉 ----------
