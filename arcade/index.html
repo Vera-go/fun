@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>電玩廳</title>
+<meta name="description" content="30 秒就能玩完的小遊戲：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒。破自己的紀錄，複製成績傳給朋友比一比。">
+<meta property="og:title" content="電玩廳｜30 秒小遊戲">
+<meta property="og:description" content="反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒。破自己的紀錄，傳給朋友比一比。">
+<meta name="theme-color" content="#14142F">
+<style>
+:root{--bg:#14142F;--card:#1F1F45;--card2:#2A2A5A;--ink:#EEEBFF;--muted:#9C98C8;--pink:#FF4FA3;--cyan:#35E0FF;--yellow:#FFD84A;--green:#5CFFA0;--red:#FF5A6E}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;overflow-x:clip}
+body{background:radial-gradient(1200px 500px at 50% -10%,#2B2B66,transparent),var(--bg);min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 4px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header h1{margin:0;font-size:28px;font-weight:900;letter-spacing:2px;text-shadow:0 0 14px rgba(255,79,163,.7)}
+header .sub{font-size:13px;color:var(--muted);font-weight:700}
+.snd{margin-left:auto;border:2px solid var(--card2);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.menu{display:grid;gap:12px}
+.game{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--card2);border-radius:18px;padding:14px;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;touch-action:manipulation}
+.game:active{transform:scale(.985)}
+.game .ic{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center}
+.game b{display:block;font-size:18px}.game small{display:block;color:var(--muted);font-size:13px;margin-top:2px;line-height:1.5}
+.game .best{margin-left:auto;text-align:right;font-size:12px;color:var(--muted);flex:none}.game .best b{font-size:16px;color:var(--yellow)}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.top .t{font-weight:900;font-size:18px}.top .sp{flex:1}
+.btn{border:0;border-radius:14px;padding:12px 18px;font:inherit;font-size:16px;font-weight:900;cursor:pointer;background:var(--pink);color:#fff;box-shadow:0 4px 0 #B52D73;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #B52D73}
+.btn.ghost{background:var(--card2);color:var(--ink);box-shadow:0 4px 0 #1B1B40}
+.btn.sm{padding:8px 13px;font-size:14px}
+.panel{background:var(--card);border:2px solid var(--card2);border-radius:20px;padding:16px;text-align:center}
+.stat{display:flex;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.stat span{background:var(--card2);border-radius:99px;padding:5px 14px;font-weight:900;font-size:14px}
+.stat b{color:var(--yellow)}
+.pad{user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer;border-radius:20px;display:grid;place-items:center;text-align:center;font-weight:900;font-size:24px;line-height:1.5;min-height:300px;padding:16px;transition:background .08s}
+.pad.blue{background:#2B3FA8}.pad.red{background:#B3263E}.pad.green{background:#1FA85A}.pad.gray{background:#44447A}
+.pad small{display:block;font-size:15px;font-weight:700;opacity:.85}
+.holes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0}
+.hole{aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 70%,#0E0E22 55%,#2A2A5A 56%);position:relative;overflow:hidden;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.hole svg{position:absolute;left:12%;right:12%;bottom:6%;width:76%;transform:translateY(110%);transition:transform .09s}
+.hole.up svg{transform:translateY(0)}
+.hole.hit svg{filter:grayscale(1) brightness(.6)}
+.bar{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;margin-bottom:10px}.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--cyan),var(--pink));transform-origin:left}
+.simon{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.sp4{border:0;border-radius:22px;min-height:130px;opacity:.5;cursor:pointer;touch-action:manipulation;transition:opacity .08s,transform .08s}
+.sp4.lit{opacity:1;transform:scale(.97);box-shadow:0 0 28px currentColor}
+.nums{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:8px 0}
+.num{aspect-ratio:1;border:0;border-radius:14px;background:var(--card2);color:var(--ink);font:inherit;font-size:22px;font-weight:900;cursor:pointer;touch-action:manipulation}
+.num.ok{background:#1F7B58;color:#BFFFE0}.num.bad{background:var(--red)}
+.big{font-size:56px;font-weight:900;line-height:1.1;color:var(--yellow);text-shadow:0 0 18px rgba(255,216,74,.5)}
+.sub2{color:var(--muted);font-size:14px;margin-top:6px;line-height:1.7}
+.new{color:var(--green);font-weight:900;font-size:16px;margin-top:6px}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#fff;color:#14142F;border-radius:99px;padding:9px 18px;font-size:14px;font-weight:800;z-index:60}
+.portal-foot{text-align:center;color:#8F8BBF;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:8px 16px 36px}.portal-foot a{display:inline-block;padding:12px 4px;color:#8F8BBF;text-decoration:none}.portal-foot a:hover{text-decoration:underline}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><rect x="4" y="12" width="40" height="26" rx="10" fill="#2A2A5A" stroke="#FF4FA3" stroke-width="3"/><path d="M15 19 V31 M9 25 H21" stroke="#35E0FF" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="22" r="3.2" fill="#FFD84A"/><circle cx="38" cy="28" r="3.2" fill="#5CFFA0"/></svg>
+    <div><h1>電玩廳</h1><div class="sub">30 秒小遊戲，破自己的紀錄</div></div>
+    <button class="snd" id="snd" aria-label="聲音開關">聲音：開</button>
+  </header>
+  <div id="view"></div>
+</div>
+
+<!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
+<footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const KEY = "arcade.v1";
+let D = {best:{}, mute:false};
+try{ Object.assign(D, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
+D.best = D.best || {};
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} };
+
+/* ---------- 聲音 ---------- */
+let AC = null;
+function audio(){ try{ AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if(AC.state === "suspended") AC.resume(); }catch(e){} return AC; }
+function beep(f, len = .1, vol = .09, type = "square"){
+  if(D.mute) return; const a = audio(); if(!a) return;
+  const t = a.currentTime, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + len);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + len + .02);
+}
+function buzz(ms){ if(!D.mute && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
+function paintSnd(){ $("#snd").textContent = D.mute ? "聲音：關" : "聲音：開"; }
+$("#snd").addEventListener("click", () => { D.mute = !D.mute; save(); paintSnd(); if(!D.mute) beep(660); });
+paintSnd();
+
+/* ---------- 共用 ---------- */
+const timers = new Set();
+const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
+let loop = null;
+function cleanup(){ timers.forEach(clearTimeout); timers.clear(); if(loop){ clearInterval(loop); loop = null; } }
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2200);
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const view = html => { $("#view").innerHTML = html; };
+const down = (el, fn) => el.addEventListener("pointerdown", e => { e.preventDefault(); fn(e); });
+
+/* 記分規則：dir 1 越大越好、-1 越小越好 */
+const GAMES = {
+  react:{name:"反應速度", tag:"畫面變綠就點，5 回合平均", dir:-1, fmt:v => Math.round(v) + " ms", col:"#35E0FF", ic:'<path d="M26 6 L14 28 H24 L20 42 L34 18 H24 Z" fill="#35E0FF"/>'},
+  whack:{name:"打貓", tag:"30 秒，打越多越好，金貓 +3", dir:1, fmt:v => v + " 分", col:"#FF4FA3", ic:'<circle cx="24" cy="27" r="13" fill="#FF4FA3"/><path d="M12 20 L14 7 L23 15 Z M36 20 L34 7 L25 15 Z" fill="#FF4FA3"/>'},
+  simon:{name:"記憶挑戰", tag:"記住燈亮的順序再照著點", dir:1, fmt:v => v + " 關", col:"#FFD84A", ic:'<rect x="8" y="8" width="14" height="14" rx="4" fill="#FFD84A"/><rect x="26" y="8" width="14" height="14" rx="4" fill="#5CFFA0"/><rect x="8" y="26" width="14" height="14" rx="4" fill="#35E0FF"/><rect x="26" y="26" width="14" height="14" rx="4" fill="#FF4FA3"/>'},
+  nums:{name:"數字衝刺", tag:"從 1 點到 25，越快越好", dir:-1, fmt:v => (v / 1000).toFixed(2) + " 秒", col:"#5CFFA0", ic:'<text x="24" y="33" text-anchor="middle" font-size="26" font-weight="900" fill="#5CFFA0" font-family="system-ui">25</text>'},
+  tap:{name:"狂點 10 秒", tag:"10 秒內點越多下越好", dir:1, fmt:v => v.toFixed(1) + " 下/秒", col:"#FF8A5B", ic:'<circle cx="24" cy="24" r="14" fill="none" stroke="#FF8A5B" stroke-width="4"/><circle cx="24" cy="24" r="6" fill="#FF8A5B"/>'}
+};
+function isBetter(id, v){ const b = D.best[id]; return b == null || (GAMES[id].dir === 1 ? v > b : v < b); }
+function record(id, v){ const nb = isBetter(id, v); if(nb){ D.best[id] = v; save(); } return nb; }
+function resultView(id, value, extra, newBest){
+  const g = GAMES[id];
+  const text = `電玩廳｜${g.name} ${g.fmt(value)}${D.best[id] != null ? "（我的最佳 " + g.fmt(D.best[id]) + "）" : ""}\n來挑戰我：${location.href.split("#")[0]}`;
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${esc(g.name)}</span></div>
+    <div class="panel"><div class="sub2">這次成績</div><div class="big">${esc(g.fmt(value))}</div>${newBest ? '<div class="new">新紀錄！</div>' : ""}
+    <div class="sub2">最佳：${esc(g.fmt(D.best[id]))}${extra ? "<br>" + extra : ""}</div>
+    <div class="row"><button class="btn" data-again="${id}">再玩一次</button><button class="btn ghost" data-copy="1">複製成績</button></div></div>`);
+  $("#view").dataset.copy = text;
+  beep(newBest ? 880 : 440, .25, .1, "triangle"); if(newBest) buzz(120);
+}
+
+/* ---------- 選單 ---------- */
+function menu(){
+  cleanup();
+  view(`<div class="menu">${Object.entries(GAMES).map(([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`).join("")}</div>`);
+}
+
+/* ---------- 1. 反應速度 ---------- */
+function gReact(){
+  cleanup();
+  let round = 0, times = [], stage = "ready", t0 = 0;
+  const pad = () => $("#pad");
+  const paint = (cls, html) => { const p = pad(); p.className = "pad " + cls; p.innerHTML = html; };
+  const info = () => `<div class="stat"><span>第 <b>${Math.min(round + 1, 5)}</b> / 5 回合</span>${times.length ? `<span>上一次 <b>${times[times.length - 1]} ms</b></span>` : ""}</div>`;
+  const shell = () => view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${GAMES.react.name}</span></div><div id="info">${info()}</div><div class="pad gray" id="pad"></div>`);
+  shell(); paint("gray", "點一下開始<small>變綠的瞬間再點</small>");
+  const wait = () => { stage = "wait"; $("#info").innerHTML = info(); paint("red", "等一下⋯<small>還不要點</small>"); later(() => { stage = "go"; t0 = performance.now(); paint("green", "點！"); beep(880, .08); }, 1500 + Math.random() * 2800); };
+  down(pad(), () => {
+    audio();
+    if(stage === "ready") return wait();
+    if(stage === "wait"){ cleanup(); stage = "early"; paint("gray", "太早了！<small>點一下重來這一回合</small>"); beep(160, .25, .1, "sawtooth"); buzz(150); return; }
+    if(stage === "early") return wait();
+    if(stage === "go"){
+      const ms = Math.round(performance.now() - t0); times.push(ms); round++; beep(520, .08);
+      if(round >= 5){ const avg = times.reduce((a, b) => a + b, 0) / 5; const nb = record("react", Math.round(avg)); return resultView("react", Math.round(avg), "五回合：" + times.join("、") + " ms", nb); }
+      stage = "ready"; $("#info").innerHTML = info(); paint("gray", ms + " ms<small>點一下，下一回合</small>");
+    }
+  });
+}
+
+/* ---------- 2. 打貓 ---------- */
+const cat = gold => `<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 24 L10 6 L24 15 Z M52 24 L50 6 L36 15 Z" fill="${gold ? "#FFD84A" : "#FF8A5B"}"/><ellipse cx="30" cy="36" rx="22" ry="20" fill="${gold ? "#FFD84A" : "#FF8A5B"}"/><circle cx="21" cy="33" r="3.4" fill="#14142F"/><circle cx="39" cy="33" r="3.4" fill="#14142F"/><path d="M26 41 Q30 45 34 41" fill="none" stroke="#14142F" stroke-width="2.4" stroke-linecap="round"/><path d="M5 38 H15 M5 44 H15 M45 38 H55 M45 44 H55" stroke="#14142F" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+function gWhack(){
+  cleanup();
+  let score = 0, left = 30, started = false, up = {};
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${GAMES.whack.name}</span></div>
+    <div class="stat"><span>分數 <b id="sc">0</b></span><span>剩 <b id="tm">30</b> 秒</span></div><div class="bar"><i id="barfill"></i></div>
+    <div class="holes">${Array.from({length: 9}, (_, i) => `<div class="hole" data-h="${i}"></div>`).join("")}</div><p class="sub2" style="text-align:center">點任何一個洞開始。金色的貓 +3 分。</p>`);
+  const holes = [...document.querySelectorAll(".hole")];
+  const hide = i => { if(up[i]){ holes[i].classList.remove("up"); delete up[i]; } };
+  const spawn = () => {
+    if(left <= 0) return;
+    const free = holes.map((_, i) => i).filter(i => !up[i]); if(!free.length) return later(spawn, 200);
+    const i = free[Math.floor(Math.random() * free.length)], gold = Math.random() < .12;
+    holes[i].innerHTML = cat(gold); holes[i].classList.remove("hit"); holes[i].classList.add("up"); up[i] = {gold};
+    const stay = Math.max(520, 1000 - (30 - left) * 15);
+    later(() => hide(i), stay);
+    later(spawn, Math.max(300, 700 - (30 - left) * 12));
+  };
+  holes.forEach((h, i) => down(h, () => {
+    audio();
+    if(!started){ started = true; $("#view").querySelector(".sub2").textContent = ""; const t = Date.now(); loop = setInterval(() => {
+        left = Math.max(0, 30 - Math.floor((Date.now() - t) / 1000)); $("#tm").textContent = left; $("#barfill").style.transform = `scaleX(${left / 30})`;
+        if(left <= 0){ cleanup(); const nb = record("whack", score); resultView("whack", score, "", nb); }
+      }, 200); spawn(); }
+    if(up[i]){ const g = up[i].gold; score += g ? 3 : 1; $("#sc").textContent = score; holes[i].classList.add("hit"); beep(g ? 990 : 640, .07); buzz(25); setTimeout(() => hide(i), 90); }
+  }));
+}
+
+/* ---------- 3. 記憶挑戰 ---------- */
+function gSimon(){
+  cleanup();
+  const cols = ["#FF4FA3", "#35E0FF", "#FFD84A", "#5CFFA0"], freq = [262, 330, 392, 523];
+  let seq = [], pos = 0, accept = false;
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${GAMES.simon.name}</span></div>
+    <div class="stat"><span>第 <b id="lv">1</b> 關</span></div><div class="simon">${cols.map((c, i) => `<button class="sp4" data-p="${i}" style="background:${c};color:${c}" aria-label="第 ${i + 1} 個"></button>`).join("")}</div>
+    <p class="sub2" id="msg" style="text-align:center">看燈亮的順序</p>`);
+  const pads = [...document.querySelectorAll(".sp4")];
+  const flash = (i, ms = 320) => { pads[i].classList.add("lit"); beep(freq[i], ms / 1000, .1, "triangle"); later(() => pads[i].classList.remove("lit"), ms); };
+  const show = () => {
+    accept = false; pos = 0; $("#msg").textContent = "看燈亮的順序"; $("#lv").textContent = seq.length;
+    const gap = Math.max(260, 620 - seq.length * 25);
+    seq.forEach((n, k) => later(() => flash(n, gap * .6), 700 + k * gap));
+    later(() => { accept = true; $("#msg").textContent = "換你了"; }, 700 + seq.length * gap);
+  };
+  const next = () => { seq.push(Math.floor(Math.random() * 4)); show(); };
+  pads.forEach((p, i) => down(p, () => {
+    audio();
+    if(!accept) return;
+    flash(i, 200);
+    if(seq[pos] !== i){ accept = false; beep(130, .4, .12, "sawtooth"); buzz(200); const score = seq.length - 1; later(() => { const nb = record("simon", score); resultView("simon", score, score === 0 ? "還沒過任何一關，再試一次。" : "", nb); }, 500); return; }
+    pos++;
+    if(pos === seq.length){ accept = false; later(next, 700); }
+  }));
+  later(next, 300);
+}
+
+/* ---------- 4. 數字衝刺 ---------- */
+function gNums(){
+  cleanup();
+  const order = Array.from({length: 25}, (_, i) => i + 1).sort(() => Math.random() - .5);
+  let want = 1, t0 = 0;
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${GAMES.nums.name}</span></div>
+    <div class="stat"><span>要點 <b id="want">1</b></span><span id="clock">0.00 秒</span></div>
+    <div class="nums">${order.map(n => `<button class="num" data-n="${n}">${n}</button>`).join("")}</div><p class="sub2" style="text-align:center">點到 1 開始計時，依序點到 25。</p>`);
+  [...document.querySelectorAll(".num")].forEach(b => down(b, () => {
+    audio(); const n = +b.dataset.n;
+    if(n !== want){ b.classList.add("bad"); beep(150, .15, .1, "sawtooth"); setTimeout(() => b.classList.remove("bad"), 180); return; }
+    if(n === 1){ t0 = performance.now(); loop = setInterval(() => { $("#clock").textContent = ((performance.now() - t0) / 1000).toFixed(2) + " 秒"; }, 60); }
+    b.classList.add("ok"); beep(300 + n * 18, .05); want++; $("#want").textContent = Math.min(want, 25);
+    if(want > 25){ cleanup(); const ms = Math.round(performance.now() - t0); const nb = record("nums", ms); resultView("nums", ms, "", nb); }
+  }));
+}
+
+/* ---------- 5. 狂點 10 秒 ---------- */
+function gTap(){
+  cleanup();
+  let n = 0, t0 = 0, on = false;
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${GAMES.tap.name}</span></div>
+    <div class="stat"><span>次數 <b id="cnt">0</b></span><span>剩 <b id="tm">10.0</b> 秒</span></div><div class="pad gray" id="pad">點這裡<small>第一下開始計時，10 秒</small></div>`);
+  down($("#pad"), () => {
+    audio();
+    if(!on){ on = true; t0 = performance.now(); $("#pad").className = "pad blue"; loop = setInterval(() => {
+        const left = Math.max(0, 10 - (performance.now() - t0) / 1000); $("#tm").textContent = left.toFixed(1);
+        if(left <= 0){ cleanup(); on = false; const cps = n / 10; const nb = record("tap", cps); resultView("tap", cps, "共點了 " + n + " 下", nb); }
+      }, 50); }
+    n++; $("#cnt").textContent = n; $("#pad").innerHTML = n + "<small>繼續點！</small>"; beep(400 + (n % 8) * 40, .03, .05); buzz(8);
+  });
+}
+
+const RUN = {react:gReact, whack:gWhack, simon:gSimon, nums:gNums, tap:gTap};
+$("#view").addEventListener("click", e => {
+  const p = e.target.closest("[data-play]"); if(p){ audio(); RUN[p.dataset.play](); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-menu]")){ menu(); return; }
+  const a = e.target.closest("[data-again]"); if(a){ audio(); RUN[a.dataset.again](); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-copy]")){ const t = $("#view").dataset.copy || ""; navigator.clipboard.writeText(t).then(() => toast("已複製，傳給朋友比一比"), () => prompt("複製下面的文字：", t)); }
+});
+document.addEventListener("visibilitychange", () => { if(document.hidden && loop){ /* 切到別的畫面就回選單，避免偷跑 */ menu(); } });
+menu();
+</script>
+</body>
+</html>
