@@ -222,7 +222,8 @@ function hueFamily(hex){
 function worn(look){
   const dress = look.dress && DRESSES[look.dress.id];
   const slots = ["dress", "outer", "socks", "shoes", ...ACC_SLOTS];
-  if(!dress || dress.overTop) slots.unshift("top", "bottom");
+  if(!dress) slots.unshift("top", "bottom");
+  else if(dress.overTop) slots.unshift("top");
   return slots.filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
 }
 function scoreLook(look, t){

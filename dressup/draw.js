@@ -60,26 +60,35 @@ const ARM = "M119 222 C108 240 102 280 100 312";          // 左手臂（右手�
 const SLEEVE_L = "M119 221 C108 240 102 278 100.5 304";   // 長袖
 const SLEEVE_S = "M119 220 Q113 232 110 246";             // 短袖
 const LEG = "M137 316 L135 428";
+// 身體輪廓：脖子順著斜斜的肩線接到身體；手臂從肩膀往手腕變細；腿從大腿往腳踝變細（左邊，右邊用鏡射）
+const BODY = "M141 176 L141 203 C141 209 133 211 124 213 C115 216 112 221 113 230 L116 304 Q118 320 122 322 L178 322 Q182 320 184 304 L187 230 C188 221 185 216 176 213 C167 211 159 209 159 203 L159 176 Z";
+const ARM_SHAPE = "M114 220 C104 244 97 274 95 312 L107 312 C109 284 116 256 126 234 Z";
+const LEG_SHAPE = "M122 314 C123 350 127 392 128 431 L142 431 C142 394 146 352 150 318 Z";
+// 手：手掌加大拇指（大拇指朝身體）；外框不畫上緣，跟手臂或袖口接起來沒有線
+const HAND = "M94 304 C91 314 92 323 99 327 C105 330 110 326 110 320 C113 319 115 315 113 312 C111 310 109 311 109 307 L108.4 302";
+// 袖子：跟著手臂的形狀，上寬下窄（w 越大越寬鬆）；長袖有袖口線
+const SLV_L = (f, w = 26) => { const k = (w - 24) / 2; return PB(`M${113 - k} 218 C${101 - k} 242 ${93 - k} 272 ${91 - k} 305 L${111 + k * .4} 305 C${113 + k * .4} 282 119 258 129 234 Z`, f) + PB(`M${91.5 - k} 298 L${111 + k * .4} 298`, "none", 1.6); };
+const SLV_S = (f, w = 26) => { const k = (w - 26) / 2; return PB(`M${113 - k} 216 C${105 - k} 228 ${99 - k} 242 ${98 - k} 254 L121 258 C122 248 125 238 130 230 Z`, f); };
 const TORSO = "M114 224 Q117 210 150 207 Q183 210 186 224 L184 300 Q150 306 116 300 Z";
 
 // ---------- 上衣 ----------
 const TOPS = {
   tee:     {name:"T 恤", tags:["casual", "summer", "sport", "snack"], color:"#FFFFFF",
-    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P(TORSO, f) + LN("M137 211 Q150 222 163 211")},
+    draw:(f, c) => SLV_S(f, 26) + P(TORSO, f) + LN("M137 211 Q150 222 163 211")},
   shirt:   {name:"襯衫", tags:["school", "neat", "formal"], color:"#FFFFFF",
-    draw:(f, c) => TUBES(SLEEVE_L, 24, f) + P(TORSO, f) + LN("M150 216 L150 302", 1.8) + [232, 254, 276].map(y => C(153, y, 2, shade(c, -.3), 0)).join("") + PB("M150 217 L134 206 L128 222 Z", f)},
+    draw:(f, c) => SLV_L(f, 24) + P(TORSO, f) + LN("M150 216 L150 302", 1.8) + [232, 254, 276].map(y => C(153, y, 2, shade(c, -.3), 0)).join("") + PB("M150 217 L134 206 L128 222 Z", f)},
   hoodie:  {name:"帽 T", tags:["casual", "warm", "sport"], color:"#B9A3E8",
-    draw:(f, c) => TUBES(SLEEVE_L, 27, f) + P("M118 216 Q150 194 182 216 Q150 232 118 216 Z", shade(c, -.15)) + P(TORSO, f) + P("M128 266 L172 266 L177 294 L123 294 Z", f, 2.2) + LN("M142 220 L140 248", 1.8) + LN("M158 220 L160 248", 1.8) + C(140, 250, 2.2, "#fff", 1.4) + C(160, 250, 2.2, "#fff", 1.4)},
+    draw:(f, c) => SLV_L(f, 27) + P("M118 216 Q150 194 182 216 Q150 232 118 216 Z", shade(c, -.15)) + P(TORSO, f) + P("M128 266 L172 266 L177 294 L123 294 Z", f, 2.2) + LN("M142 220 L140 248", 1.8) + LN("M158 220 L160 248", 1.8) + C(140, 250, 2.2, "#fff", 1.4) + C(160, 250, 2.2, "#fff", 1.4)},
   cami:    {name:"細肩帶背心", tags:["summer", "beach", "party"], color:"#F7A8C4",
     draw:(f, c) => LN("M127 228 L129 208", 2.6) + LN("M173 228 L171 208", 2.6) + P("M120 230 Q150 240 180 230 L184 300 Q150 306 116 300 Z", f)},
   sweater: {name:"毛衣", tags:["warm", "winter", "casual"], color:"#F6D65A",
-    draw:(f, c) => TUBES(SLEEVE_L, 28, f) + P(TORSO, f) + P("M116 290 Q150 296 184 290 L184 302 Q150 308 116 302 Z", shade(c, -.1), 2.2) + LN("M136 209 Q150 222 164 209", 3, shade(c, -.25)) + [126, 138, 150, 162, 174].map(x => LN(`M${x} 292 L${x} 302`, 1.4, shade(c, -.3))).join("")},
+    draw:(f, c) => SLV_L(f, 28) + P(TORSO, f) + P("M116 290 Q150 296 184 290 L184 302 Q150 308 116 302 Z", shade(c, -.1), 2.2) + LN("M136 209 Q150 222 164 209", 3, shade(c, -.25)) + [126, 138, 150, 162, 174].map(x => LN(`M${x} 292 L${x} 302`, 1.4, shade(c, -.3))).join("")},
   sailor:  {name:"水手服", tags:["school", "neat"], color:"#FFFFFF",
-    draw:(f, c) => TUBES(SLEEVE_L, 24, f) + P(TORSO, f) + P("M126 211 L150 248 L174 211 L187 224 L185 236 L150 256 L115 236 L113 224 Z", "#2C3E70") + LN("M118 230 L150 249 L182 230", 1.6, "#fff") + P("M150 252 L136 244 L136 262 Z M150 252 L164 244 L164 262 Z", "#D9414E", 2) + P("M150 252 L142 280 L150 274 L158 280 Z", "#D9414E", 2)},
+    draw:(f, c) => SLV_L(f, 24) + P(TORSO, f) + P("M126 211 L150 248 L174 211 L187 224 L185 236 L150 256 L115 236 L113 224 Z", "#2C3E70") + LN("M118 230 L150 249 L182 230", 1.6, "#fff") + P("M150 252 L136 244 L136 262 Z M150 252 L164 244 L164 262 Z", "#D9414E", 2) + P("M150 252 L142 280 L150 274 L158 280 Z", "#D9414E", 2)},
   jersey:  {name:"運動服", tags:["sport"], color:"#4C8FE0",
-    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P(TORSO, f) + P("M138 209 L150 226 L162 209", "none", 2.6) + `<text x="150" y="276" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.6" font-family="system-ui,sans-serif">7</text>` + LN("M117 236 L116 298", 4, "#fff") + LN("M183 236 L184 298", 4, "#fff")},
+    draw:(f, c) => SLV_S(f, 26) + P(TORSO, f) + P("M138 209 L150 226 L162 209", "none", 2.6) + `<text x="150" y="276" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.6" font-family="system-ui,sans-serif">7</text>` + LN("M117 236 L116 298", 4, "#fff") + LN("M183 236 L184 298", 4, "#fff")},
   crop:    {name:"短版上衣", tags:["summer", "casual", "party"], color:"#9ADBC0",
-    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P("M114 224 Q117 210 150 207 Q183 210 186 224 L185 266 Q150 274 115 266 Z", f) + LN("M138 211 Q150 220 162 211")},
+    draw:(f, c) => SLV_S(f, 26) + P("M114 224 Q117 210 150 207 Q183 210 186 224 L185 266 Q150 274 115 266 Z", f) + LN("M138 211 Q150 220 162 211")},
 };
 // ---------- 下身 ----------
 const BOTTOMS = {
@@ -105,7 +114,7 @@ const DRESSES = {
   yukata:   {name:"浴衣", tags:["festival", "summer"], color:"#9BD0F5",
     draw:(f, c) => PB("M120 218 L98 230 L86 302 L112 302 L124 240 Z", f) + P("M114 222 Q150 206 186 222 L190 422 L110 422 Z", f) + P("M140 208 L160 268", "none", 2.4) + P("M160 208 L150 232", "none", 2.4) + P("M114 268 L186 268 L186 296 L114 296 Z", "#F2C14E") + P("M150 282 L136 302 L150 296 L164 302 Z", "#E8679A", 2)},
   qipao:    {name:"旗袍", tags:["party", "formal"], color:"#D9414E",
-    draw:(f, c) => TUBES(SLEEVE_S, 25, f) + P("M114 224 Q117 210 150 207 Q183 210 186 224 L184 300 Q190 360 186 404 L162 404 L160 370 L156 404 L114 404 Q110 360 116 300 Z", f) + P("M138 208 L138 200 L162 200 L162 208", f, 2.2) + LN("M150 212 Q170 222 182 238", 2, "#F6D65A") + [226, 244].map(y => LN(`M172 ${y} L182 ${y}`, 2.4, "#F6D65A")).join("")},
+    draw:(f, c) => SLV_S(f, 25) + P("M114 224 Q117 210 150 207 Q183 210 186 224 L184 300 Q190 360 186 404 L162 404 L160 370 L156 404 L114 404 Q110 360 116 300 Z", f) + P("M138 208 L138 200 L162 200 L162 208", f, 2.2) + LN("M150 212 Q170 222 182 238", 2, "#F6D65A") + [226, 244].map(y => LN(`M172 ${y} L182 ${y}`, 2.4, "#F6D65A")).join("")},
   pinafore: {name:"吊帶裙", tags:["school", "casual", "neat"], color:"#8A5A3C", overTop:true,
     draw:(f, c) => LN("M130 210 L134 250", 4) + LN("M170 210 L166 250", 4) + LN("M130 210 L134 250", 2.4, c) + LN("M170 210 L166 250", 2.4, c) + P("M132 246 L168 246 L170 290 L194 350 L106 350 L130 290 Z", f) + C(134, 252, 2.6, "#F6D65A", 1.4) + C(166, 252, 2.6, "#F6D65A", 1.4)},
 };
@@ -113,15 +122,15 @@ const DRESSES = {
 const OUTER_PANEL = "M114 224 Q117 210 140 208 L144 304 L114 304 Z";
 const OUTERS = {
   jacket:   {name:"夾克", tags:["casual", "warm"], color:"#4FA36B",
-    draw:(f, c) => TUBES(SLEEVE_L, 29, f) + PB(OUTER_PANEL, f) + PB("M140 208 L132 230 L144 238", "none", 2.2) + PB("M118 296 L142 296", "none", 2)},
+    draw:(f, c) => SLV_L(f, 29) + PB(OUTER_PANEL, f) + PB("M140 208 L132 230 L144 238", "none", 2.2) + PB("M118 296 L142 296", "none", 2)},
   coat:     {name:"長大衣", tags:["winter", "warm", "neat"], color:"#D9B99B",
-    draw:(f, c) => TUBES(SLEEVE_L, 30, f) + PB("M114 224 Q117 210 140 208 L146 382 L104 382 Z", f) + PB("M140 208 L130 236 L145 246", f, 2.2) + [270, 300, 330].map(y => C(140, y, 3, shade(c, -.35), 1.4) + C(160, y, 3, shade(c, -.35), 1.4)).join("") + P("M112 296 L188 296 L188 306 L112 306 Z", shade(c, -.15), 2)},
+    draw:(f, c) => SLV_L(f, 30) + PB("M114 224 Q117 210 140 208 L146 382 L104 382 Z", f) + PB("M140 208 L130 236 L145 246", f, 2.2) + [270, 300, 330].map(y => C(140, y, 3, shade(c, -.35), 1.4) + C(160, y, 3, shade(c, -.35), 1.4)).join("") + P("M112 296 L188 296 L188 306 L112 306 Z", shade(c, -.15), 2)},
   cardigan: {name:"開襟衫", tags:["school", "neat", "warm"], color:"#F6E7C8",
-    draw:(f, c) => TUBES(SLEEVE_L, 27, f) + PB("M114 224 Q117 210 138 208 L146 302 L114 302 Z", f) + [240, 262, 284].map(y => C(141, y, 2.6, shade(c, -.35), 1.2)).join("") + PB("M116 292 L144 294", "none", 1.6)},
+    draw:(f, c) => SLV_L(f, 27) + PB("M114 224 Q117 210 138 208 L146 302 L114 302 Z", f) + [240, 262, 284].map(y => C(141, y, 2.6, shade(c, -.35), 1.2)).join("") + PB("M116 292 L144 294", "none", 1.6)},
   blazer:   {name:"西裝外套", tags:["school", "formal", "neat"], color:"#2C3E70",
-    draw:(f, c) => TUBES(SLEEVE_L, 28, f) + PB("M114 224 Q117 210 140 208 L146 308 L114 308 Z", f) + PB("M140 208 L128 238 L146 262", f, 2.2) + P("M122 276 L136 276", "none", 2) + star(176, 248, 6, "#F6D65A", 1.4)},
+    draw:(f, c) => SLV_L(f, 28) + PB("M114 224 Q117 210 140 208 L146 308 L114 308 Z", f) + PB("M140 208 L128 238 L146 262", f, 2.2) + P("M122 276 L136 276", "none", 2) + star(176, 248, 6, "#F6D65A", 1.4)},
   raincoat: {name:"雨衣", tags:["rain"], color:"#F6D65A",
-    draw:(f, c) => TUBES(SLEEVE_L, 30, f) + P("M118 216 Q150 194 182 216 Q150 230 118 216 Z", shade(c, -.12)) + P("M114 224 Q117 210 150 207 Q183 210 186 224 L196 364 Q150 372 104 364 Z", f) + LN("M150 214 L150 366", 1.8) + [240, 276, 312].map(y => C(156, y, 3, "#fff", 1.4)).join("")},
+    draw:(f, c) => SLV_L(f, 30) + P("M118 216 Q150 194 182 216 Q150 230 118 216 Z", shade(c, -.12)) + P("M114 224 Q117 210 150 207 Q183 210 186 224 L196 364 Q150 372 104 364 Z", f) + LN("M150 214 L150 366", 1.8) + [240, 276, 312].map(y => C(156, y, 3, "#fff", 1.4)).join("")},
 };
 // ---------- 襪子、鞋子 ----------
 const SOCKS = {
@@ -337,9 +346,9 @@ const BGS = {
 // ---------- 第二批單品：男生／中性風格、節慶（萬聖節、聖誕節、新年） ----------
 Object.assign(TOPS, {
   polo:     {name:"Polo 衫", tags:["casual", "sport", "neat"], color:"#4FA36B",
-    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P(TORSO, f) + LN("M150 214 L150 240", 1.8) + C(153, 224, 1.8, shade(c, -.35), 0) + C(153, 234, 1.8, shade(c, -.35), 0) + PB("M150 216 L136 206 L132 220 Z", shade(c, .25), 2.2)},
+    draw:(f, c) => SLV_S(f, 26) + P(TORSO, f) + LN("M150 214 L150 240", 1.8) + C(153, 224, 1.8, shade(c, -.35), 0) + C(153, 234, 1.8, shade(c, -.35), 0) + PB("M150 216 L136 206 L132 220 Z", shade(c, .25), 2.2)},
   tieshirt: {name:"制服襯衫領帶", tags:["school", "neat", "formal"], color:"#FFFFFF",
-    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P(TORSO, f) + PB("M150 217 L134 206 L128 222 Z", f) + P("M150 218 L144 226 L147 272 L150 280 L153 272 L156 226 Z", "#2C3E70", 2) + LN("M146 238 L154 232 M146 252 L154 246", 1.6, "#D9414E")},
+    draw:(f, c) => SLV_S(f, 26) + P(TORSO, f) + PB("M150 217 L134 206 L128 222 Z", f) + P("M150 218 L144 226 L147 272 L150 280 L153 272 L156 226 Z", "#2C3E70", 2) + LN("M146 238 L154 232 M146 252 L154 246", 1.6, "#D9414E")},
   tank:     {name:"背心", tags:["summer", "sport", "beach"], color:"#F6D65A",
     draw:(f, c) => P("M128 208 Q150 226 172 208 L180 224 Q184 240 184 300 Q150 306 116 300 Q116 240 120 224 Z", f)},
 });
@@ -353,7 +362,7 @@ Object.assign(BOTTOMS, {
 });
 Object.assign(OUTERS, {
   track: {name:"運動外套", tags:["sport", "casual"], color:"#D9414E",
-    draw:(f, c) => TUBES(SLEEVE_L, 29, f) + TUBE("M116 226 C106 248 101 280 99.5 302", 2.5, "#fff") + TUBE(MX("M116 226 C106 248 101 280 99.5 302"), 2.5, "#fff") + PB("M114 224 Q117 210 140 208 L148 304 L114 304 Z", f) + LN("M150 214 L150 304", 2.2, "#fff") + LN("M150 214 L150 304", .8) + PB("M138 208 L134 222 L148 222", "none", 2)},
+    draw:(f, c) => SLV_L(f, 29) + TUBE("M116 226 C106 248 101 280 99.5 302", 2.5, "#fff") + TUBE(MX("M116 226 C106 248 101 280 99.5 302"), 2.5, "#fff") + PB("M114 224 Q117 210 140 208 L148 304 L114 304 Z", f) + LN("M150 214 L150 304", 2.2, "#fff") + LN("M150 214 L150 304", .8) + PB("M138 208 L134 222 L148 222", "none", 2)},
   cape:  {name:"斗篷", tags:["halloween", "party"], color:"#2E2B2B",
     draw:(f, c) => PB("M124 210 Q102 270 82 392 Q100 400 116 392 Q120 300 140 214 Z", f) + PB("M128 208 Q150 222 172 208 L176 214 Q150 230 124 214 Z", "#D9414E", 2.2) + C(150, 218, 4, "#F6D65A", 1.6)},
 });
@@ -413,10 +422,10 @@ function drawLook(L, opt = {}){
   s += E(150, 448, 62, 9, "rgba(58,42,32,.18)", 0);
   // 後面的頭髮
   s += (HAIRB[L.hairB] || HAIRB.long).draw(L.hairC);
-  // 身體
-  s += TUBE(LEG, 20, skin) + TUBE(MX(LEG), 20, skin);
-  s += TUBE(ARM, 16, skin) + TUBE(MX(ARM), 16, skin);
-  s += P(TORSO, skin) + P("M141 180 L141 214 L159 214 L159 180 Z", skin);
+  // 身體：全部合成一塊描邊（先畫粗的墨線，再蓋上膚色），接縫不會有線
+  const parts = [BODY, ARM_SHAPE, MX(ARM_SHAPE), LEG_SHAPE, MX(LEG_SHAPE)];
+  s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
+  s += LN("M142 184 Q150 190 158 184", 2, shade(skin, -.14));   // 下巴下面淡淡的影子
   // 襪子、鞋子
   s += item(SOCKS, "socks");
   const shoe = L.shoes && SHOES[L.shoes.id];
@@ -425,14 +434,15 @@ function drawLook(L, opt = {}){
   // 打底的小背心和短褲（不會露出不雅的地方）
   s += P("M120 230 Q150 240 180 230 L184 300 Q150 306 116 300 Z", "#F6F2EA", 2.2) + P("M117 292 L183 292 L185 326 L153 326 L150 318 L147 326 L115 326 Z", "#F6F2EA", 2.2);
   const dress = L.dress && DRESSES[L.dress.id];
-  if(!dress || dress.overTop){ s += item(BOTTOMS, "bottom"); s += item(TOPS, "top"); }
+  if(!dress) s += item(BOTTOMS, "bottom");
+  if(!dress || dress.overTop) s += item(TOPS, "top");   // 吊帶裙露出裡面的上衣，下身被裙子蓋住
   if(dress) s += item(DRESSES, "dress");
   s += item(OUTERS, "outer");
   s += item(NECKS, "neck");
   s += item(SCARVES, "scarf");
   if(L.bag && L.bag.id !== "handbag") s += item(BAGS, "bag");
   // 手
-  s += C(100, 318, 9.5, skin) + C(200, 318, 9.5, skin);
+  s += [HAND, MX(HAND)].map(d => `<path d="${d} Z" fill="${skin}"/>` + LN(d, 2.6)).join("");
   if(L.bag && L.bag.id === "handbag") s += item(BAGS, "bag");
   // 頭
   s += C(93, 142, 10, skin) + C(207, 142, 10, skin);
