@@ -224,26 +224,53 @@ const EYE_X = [128, 172], EYE_Y = 138;
 const EYES = {
   round:   {name:"圓圓眼"},
   sparkle: {name:"閃亮眼"},
+  lashes:  {name:"長睫毛"},
+  droopy:  {name:"下垂眼"},
+  upturn:  {name:"上挑眼"},
+  almond:  {name:"杏眼"},
+  teary:   {name:"淚汪汪"},
+  heart:   {name:"愛心眼"},
+  bean:    {name:"豆豆眼"},
   smile:   {name:"笑眼"},
+  squint:  {name:"用力閉眼"},
   cat:     {name:"貓咪眼"},
   wink:    {name:"眨眼"},
   sleepy:  {name:"睏睏眼"},
   star:    {name:"星星眼", lock:"school"},
 };
-function drawEye(type, cx, ec, right){
-  const cy = EYE_Y;
-  if(type === "smile" || (type === "wink" && right)) return LN(`M${cx - 10} ${cy + 3} Q${cx} ${cy - 9} ${cx + 10} ${cy + 3}`, 3);
-  if(type === "sleepy") return LN(`M${cx - 10} ${cy} Q${cx} ${cy + 7} ${cx + 10} ${cy}`, 3) + LN(`M${cx - 10} ${cy} L${cx - 13} ${cy - 3}`, 2);
-  if(type === "star") return star(cx, cy, 13, ec, 2.2) + C(cx - 3, cy - 4, 2.4, "#fff", 0);
-  if(type === "cat") return P(`M${cx - 12} ${cy} Q${cx} ${cy - 14} ${cx + 12} ${cy - 2} Q${cx} ${cy + 12} ${cx - 12} ${cy} Z`, ec, 2.4) + E(cx, cy - 1, 2.4, 7.5, INK, 0) + C(cx + 4, cy - 4, 2, "#fff", 0);
-  const big = type === "sparkle";
-  const ry = big ? 13.5 : 12, rx = big ? 10.5 : 9.5;
-  // 虹膜有層次：上方偏深（眼皮的陰影）、下方有一點亮色反光；瞳孔用深咖啡
+// 虹膜：上方偏深（眼皮的陰影）、下方有一點亮色反光；瞳孔用深咖啡
+function iris(cx, cy, rx, ry, ec, hl = 3){
   const dark = mix(ec, "#2B1D16", .6), light = shade(ec, .4);
   return E(cx, cy, rx, ry, ec, 2.4) +
     `<path d="M${cx - rx + 1} ${cy - 1} A${rx - 1} ${ry - 1} 0 0 1 ${cx + rx - 1} ${cy - 1} Q${cx} ${cy - ry * .35} ${cx - rx + 1} ${cy - 1} Z" fill="${dark}" opacity=".5"/>` +
     E(cx, cy + ry * .5, rx * .62, ry * .3, light, 0, `opacity=".7"`) +
-    E(cx, cy + 1.5, rx * .45, ry * .55, dark, 0) + C(cx + 3.5, cy - 5, big ? 3.6 : 3, "#fff", 0) + C(cx - 3.5, cy + 5, 1.6, "#fff", 0) +
+    E(cx, cy + 1.5, rx * .45, ry * .55, dark, 0) + C(cx + rx * .37, cy - ry * .42, hl, "#fff", 0) + C(cx - rx * .37, cy + ry * .42, hl * .53, "#fff", 0);
+}
+function drawEye(type, cx, ec, right){
+  const cy = EYE_Y, o = right ? 1 : -1;   // o：往眼尾（臉的外側）的方向
+  if(type === "smile" || (type === "wink" && right)) return LN(`M${cx - 10} ${cy + 3} Q${cx} ${cy - 9} ${cx + 10} ${cy + 3}`, 3);
+  if(type === "sleepy") return LN(`M${cx - 10} ${cy} Q${cx} ${cy + 7} ${cx + 10} ${cy}`, 3) + LN(`M${cx - 10} ${cy} L${cx - 13} ${cy - 3}`, 2);
+  if(type === "squint") return LN(`M${cx + 7 * o} ${cy - 7} L${cx - 7 * o} ${cy} L${cx + 7 * o} ${cy + 7}`, 3.2);   // 左眼 >、右眼 <
+  if(type === "star") return star(cx, cy, 13, ec, 2.2) + C(cx - 3, cy - 4, 2.4, "#fff", 0);
+  if(type === "heart") return P(heartD(cx, cy - 1, 8.5), ec, 2.4) + E(cx - 3.5, cy - 5, 2.6, 2, "#fff", 0) + C(cx + 3, cy + 1, 1.2, "#fff", 0);
+  if(type === "bean") return E(cx, cy + 1, 4.8, 6.8, INK, 0) + C(cx + 1.6, cy - 1.6, 1.6, "#fff", 0);
+  if(type === "cat") return P(`M${cx - 12} ${cy} Q${cx} ${cy - 14} ${cx + 12} ${cy - 2} Q${cx} ${cy + 12} ${cx - 12} ${cy} Z`, ec, 2.4) + E(cx, cy - 1, 2.4, 7.5, INK, 0) + C(cx + 4, cy - 4, 2, "#fff", 0);
+  if(type === "almond")   // 杏眼：看得到眼白，眼尾微微拉長
+    return P(`M${cx - 13} ${cy + 1} Q${cx} ${cy - 13} ${cx + 13} ${cy + 1} Q${cx} ${cy + 11} ${cx - 13} ${cy + 1} Z`, "#fff", 2.2) + iris(cx, cy, 6.6, 7.6, ec, 2.2) + LN(`M${cx - 13} ${cy + 1} Q${cx} ${cy - 13} ${cx + 13} ${cy + 1}`, 3.4) + LN(`M${cx + 12 * o} ${cy + 1} L${cx + 16 * o} ${cy - 2}`, 2.4);
+  if(type === "droopy")   // 下垂眼：眼皮線往眼尾垂下，看起來溫柔
+    return iris(cx, cy + 1, 9.5, 11, ec) + LN(`M${cx - 11 * o} ${cy - 10} Q${cx + 2 * o} ${cy - 15} ${cx + 13 * o} ${cy - 2}`, 3.2);
+  if(type === "upturn")   // 上挑眼：眼皮線往眼尾上揚，帶一點小勾
+    return iris(cx, cy + 1, 9.5, 11, ec) + LN(`M${cx - 11 * o} ${cy - 6} Q${cx} ${cy - 14} ${cx + 12 * o} ${cy - 12}`, 3.2) + LN(`M${cx + 12 * o} ${cy - 12} L${cx + 16 * o} ${cy - 16}`, 2.4);
+  if(type === "lashes")   // 長睫毛：上面粗睫毛加三根翹睫毛，下面細細的下睫毛
+    return iris(cx, cy, 9.5, 12, ec) + LN(`M${cx - 12} ${cy - 8} Q${cx} ${cy - 18} ${cx + 12} ${cy - 8}`, 3.6) +
+      [0, 1, 2].map(i => LN(`M${cx + (6 + i * 3) * o} ${cy - 12 + i * 2} l${(3 + i) * o} ${-4 + i}`, 2)).join("") +
+      LN(`M${cx - 4} ${cy + 13} l-1 3 M${cx + 1} ${cy + 13.5} l0 3 M${cx + 6 * o} ${cy + 12.5} l${1.5 * o} 3`, 1.4);
+  if(type === "teary")    // 淚汪汪：大大的、很多亮點，眼尾一滴眼淚
+    return iris(cx, cy, 10.5, 13, ec, 3.8) + C(cx - 4, cy - 2, 1.6, "#fff", 0) + C(cx + 4, cy + 6, 1.3, "#fff", 0) + LN(`M${cx - 12} ${cy - 9} Q${cx} ${cy - 18} ${cx + 12} ${cy - 9}`, 3) +
+      P(`M${cx + 10 * o} ${cy + 10} Q${cx + 13 * o} ${cy + 16} ${cx + 10 * o} ${cy + 19} Q${cx + 7 * o} ${cy + 16} ${cx + 10 * o} ${cy + 10} Z`, "#9BD0F5", 1.4);
+  const big = type === "sparkle";
+  const ry = big ? 13.5 : 12, rx = big ? 10.5 : 9.5;
+  return iris(cx, cy, rx, ry, ec, big ? 3.6 : 3) +
     (big ? LN(`M${cx - 12} ${cy - 8} Q${cx} ${cy - 19} ${cx + 12} ${cy - 8}`, 3.2) + LN(`M${right ? cx + 11 : cx - 11} ${cy - 9} L${right ? cx + 16 : cx - 16} ${cy - 13}`, 2.4) + star(cx - 4, cy - 4, 2.6, "#fff", 0) : "");
 }
 const BROWS = {
@@ -534,7 +561,7 @@ function drawLook(L, opt = {}){
   if(L.shadow){
     defs.push(`<radialGradient id="${uid}-es" cx=".5" cy=".95" r=".8"><stop offset=".3" stop-color="${L.shadow}" stop-opacity="1"/><stop offset=".7" stop-color="${L.shadow}" stop-opacity=".55"/><stop offset="1" stop-color="${L.shadow}" stop-opacity="0"/></radialGradient>`);
     const lid = (x, right) => {
-      const y = EYE_Y, closed = L.eyes === "smile" || (L.eyes === "wink" && right);
+      const y = EYE_Y, closed = L.eyes === "smile" || L.eyes === "squint" || (L.eyes === "wink" && right);
       if(closed) return `M${x - 13} ${y + 4} Q${x} ${y - 25} ${x + 13} ${y + 4} Q${x} ${y - 9} ${x - 13} ${y + 4} Z`;
       if(L.eyes === "sleepy") return `M${x - 12} ${y + 1} Q${x} ${y - 15} ${x + 12} ${y + 1} Q${x} ${y + 7} ${x - 12} ${y + 1} Z`;
       return `M${x - 15} ${y + 3} Q${x - 15} ${y - 19} ${x} ${y - 19} Q${x + 15} ${y - 19} ${x + 15} ${y + 3} Q${x} ${y - 9} ${x - 15} ${y + 3} Z`;
