@@ -55,6 +55,17 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#fff;color:#14142F;border-radius:99px;padding:9px 18px;font-size:14px;font-weight:800;z-index:60}
 .portal-foot{text-align:center;color:#8F8BBF;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:8px 16px 36px}.portal-foot a{display:inline-block;padding:12px 4px;color:#8F8BBF;text-decoration:none}.portal-foot a:hover{text-decoration:underline}
+.lbbox{margin-top:16px;border-top:2px dashed var(--card2);padding-top:14px;font-size:14px;line-height:1.7}
+.lbbox input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:2px solid var(--card2);border-radius:12px;padding:9px 12px;width:min(220px,60%);margin-right:6px}
+.lbtabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.lbtabs button{flex:none;border:2px solid var(--card2);background:var(--card);color:var(--muted);border-radius:99px;padding:8px 14px;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.lbtabs button.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.lbrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--card);margin-bottom:6px}
+.lbrow.mine{outline:2px solid var(--yellow)}
+.lbrow .rk{flex:none;width:30px;height:30px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-weight:900;font-size:14px}
+.lbrow .rk.r1{background:#FFD84A;color:#14142F}.lbrow .rk.r2{background:#D6D9E8;color:#14142F}.lbrow .rk.r3{background:#E0A06A;color:#14142F}
+.lbrow .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbrow .v{font-weight:900;color:var(--yellow)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -75,9 +86,9 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 "use strict";
 const $ = s => document.querySelector(s);
 const KEY = "arcade.v1";
-let D = {best:{}, mute:false};
+let D = {best:{}, mute:false, name:"", client:"", sent:{}};
 try{ Object.assign(D, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
-D.best = D.best || {};
+D.best = D.best || {}; D.sent = D.sent || {};
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} };
 
 /* ---------- 聲音 ---------- */
@@ -123,15 +134,56 @@ function resultView(id, value, extra, newBest){
   view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">${esc(g.name)}</span></div>
     <div class="panel"><div class="sub2">這次成績</div><div class="big">${esc(g.fmt(value))}</div>${newBest ? '<div class="new">新紀錄！</div>' : ""}
     <div class="sub2">最佳：${esc(g.fmt(D.best[id]))}${extra ? "<br>" + extra : ""}</div>
-    <div class="row"><button class="btn" data-again="${id}">再玩一次</button><button class="btn ghost" data-copy="1">複製成績</button></div></div>`);
-  $("#view").dataset.copy = text;
+    <div class="row"><button class="btn" data-again="${id}">再玩一次</button><button class="btn ghost" data-copy="1">複製成績</button></div><div class="lbbox" id="lbbox"></div></div>`);
+  $("#view").dataset.copy = text; afterResult(id, newBest);
   beep(newBest ? 880 : 440, .25, .1, "triangle"); if(newBest) buzz(120);
+}
+
+
+/* ---------- 排行榜（存在 Supabase，大家看得到；每個瀏覽器每個遊戲一筆，只留最佳成績） ---------- */
+const SUPA_URL = "https://bbydhrcyxxwxtbtemszb.supabase.co", SUPA_KEY = "sb_publishable_hlbBn6LWqC5oLdCS32lchw_xzZeIph7";
+async function rpc(fn, body){
+  const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, {method:"POST", headers:{apikey:SUPA_KEY, Authorization:`Bearer ${SUPA_KEY}`, "Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+if(!D.client){ D.client = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16)); save(); }
+const lbErr = e => /too many/.test(e.message) ? "上傳太快了，等幾秒再試。" : /invalid score/.test(e.message) ? "這個成績上傳不了。" : /PGRST202|Could not find|404|function/.test(e.message) ? "排行榜還沒開通。" : "上傳失敗，可能是網路有問題。";
+function setLb(html){ const el = $("#lbbox"); if(el) el.innerHTML = html; }
+async function submitBest(id){
+  if(!D.name || D.best[id] == null) return;
+  try{
+    const r = await rpc("arcade_submit", {p_client:D.client, p_name:D.name, p_game:id, p_score:D.best[id]});
+    D.sent[id] = D.best[id]; save();
+    setLb(`已上傳！你的最佳排第 <b>${r.rank}</b> 名（共 ${r.players} 人）<div class="row"><button class="btn ghost sm" data-lbgame="${id}">看排行榜</button></div><p class="sub2" style="margin:8px 0 0">名字：${esc(D.name)}・<a href="#" data-lbrename="1" style="color:var(--cyan)">改名字</a></p>`);
+  }catch(e){ setLb(esc(lbErr(e))); }
+}
+function afterResult(id, newBest){
+  if(D.name){
+    if(newBest || D.sent[id] !== D.best[id]){ setLb("上傳中⋯⋯"); submitBest(id); }
+    else setLb(`<div class="row" style="margin-top:0"><button class="btn ghost sm" data-lbgame="${id}">看排行榜</button></div><p class="sub2" style="margin:8px 0 0">名字：${esc(D.name)}・<a href="#" data-lbrename="1" style="color:var(--cyan)">改名字</a></p>`);
+  }else{
+    setLb(`<b>留下名字，上排行榜</b><br><input id="lbName" maxlength="12" placeholder="暱稱（1～12 個字）" autocomplete="nickname"><button class="btn sm" data-lbsave="${id}">上傳</button><p class="sub2" style="margin:8px 0 0">排行榜大家都看得到，請不要用真實姓名。</p>`);
+  }
+}
+async function lbView(id){
+  cleanup();
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">排行榜</span></div>
+    <div class="lbtabs">${Object.entries(GAMES).map(([k, g]) => `<button class="${k === id ? "on" : ""}" data-lbgame="${k}">${esc(g.name)}</button>`).join("")}</div>
+    <div id="lblist"><p class="sub2" style="text-align:center">載入中⋯⋯</p></div>
+    <p class="sub2" style="text-align:center">${D.name ? "你的名字：" + esc(D.name) : "還沒上榜：玩完一局後留下名字就會出現在這裡。"}</p>`);
+  let rows;
+  try{ rows = await rpc("arcade_top", {p_game:id, p_client:D.client, p_limit:20}); }
+  catch(e){ const l = $("#lblist"); if(l) l.innerHTML = `<p class="sub2" style="text-align:center">${esc(/PGRST202|Could not find|404/.test(e.message) ? "排行榜還沒開通。" : "排行榜暫時載入不了，請稍後再試。")}</p>`; return; }
+  const list = $("#lblist"); if(!list) return;
+  if(!rows.length){ list.innerHTML = '<p class="sub2" style="text-align:center">還沒有人上榜，當第一個吧！</p>'; return; }
+  list.innerHTML = rows.map(r => `<div class="lbrow ${r.mine ? "mine" : ""}"><span class="rk r${Math.min(r.rank, 4)}">${r.rank}</span><span class="nm">${esc(r.name)}${r.mine ? "（你）" : ""}</span><span class="v">${esc(GAMES[id].fmt(Number(r.score)))}</span></div>`).join("");
 }
 
 /* ---------- 選單 ---------- */
 function menu(){
   cleanup();
-  view(`<div class="menu">${Object.entries(GAMES).map(([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`).join("")}</div>`);
+  view(`<div class="row" style="margin:0 0 12px;justify-content:flex-end"><button class="btn ghost sm" data-lbgame="react">排行榜</button></div><div class="menu">${Object.entries(GAMES).map(([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`).join("")}</div>`);
 }
 
 /* ---------- 1. 反應速度 ---------- */
@@ -251,6 +303,14 @@ const RUN = {react:gReact, whack:gWhack, simon:gSimon, nums:gNums, tap:gTap};
 $("#view").addEventListener("click", e => {
   const p = e.target.closest("[data-play]"); if(p){ audio(); RUN[p.dataset.play](); window.scrollTo(0, 0); return; }
   if(e.target.closest("[data-menu]")){ menu(); return; }
+  const lg = e.target.closest("[data-lbgame]"); if(lg){ lbView(lg.dataset.lbgame); window.scrollTo(0, 0); return; }
+  const ls = e.target.closest("[data-lbsave]"); if(ls){
+    const name = ($("#lbName").value || "").trim().slice(0, 12); if(!name){ toast("先輸入暱稱"); return; }
+    D.name = name; save(); setLb("上傳中⋯⋯");
+    const id = ls.dataset.lbsave;
+    Object.keys(D.best).filter(k => GAMES[k] && k !== id).forEach(k => rpc("arcade_submit", {p_client:D.client, p_name:D.name, p_game:k, p_score:D.best[k]}).then(() => { D.sent[k] = D.best[k]; save(); }).catch(() => {}));
+    submitBest(id); return; }
+  if(e.target.closest("[data-lbrename]")){ e.preventDefault(); const n = (prompt("新的暱稱（1～12 個字）", D.name) || "").trim().slice(0, 12); if(n){ D.name = n; D.sent = {}; save(); toast("改好了，下次上傳會用新名字"); } return; }
   const a = e.target.closest("[data-again]"); if(a){ audio(); RUN[a.dataset.again](); window.scrollTo(0, 0); return; }
   if(e.target.closest("[data-copy]")){ const t = $("#view").dataset.copy || ""; navigator.clipboard.writeText(t).then(() => toast("已複製，傳給朋友比一比"), () => prompt("複製下面的文字：", t)); }
 });
