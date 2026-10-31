@@ -50,8 +50,13 @@ const CATS = [
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
     {type:"color", key:"lip", label:"口紅", pal:LIPS, none:true},
     {type:"color", key:"shadow", label:"眼影", pal:SHADOW, none:true},
+    {type:"pick", key:"eyeliner", label:"眼線（睜開的眼睛才看得到）", list:LINERS, none:true, vb:"100 106 100 64"},
+    {type:"toggle", key:"gloss", label:"唇蜜亮光"},
+    {type:"toggle", key:"glitter", label:"眼下亮片"},
     {type:"toggle", key:"freckles", label:"雀斑"},
     {type:"pick", key:"sticker", label:"臉頰小貼紙", list:STICKERS, none:true, vb:"100 100 110 90"}]},
+  {id:"fun", name:"搞笑", groups:[
+    {type:"multi", key:"fun", label:"搞笑的臉（可以選好幾個）", list:FUN, vb:"84 70 132 140"}]},
   {id:"top", name:"上衣", groups:[{type:"slot", key:"top", label:"上衣", list:TOPS, vb:"64 188 172 160"}]},
   {id:"bottom", name:"下身", groups:[{type:"slot", key:"bottom", label:"裙子和褲子", list:BOTTOMS, vb:"56 270 188 188"}]},
   {id:"dress", name:"洋裝", groups:[{type:"slot", key:"dress", label:"洋裝（會蓋過上衣和下身）", list:DRESSES, vb:"36 190 228 268"}]},
@@ -78,7 +83,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
 const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
-  blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down",
+  blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
   hat:null, glasses:null, hairpin:null, neck:null, scarf:null, bag:null, hand:null};
@@ -113,6 +118,7 @@ function renderCats(){
 function thumb(g, v){
   const look = clone(L());
   if(g.type === "slot") look[g.key] = v ? {id:v, color:(look[g.key] && look[g.key].id === v ? look[g.key].color : g.list[v].color), pat:(look[g.key] && look[g.key].id === v ? look[g.key].pat : "none")} : null;
+  else if(g.type === "multi") look[g.key] = v ? [v] : [];
   else look[g.key] = v;
   if(g.type === "slot" && v){
     if(g.key === "top" || g.key === "bottom"){ if(look.dress && !DRESSES[look.dress.id].overTop) look.dress = null; }
@@ -124,15 +130,16 @@ function renderGroups(){
   const cat = CATS.find(c => c.id === S.cat) || CATS[0], look = L();
   $("groups").innerHTML = cat.groups.filter(g => !g.only || g.only(look)).map(g => {
     let h = `<div class="grp"><h3>${esc(g.label)}</h3>`;
-    if(g.type === "slot" || g.type === "pick"){
-      const cur = g.type === "slot" ? (look[g.key] && look[g.key].id) : look[g.key];
-      const none = g.type === "slot" || g.none;
+    if(g.type === "slot" || g.type === "pick" || g.type === "multi"){
+      const multi = g.type === "multi", sel = multi ? (look[g.key] || []) : null;
+      const cur = g.type === "slot" ? (look[g.key] && look[g.key].id) : multi ? (sel.length ? "?" : "") : look[g.key];
+      const none = g.type === "slot" || g.none || multi;
       h += `<div class="items">`;
       if(none) h += `<button class="it ${!cur ? "on" : ""}" data-t="${g.type}" data-k="${g.key}" data-v=""><span class="none">✕</span>不要</button>`;
       h += Object.entries(g.list).map(([id, it]) => {
         const lk = lockedItem(it);
         const wk = !lk && weekTags().length && (it.tags || []).some(t => weekTags().includes(t));
-        return `<button class="it ${cur === id ? "on" : ""} ${lk ? "lock" : ""}" data-t="${g.type}" data-k="${g.key}" data-v="${id}">${thumb(g, id)}${lk ? `<span class="lk">挑戰解鎖</span>` : ""}${wk ? `<span class="wk">本週</span>` : ""}${esc(it.name)}</button>`;
+        return `<button class="it ${(multi ? sel.includes(id) : cur === id) ? "on" : ""} ${lk ? "lock" : ""}" data-t="${g.type}" data-k="${g.key}" data-v="${id}">${thumb(g, id)}${lk ? `<span class="lk">挑戰解鎖</span>` : ""}${wk ? `<span class="wk">本週</span>` : ""}${esc(it.name)}</button>`;
       }).join("");
       h += `</div>`;
       // 選了衣服：可以換顏色和花紋
@@ -177,6 +184,7 @@ $("groups").addEventListener("click", e => {
     look[k] = v;
   }else if(t === "scol"){ look[k].color = v; look[k].custom = true; }
   else if(t === "spat"){ look[k].pat = v; look[k].custom = true; }
+  else if(t === "multi"){ const a = look[k] || []; look[k] = !v ? [] : a.includes(v) ? a.filter(x => x !== v) : [...a, v]; }
   else if(t === "color"){ look[k] = b.dataset.i ? +v : v; }
   save(); render();
 });
@@ -372,7 +380,9 @@ function sanitizeLook(raw){
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
-  o.freckles = raw.freckles === true;
+  o.freckles = raw.freckles === true; o.gloss = raw.gloss === true; o.glitter = raw.glitter === true;
+  if(raw.eyeliner === "" || LINERS[raw.eyeliner]) o.eyeliner = raw.eyeliner;
+  o.fun = Array.isArray(raw.fun) ? raw.fun.filter(x => FUN[x]).slice(0, 9) : [];
   Object.keys(SLOT_LISTS).forEach(k => {
     const v = raw[k];
     o[k] = v && typeof v === "object" && typeof v.id === "string" && SLOT_LISTS[k][v.id] && HEX.test(v.color) ? {id:v.id, color:v.color, pat:PATS[v.pat] ? v.pat : "none"} : null;

@@ -65,9 +65,32 @@ function drawNose(type, skin){
 }
 // 挑染的顏色（髮尾）
 const TIP_PAL = ["#F2A7C3", "#E8679A", "#7DB4E8", "#A889DD", "#7CC9A0", "#E8C26A", "#D9DCE3", "#C2473F"];
-const BLUSH = ["#FF9AAE", "#FFB38A", "#F27BA0", "#E8A0D6"];
-const LIPS = ["#E8667A", "#D9414E", "#F59A8A", "#C2475E", "#E8679A"];
-const SHADOW = ["#F7A8C4", "#B9A3E8", "#9BD0F5", "#F6C27A", "#9ADBC0"];
+const BLUSH = ["#FF9AAE", "#FFB38A", "#F27BA0", "#E8A0D6", "#FF8A80", "#F7C8A0", "#C9A0DC", "#FFB0C8"];
+const LIPS = ["#E8667A", "#D9414E", "#F59A8A", "#C2475E", "#E8679A", "#B5655F", "#8E3A59", "#7E5BC2", "#2E2B2B"];
+const SHADOW = ["#F7A8C4", "#B9A3E8", "#9BD0F5", "#F6C27A", "#9ADBC0", "#C99A6A", "#7A6BB0", "#F2C14E", "#8FD0C8", "#3A3A48"];
+// 眼線（畫在睜開的眼睛上）
+const LINERS = {thin:{name:"細眼線"}, wing:{name:"上揚眼線"}, cat:{name:"貓眼眼線"}, dots:{name:"點點眼線"}};
+const OPEN_EYES = ["round", "sparkle", "lashes", "droopy", "upturn", "almond", "teary", "cat", "cross"];
+function drawLiner(type, cx, right){
+  const cy = EYE_Y, o = right ? 1 : -1;
+  if(type === "dots") return [0, 1, 2].map(i => C(cx + (5 + i * 4) * o, cy + 13 - i * 2, 1.2, INK, 0)).join("");
+  const top = `M${cx - 11} ${cy - 9} Q${cx} ${cy - 16} ${cx + 11} ${cy - 9}`;
+  if(type === "thin") return LN(top, 2.2);
+  if(type === "wing") return LN(top, 2.6) + LN(`M${cx + 10 * o} ${cy - 9.5} Q${cx + 15 * o} ${cy - 11} ${cx + 18 * o} ${cy - 15}`, 2.4);
+  return LN(top, 3.6) + P(`M${cx + 9 * o} ${cy - 11} L${cx + 21 * o} ${cy - 16} L${cx + 11 * o} ${cy - 6} Z`, INK, 1) + LN(`M${cx + 4 * o} ${cy + 12} Q${cx + 10 * o} ${cy + 10} ${cx + 13 * o} ${cy + 4}`, 1.8);
+}
+// 搞笑的臉（可以同時選好幾個）
+const FUN = {
+  snot:     {name:"鼻涕泡泡"},
+  mustache: {name:"小鬍子"},
+  pig:      {name:"豬鼻子"},
+  unibrow:  {name:"一字眉"},
+  eyebags:  {name:"黑眼圈"},
+  bandaid:  {name:"OK 繃"},
+  anger:    {name:"生氣青筋"},
+  sweat:    {name:"冒冷汗"},
+  dirt:     {name:"臉髒髒"},
+};
 const PATS = {none:"素色", dots:"點點", stripes:"條紋", check:"格紋", flower:"小花"};
 
 // 花紋：每次畫的時候用不同的 id（同一頁面有很多張小圖，id 不能重複）
@@ -239,6 +262,9 @@ const EYES = {
   bean:    {name:"豆豆眼"},
   smile:   {name:"笑眼"},
   squint:  {name:"用力閉眼"},
+  cross:   {name:"鬥雞眼"},
+  deadfish:{name:"死魚眼"},
+  spiral:  {name:"轉圈圈眼"},
   cat:     {name:"貓咪眼"},
   wink:    {name:"眨眼"},
   sleepy:  {name:"睏睏眼"},
@@ -252,8 +278,11 @@ function iris(cx, cy, rx, ry, ec, hl = 3){
     E(cx, cy + ry * .5, rx * .62, ry * .3, light, 0, `opacity=".7"`) +
     E(cx, cy + 1.5, rx * .45, ry * .55, dark, 0) + C(cx + rx * .37, cy - ry * .42, hl, "#fff", 0) + C(cx - rx * .37, cy + ry * .42, hl * .53, "#fff", 0);
 }
-function drawEye(type, cx, ec, right){
+function drawEye(type, cx, ec, right, skin = "#FFE6D6"){
   const cy = EYE_Y, o = right ? 1 : -1;   // o：往眼尾（臉的外側）的方向
+  if(type === "cross") return E(cx, cy, 9.5, 11, "#fff", 2.4) + C(cx - 4 * o, cy + 1, 4.2, mix(ec, "#2B1D16", .55), 0) + C(cx - 3 * o, cy - 1, 1.3, "#fff", 0);   // 黑眼珠都往鼻子靠
+  if(type === "deadfish") return E(cx, cy, 9.5, 10, "#fff", 2.4) + C(cx, cy + 3, 1.8, INK, 0) + `<path d="M${cx - 9.5} ${cy + 1} A9.5 10 0 0 1 ${cx + 9.5} ${cy + 1} Z" fill="${skin}" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>`;
+  if(type === "spiral") return `<path d="M${cx} ${cy} m-1 0 a1.5 1.5 0 1 1 3 0 a3.5 3.5 0 1 1 -6.5 0 a5.5 5.5 0 1 1 10.5 0 a7.5 7.5 0 1 1 -14.5 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
   if(type === "smile" || (type === "wink" && right)) return LN(`M${cx - 10} ${cy + 3} Q${cx} ${cy - 9} ${cx + 10} ${cy + 3}`, 3);
   if(type === "sleepy") return LN(`M${cx - 10} ${cy} Q${cx} ${cy + 7} ${cx + 10} ${cy}`, 3) + LN(`M${cx - 10} ${cy} L${cx - 13} ${cy - 3}`, 2);
   if(type === "squint") return LN(`M${cx + 7 * o} ${cy - 7} L${cx - 7 * o} ${cy} L${cx + 7 * o} ${cy + 7}`, 3.2);   // 左眼 >、右眼 <
@@ -292,6 +321,10 @@ const MOUTHS = {
   tongue: {name:"吐舌頭"},
   pout:   {name:"嘟嘴"},
   wow:    {name:"驚訝"},
+  drool:  {name:"流口水"},
+  buck:   {name:"暴牙"},
+  smirk:  {name:"歪嘴笑"},
+  wail:   {name:"大哭"},
 };
 function drawMouth(type, lip){
   const line = lip || INK, lw = lip ? 3.2 : 2.4;
@@ -300,9 +333,14 @@ function drawMouth(type, lip){
   if(type === "tongue") return LN("M141 164 Q150 171 159 164", lw, line) + P("M146 168 Q147 176 151 176 Q155 176 155 168", "#F28AA0", 1.8);
   if(type === "pout") return E(150, 167, 4.2, 3.6, lip || "#E8667A", 2);
   if(type === "wow") return E(150, 168, 5.5, 6.5, lip || "#C2475E", 2.2);
+  if(type === "drool") return LN("M141 164 Q150 171 159 164", lw, line) + P("M156 167 Q158 176 156 180 Q152 180 153 174 Q154 170 156 167 Z", "#BFE6FA", 1.6);
+  if(type === "buck") return LN("M140 163 Q150 169 160 163", lw, line) + P("M145.5 166 L150 166.6 L150 173 L145.5 172.4 Z M150 166.6 L154.5 166 L154.5 172.4 L150 173 Z", "#fff", 1.6);
+  if(type === "smirk") return LN("M141 168 Q151 169 159 160", lw, line);
+  if(type === "wail") return P("M137 160 Q150 155 163 160 L159 178 Q150 182 141 178 Z", lip || "#8E3A4A", 2.2) + P("M144 174 Q150 169 156 174 Q154 179 150 179 Q146 179 144 174 Z", "#F28AA0", 0);
   return LN("M141 164 Q150 172 159 164", lw, line);
 }
-const STICKERS = {heart:{name:"愛心"}, star:{name:"星星"}, tear:{name:"淚痣"}};
+const STICKERS = {heart:{name:"愛心"}, star:{name:"星星"}, tear:{name:"淚痣"}, moon:{name:"月亮"}, flower:{name:"小花"}, rainbow:{name:"彩虹"}, bolt:{name:"閃電"},
+  strawberry:{name:"草莓"}, paw:{name:"貓掌"}, bow:{name:"蝴蝶結"}, note:{name:"音符"}, snow:{name:"雪花"}, clover:{name:"幸運草"}, cat:{name:"貓咪"}, sparkle:{name:"閃閃"}};
 
 // ---------- 配件 ----------
 const HATS = {
@@ -325,6 +363,9 @@ const HATS = {
     draw:(f, c) => `<g transform="translate(196 84) rotate(22)">${P("M-22 -6 L-20 -26 L-8 -14 L8 -14 L20 -26 L22 -6 Q20 18 0 24 Q-20 18 -22 -6 Z", "#fff")}${LN("M-12 -2 Q-7 -6 -3 -1", 2.4, f)}${LN("M3 -1 Q7 -6 12 -2", 2.4, f)}${C(0, 14, 2.6, f, 0)}${LN("M-16 -18 L-13 -10", 2.4, f)}${LN("M16 -18 L13 -10", 2.4, f)}</g>`},
 };
 const GLASSES = {
+  groucho: {name:"大鼻子眼鏡", tags:["funny", "party"], color:"#2E2B2B",
+    draw:(f, c) => C(128, 138, 14, "rgba(255,255,255,.15)", 3, `stroke="${c}"`) + C(172, 138, 14, "rgba(255,255,255,.15)", 3, `stroke="${c}"`) + LN("M142 136 Q150 132 158 136", 2.6, c) +
+      LN("M118 124 Q128 116 138 122 M162 122 Q172 116 182 124", 4.5, c) + P("M144 140 Q150 128 156 140 Q162 154 150 158 Q138 154 144 140 Z", "#FFC9B5", 2.2) + P("M132 162 Q141 156 150 161 Q159 156 168 162 Q159 168 150 164 Q141 168 132 162 Z", c, 1.6)},
   round: {name:"圓框眼鏡", tags:["school", "neat"], color:"#8A5A3C",
     draw:(f, c) => C(128, 138, 16, "rgba(255,255,255,.18)", 3, `stroke="${c}"`) + C(172, 138, 16, "rgba(255,255,255,.18)", 3, `stroke="${c}"`) + LN("M144 136 Q150 132 156 136", 2.6, c)},
   sun:   {name:"墨鏡", tags:["summer", "beach"], color:"#2E2B2B",
@@ -333,6 +374,8 @@ const GLASSES = {
     draw:(f, c) => P(heartD(128, 138, 13), "rgba(232,103,154,.75)", 2.6, `stroke="${c}"`) + P(heartD(172, 138, 13), "rgba(232,103,154,.75)", 2.6, `stroke="${c}"`) + LN("M142 134 Q150 130 158 134", 2.6, c)},
 };
 const HAIRPINS = {
+  poop:   {name:"便便髮夾", tags:["funny"], color:"#8A5A3C",
+    draw:(f) => P("M180 100 Q178 92 186 92 Q182 86 190 84 Q188 76 196 74 Q200 80 198 84 Q206 84 202 92 Q210 92 208 100 Z", f, 2) + C(188, 94, 1.4, INK, 0) + C(196, 94, 1.4, INK, 0) + LN("M189 97 Q192 99 195 97", 1.2)},
   bow:    {name:"蝴蝶結", tags:["party", "school"], color:"#E8679A",
     draw:(f) => P("M196 92 L180 80 L180 104 Z", f, 2.2) + P("M196 92 L212 80 L212 104 Z", f, 2.2) + C(196, 92, 4.5, f, 2.2)},
   star:   {name:"星星髮夾", tags:["casual", "party"], color:"#F6D65A", draw:(f) => star(192, 92, 11, f, 2)},
@@ -577,18 +620,44 @@ function drawLook(L, opt = {}){
     };
     s += EYE_X.map((x, i) => `<path d="${lid(x, i === 1)}" fill="url(#${uid}-es)"/>`).join("");
   }
-  s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1)).join("");
+  const fun = Array.isArray(L.fun) ? L.fun : [];
+  if(fun.includes("eyebags")) s += EYE_X.map(x => E(x, 153, 11, 4.5, "#6E5A80", 0, `opacity=".3"`)).join("");
+  s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1, skin)).join("");
+  if(L.eyeliner && LINERS[L.eyeliner] && OPEN_EYES.includes(L.eyes)) s += EYE_X.map((x, i) => drawLiner(L.eyeliner, x, i === 1)).join("");
+  if(L.glitter) s += EYE_X.map((x, i) => { const o = i ? 1 : -1; return star(x + 7 * o, 153, 2.6, "#FFF3A8", .8) + star(x + 12 * o, 149, 1.8, "#FFFFFF", .6) + star(x + 2 * o, 156, 1.6, "#FFD6F0", .6); }).join("");
   s += EYE_X.map((x, i) => LN((BROWS[L.brows] || BROWS.soft).d(x, i === 1), 2.8, shade(L.hairC, -.25))).join("");
-  s += drawNose(L.nose, skin);
+  if(fun.includes("unibrow")) s += LN("M116 116 Q133 109 150 113 Q167 109 184 116", 5.5, shade(L.hairC, -.25));
+  s += fun.includes("pig") ? E(150, 153, 7, 5, "#F7A8B8", 2) + E(147.5, 153, 1.4, 2.2, "#B85C6E", 0) + E(152.5, 153, 1.4, 2.2, "#B85C6E", 0) : drawNose(L.nose, skin);
   s += drawMouth(L.mouth, L.lip);
+  // 唇蜜：嘴巴上一點亮光
+  if(L.gloss) s += ["grin", "pout", "wow", "wail"].includes(L.mouth) ? E(146, 166, 2.2, 1.2, "#fff", 0, `opacity=".85"`) : E(147, 166.5, 2, .9, "#fff", 0, `opacity=".9"`);
+  if(fun.includes("mustache")) s += P("M150 160 Q142 154 134 158 Q128 163 132 166 Q136 160 142 162 Q147 164 150 162 Q153 164 158 162 Q164 160 168 166 Q172 163 166 158 Q158 154 150 160 Z", "#3A2C28", 1.4);
+  if(fun.includes("snot")) s += LN("M152 157 L153 162", 2.2, "#BFE6FA") + C(155, 162, 6, "rgba(191,230,250,.65)", 1.6) + C(153, 160, 1.6, "#fff", 0);
+  if(fun.includes("dirt")) s += [[116, 170, 7, 4], [182, 142, 5, 3], [124, 150, 3, 2]].map(([x, y, rx, ry]) => E(x, y, rx, ry, "#8A6A4A", 0, `opacity=".45"`)).join("");
+  if(fun.includes("bandaid")) s += `<g transform="rotate(-25 120 170)">${P("M108 166 L132 166 Q136 170 132 174 L108 174 Q104 170 108 166 Z", "#F2C49A", 1.6)}${P("M115 166 L125 166 L125 174 L115 174 Z", "#FBE3C8", 1)}${[[117.5, 168.5], [122.5, 168.5], [117.5, 171.5], [122.5, 171.5]].map(([x, y]) => C(x, y, .6, "#C89A70", 0)).join("")}</g>`;
   if(L.sticker === "heart") s += P(heartD(179, 167, 5), "#E8679A", 1.4);
   else if(L.sticker === "star") s += star(179, 167, 6, "#F6D65A", 1.4);
   else if(L.sticker === "tear") s += C(178, 150, 1.8, INK, 0);
+  else if(L.sticker === "moon") s += P("M181 159 A8 8 0 1 0 181 175 A10 10 0 0 1 181 159 Z", "#F6D65A", 1.4);
+  else if(L.sticker === "strawberry") s += P("M173 163 Q179 160 185 163 Q185 172 179 176 Q173 172 173 163 Z", "#E8414E", 1.3) + P("M174 163 L177 159 L179 162 L181 159 L184 163 Z", "#4FA36B", 1) + [[176, 166], [181, 166], [178.5, 170], [176.5, 171]].map(([x, y]) => C(x, y, .6, "#FFE98A", 0)).join("");
+  else if(L.sticker === "paw") s += E(179, 170, 4.2, 3.4, "#F7A8C4", 1) + [[174.5, 165.5], [177.5, 163.5], [180.5, 163.5], [183.5, 165.5]].map(([x, y]) => C(x, y, 1.6, "#F7A8C4", .8)).join("");
+  else if(L.sticker === "bow") s += P("M179 167 L172 162 L172 172 Z M179 167 L186 162 L186 172 Z", "#E8679A", 1.2) + C(179, 167, 2, "#E8679A", 1.2);
+  else if(L.sticker === "note") s += LN("M182 160 L182 171 M182 160 L186 162", 1.6) + E(179.5, 171, 2.6, 2, INK, 0);
+  else if(L.sticker === "snow") s += [0, 1, 2].map(i => { const a = i * Math.PI / 3; return LN(`M${(179 - Math.cos(a) * 6).toFixed(1)} ${(167 - Math.sin(a) * 6).toFixed(1)} L${(179 + Math.cos(a) * 6).toFixed(1)} ${(167 + Math.sin(a) * 6).toFixed(1)}`, 1.6, "#6FB8FF"); }).join("") + C(179, 167, 1.3, "#fff", 0);
+  else if(L.sticker === "clover") s += [[176.5, 164.5], [181.5, 164.5], [176.5, 169.5], [181.5, 169.5]].map(([x, y]) => C(x, y, 2.8, "#4FA36B", .9)).join("") + LN("M180 169 Q182 174 184 175", 1.2, "#3E7A4A");
+  else if(L.sticker === "cat") s += P("M173 170 L173 161 L176.5 164 L181.5 164 L185 161 L185 170 Q179 175 173 170 Z", "#F6A64A", 1.2) + C(176.5, 167, .8, INK, 0) + C(181.5, 167, .8, INK, 0);
+  else if(L.sticker === "sparkle") s += star(178, 168, 4, "#FFF3A8", .9) + star(184, 162, 2.6, "#FFF3A8", .7) + star(184, 173, 2, "#FFFFFF", .6);
+  else if(L.sticker === "flower") s += [0, 1, 2, 3, 4].map(i => { const a = i * Math.PI * 2 / 5; return C(+(179 + Math.cos(a) * 4).toFixed(1), +(167 + Math.sin(a) * 4).toFixed(1), 3, "#F7A8C4", 1); }).join("") + C(179, 167, 2.2, "#F6D65A", .8);
+  else if(L.sticker === "rainbow") s += ["#FF6B6B", "#FFD447", "#6FB8FF"].map((col, i) => LN(`M${171 + i * 2} 171 A${8 - i * 2} ${8 - i * 2} 0 0 1 ${187 - i * 2} 171`, 2.4, col)).join("");
+  else if(L.sticker === "bolt") s += P("M181 158 L174 168 L179 168 L176 177 L185 165 L180 165 L183 158 Z", "#F6D65A", 1.3);
   // 前面的頭髮
   s += front.map(d => `<path d="${d}" fill="${L.hairC}" stroke="${INK}" stroke-width="5.6" stroke-linejoin="round"/>`).join("");
   s += front.map(d => `<path d="${d}" fill="${L.hairC}"/>`).join("");
   if(hf.lines) s += LN(hf.lines, 1.8, strand(L.hairC), `opacity=".8"`);
   if(hb.front) s += hb.front(L.hairC);
+  // 漫畫符號：浮在頭髮上面
+  if(fun.includes("anger")) s += `<g transform="translate(196 96)">${["M-7 -3 Q-3 -3 -3 -7", "M3 -7 Q3 -3 7 -3", "M7 3 Q3 3 3 7", "M-3 7 Q-3 3 -7 3"].map(d => LN(d, 5.5, "#fff") + LN(d, 3, "#E0303E")).join("")}</g>`;
+  if(fun.includes("sweat")) s += P("M206 98 Q214 112 208 118 Q200 120 200 112 Q201 106 206 98 Z", "#9BD0F5", 2) + E(204, 110, 1.5, 2.5, "#fff", 0);
   const hairClip = clip(front.map(d => `<path d="${d}"/>`).join(""));
   s += `<g clip-path="url(#${hairClip})"><rect width="${W}" height="${H}" fill="url(#${uid}-hf)"/>${L.hairTip ? `<rect width="${W}" height="${H}" fill="url(#${uid}-tip)"/>` : ""}<ellipse cx="128" cy="74" rx="34" ry="16" transform="rotate(-14 128 74)" fill="url(#${uid}-gl)"/></g>`;
   // 頭上、臉上的配件
