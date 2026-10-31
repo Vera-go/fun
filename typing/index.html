@@ -65,6 +65,7 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .zc .bp .cur{background:#DCE7FF;color:var(--ink);box-shadow:inset 0 -3px 0 var(--acc)}
 .zc .bp .err{background:#FFDADA;color:var(--bad)}
 .zc.done .hz{color:var(--good)}
+.zc.bad .hz{color:var(--bad)}
 .zc.todo .hz{color:#9AA6BE}
 .hint{margin:10px 0 6px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;min-height:28px}
 .hint .dot{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid rgba(0,0,0,.15)}
@@ -152,6 +153,7 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
         ・手指放在<b>主鍵列</b>：左手 A S D F、右手 J K L ;（F 和 J 上有小凸點）。<br>
         ・眼睛看螢幕，不要看鍵盤；鍵盤上會亮出下一個要按的鍵和顏色對應的手指。<br>
         ・先求正確，再求速度。正確率 95% 以上，速度自然會變快。<br>
+        ・跟正式打字考試一樣<b>不能修改</b>：打錯了會標成紅色，繼續往下打就好，退格鍵沒有作用。<br>
         <span id="zyTip" hidden>・注音打字前，請先把輸入法切成<b>英文</b>（例如按 Shift 或 Ctrl＋空白鍵）；練習時一聲按<b>空白鍵</b>。</span>
       </div>
     </div>
@@ -212,7 +214,7 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
    - 注音：標準（大千）注音鍵盤，一列一列學 → 拼一個字 → 詞語 → 句子 → 速度測驗
    - 文章測驗：用自己的輸入法打整篇文章，不能修改，時間到逐字比對算錯打／漏打／多打
    用 KeyboardEvent.code 判斷實體按鍵，所以注音練習不用開中文輸入法（反而要切成英文）。
-   每一課要按對才會往下走，錯的鍵會記下來；結束時算速度、正確率和星星。進度存在瀏覽器。
+   跟正式打字測驗一樣不能修改：打錯也會往下走（標紅、算錯），退格沒有作用；結束時算速度、正確率和星星。進度存在瀏覽器。
    ========================================================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
@@ -340,21 +342,24 @@ function onKey(e){
   $("#imeWarn").hidden = true;
   const exp = expected(); if(!exp) return;
   e.preventDefault();
+  // 跟正式打字測驗一樣不能修改：退格沒有作用；不是打字的鍵（Enter、方向鍵…）也不算
+  if(e.code === "Backspace" || e.code === "Delete"){ nudge("打錯了不能改，繼續往下打"); return; }
+  if(S.mode === "en" ? e.key.length !== 1 : !CODE_ZY[e.code]) return;
   if(!R.t0){ R.t0 = performance.now(); if(R.L.test) R.endAt = R.t0 + 60000; }
   let ok;
   if(S.mode === "en"){ ok = e.key === R.units[R.pos]; }
   else ok = e.code === exp.code;
   flashKey(e.code, ok);
-  if(ok){
-    R.typed++;
-    if(S.mode === "en"){ R.pos++; }
-    else { R.sub++; if(R.sub >= R.units[R.pos].keys.length){ R.pos++; R.sub = 0; } }
-    if(R.pos >= R.units.length){ if(R.L.test){ extendTest(); } else return finish(); }
-  }else{
+  // 打錯也會往下走（標成紅色），連錯幾個就算幾個
+  if(ok) R.typed++;
+  else {
     R.errors++; R.errAt[R.pos + ":" + R.sub] = true;
     R.miss[exp.label] = (R.miss[exp.label] || 0) + 1;
     tick(false);
   }
+  if(S.mode === "en"){ R.pos++; }
+  else { R.sub++; if(R.sub >= R.units[R.pos].keys.length){ R.pos++; R.sub = 0; } }
+  if(R.pos >= R.units.length){ if(R.L.test){ extendTest(); } else return finish(); }
   renderTarget(); renderKeyboard(); renderLive();
 }
 // 速度測驗打完了內容但時間還沒到：再補一段
@@ -374,19 +379,24 @@ function finish(){
   $("#res").innerHTML = `<h3>${stars >= 3 ? "太棒了！" : stars === 2 ? "很好！" : stars === 1 ? "完成了！" : "再試一次吧"}</h3>
     <div class="big">${"★".repeat(stars)}<i>${"★".repeat(3 - stars)}</i></div>
     <div class="nums"><div><b>${speed}</b><span>${unit()}</span></div><div><b>${Math.round(acc * 100)}%</b><span>正確率</span></div><div><b>${Math.round(ms / 1000)}</b><span>秒</span></div></div>
-    <p class="miss">${misses.length ? `最常按錯：${misses.map(([k, n]) => `<b>${esc(k)}</b>（${n} 次）`).join("、")}` : "一個字都沒按錯！"}${newBest ? "<br>這一課的新紀錄！" : ""}</p>
+    <p class="miss">${R.errors ? `打錯 <b>${S.mode === "en" ? R.errors + "</b> 個字元" : wrongUnits() + "</b> 個字"}。` : ""}${misses.length ? `最常按錯：${misses.map(([k, n]) => `<b>${esc(k)}</b>（${n} 次）`).join("、")}` : "一個字都沒按錯！"}${newBest ? "<br>這一課的新紀錄！" : ""}</p>
     <p class="small muted">${stars < 3 ? `三顆星的條件：正確率 97% 以上、速度 ${goal()} ${unit()}以上。` : "可以挑戰下一課了。"}</p>
     <div class="btns"><button class="btn ghost" data-act="again">再練一次</button>${hasNext ? `<button class="btn" data-act="next">下一課</button>` : ""}</div>`;
   $("#ov").hidden = false;
   tick(true, true);
   renderLessons();
 }
-// 速度：英文用 WPM（每 5 個字元算一個字），注音用「每分鐘幾個中文字」
+// 速度用正式測驗的淨速：
+//   英文 WPM＝（打的字元數 ÷ 5 － 錯誤數）÷ 分鐘
+//   注音＝（打對的字數 － 打錯的字數）÷ 分鐘（一個字裡有任何一個符號按錯就算錯字）
 function speedOf(ms){
-  if(S.mode === "en") return Math.round((R.typed / 5) / (ms / 60000));
-  const chars = R.units.slice(0, R.pos).filter(u => u.hz).length || R.pos;
-  return Math.round(chars / (ms / 60000));
+  const min = ms / 60000;
+  if(S.mode === "en") return Math.max(0, Math.round(((R.typed + R.errors) / 5 - R.errors) / min));
+  const wrong = wrongUnits(), done = R.units.slice(0, R.pos).filter(u => u.hz).length || R.pos;
+  return Math.max(0, Math.round((done - 2 * wrong) / min));
 }
+// 注音：有按錯的字有幾個
+function wrongUnits(){ let n = 0; for(let i = 0; i < R.pos; i++) if(R.units[i].keys.some((_, j) => R.errAt[i + ":" + j])) n++; return n; }
 const unit = () => S.mode === "en" ? "WPM" : "字／分";
 const goal = () => S.mode === "en" ? (S.idx.en < 3 ? 15 : S.idx.en < 6 ? 20 : 25) : (S.idx.zy < 4 ? 30 : 15);
 
@@ -411,8 +421,8 @@ function renderTarget(){
     const start = Math.max(0, R.pos - 10), end = Math.min(R.units.length, start + 30);
     el.className = "target zy";
     el.innerHTML = R.units.slice(start, end).map((u, k) => {
-      const i = start + k, state = i < R.pos ? "done" : i === R.pos ? "cur" : "todo";
-      const bp = u.keys.map((s, j) => { const c = i < R.pos || (i === R.pos && j < R.sub) ? "ok" : i === R.pos && j === R.sub ? (R.errAt[i + ":" + j] ? "cur err" : "cur") : ""; return `<span class="${c}">${s === "ˉ" ? "␣" : s}</span>`; }).join("");
+      const i = start + k, state = i < R.pos ? (u.keys.some((_, j) => R.errAt[i + ":" + j]) ? "done bad" : "done") : i === R.pos ? "cur" : "todo";
+      const bp = u.keys.map((s, j) => { const c = i < R.pos || (i === R.pos && j < R.sub) ? (R.errAt[i + ":" + j] ? "err" : "ok") : i === R.pos && j === R.sub ? "cur" : ""; return `<span class="${c}">${s === "ˉ" ? "␣" : s}</span>`; }).join("");
       return `<div class="zc ${state}">${u.hz ? `<span class="hz">${u.hz}</span>` : ""}<span class="bp">${bp}</span></div>`;
     }).join("");
   }
@@ -543,9 +553,10 @@ function artTime(){
 }
 function artBegin(){ if(A && !A.t0 && !A.done){ A.t0 = performance.now(); A.endAt = A.t0 + S.art.min * 60000; } }
 let nudgeT = 0;
-function artNudge(){
+const artNudge = () => nudge("測驗中不能修改，打錯了就繼續往下打");
+function nudge(msg){
   if(performance.now() - nudgeT < 1500) return; nudgeT = performance.now();
-  const t = document.createElement("div"); t.className = "toast"; t.textContent = "測驗中不能修改，打錯了就繼續往下打";
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
   document.body.appendChild(t); setTimeout(() => t.remove(), 1600);
 }
 // 保險：不在選字的時候，已經打好的字只能往後加，不能被改掉
