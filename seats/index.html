@@ -138,7 +138,10 @@ function readNames(){
   return out.slice(0, 80);
 }
 function syncNames(){
-  const c = C(); c.names = readNames();
+  const c = C(), next = readNames();
+  // 內容沒變就不重畫：否則手機上點「抽座位」時輸入框先失焦、按鈕被換掉，第一下點擊會落空
+  if(JSON.stringify(next) === JSON.stringify(c.names)) return;
+  c.names = next;
   c.avoid = c.avoid.filter(([a, b]) => c.names.includes(a) && c.names.includes(b));
   c.front = c.front.filter(n => c.names.includes(n));
   c.picked = c.picked.filter(n => c.names.includes(n));
@@ -298,7 +301,7 @@ function resultHead(title){
 function renderLast(){
   const c = C(), L = c.last;
   if(!L || L.mode !== D.mode){
-    $("#stage").innerHTML = `<div class="empty">${c.names.length ? `按上面的「${D.mode === "seat" ? "抽座位" : D.mode === "group" ? "分組" : "抽"}」，結果會出現在這裡。<br>上課要投影時，可以按「投影模式」把字放大。` : "先在左邊輸入全班名單（一行一個名字）。"}</div>`;
+    $("#stage").innerHTML = `<div class="empty">${c.names.length ? `按上面的「${D.mode === "seat" ? "抽座位" : D.mode === "group" ? "分組" : "抽"}」，結果會出現在這裡。<br>上課要投影時，可以按「投影模式」把字放大。` : "先輸入全班名單（一行一個名字）。"}</div>`;
     return;
   }
   if(L.mode === "seat"){
@@ -334,7 +337,7 @@ const ding = () => { [784, 988, 1319].forEach((f, i) => setTimeout(() => tone(f,
 
 // ---------- 操作 ----------
 let typing = null;
-$("#names").addEventListener("input", () => { clearTimeout(typing); typing = setTimeout(syncNames, 400); });
+$("#names").addEventListener("input", () => { clearTimeout(typing); typing = setTimeout(syncNames, 120); });
 $("#names").addEventListener("blur", syncNames);
 $("#cls").addEventListener("change", e => { D.cur = e.target.value; save(); renderSide(); renderOpts(); renderLast(); });
 $("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if(!b || busy) return; D.mode = b.dataset.mode; save(); renderOpts(); renderLast(); });

@@ -18,7 +18,7 @@ header h1{margin:0;font-size:24px;font-weight:900;letter-spacing:1px}
 header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
 /* 手機：計時器放最上面，接著小島、讀書房間、紀錄、說明 */
-@media(max-width:820px){.grid{display:flex;flex-direction:column;gap:0}.grid>div{display:contents}#timerCard{order:1}.islandCard{order:2}#roomCard{order:3}.statsCard{order:4}.helpCard{order:5}}
+@media(max-width:820px){.grid{display:flex;flex-direction:column;gap:0;align-items:stretch}.grid>div{display:contents}#timerCard{order:1}.islandCard{order:2}#roomCard{order:3}.statsCard{order:4}.helpCard{order:5}}
 .card{background:var(--card);border-radius:20px;padding:16px;box-shadow:0 2px 0 var(--line),0 8px 24px rgba(31,58,61,.06);margin-bottom:16px}
 .card h2{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:8px}
 .card h2 .r{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
