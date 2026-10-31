@@ -73,6 +73,19 @@ textarea{resize:vertical;line-height:1.6}
 .show .acts{display:flex;gap:10px;margin-top:28px}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#1F3B33;color:#fff;border-radius:99px;padding:9px 18px;font-size:14px;font-weight:800;z-index:60}
 .portal-foot{text-align:center;color:#6B8A7F;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#6B8A7F;text-decoration:none}.portal-foot a:hover{text-decoration:underline}
+/* 一起玩 */
+.deck{text-align:center;padding:22px 16px}
+.deck .qen{font-size:clamp(22px,6.5vw,30px);font-weight:900;line-height:1.4}
+.deck .qzh{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.6}
+.deck .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0 6px}
+.deck .opt{border:2px solid var(--line);border-radius:14px;padding:10px 8px;background:#FBFEFC;font-weight:800;font-size:15px;line-height:1.4}
+.deck .opt small{display:block;font-weight:700;font-size:12.5px;color:var(--muted);margin-top:2px}
+.deck .count{font-size:64px;font-weight:900;color:var(--acc2);min-height:78px;line-height:78px}
+.deck .ctl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.deck .big{font-size:clamp(34px,11vw,52px);font-weight:900;color:var(--acc)}
+.deck .ans{margin-top:14px;background:#F2FAF5;border-radius:14px;padding:12px;font-size:15px;line-height:1.7}
+.deck .ans .ex{color:var(--muted);font-size:13.5px;margin-top:4px}
+.prog{font-size:12.5px;color:var(--muted);font-weight:800;margin-bottom:8px}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -91,6 +104,7 @@ textarea{resize:vertical;line-height:1.6}
     <button data-tab="home">在家</button>
     <button data-tab="food">夜市美食</button>
     <button data-tab="fun">好玩活動</button>
+    <button data-tab="play">一起玩</button>
     <button data-tab="order">點餐和逛街</button>
     <button data-tab="plan">週末行程</button>
     <button data-tab="sos">緊急卡</button>
@@ -345,6 +359,64 @@ const ACTS = [
   {zh:"室內運動：羽球、攀岩、保齡球", en:"Indoor sports", d:"澳洲學生通常很愛運動。台灣的羽球館、攀岩館、保齡球館都在室內，下雨也能玩，輕鬆認識朋友。", io:"室內", rain:true, eff:2, ask:"Do you like sports? We can play badminton, bowling, or try climbing."},
   {zh:"學中文名字和刻印章", en:"Get a Chinese name and a name stamp", d:"幫她取一個中文名字，再去刻印章當紀念品。可以一起選字，說明每個字的意思。", io:"室內", rain:true, eff:1, ask:"Do you want me to give you a Chinese name? We can make a name stamp."}
 ];
+/* 一起玩：輕鬆聊天、不計分。每題讓兩個人同時指出自己的選擇，再互相問為什麼 */
+const MATCH_Q = [
+  {en:"What do you usually have for breakfast?", zh:"你早餐通常吃什麼？", o:[["Toast","吐司"],["Rice or noodles","飯或麵"],["Cereal","麥片"],["Just a drink","只喝飲料"]]},
+  {en:"What do you like to do on weekends?", zh:"你週末喜歡做什麼？", o:[["Sleep in","睡到自然醒"],["Go out with friends","跟朋友出去"],["Play sports","運動"],["Watch shows or play games","看影片或玩遊戲"]]},
+  {en:"Which weather do you like best?", zh:"你最喜歡哪種天氣？", o:[["Hot and sunny","又熱又晴"],["Cold and crisp","冷冷乾爽"],["Rainy","下雨"],["Cloudy","陰天"]]},
+  {en:"Which pet would you choose?", zh:"你會選哪一種寵物？", o:[["Dog","狗"],["Cat","貓"],["Fish or birds","魚或鳥"],["No pet","不養寵物"]]},
+  {en:"What would you like to drink?", zh:"你想喝什麼？", o:[["Bubble tea","珍珠奶茶"],["Coffee","咖啡"],["Fruit juice","果汁"],["Water","水"]]},
+  {en:"What kind of taste do you like most?", zh:"你最喜歡哪種口味？", o:[["Spicy","辣"],["Sweet","甜"],["Salty","鹹"],["Sour","酸"]]},
+  {en:"Which dessert would you pick?", zh:"你會選哪一種甜點？", o:[["Ice cream","冰淇淋"],["Cake","蛋糕"],["Fruit","水果"],["Chocolate","巧克力"]]},
+  {en:"Which activity sounds the most fun?", zh:"哪一種活動聽起來最好玩？", o:[["Swimming","游泳"],["Running","跑步"],["Ball games","球類運動"],["Dance or yoga","舞蹈或瑜伽"]]},
+  {en:"Where would you like to go on holiday?", zh:"你想去哪裡度假？", o:[["The beach","海邊"],["The mountains","山上"],["A big city","大城市"],["The countryside","鄉下"]]},
+  {en:"What kind of music do you like?", zh:"你喜歡哪種音樂？", o:[["Pop","流行"],["Rock","搖滾"],["Hip hop","嘻哈"],["Quiet or classical","輕音樂或古典"]]},
+  {en:"Are you a morning person or a night owl?", zh:"你是早起的人還是夜貓子？", o:[["Morning person","早起的人"],["Night owl","夜貓子"]]},
+  {en:"How do you like to talk to friends?", zh:"你喜歡怎麼跟朋友聊天？", o:[["Text messages","傳訊息"],["Phone calls","打電話"],["Video calls","視訊"],["Face to face","面對面"]]},
+  {en:"Which school subject do you like most?", zh:"你最喜歡哪一科？", o:[["Maths","數學"],["English","英文"],["Art or music","美術或音樂"],["PE","體育"]]},
+  {en:"What do you usually do for lunch at school?", zh:"你在學校午餐通常怎麼吃？", o:[["Bring from home","從家裡帶"],["Buy at the canteen","在福利社買"],["Go out to eat","出去吃"],["Share with friends","跟朋友一起吃"]]},
+  {en:"Which Christmas do you like more?", zh:"你比較喜歡哪種聖誕節？", o:[["Hot and at the beach","夏天、在海邊"],["Cold and cozy","冬天、暖暖的"]]},
+  {en:"What would you do on a rainy day?", zh:"下雨天你會做什麼？", o:[["Stay in and relax","待在家放鬆"],["Go to a cafe or shop","去咖啡廳或逛街"],["Play indoor sports","玩室內運動"],["Go out anyway","還是出去"]]},
+  {en:"Which superpower would you choose?", zh:"你想要哪一種超能力？", o:[["Fly","飛行"],["Be invisible","隱形"],["Read minds","讀心"],["Talk to animals","跟動物說話"]]},
+  {en:"Which animal do you think is the cutest?", zh:"你覺得哪一種動物最可愛？", o:[["Koala","無尾熊"],["Kangaroo","袋鼠"],["Cat","貓"],["Dog","狗"]]},
+  {en:"What would you like to learn this week?", zh:"這個星期你想學什麼？", o:[["A Chinese song","一首中文歌"],["Some Chinese words","一些中文單字"],["A Taiwanese dish","一道台灣菜"],["A traditional game","一個傳統遊戲"]]},
+  {en:"How do you like to spend time with family?", zh:"你喜歡怎麼跟家人相處？", o:[["Cook together","一起煮飯"],["Watch a movie","看電影"],["Go for a walk","散步"],["Play a game","玩遊戲"]]}
+];
+/* 俚語配對：澳洲的說法由她當老師，每個地方說法可能不同，她說不一樣就聽她的 */
+const SLANG = {
+  au:[
+    {w:"arvo", en:"afternoon", zh:"下午", ex:"See you this arvo!"},
+    {w:"brekkie", en:"breakfast", zh:"早餐", ex:"What's for brekkie?"},
+    {w:"thongs", en:"flip-flops (sandals)", zh:"夾腳拖", ex:"I wear thongs to the beach."},
+    {w:"servo", en:"petrol station", zh:"加油站", ex:"I'll stop at the servo."},
+    {w:"ute", en:"pickup truck", zh:"小貨卡", ex:"He drives a ute."},
+    {w:"sunnies", en:"sunglasses", zh:"太陽眼鏡", ex:"Don't forget your sunnies."},
+    {w:"no worries", en:"no problem / you're welcome", zh:"沒問題／不客氣", ex:"Thanks! — No worries."},
+    {w:"heaps", en:"a lot", zh:"很多／非常", ex:"Thanks heaps!"},
+    {w:"reckon", en:"to think", zh:"覺得", ex:"I reckon it will rain."},
+    {w:"mate", en:"friend", zh:"朋友", ex:"G'day, mate!"},
+    {w:"good on ya", en:"well done", zh:"做得好", ex:"You passed? Good on ya!"},
+    {w:"barbie", en:"barbecue", zh:"烤肉", ex:"Let's have a barbie."},
+    {w:"esky", en:"cooler box", zh:"保冷箱", ex:"Put the drinks in the esky."},
+    {w:"yeah, nah", en:"means no (politely)", zh:"意思是「不要」，有禮貌的說法", ex:"Want some more? — Yeah, nah, I'm full."},
+    {w:"stoked", en:"very happy", zh:"超開心", ex:"I'm stoked about the trip!"},
+    {w:"cuppa", en:"a cup of tea", zh:"一杯茶", ex:"Do you want a cuppa?"}
+  ],
+  tw:[
+    {w:"加油", py:"jiā yóu", en:"Go for it! / Good luck! (literally: add oil)", zh:"加油，鼓勵別人時用", ex:"考試加油！"},
+    {w:"吃飽沒", py:"chī bǎo méi", en:"Have you eaten yet? (a friendly greeting)", zh:"問候的說法，意思是「你好嗎」", ex:"阿姨說：吃飽沒？"},
+    {w:"辛苦了", py:"xīn kǔ le", en:"Thank you for your hard work.", zh:"感謝別人做了事情", ex:"你今天上學辛苦了。"},
+    {w:"好料", py:"hǎo liào", en:"delicious food", zh:"好吃的東西", ex:"夜市有很多好料。"},
+    {w:"揪團", py:"jiū tuán", en:"to gather a group to do something together", zh:"邀一群人一起做事情", ex:"我們揪團去吃飯。"},
+    {w:"拜拜", py:"bài bài", en:"bye-bye / also: to pray at a temple", zh:"再見，也指到廟裡祭拜", ex:"我們去廟裡拜拜。"},
+    {w:"小確幸", py:"xiǎo què xìng", en:"a small but certain happiness", zh:"生活裡小小但確實的快樂", ex:"喝到一杯熱奶茶就是小確幸。"},
+    {w:"機車", py:"jī chē", en:"a scooter / also slang for someone being annoying", zh:"摩托車，也可以形容人很煩", ex:"你很機車耶！（開玩笑時用）"},
+    {w:"古早味", py:"gǔ zǎo wèi", en:"old-fashioned traditional taste", zh:"傳統的老味道", ex:"這家店是古早味的豆花。"},
+    {w:"不好意思", py:"bù hǎo yì si", en:"excuse me / sorry / I feel a bit shy", zh:"請問、抱歉、害羞都可以用", ex:"不好意思，請問廁所在哪裡？"}
+  ]
+};
+let PLAY = {mode:null, deck:[], i:0, step:0, side:"au"};
+const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const PLANS = {
   A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
     "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
@@ -451,6 +523,29 @@ function funView(){
     <div class="bar"><span class="muted small">她想去的：${n} 個</span></div>` +
     ACTS.map((a, i) => `<div class="food"><div class="top"><span class="zhn">${esc(a.zh)}</span><span class="enn">${esc(a.en)}</span></div><p>${esc(a.d)}</p><div class="meta"><span class="pill">${esc(a.io)}</span>${a.rain ? '<span class="pill">雨天可以</span>' : '<span class="pill hot">雨天要考慮</span>'}<span class="pill">${eff[a.eff]}</span><span class="btns"><button class="btn ${S.want[a.zh] ? "" : "ghost"} sm" data-awant="${i}">${S.want[a.zh] ? "想去 ✓" : "想去"}</button><button class="btn sm" data-aask="${i}">問她</button></span></div></div>`).join("");
 }
+function playView(){
+  if(!PLAY.mode){
+    return `<div class="note">一起玩，不計分，目的是聊天。用同一支手機，念出來給她聽，也讓她看英文。她不想回答的題目可以直接跳過。</div>
+      <div class="card"><h2>默契大考驗</h2><p class="hint">每題四個選項，數到三，兩個人同時指出自己的選擇，再問「為什麼？」。看看我們一不一樣。</p><button class="btn" data-pmode="match">開始（${MATCH_Q.length} 題）</button></div>
+      <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>`;
+  }
+  const back = '<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><button class="btn ghost sm" data-pshuf="1">重新洗牌</button></div>';
+  const n = PLAY.deck.length, c = PLAY.deck[PLAY.i], prog = `<div class="prog">${PLAY.i + 1} / ${n}</div>`;
+  const nav = `<div class="ctl"><button class="btn ghost sm" data-pprev="1" ${PLAY.i ? "" : "disabled"}>上一題</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一題" : "再玩一輪"}</button></div>`;
+  if(PLAY.mode === "match"){
+    const opts = c.o.map(o => `<div class="opt">${esc(o[0])}<small>${esc(o[1])}</small></div>`).join("");
+    return back + `<div class="card deck">${prog}<div class="qen">${esc(c.en)}</div><div class="qzh">${esc(c.zh)}</div><div class="opts">${opts}</div>
+      <div class="count" id="count"></div>
+      <div class="ctl"><button class="btn ghost sm" data-pspeak="q">念題目</button><button class="btn" data-p321="1">數到三，一起指！</button><button class="btn ghost sm" data-pwhy="1">為什麼？</button></div>${nav}</div>`;
+  }
+  const au = PLAY.side === "au";
+  const reveal = PLAY.step === 1;
+  const ans = reveal ? `<div class="ans"><b>${esc(c.en)}</b><br>${esc(c.zh)}<div class="ex">${esc(c.ex)}</div></div>` : "";
+  return back + `<div class="card deck">${prog}<div class="muted small" style="margin-bottom:8px">${au ? "她教你的澳洲說法" : "你教她的台灣說法"}</div>
+    <div class="big">${esc(c.w)}</div>${c.py ? `<div class="qzh">${esc(c.py)}</div>` : ""}
+    <div class="qzh" style="margin-top:10px">${reveal ? "" : au ? "你猜猜是什麼意思？" : "Can you guess what this means?"}</div>${ans}
+    <div class="ctl"><button class="btn ghost sm" data-pspeak="w">${au ? "念出來" : "念中文"}</button>${reveal ? "" : '<button class="btn" data-preveal="1">揭曉</button>'}${reveal ? '<button class="btn ghost sm" data-pspeak="ex">念例句</button>' : ""}</div>${nav}</div>`;
+}
 function planView(){
   const cur = PLANS[S.plan];
   return `<div class="note">這是「夜市加輕鬆逛」的三個選項，營業時間、票價和班次我沒有即時資料，<b>出發前請用 Google 地圖和官方網站再確認一次</b>。也記得先問學校有沒有規定交換學生週末能去哪裡。</div>
@@ -470,6 +565,7 @@ function render(){
   const v = $("#view");
   if(tab === "food") v.innerHTML = foodView();
   else if(tab === "fun") v.innerHTML = funView();
+  else if(tab === "play") v.innerHTML = playView();
   else if(tab === "plan") v.innerHTML = planView();
   else if(tab === "sos") v.innerHTML = sosView();
   else v.innerHTML = `<div class="bar"><label class="chk"><input type="checkbox" id="slow" ${S.slow ? "checked" : ""}> 念慢一點</label><span class="sp"></span></div>` + cardsView(tab);
@@ -491,6 +587,29 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  const pm = e.target.closest("[data-pmode]"); if(pm){
+    const m = pm.dataset.pmode;
+    if(m === "match"){ PLAY = {mode:"match", deck:shuffle(MATCH_Q), i:0, step:0, side:"au"}; }
+    else { const side = m === "slang-au" ? "au" : "tw"; PLAY = {mode:"slang", deck:shuffle(SLANG[side]), i:0, step:0, side}; }
+    render(); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-pback]")){ PLAY.mode = null; render(); return; }
+  if(e.target.closest("[data-pshuf]")){ PLAY.deck = shuffle(PLAY.deck); PLAY.i = 0; PLAY.step = 0; render(); return; }
+  if(e.target.closest("[data-pnext]")){ PLAY.i = PLAY.i < PLAY.deck.length - 1 ? PLAY.i + 1 : 0; if(PLAY.i === 0) PLAY.deck = shuffle(PLAY.deck); PLAY.step = 0; render(); return; }
+  if(e.target.closest("[data-pprev]")){ if(PLAY.i > 0){ PLAY.i--; PLAY.step = 0; render(); } return; }
+  if(e.target.closest("[data-preveal]")){ PLAY.step = 1; render(); const c = PLAY.deck[PLAY.i]; if(PLAY.side === "au") say(c.w + ". It means " + c.en, "en"); return; }
+  if(e.target.closest("[data-pwhy]")){ say("Why did you choose that?", "en"); return; }
+  const ps = e.target.closest("[data-pspeak]"); if(ps){
+    const c = PLAY.deck[PLAY.i], k = ps.dataset.pspeak;
+    if(k === "q") say(c.en + ". " + c.o.map(o => o[0]).join(". "), "en");
+    else if(k === "ex") say(c.ex, PLAY.side === "au" ? "en" : "zh");
+    else say(c.w, PLAY.side === "au" ? "en" : "zh");
+    return; }
+  if(e.target.closest("[data-p321]")){
+    const el = $("#count"); if(!el) return;
+    say("Three, two, one, point!", "en");
+    ["3", "2", "1", "指！"].forEach((t, i) => setTimeout(() => { const x = $("#count"); if(x) x.textContent = t; }, i * 700));
+    setTimeout(() => { const x = $("#count"); if(x) x.textContent = ""; }, 3600);
+    return; }
   const aw = e.target.closest("[data-awant]"); if(aw){ const a = ACTS[+aw.dataset.awant]; S.want[a.zh] = !S.want[a.zh]; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
   const aa = e.target.closest("[data-aask]"); if(aa){ const a = ACTS[+aa.dataset.aask]; openShow(a.ask, a.zh + "（" + a.en + "）", "en"); say(a.ask, "en"); return; }
   const fs = e.target.closest("[data-fsay]"); if(fs){ const f = FOODS[+fs.dataset.fsay]; say(f.en, "en"); return; }
