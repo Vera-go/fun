@@ -22,6 +22,8 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .chips{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px;position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 70%,transparent);padding-top:6px}
 .chip{flex:none;border:2px solid var(--card2);background:var(--card);color:var(--muted);border-radius:99px;padding:8px 14px;font:inherit;font-size:14px;font-weight:800;cursor:pointer;touch-action:manipulation}
 .chip.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.daily{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,#3A2A7A,#5A2A6A);border:2px solid #7A5AC0;border-radius:16px;padding:12px 14px;margin:0 0 12px}
+.daily small{display:block;color:#C9C4F0;font-size:12px;font-weight:800;margin-bottom:2px}.daily b{font-size:16px}.daily.done{background:#1F4A3C;border-color:#2F7B64}.daily .ok{color:var(--green);font-weight:900;white-space:nowrap}
 .newtag{font-style:normal;font-size:10px;font-weight:900;background:var(--yellow);color:#14142F;border-radius:99px;padding:1px 6px;margin-left:6px;vertical-align:2px}
 .sec{font-size:13px;font-weight:900;letter-spacing:2px;color:var(--cyan);margin:6px 2px 10px}.sec:not(:first-child){margin-top:20px}
 .game{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--card2);border-radius:18px;padding:14px;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;touch-action:manipulation}
@@ -94,9 +96,9 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 "use strict";
 const $ = s => document.querySelector(s);
 const KEY = "arcade.v1";
-let D = {best:{}, mute:false, name:"", client:"", sent:{}, recent:[], played:{}, filter:"all"};
+let D = {best:{}, mute:false, name:"", client:"", sent:{}, recent:[], played:{}, filter:"all", daily:{}, dstreak:{n:0, last:""}, ach:{}};
 try{ Object.assign(D, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
-D.best = D.best || {}; D.sent = D.sent || {}; D.recent = D.recent || []; D.played = D.played || {}; D.filter = D.filter || "all";
+D.best = D.best || {}; D.sent = D.sent || {}; D.recent = D.recent || []; D.played = D.played || {}; D.filter = D.filter || "all"; D.daily = D.daily || {}; D.dstreak = D.dstreak || {n:0, last:""}; D.ach = D.ach || {};
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} };
 
 /* ---------- 聲音 ---------- */
@@ -145,7 +147,7 @@ function resultView(id, value, extra, newBest){
     <div class="panel"><div class="sub2">這次成績</div><div class="big">${esc(g.fmt(value))}</div>${newBest ? '<div class="new">新紀錄！</div>' : ""}
     <div class="sub2">最佳：${esc(g.fmt(D.best[id]))}${extra ? "<br>" + extra : ""}</div>
     <div class="row"><button class="btn" data-again="${id}">再玩一次</button><button class="btn ghost" data-copy="1">複製成績</button></div><div class="lbbox" id="lbbox"></div></div>`);
-  $("#view").dataset.copy = text; afterResult(id, newBest);
+  $("#view").dataset.copy = text; afterResult(id, newBest); afterRun(id, value);
   beep(newBest ? 880 : 440, .25, .1, "triangle"); if(newBest) buzz(120);
 }
 
@@ -191,11 +193,59 @@ async function lbView(id){
 }
 
 /* ---------- 選單 ---------- */
+
+/* ---------- 每日挑戰和成就徽章（都存在這支手機，不需要資料庫） ---------- */
+/* 每日挑戰的目標：t 是目標數字；low 是越小越好 */
+const DAILY = {react:{t:300, low:1}, whack:{t:25}, simon:{t:5}, nums:{t:45000, low:1}, tap:{t:5.5}, brick:{t:300}, invader:{t:300}, block:{t:800}, flap:{t:5}, merge:{t:1500},
+  run:{t:100}, cross:{t:150}, maze:{t:600}, pong:{t:3}, mine1:{t:150, low:1}, race:{t:100}, catch:{t:15}, galaxy:{t:600}, rocks:{t:400}, c4:{t:1}, reversi:{t:1}, gomoku:{t:1},
+  slide:{t:150, low:1}, tank:{t:400}, bomber:{t:250}, bubble:{t:300}, piano:{t:25}, match3:{t:1200}, chess:{t:1}, link:{t:600}, slice:{t:15}, jump:{t:100}};
+const dayKey = (d = new Date()) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+function todayChallenge(){
+  const ids = Object.keys(DAILY).filter(id => GAMES[id]).sort(), k = dayKey();
+  let h = 7; for(const ch of k) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const id = ids[h % ids.length]; return {id, ...DAILY[id], key:k};
+}
+const dailyText = c => { const g = GAMES[c.id]; return `${g.name}：${c.low ? g.fmt(c.t) + " 以內完成" : c.id === "c4" || c.id === "reversi" || c.id === "gomoku" || c.id === "chess" ? "贏電腦至少 1 場" : g.fmt(c.t) + " 以上"}`; };
+function checkDaily(id, value){
+  const c = todayChallenge(); if(c.id !== id) return;
+  if(D.daily.date === c.key && D.daily.done) return;
+  if(!(c.low ? value <= c.t : value >= c.t)) return;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  D.dstreak.n = D.dstreak.last === dayKey(y) ? D.dstreak.n + 1 : 1; D.dstreak.last = c.key; D.daily = {date:c.key, done:true}; save();
+  setTimeout(() => toast("每日挑戰完成！連續 " + D.dstreak.n + " 天"), 700); beep(988, .3, .1, "triangle");
+}
+const ACH = [
+  {n:"入場券", d:"玩過第 1 個遊戲", ok:() => Object.keys(D.played).length >= 1},
+  {n:"熱身完畢", d:"玩過 5 個不同的遊戲", ok:() => Object.keys(D.played).length >= 5},
+  {n:"資深玩家", d:"玩過 15 個不同的遊戲", ok:() => Object.keys(D.played).length >= 15},
+  {n:"全制霸", d:"每一個遊戲都玩過", ok:() => Object.entries(GAMES).filter(([, g]) => !g.hide).every(([id]) => D.played[id])},
+  {n:"四種都嘗試", d:"動作、益智、棋類、30 秒各玩過一個", ok:() => ["quick", "action", "puzzle", "board"].every(c => Object.keys(D.played).some(id => catOf(id) === c))},
+  {n:"連勝達人", d:"棋類對電腦連勝 3 場以上", ok:() => ["c4", "reversi", "gomoku", "chess"].some(id => (D.best[id] || 0) >= 3)},
+  {n:"神速反應", d:"反應速度 230 毫秒以內", ok:() => D.best.react != null && D.best.react <= 230},
+  {n:"磚塊大師", d:"打磚塊 500 分以上", ok:() => (D.best.brick || 0) >= 500},
+  {n:"推箱子高手", d:"推箱子過 10 關", ok:() => (D.best.sokoban || 0) >= 10},
+  {n:"數獨高手", d:"完成一題困難數獨", ok:() => D.best.sudoku3 != null},
+  {n:"上榜新星", d:"留下名字並上傳過成績", ok:() => !!D.name && Object.keys(D.sent).length > 0},
+  {n:"日課達人", d:"連續 3 天完成每日挑戰", ok:() => D.dstreak.n >= 3 && D.dstreak.last >= dayKey(new Date(Date.now() - 864e5))},
+  {n:"七天不間斷", d:"連續 7 天完成每日挑戰", ok:() => D.dstreak.n >= 7 && D.dstreak.last >= dayKey(new Date(Date.now() - 864e5))}
+];
+function checkAch(){
+  const fresh = ACH.filter((a, i) => !D.ach[i] && a.ok());
+  fresh.forEach(a => { D.ach[ACH.indexOf(a)] = true; }); if(fresh.length){ save(); setTimeout(() => toast("解鎖成就：" + fresh.map(a => a.n).join("、")), 1400); }
+}
+const afterRun = (id, value) => { checkDaily(id, value); checkAch(); };
+function achView(){
+  cleanup(); checkAch();
+  const n = ACH.filter((a, i) => D.ach[i]).length;
+  view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">成就</span></div><div class="stat"><span>已解鎖 <b>${n}</b> / ${ACH.length}</span></div>` +
+    ACH.map((a, i) => `<div class="lbrow" style="opacity:${D.ach[i] ? 1 : .55}"><span class="rk" style="${D.ach[i] ? "background:#FFD84A;color:#14142F" : ""}">${D.ach[i] ? "✓" : "?"}</span><span class="nm"><b>${esc(a.n)}</b><br><small style="color:var(--muted)">${esc(a.d)}</small></span></div>`).join(""));
+}
+
 /* 分類：quick 30 秒、action 動作、puzzle 益智、board 棋類 */
 const CATS = [["all", "全部"], ["recent", "最近玩過"], ["action", "動作"], ["puzzle", "益智"], ["board", "棋類"], ["quick", "30 秒"]];
 const CAT = {react:"quick", whack:"quick", simon:"quick", nums:"quick", tap:"quick",
   brick:"action", invader:"action", flap:"action", run:"action", cross:"action", maze:"action", pong:"action", race:"action", catch:"action", galaxy:"action", rocks:"action", tank:"action", bomber:"action", piano:"action",
-  block:"puzzle", merge:"puzzle", mine1:"puzzle", mine2:"puzzle", mine3:"puzzle", sokoban:"puzzle", sudoku:"puzzle", slide:"puzzle", bubble:"puzzle", match3:"puzzle",
+  block:"puzzle", merge:"puzzle", mine1:"puzzle", mine2:"puzzle", mine3:"puzzle", sokoban:"puzzle", sudoku:"puzzle", slide:"puzzle", bubble:"puzzle", match3:"puzzle", link:"puzzle", klotski:"puzzle", slice:"action", jump:"action",
   c4:"board", reversi:"board", gomoku:"board", chess:"board"};
 const catOf = id => CAT[id] || "action";
 function markPlayed(id){
@@ -209,7 +259,9 @@ function menu(){
   const all = Object.entries(GAMES).filter(([, g]) => !g.hide);
   const f = D.filter || "all";
   const chips = CATS.map(([k, n]) => `<button class="chip ${f === k ? "on" : ""}" data-filter="${k}">${n}</button>`).join("");
-  const bar = `<div class="chips">${chips}</div><div class="row" style="margin:0 0 12px;justify-content:space-between"><button class="btn sm" data-random="1">隨便玩一個</button><button class="btn ghost sm" data-lbgame="react">排行榜</button></div>`;
+  const dc = todayChallenge(), done = D.daily.date === dc.key && D.daily.done, ach = ACH.filter((a, i) => D.ach[i]).length;
+  const daily = `<div class="daily ${done ? "done" : ""}"><div><small>今日挑戰・連續 ${D.dstreak.n && D.dstreak.last >= dayKey(new Date(Date.now() - 864e5)) ? D.dstreak.n : 0} 天</small><b>${esc(dailyText(dc))}</b></div>${done ? '<span class="ok">已完成 ✓</span>' : `<button class="btn sm" data-play="${dc.id}">去挑戰</button>`}</div>`;
+  const bar = daily + `<div class="chips">${chips}</div><div class="row" style="margin:0 0 12px;justify-content:space-between"><button class="btn sm" data-random="1">隨便玩一個</button><span><button class="btn ghost sm" data-ach="1">成就 ${ach}/${ACH.length}</button> <button class="btn ghost sm" data-lbgame="react">排行榜</button></span></div>`;
   let body;
   if(f === "all"){
     const recent = D.recent.map(id => all.find(([k]) => k === id)).filter(Boolean).slice(0, 3);
@@ -221,7 +273,7 @@ function menu(){
   }else{
     body = `<div class="menu">${all.filter(([id]) => catOf(id) === f).map(card).join("")}</div>`;
   }
-  view(bar + body);
+  view(bar + body); checkAch();
 }
 
 /* ---------- 1. 反應速度 ---------- */
@@ -337,9 +389,10 @@ function gTap(){
   });
 }
 
-window.Arcade = {GAMES, RUN:null, view, later, cleanup, onCleanup, beep, buzz, record, resultView, down, esc, $, D, save, menu, toast, audio};
+window.Arcade = {GAMES, RUN:null, view, later, cleanup, onCleanup, beep, buzz, record, resultView, down, esc, $, D, save, menu, toast, audio, todayChallenge, afterRun, checkAch, ACH, dayKey};
 const RUN = {react:gReact, whack:gWhack, simon:gSimon, nums:gNums, tap:gTap};
 $("#view").addEventListener("click", e => {
+  if(e.target.closest("[data-ach]")){ achView(); window.scrollTo(0, 0); return; }
   const fl = e.target.closest("[data-filter]"); if(fl){ D.filter = fl.dataset.filter; save(); menu(); return; }
   if(e.target.closest("[data-random]")){
     const ids = Object.entries(GAMES).filter(([, g]) => !g.hide).map(([id]) => id), fresh = ids.filter(id => !D.played[id]), pool = fresh.length ? fresh : ids;
@@ -368,5 +421,6 @@ menu();
 <script src="retro5.js?v=1"></script>
 <script src="xiangqi.js?v=1"></script>
 <script src="retro6.js?v=1"></script>
+<script src="retro7.js?v=1"></script>
 </body>
 </html>
