@@ -90,6 +90,7 @@ textarea{resize:vertical;line-height:1.6}
     <button data-tab="chat" class="on">晚餐聊天</button>
     <button data-tab="home">在家</button>
     <button data-tab="food">夜市美食</button>
+    <button data-tab="fun">好玩活動</button>
     <button data-tab="order">點餐和逛街</button>
     <button data-tab="plan">週末行程</button>
     <button data-tab="sos">緊急卡</button>
@@ -112,7 +113,7 @@ textarea{resize:vertical;line-height:1.6}
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const KEY = "homestay.v1";
-let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}};
+let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}};
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 const fill = (t) => t
@@ -237,6 +238,25 @@ const FOODS = [
 ];
 
 /* 週末行程：夜市加輕鬆逛。營業時間、票價、交通班次我沒有即時資料，出發前請再查一次 */
+/* 好玩的活動：給 16、17 歲澳洲高中生。營業時間、票價、是否要預約和今年有沒有舉辦，我都沒有即時資料，出發前請再查 */
+const ACTS = [
+  {zh:"新北歡樂耶誕城", en:"Christmas lights festival", d:"澳洲的聖誕節在夏天，在台灣冬天的燈海裡過聖誕，對她會很新鮮。每年 12 月前後新北通常會辦，請先查今年有沒有舉辦、在哪裡。", io:"戶外", rain:false, eff:1, ask:"In Taiwan, Christmas is in winter. Do you want to see the Christmas lights?"},
+  {zh:"十分老街放天燈", en:"Release a sky lantern at Shifen", d:"在天燈上寫願望再放上天空，很多外國人覺得很浪漫。位在新北平溪，可以順便搭小火車，山區冬天又濕又冷，下雨時天燈可能放不了。", io:"戶外", rain:false, eff:2, ask:"Do you want to write a wish on a lantern and send it into the sky?"},
+  {zh:"猴硐貓村", en:"Houtong Cat Village", d:"舊礦村裡有很多貓，在新北，搭火車就能到。喜歡動物的人會很開心，記得不要餵人類的食物。", io:"戶外", rain:false, eff:1, ask:"Do you like cats? There is a village full of cats."},
+  {zh:"九份老街", en:"Jiufen Old Street", d:"山城裡的石階、紅燈籠和茶樓，是很多人想像中的台灣。人多、階梯多，下雨起霧也有氣氛，記得穿好走的鞋。", io:"戶外", rain:true, eff:2, ask:"Do you want to see an old mountain town with red lanterns?"},
+  {zh:"象山步道看 101 夜景", en:"Elephant Mountain night view", d:"走約三十分鐘的階梯，就能看到台北 101 和整座城市的夜景。澳洲孩子通常愛健行，天氣好、天黑前去最好。", io:"戶外", rain:false, eff:3, ask:"Do you want to hike up and see the city lights?"},
+  {zh:"台北 101 觀景台", en:"Taipei 101 observatory", d:"可以從很高的地方看台北，天氣差時視野會被雲擋住，要先看天氣。", io:"室內", rain:true, eff:1, ask:"Do you want to go up the tallest building in Taiwan?"},
+  {zh:"貓空纜車喝茶", en:"Maokong gondola and tea", d:"搭纜車上山，在茶園邊的茶館喝台灣茶。山上冷，也要先確認纜車那天有沒有營運。", io:"室內外", rain:false, eff:1, ask:"Do you want to ride a cable car and try Taiwanese tea?"},
+  {zh:"泡腳或泡溫泉（北投）", en:"Hot springs (Beitou)", d:"冬天泡溫泉很舒服。公共溫泉要穿泳衣，有些私人湯屋是不穿衣服的，出發前一定要先問清楚規定，也要先問她和她的家長是否同意。", io:"室內外", rain:true, eff:1, ask:"In winter, many people enjoy hot springs. Would you like to try, with a swimsuit?"},
+  {zh:"夾娃娃機和大頭貼", en:"Claw machines and photo booths", d:"台灣街上很多夾娃娃機店，也有貼圖機可以拍大頭貼。高中生很愛玩，預算先講好，不然會一直投幣。", io:"室內", rain:true, eff:1, ask:"Do you want to try claw machines and take photo-booth pictures?"},
+  {zh:"KTV 唱歌", en:"Karaoke (KTV)", d:"台灣的 KTV 是包廂，只有自己的朋友，可以點英文歌，也可以教她唱一首中文歌。通常要先訂位，也有時間限制。", io:"室內", rain:true, eff:1, ask:"Do you like singing? We can sing karaoke in a private room."},
+  {zh:"便利商店探險", en:"Convenience store adventure", d:"台灣的 7-11 和全家什麼都賣：茶葉蛋、御飯糰、各種飲料和零食，也能繳費和寄東西。陪她逛一圈，讓她挑三樣沒看過的。", io:"室內", rain:true, eff:1, ask:"Convenience stores here are fun. Do you want to pick three things you've never seen?"},
+  {zh:"廟宇參觀和求籤", en:"Visit a temple", d:"龍山寺、行天宮等廟宇可以看建築，也能了解拜拜和求籤。進去要安靜、不拍正在祈禱的人，告訴她入境隨俗的禮貌。", io:"室內外", rain:true, eff:1, ask:"Do you want to visit a temple? It's a good way to see Taiwanese culture."},
+  {zh:"文創園區和書店", en:"Creative parks and bookstores", d:"華山、松山文創園區有展覽、文具和小店，誠品書店也很好逛，下雨天很適合。可以買明信片寄回澳洲。", io:"室內", rain:true, eff:1, ask:"Do you want to look at shops and art spaces? We can send postcards home."},
+  {zh:"做伴手禮：鳳梨酥", en:"Make pineapple cakes", d:"有些店有手作體驗，可以自己做鳳梨酥帶回澳洲。需要預約，請先確認時間、價格和年齡。", io:"室內", rain:true, eff:1, ask:"Do you want to make pineapple cakes to take home?"},
+  {zh:"室內運動：羽球、攀岩、保齡球", en:"Indoor sports", d:"澳洲學生通常很愛運動。台灣的羽球館、攀岩館、保齡球館都在室內，下雨也能玩，輕鬆認識朋友。", io:"室內", rain:true, eff:2, ask:"Do you like sports? We can play badminton, bowling, or try climbing."},
+  {zh:"學中文名字和刻印章", en:"Get a Chinese name and a name stamp", d:"幫她取一個中文名字，再去刻印章當紀念品。可以一起選字，說明每個字的意思。", io:"室內", rain:true, eff:1, ask:"Do you want me to give you a Chinese name? We can make a name stamp."}
+];
 const PLANS = {
   A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
     "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
@@ -310,6 +330,13 @@ function foodView(){
   return `<div class="note">給她看這一頁，問「想試試嗎？」。我是依一般做法寫的，每家店配料不同，過敏或吃素請在攤位上再問一次（見「點餐和逛街」）。</div>` +
     FOODS.map((f, i) => `<div class="food"><div class="top"><span class="zhn">${esc(f.zh)}</span><span class="enn">${esc(f.en)}</span></div><p>${esc(f.d)}</p><div class="meta">${br(f.brave)}${sp(f.spice)}<span class="btns"><button class="btn ghost sm" data-fshow="${i}">放大</button><button class="btn sm" data-fsay="${i}">念英文</button></span></div></div>`).join("");
 }
+function funView(){
+  const n = Object.keys(S.want).filter(k => S.want[k]).length;
+  const eff = ["", "輕鬆", "走一些路", "要點體力"];
+  return `<div class="note">這些是 16、17 歲外國高中生可能會喜歡的點子。她看到想去的可以按「想去」，我幫你記起來，最後挑一兩個就好，不要排太滿，她第一週也要適應時差和天氣。營業時間、票價和是否要預約，出發前請再查，也要先問學校有沒有規定交換學生的活動範圍。</div>
+    <div class="bar"><span class="muted small">她想去的：${n} 個</span></div>` +
+    ACTS.map((a, i) => `<div class="food"><div class="top"><span class="zhn">${esc(a.zh)}</span><span class="enn">${esc(a.en)}</span></div><p>${esc(a.d)}</p><div class="meta"><span class="pill">${esc(a.io)}</span>${a.rain ? '<span class="pill">雨天可以</span>' : '<span class="pill hot">雨天要考慮</span>'}<span class="pill">${eff[a.eff]}</span><span class="btns"><button class="btn ${S.want[a.zh] ? "" : "ghost"} sm" data-awant="${i}">${S.want[a.zh] ? "想去 ✓" : "想去"}</button><button class="btn sm" data-aask="${i}">問她</button></span></div></div>`).join("");
+}
 function planView(){
   const cur = PLANS[S.plan];
   return `<div class="note">這是「夜市加輕鬆逛」的三個選項，營業時間、票價和班次我沒有即時資料，<b>出發前請用 Google 地圖和官方網站再確認一次</b>。也記得先問學校有沒有規定交換學生週末能去哪裡。</div>
@@ -331,6 +358,7 @@ function render(){
   document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   const v = $("#view");
   if(tab === "food") v.innerHTML = foodView();
+  else if(tab === "fun") v.innerHTML = funView();
   else if(tab === "plan") v.innerHTML = planView();
   else if(tab === "sos") v.innerHTML = sosView();
   else v.innerHTML = `<div class="bar"><label class="chk"><input type="checkbox" id="slow" ${S.slow ? "checked" : ""}> 念慢一點</label><span class="sp"></span></div>` + cardsView(tab);
@@ -352,6 +380,8 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  const aw = e.target.closest("[data-awant]"); if(aw){ const a = ACTS[+aw.dataset.awant]; S.want[a.zh] = !S.want[a.zh]; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  const aa = e.target.closest("[data-aask]"); if(aa){ const a = ACTS[+aa.dataset.aask]; openShow(a.ask, a.zh + "（" + a.en + "）", "en"); say(a.ask, "en"); return; }
   const fs = e.target.closest("[data-fsay]"); if(fs){ const f = FOODS[+fs.dataset.fsay]; say(f.en, "en"); return; }
   const fh = e.target.closest("[data-fshow]"); if(fh){ const f = FOODS[+fh.dataset.fshow]; openShow(f.zh, f.en, "zh"); return; }
   const pt = e.target.closest("[data-plan]"); if(pt){ S.plan = pt.dataset.plan; save(); render(); return; }
