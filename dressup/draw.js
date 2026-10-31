@@ -107,7 +107,7 @@ const TOPS = {
 const BOTTOMS = {
   pleat:  {name:"百褶裙", tags:["school", "neat"], color:"#2C3E70",
     draw:(f, c) => P("M112.5 290 L187.5 290 L199 348 L101 348 Z", f) + [[128, 118], [139, 134], [150, 150], [161, 166], [172, 182]].map(([a, b]) => LN(`M${a} 292 L${b} 346`, 1.6, shade(c, -.35))).join("")},
-  mini:   {name:"A 字短裙", tags:["casual", "party", "summer"], color:"#F7A8C4",
+  mini:   {name:"A 字短裙", tags:["casual", "school", "summer"], color:"#F7A8C4",
     draw:(f, c) => P("M112.5 290 L187.5 290 L195 336 Q150 342 105 336 Z", f) + LN("M113 297 L187 297", 1.6)},
   jeans:  {name:"牛仔褲", tags:["casual", "snack"], color:"#4C8FE0",
     draw:(f, c) => PANTS(f) + LN("M150 300 L150 332", 1.6) + LN("M125 298 Q132 306 140 300", 1.4, shade(c, -.35))},

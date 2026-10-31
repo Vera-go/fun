@@ -236,8 +236,10 @@ function scoreLook(look, t){
   const gp = Math.min(45, good.length * 9);
   if(good.length) lines.push([`符合主題：${good.map(x => x.it.name).join("、")}`, gp]);
   else lines.push(["還沒有符合主題的單品", 0]);
-  if(bad.length) lines.push([`不太適合這個主題：${bad.map(x => x.it.name).join("、")}`, -12 * bad.length]);
-  pts += gp - 12 * bad.length;
+  // 不適合的單品扣分；日常百搭的單品（casual）只扣一半
+  const penalty = x => x.it.tags.includes("casual") ? 6 : 12, bp = bad.reduce((a, x) => a + penalty(x), 0);
+  if(bad.length) lines.push([`不太適合這個主題：${bad.map(x => x.it.name).join("、")}`, -bp]);
+  pts += gp - bp;
   // 背景
   const bg = BGS[look.bg];
   const bgp = look.bg === t.bg ? 10 : bg && bg.tags.some(x => t.like.includes(x)) ? 5 : 0;
