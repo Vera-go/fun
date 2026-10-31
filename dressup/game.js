@@ -67,6 +67,7 @@ const CATS = [
     {type:"slot", key:"scarf", label:"圍巾", list:SCARVES, vb:"96 186 108 108"},
     {type:"slot", key:"bag", label:"包包", list:BAGS, vb:"66 196 168 172"},
     {type:"slot", key:"hand", label:"手上拿的", list:HANDS, vb:"150 30 150 330"}]},
+  {id:"pose", name:"動作", groups:[{type:"pick", key:"pose", label:"動作", list:POSES, vb:"40 150 220 220"}]},
   {id:"bg", name:"背景", groups:[
     {type:"pick", key:"bg", label:"背景", list:BGS, full:true},
     {type:"color", key:"bgC", label:"純色背景的顏色", pal:PAL, only:L => L.bg === "plain"},
@@ -77,7 +78,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
 const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
-  blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"",
+  blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down",
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
   hat:null, glasses:null, hairpin:null, neck:null, scarf:null, bag:null, hand:null};
@@ -147,7 +148,8 @@ function renderGroups(){
       h += `<label class="tog"><input type="checkbox" data-t="toggle" data-k="${g.key}" ${look[g.key] ? "checked" : ""}> 加上${esc(g.label)}</label>`;
     }
     return h + `</div>`;
-  }).join("") + (cat.id === "dress" ? `<p class="muted small">「吊帶裙」會露出裡面的上衣，其他洋裝會蓋過上衣和下身。</p>` : "");
+  }).join("") + (cat.id === "dress" ? `<p class="muted small">「吊帶裙」會露出裡面的上衣，其他洋裝會蓋過上衣和下身。</p>` : "") +
+    (cat.id === "pose" ? `<p class="muted small">雙手背在後面時，手上拿的東西和手提包會先收起來，換回「自然站立」就會再出現。</p>` : "");
 }
 function toast(msg){
   const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
@@ -187,6 +189,7 @@ function randomLook(){
   const scheme = pick([["#FFFFFF", "#2C3E70", "#D9414E"], ["#F7A8C4", "#FFFFFF", "#B9A3E8"], ["#F6E7C8", "#8A5A3C", "#4FA36B"], ["#9BD0F5", "#FFFFFF", "#F6D65A"], ["#2E2B2B", "#FFFFFF", "#E8679A"], ["#9ADBC0", "#F6E7C8", "#F59A4A"], ["#B9A3E8", "#7E5BC2", "#F7A8C4"]]);
   const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list)); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
   look.hairB = pick(Object.keys(HAIRB)); look.hairF = pick(Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
+  look.pose = Math.random() < .25 ? "behind" : "down";
   look.faceShape = pick(Object.keys(FACES)); look.nose = pick(Object.keys(NOSES)); look.hairTip = Math.random() < .2 ? pick(TIP_PAL) : "";
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.mouth = pick(Object.keys(MOUTHS)); look.brows = pick(["soft", "soft", "straight", "worried"]);
   look.blush = Math.random() < .7 ? pick(BLUSH) : ""; look.lip = Math.random() < .4 ? pick(LIPS) : ""; look.shadow = Math.random() < .3 ? pick(SHADOW) : "";
@@ -230,7 +233,9 @@ function worn(look){
   const slots = ["dress", "outer", "socks", "shoes", ...ACC_SLOTS];
   if(!dress) slots.unshift("top", "bottom");
   else if(dress.overTop) slots.unshift("top");
-  return slots.filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
+  // 手背在後面時，手上拿的東西和手提包看不到，不算分
+  return slots.filter(k => !(look.pose === "behind" && (k === "hand" || (k === "bag" && look[k] && look[k].id === "handbag"))))
+    .filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
 }
 function scoreLook(look, t){
   const items = worn(look), lines = [];
@@ -363,7 +368,7 @@ function sanitizeLook(raw){
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
   ["hairC", "eyeC", "bgC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
-  [["faceShape", FACES], ["nose", NOSES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
