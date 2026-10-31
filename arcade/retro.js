@@ -296,6 +296,7 @@ Object.assign(A.GAMES, {
   flap:{name:"拍翅小鳥", tag:"點一下拍翅，穿過柱子中間", dir:1, group:"retro", fmt:v => v + " 根", col:"#FFD84A", ic:'<circle cx="22" cy="26" r="13" fill="#FFD84A"/><path d="M33 24l9 3-9 3z" fill="#FF8A5B"/><circle cx="27" cy="22" r="3.5" fill="#fff"/><circle cx="28" cy="22" r="1.6" fill="#14142F"/>'},
   merge:{name:"數字合併 2048", tag:"滑動合併相同數字，湊出 2048", dir:1, group:"retro", fmt:v => v + " 分", col:"#F2B179", ic:'<rect x="6" y="6" width="17" height="17" rx="4" fill="#EEE4DA"/><rect x="25" y="6" width="17" height="17" rx="4" fill="#F2B179"/><rect x="6" y="25" width="17" height="17" rx="4" fill="#F67C5F"/><rect x="25" y="25" width="17" height="17" rx="4" fill="#EDC22E"/>'}
 });
+A.kit = {setupCanvas, pointerX, runLoop, shell, setStats, finish, roundRect, rand, clamp, resetFinished:() => { finished = false; }};
 Object.assign(A.RUN, {brick:gBrick, invader:gInvader, block:gBlock, flap:gFlap, merge:gMerge});
 A.menu();
 })();

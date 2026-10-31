@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>電玩廳</title>
-<meta name="description" content="30 秒小遊戲和復古經典：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒，還有打磚塊、星際防衛、落磚方塊、拍翅小鳥、數字合併 2048。破自己的紀錄、上排行榜。">
+<meta name="description" content="30 秒小遊戲和復古經典：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒，還有打磚塊、星際防衛、落磚方塊、拍翅小鳥、2048、跳跳跑酷、過馬路、迷宮吃豆、乒乓、踩地雷。破自己的紀錄、上排行榜。">
 <meta property="og:title" content="電玩廳｜30 秒小遊戲">
 <meta property="og:description" content="反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒。破自己的紀錄，傳給朋友比一比。">
 <meta name="theme-color" content="#14142F">
@@ -187,7 +187,7 @@ async function lbView(id){
 function menu(){
   cleanup();
   const card = ([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`;
-  const all = Object.entries(GAMES), quick = all.filter(([, g]) => !g.group), retro = all.filter(([, g]) => g.group === "retro");
+  const all = Object.entries(GAMES).filter(([, g]) => !g.hide), quick = all.filter(([, g]) => !g.group), retro = all.filter(([, g]) => g.group === "retro");
   view(`<div class="row" style="margin:0 0 12px;justify-content:flex-end"><button class="btn ghost sm" data-lbgame="react">排行榜</button></div><div class="sec">30 秒小遊戲</div><div class="menu">${quick.map(card).join("")}</div>${retro.length ? `<div class="sec">復古經典</div><div class="menu">${retro.map(card).join("")}</div>` : ""}`);
 }
 
@@ -324,6 +324,7 @@ document.addEventListener("visibilitychange", () => { if(document.hidden && loop
 window.Arcade.RUN = RUN;
 menu();
 </script>
-<script src="retro.js?v=1"></script>
+<script src="retro.js?v=2"></script>
+<script src="retro2.js?v=1"></script>
 </body>
 </html>
