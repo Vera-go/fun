@@ -26,28 +26,36 @@ const THEMES = [
   {id:"christmas", name:"聖誕節交換禮物", desc:"聖誕夜和朋友交換禮物，穿得溫暖又有節日感。", bg:"xmas", like:["xmas", "winter", "warm"], dislike:["summer", "beach"], reward:["hat", "antlers"]},
 ];
 const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
-const SLOT_LISTS = {top:TOPS, bottom:BOTTOMS, dress:DRESSES, outer:OUTERS, socks:SOCKS, shoes:SHOES, hat:HATS, glasses:GLASSES, hairpin:HAIRPINS, neck:NECKS, scarf:SCARVES, bag:BAGS, hand:HANDS};
+const SLOT_LISTS = {top:TOPS, bottom:BOTTOMS, dress:DRESSES, outer:OUTERS, socks:SOCKS, shoes:SHOES, hat:HATS, glasses:GLASSES, hairpin:HAIRPINS, neck:NECKS, scarf:SCARVES, bag:BAGS, hand:HANDS, petwear:PETWEAR};
 const KEY_LISTS = {...SLOT_LISTS, eyes:EYES};
+const PET_ACC = ["hat", "glasses", "hairpin", "neck", "scarf"];   // 寵物可以戴的配件
+const human = L => L.role !== "pet";
 const ACC_SLOTS = ["hat", "glasses", "hairpin", "neck", "scarf", "bag", "hand"];
 
 // ---------- 分類 ----------
 // type：slot 衣服配件（可以換顏色）、pick 選一種、color 顏色、toggle 開關
 const CATS = [
   {id:"role", name:"角色", groups:[{type:"pick", key:"role", label:"選角色（會換成這個角色的基本造型，之後衣服配件都可以自由搭）", list:ROLES, vb:"40 20 220 440"}]},
-  {id:"hair", name:"髮型", groups:[
+  {id:"petbody", roles:["pet"], name:"寵物", groups:[
+    {type:"pick", key:"species", label:"種類", list:SPECIES, vb:"40 0 220 460"},
+    {type:"color", key:"fur", label:"毛色", pal:FUR_PAL},
+    {type:"pick", key:"furPat", label:"花色", list:FUR_PATS, vb:"60 60 180 300"},
+    {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
+    {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"}]},
+  {id:"hair", roles:["girl", "boy"], name:"髮型", groups:[
     {type:"pick", key:"hairB", label:"髮型", list:HAIRB, vb:"60 26 180 290"},
     {type:"pick", key:"hairF", label:"瀏海", list:HAIRF, vb:"84 44 132 132"},
     {type:"color", key:"hairC", label:"髮色", pal:HAIR_PAL},
     {type:"color", key:"hairTip", label:"挑染（髮尾變色）", pal:TIP_PAL, none:true}]},
   {id:"face", name:"五官", groups:[
-    {type:"color", key:"skin", label:"膚色", pal:SKIN, index:true},
-    {type:"pick", key:"faceShape", label:"臉型", list:FACES, vb:"76 62 148 148"},
+    {type:"color", key:"skin", only:human, label:"膚色", pal:SKIN, index:true},
+    {type:"pick", key:"faceShape", only:human, label:"臉型", list:FACES, vb:"76 62 148 148"},
     {type:"pick", key:"eyes", label:"眼睛", list:EYES, vb:"100 106 100 64"},
     {type:"color", key:"eyeC", label:"眼睛顏色", pal:EYE_PAL},
-    {type:"pick", key:"brows", label:"眉毛", list:BROWS, vb:"104 98 92 56"},
-    {type:"pick", key:"nose", label:"鼻子", list:NOSES, vb:"124 134 52 36"},
-    {type:"pick", key:"mouth", label:"嘴巴", list:MOUTHS, vb:"118 138 64 44"}]},
-  {id:"makeup", name:"妝容", groups:[
+    {type:"pick", key:"brows", only:human, label:"眉毛", list:BROWS, vb:"104 98 92 56"},
+    {type:"pick", key:"nose", only:human, label:"鼻子", list:NOSES, vb:"124 134 52 36"},
+    {type:"pick", key:"mouth", only:human, label:"嘴巴", list:MOUTHS, vb:"118 138 64 44"}]},
+  {id:"makeup", roles:["girl", "boy"], name:"妝容", groups:[
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
     {type:"color", key:"lip", label:"口紅", pal:LIPS, none:true},
     {type:"color", key:"shadow", label:"眼影", pal:SHADOW, none:true},
@@ -56,13 +64,13 @@ const CATS = [
     {type:"toggle", key:"glitter", label:"眼下亮片"},
     {type:"toggle", key:"freckles", label:"雀斑"},
     {type:"pick", key:"sticker", label:"臉頰小貼紙", list:STICKERS, none:true, vb:"100 100 110 90"}]},
-  {id:"fun", name:"搞笑", groups:[
+  {id:"fun", roles:["girl", "boy"], name:"搞笑", groups:[
     {type:"multi", key:"fun", label:"搞笑的臉（可以選好幾個）", list:FUN, vb:"84 70 132 140"}]},
-  {id:"top", name:"上衣", groups:[{type:"slot", key:"top", label:"上衣", list:TOPS, vb:"64 188 172 160"}]},
-  {id:"bottom", name:"下身", groups:[{type:"slot", key:"bottom", label:"裙子和褲子", list:BOTTOMS, vb:"56 270 188 188"}]},
-  {id:"dress", name:"洋裝", groups:[{type:"slot", key:"dress", label:"洋裝（會蓋過上衣和下身）", list:DRESSES, vb:"36 190 228 268"}]},
-  {id:"outer", name:"外套", groups:[{type:"slot", key:"outer", label:"外套", list:OUTERS, vb:"56 190 188 210"}]},
-  {id:"feet", name:"鞋襪", groups:[
+  {id:"top", roles:["girl", "boy"], name:"上衣", groups:[{type:"slot", key:"top", label:"上衣", list:TOPS, vb:"64 188 172 160"}]},
+  {id:"bottom", roles:["girl", "boy"], name:"下身", groups:[{type:"slot", key:"bottom", label:"裙子和褲子", list:BOTTOMS, vb:"56 270 188 188"}]},
+  {id:"dress", roles:["girl", "boy"], name:"洋裝", groups:[{type:"slot", key:"dress", label:"洋裝（會蓋過上衣和下身）", list:DRESSES, vb:"36 190 228 268"}]},
+  {id:"outer", roles:["girl", "boy"], name:"外套", groups:[{type:"slot", key:"outer", label:"外套", list:OUTERS, vb:"56 190 188 210"}]},
+  {id:"feet", roles:["girl", "boy"], name:"鞋襪", groups:[
     {type:"slot", key:"socks", label:"襪子", list:SOCKS, vb:"96 336 108 120"},
     {type:"slot", key:"shoes", label:"鞋子", list:SHOES, vb:"100 364 100 92"}]},
   {id:"acc", name:"配件", groups:[
@@ -71,9 +79,9 @@ const CATS = [
     {type:"slot", key:"hairpin", label:"髮飾", list:HAIRPINS, vb:"156 60 72 64"},
     {type:"slot", key:"neck", label:"項鍊和領結", list:NECKS, vb:"108 194 84 80"},
     {type:"slot", key:"scarf", label:"圍巾", list:SCARVES, vb:"96 186 108 108"},
-    {type:"slot", key:"bag", label:"包包", list:BAGS, vb:"66 196 168 172"},
-    {type:"slot", key:"hand", label:"手上拿的", list:HANDS, vb:"150 30 150 330"}]},
-  {id:"pose", name:"動作", groups:[{type:"pick", key:"pose", label:"動作", list:POSES, vb:"40 150 220 220"}]},
+    {type:"slot", key:"bag", only:human, label:"包包", list:BAGS, vb:"66 196 168 172"},
+    {type:"slot", key:"hand", only:human, label:"手上拿的", list:HANDS, vb:"150 30 150 330"}]},
+  {id:"pose", roles:["girl", "boy"], name:"動作", groups:[{type:"pick", key:"pose", label:"動作", list:POSES, vb:"40 150 220 220"}]},
   {id:"bg", name:"背景", groups:[
     {type:"pick", key:"bg", label:"背景", list:BGS, full:true},
     {type:"color", key:"bgC", label:"純色背景的顏色", pal:PAL, only:L => L.bg === "plain"},
@@ -83,7 +91,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {role:"girl", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
@@ -92,6 +100,7 @@ const DEFAULT_LOOK = {role:"girl", skin:0, hairB:"long", hairF:"blunt", hairC:"#
 const ROLE_PRESET = {
   girl:{hairB:"long", hairF:"blunt", brows:"soft", eyes:"round", blush:"#FF9AAE", top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
     socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"}, hairpin:null, neck:null},
+  pet:{species:"cat", fur:"#F6A64A", furPat:"tabby", eyes:"round", blush:"#FF9AAE", petwear:{id:"bandana", color:"#4C8FE0", pat:"none"}, bag:null, hand:null},
   boy:{hairB:"boycut", hairF:"boyfringe", brows:"bold", eyes:"round", blush:"", lip:"", shadow:"", eyeliner:"", gloss:false, glitter:false, hairTip:"",
     top:{id:"hoodboy", color:"#2C3E70", pat:"none"}, bottom:{id:"khaki", color:"#C9A877", pat:"none"}, dress:null, outer:null,
     socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"}, hairpin:null, neck:null},
@@ -125,8 +134,10 @@ function render(){
   if($("bLeave")) $("bLeave").onclick = () => { S.theme = ""; save(); render(); };
   renderCats(); renderGroups();
 }
+// 這個角色看得到的分類（寵物沒有髮型、上衣這些）
+const visCats = () => CATS.filter(c => !c.roles || c.roles.includes(L().role || "girl"));
 function renderCats(){
-  $("cats").innerHTML = CATS.map(c => `<button class="${c.id === S.cat ? "on" : ""}" data-cat="${c.id}">${c.name}</button>`).join("");
+  $("cats").innerHTML = visCats().map(c => `<button class="${c.id === S.cat ? "on" : ""}" data-cat="${c.id}">${c.name}</button>`).join("");
 }
 // 小圖：用現在的穿搭，只換掉那一樣東西，只看那一塊
 function thumb(g, v){
@@ -142,7 +153,7 @@ function thumb(g, v){
   return drawLook(look, {bg:!!g.full, vb:g.full ? undefined : g.vb});
 }
 function renderGroups(){
-  const cat = CATS.find(c => c.id === S.cat) || CATS[0], look = L();
+  const cat = visCats().find(c => c.id === S.cat) || CATS[0], look = L();
   $("groups").innerHTML = cat.groups.filter(g => !g.only || g.only(look)).map(g => {
     let h = `<div class="grp"><h3>${esc(g.label)}</h3>`;
     if(g.type === "slot" || g.type === "pick" || g.type === "multi"){
@@ -212,6 +223,7 @@ function randomLook(){
   const look = clone(L());
   const scheme = pick([["#FFFFFF", "#2C3E70", "#D9414E"], ["#F7A8C4", "#FFFFFF", "#B9A3E8"], ["#F6E7C8", "#8A5A3C", "#4FA36B"], ["#9BD0F5", "#FFFFFF", "#F6D65A"], ["#2E2B2B", "#FFFFFF", "#E8679A"], ["#9ADBC0", "#F6E7C8", "#F59A4A"], ["#B9A3E8", "#7E5BC2", "#F7A8C4"]]);
   const boy = look.role === "boy";
+  if(look.role === "pet") return randomPet(look);
   const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list).filter(k => !boy || !BOY_SKIP.includes(k))); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
   look.hairB = pick(boy ? BOY_HAIR : Object.keys(HAIRB).filter(k => !BOY_HAIR.includes(k) || Math.random() < .3)); look.hairF = pick(boy ? BOY_FRINGE : Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
   look.pose = pick(["down", "down", "behind", "wave", "peace"]);
@@ -229,6 +241,16 @@ function randomLook(){
   ACC_SLOTS.forEach(k => look[k] = null);
   for(let n = 1 + Math.floor(Math.random() * 3), tries = 0; n > 0 && tries < 20; tries++){ const k = pick(ACC_SLOTS); if(look[k] || (boy && k === "hairpin")) continue; look[k] = it(SLOT_LISTS[k], 0); n--; }
   look.bg = pick(Object.keys(BGS)); look.pet = Math.random() < .4 ? pick(Object.keys(PETS)) : "";
+  return look;
+}
+function randomPet(look){
+  const col = () => pick(PAL);
+  look.species = pick(Object.keys(SPECIES)); look.fur = pick(FUR_PAL); look.furPat = pick(Object.keys(FUR_PATS));
+  look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.blush = Math.random() < .6 ? pick(BLUSH) : "";
+  look.petwear = Math.random() < .75 ? {id:pick(avail(PETWEAR)), color:col(), pat:Math.random() < .2 ? pick(["dots", "stripes", "check", "flower"]) : "none"} : null;
+  ACC_SLOTS.forEach(k => look[k] = null);
+  for(let n = Math.floor(Math.random() * 3), tries = 0; n > 0 && tries < 20; tries++){ const k = pick(PET_ACC); if(look[k]) continue; look[k] = {id:pick(avail(SLOT_LISTS[k])), color:col(), pat:"none"}; n--; }
+  look.bg = pick(Object.keys(BGS)); look.pet = "";
   return look;
 }
 $("bRandom").onclick = () => { snap(); S.look = randomLook(); save(); render(); };
@@ -256,6 +278,7 @@ function hueFamily(hex){
   return String(Math.round(h / 45) % 8);
 }
 function worn(look){
+  if(look.role === "pet") return ["petwear", ...PET_ACC].filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
   const dress = look.dress && DRESSES[look.dress.id];
   const slots = ["dress", "outer", "socks", "shoes", ...ACC_SLOTS];
   if(!dress) slots.unshift("top", "bottom");
@@ -284,9 +307,11 @@ function scoreLook(look, t){
   lines.push([bgp ? `背景「${bg.name}」很搭` : `背景可以換成「${BGS[t.bg].name}」`, bgp]); pts += bgp;
   // 有沒有穿好
   const dress = look.dress && DRESSES[look.dress.id];
-  const dressed = (dress && !dress.overTop) || ((look.top || dress) && (look.bottom || dress));
+  const pet = look.role === "pet";
+  const dressed = pet || (dress && !dress.overTop) || ((look.top || dress) && (look.bottom || dress));
   if(!dressed){ lines.push(["還沒穿好（要有上衣和下身，或是一件洋裝）", -15]); pts -= 15; }
-  if(look.shoes){ lines.push(["有穿鞋子", 5]); pts += 5; } else { lines.push(["忘了穿鞋子", -5]); pts -= 5; }
+  if(pet){ lines.push([look.petwear ? "穿了可愛的衣服" : "寵物不穿衣服也很可愛", 5]); pts += 5; }
+  else if(look.shoes){ lines.push(["有穿鞋子", 5]); pts += 5; } else { lines.push(["忘了穿鞋子", -5]); pts -= 5; }
   // 配色：衣服的顏色有幾個色系（黑白灰米色不算）
   const fams = new Set(items.filter(x => !ACC_SLOTS.includes(x.slot) || x.slot === "hat" || x.slot === "scarf").map(x => hueFamily(x.v.color)).filter(f => f !== "neutral"));
   const cp = fams.size <= 2 ? 8 : fams.size === 3 ? 4 : -4;
@@ -394,8 +419,8 @@ function sanitizeLook(raw){
   if(!raw || typeof raw !== "object") return o;
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
-  ["hairC", "eyeC", "bgC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
-  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  ["hairC", "eyeC", "bgC", "fur"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;

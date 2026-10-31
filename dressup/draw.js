@@ -735,6 +735,100 @@ Object.assign(NECKS, {
   necktie: {name:"領帶", tags:["formal", "neat", "school"], color:"#2C3E70", draw:(f) => P("M150 214 L144 222 L147 266 L150 274 L153 266 L156 222 Z", f, 2) + P("M145 212 L155 212 L153 222 L147 222 Z", f, 1.8)},
 });
 
+// ---------- 寵物角色：頭的位置和人一樣，帽子、眼鏡、項鍊都能直接戴 ----------
+ROLES.pet = {name:"寵物"};
+const SPECIES = {
+  cat:   {name:"貓咪"},
+  dog:   {name:"狗狗"},
+  bunny: {name:"兔子"},
+  bear:  {name:"小熊"},
+  fox:   {name:"狐狸"},
+  panda: {name:"貓熊"},
+};
+const FUR_PAL = ["#F6A64A", "#FFFFFF", "#2E2B2B", "#C98A4B", "#9AA0A8", "#F6E7C8", "#E8B57A", "#B9A3E8", "#F7A8C4"];
+const FUR_PATS = {plain:{name:"素色"}, tabby:{name:"虎斑"}, spots:{name:"斑點"}, tuxedo:{name:"白肚子"}, calico:{name:"三花"}};
+const PET_BODY = "M114 186 C92 226 74 296 78 366 C82 418 116 434 150 434 C184 434 218 418 222 366 C226 296 208 226 186 186 Z";
+const PET_HEAD = "M82 134 C82 92 112 72 150 72 C188 72 218 92 218 134 C218 172 190 196 150 196 C110 196 82 172 82 134 Z";
+// 寵物的衣服（穿在身體上）
+const PETWEAR = {
+  sweater:  {name:"毛衣", tags:["warm", "winter", "casual"], color:"#D9414E",
+    draw:(f, c) => P("M106 206 C98 246 96 292 98 336 Q150 352 202 336 C204 292 202 246 194 206 Q150 220 106 206 Z", f) + LN("M100 326 Q150 342 200 326", 3, shade(c, -.2)) + LN("M110 214 Q150 228 190 214", 4, shade(c, -.2)) + [250, 280].map(y => LN(`M112 ${y} Q150 ${y + 8} 188 ${y}`, 1.6, shade(c, .35), `stroke-dasharray="4 4"`)).join("")},
+  hoodie:   {name:"帽 T", tags:["casual", "warm", "sport"], color:"#B9A3E8",
+    draw:(f, c) => P("M104 204 C96 246 94 292 97 340 Q150 356 203 340 C206 292 204 246 196 204 Q150 222 104 204 Z", f) + P("M124 290 L176 290 L180 324 L120 324 Z", shade(c, -.1), 2) + LN("M140 216 L138 250 M160 216 L162 250", 2) + C(138, 252, 2.4, "#fff", 1.4) + C(162, 252, 2.4, "#fff", 1.4)},
+  tutu:     {name:"蓬蓬裙", tags:["party", "fancy"], color:"#F7A8C4",
+    draw:(f, c) => P("M86 312 Q84 290 110 280 L190 280 Q216 290 214 312 Q200 324 186 316 Q172 328 158 318 Q150 328 142 318 Q128 328 114 316 Q100 324 86 312 Z", shade(c, .35)) + P("M108 206 C102 240 102 262 108 288 Q150 298 192 288 C198 262 198 240 192 206 Q150 220 108 206 Z", f) + P("M150 228 L138 220 L138 236 Z M150 228 L162 220 L162 236 Z", "#fff", 1.8) + C(150, 228, 3, "#fff", 1.6)},
+  raincoat: {name:"雨衣", tags:["rain"], color:"#F6D65A",
+    draw:(f, c) => P("M104 202 C94 250 90 310 92 372 Q150 386 208 372 C210 310 206 250 196 202 Q150 218 104 202 Z", f) + LN("M150 214 L150 376", 2) + [244, 284, 324].map(y => C(158, y, 3, shade(c, -.3), 1.4)).join("")},
+  bandana:  {name:"領巾", tags:["casual", "summer", "snack"], color:"#4C8FE0",
+    draw:(f, c) => P("M104 200 Q150 216 196 200 L150 262 Z", f) + [[130, 214], [168, 214], [150, 236]].map(([x, y]) => C(x, y, 3, "#fff", 0)).join("")},
+  hero:     {name:"超人披風", tags:["party", "sport"], color:"#D9414E",
+    back:(f, c) => P("M110 196 Q72 320 70 430 Q150 446 230 430 Q228 320 190 196 Z", f),
+    draw:(f, c) => P("M112 198 Q150 214 188 198 L184 210 Q150 226 116 210 Z", f, 2) + C(150, 214, 6, "#F6D65A", 1.8)},
+  kimono:   {name:"浴衣", tags:["festival", "summer"], color:"#9BD0F5",
+    draw:(f, c) => P("M104 204 C96 250 94 300 97 352 Q150 366 203 352 C206 300 204 250 196 204 Q150 220 104 204 Z", f) + LN("M120 210 L160 300 M180 210 L150 260", 2.2) + P("M98 290 L202 290 L202 310 L98 310 Z", "#D9414E", 2.2) + [[124, 250], [176, 330], [130, 340]].map(([x, y]) => C(x, y, 4, "#fff", 0)).join("")},
+};
+const petTail = (sp, fur) => {
+  if(sp === "bunny") return C(204, 404, 14, fur);
+  if(sp === "bear" || sp === "panda") return C(202, 410, 10, sp === "panda" ? "#2E2B2B" : fur);
+  if(sp === "dog") return LN("M196 396 Q228 384 232 352", 13) + LN("M196 396 Q228 384 232 352", 8, fur);
+  if(sp === "fox") return P("M194 404 Q252 404 254 330 Q252 300 236 290 Q240 340 214 362 Q200 372 192 380 Z", fur) + P("M236 290 Q256 300 254 330 Q244 320 236 290 Z", "#fff", 2);
+  return LN("M196 404 Q246 400 240 340 Q238 318 226 312", 14) + LN("M196 404 Q246 400 240 340 Q238 318 226 312", 9, fur);
+};
+const petEars = (sp, fur) => {
+  const pink = "#F7B6C8";
+  if(sp === "dog") return "";   // 狗狗的耳朵垂在臉旁邊，畫在頭上面
+  if(sp === "bunny") return PB("M116 86 Q98 8 120 2 Q142 8 138 84 Z", fur) + PB("M120 76 Q110 22 121 14 Q132 22 131 76 Z", pink, 0);
+  if(sp === "bear" || sp === "panda") { const e = sp === "panda" ? "#2E2B2B" : fur, inner = sp === "panda" ? "#555" : shade(fur, -.15); return C(98, 84, 20, e) + C(202, 84, 20, e) + C(98, 86, 10, inner, 0) + C(202, 86, 10, inner, 0); }
+  if(sp === "fox") return PB("M90 104 L90 34 L140 78 Z", fur) + PB("M98 92 L98 52 L126 78 Z", "#fff", 0) + PB("M90 34 L102 46 L92 58 Z", "#3A2C28", 0);
+  return PB("M94 100 L96 42 L138 78 Z", fur) + PB("M102 88 L104 58 L126 78 Z", pink, 0);
+};
+// 畫寵物角色（drawLook 裡呼叫；衣服的填色、明暗用 drawLook 傳進來的 it）
+function drawPetStar(L, it){
+  const sp = SPECIES[L.species] ? L.species : "cat", fur = L.fur || "#F6A64A", pat = L.furPat || "plain";
+  const light = mix(fur, "#FFFFFF", .6), dark = shade(fur, lum(fur) < .25 ? .3 : -.28);
+  const body = sp === "panda" ? "#fff" : fur, headC = sp === "panda" ? "#fff" : fur;
+  let s = "";
+  s += it.back();
+  s += petTail(sp, body);
+  s += petEars(sp, fur);
+  // 身體、腳
+  s += P(PET_BODY, body, 2.8);
+  if(sp === "panda") s += `<path d="M106 196 C100 220 98 250 100 280 L200 280 C202 250 200 220 194 196 Z" fill="#2E2B2B"/>`;
+  else if(pat === "tuxedo" || sp === "dog" || sp === "fox") s += E(150, 340, 36, 62, pat === "tuxedo" || sp === "fox" ? "#fff" : light, 0);
+  if(pat === "tabby") s += [250, 284, 318].map(y => LN(`M100 ${y} Q110 ${y + 4} 118 ${y} M200 ${y} Q190 ${y + 4} 182 ${y}`, 3, dark)).join("");
+  if(pat === "spots") s += [[120, 260, 12], [182, 300, 10], [128, 372, 9], [176, 380, 8]].map(([x, y, r]) => E(x, y, r, r * .8, dark, 0)).join("");
+  if(pat === "calico") s += E(120, 270, 18, 24, "#F6A64A", 0) + E(180, 350, 16, 20, "#2E2B2B", 0);
+  s += it.bodyShade();
+  const feetC = sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
+  s += E(98, 422, 28, 15, feetC) + E(202, 422, 28, 15, feetC);
+  // 前腳：從胸口直直放到地上
+  const legC = sp === "panda" ? "#2E2B2B" : body;
+  s += [[124, 230, 128, 410], [176, 230, 172, 410]].map(([x1, y1, x2, y2]) => P(tube([[x1, y1], [x2, y2]], 30), legC, 2.6)).join("");
+  s += it.wear();
+  s += [128, 172].map(x => E(x, 414, 17, 14, feetC) + LN(`M${x - 5} 420 L${x - 5} 427 M${x + 5} 420 L${x + 5} 427`, 1.6, sp === "panda" ? "#888" : INK)).join("");
+  // 頭
+  s += P(PET_HEAD, headC, 2.8);
+  if(pat === "tuxedo") s += `<path d="M150 120 Q120 150 116 186 Q150 200 184 186 Q180 150 150 120 Z" fill="#fff"/>`;
+  if(pat === "tabby") s += LN("M140 82 L142 100 M150 78 L150 100 M160 82 L158 100", 3, dark) + LN("M86 130 L100 133 M86 144 L100 143 M214 130 L200 133 M214 144 L200 143", 3, dark);
+  if(pat === "calico") s += `<path d="M150 74 C120 74 96 86 88 110 Q110 112 128 96 Q140 86 150 74 Z" fill="#F6A64A"/><path d="M150 74 C178 74 204 86 212 112 Q190 110 176 96 Q164 84 150 74 Z" fill="#2E2B2B"/>`;
+  if(pat === "spots") s += E(110, 104, 12, 9, dark, 0) + E(194, 166, 8, 6, dark, 0);
+  if(sp === "fox") s += `<path d="M84 146 Q118 138 150 168 Q182 138 216 146 Q206 186 150 195 Q94 186 84 146 Z" fill="#fff"/>`;
+  if(sp === "panda") s += [-1, 1].map(o => `<ellipse cx="${150 + o * 22}" cy="140" rx="15" ry="19" transform="rotate(${o * -25} ${150 + o * 22} 140)" fill="#2E2B2B"/>`).join("");
+  s += it.headShade();
+  if(sp === "dog") s += PB("M90 96 Q62 100 68 164 Q82 176 96 154 Q102 124 108 100 Z", dark);
+  if(L.blush) s += [114, 186].map(x => E(x, 166, 14, 9, L.blush, 0, `opacity=".5"`)).join("");
+  // 眼睛（跟人共用）；貓熊的黑眼圈上眼睛要亮一點
+  s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1, sp === "panda" ? "#2E2B2B" : fur)).join("");
+  // 鼻子和嘴巴
+  if(sp === "dog" || sp === "bear" || sp === "panda") s += E(150, 164, 22, 16, sp === "bear" ? light : "#fff", sp === "panda" ? 0 : 0);
+  s += sp === "cat" || sp === "bunny" ? P("M145 156 L155 156 L150 162 Z", "#F07F98", 1.4) : E(150, 156, 6.5, 4.5, INK, 0) + E(148, 154.5, 2, 1.2, "#fff", 0);
+  s += LN("M150 161 L150 166 M141 166 Q145.5 171 150 166 Q154.5 171 159 166", 2);
+  if(sp === "cat" || sp === "fox") s += LN("M96 154 L124 158 M96 166 L124 164 M204 154 L176 158 M204 166 L176 164", 1.6, shade(fur, -.45), `opacity=".7"`);
+  if(L.sticker === "heart") s += P(heartD(186, 178, 5), "#E8679A", 1.4);
+  else if(L.sticker === "star") s += star(186, 178, 6, "#F6D65A", 1.4);
+  return s;
+}
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
@@ -765,6 +859,22 @@ function drawLook(L, opt = {}){
   let s = "";
   if(opt.bg !== false){ const b = BGS[L.bg] || BGS.room; s += b.draw(L.bgC || "#F7D3E0"); }
   s += E(150, 448, 62, 9, "rgba(58,42,32,.18)", 0);
+  const vb = opt.vb || `0 0 ${W} ${H}`;
+  const out = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${opt.size ? ` width="${opt.size[0]}" height="${opt.size[1]}"` : ""}><defs>${defs.join("")}</defs>${s}</svg>`;
+  // 寵物角色：身體和臉另外畫，脖子以上的配件和人共用
+  if(L.role === "pet"){
+    const wear = L.petwear && PETWEAR[L.petwear.id], wf = wear ? fill("petwear", L.petwear) : "";
+    const wide = svg => `<g transform="translate(150 0) scale(1.25 1) translate(-150 0)">${svg}</g>`;   // 寵物身體比較寬，衣服橫向放大
+    s += drawPetStar(L, {
+      back:() => wear && wear.back ? wide(shaded(wear.back(wf, L.petwear.color))) : "",
+      wear:() => wear ? wide(shaded(wear.draw(wf, L.petwear.color))) : "",
+      bodyShade:() => overlay(`<path d="${PET_BODY}"/>`, "sk"),
+      headShade:() => overlay(`<path d="${PET_HEAD}"/>`, "sk"),
+    });
+    s += item(NECKS, "neck") + itemS(SCARVES, "scarf") + item(GLASSES, "glasses") + item(HAIRPINS, "hairpin") + itemS(HATS, "hat");
+    if(L.pet && PETS[L.pet]) s += drawPet(L.pet);
+    return out();
+  }
   // 後面的頭髮
   // 戴了整個包住頭頂的帽子，丸子頭的髮髻就藏在帽子裡
   const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa", "bucket"].includes(L.hat.id);
@@ -902,6 +1012,5 @@ function drawLook(L, opt = {}){
   // 握著握把的東西（雨傘、氣球、扇子⋯⋯）：手要蓋在握把上面
   if(handsFree && L.hand && HANDS[L.hand.id] && HANDS[L.hand.id].grip) s += hand(MX(HAND));
   if(L.pet && PETS[L.pet]) s += drawPet(L.pet);
-  const vb = opt.vb || `0 0 ${W} ${H}`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${opt.size ? ` width="${opt.size[0]}" height="${opt.size[1]}"` : ""}><defs>${defs.join("")}</defs>${s}</svg>`;
+  return out();
 }
