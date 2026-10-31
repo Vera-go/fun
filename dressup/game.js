@@ -9,6 +9,8 @@
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
 const pick = a => a[Math.floor(Math.random() * a.length)];
+const HIST = [];   // 復原用：每次換衣服前的樣子
+const TOUCH = matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 // ---------- 主題挑戰 ----------
 const THEMES = [
@@ -20,6 +22,8 @@ const THEMES = [
   {id:"party",    name:"畢業舞會",   desc:"今晚是主角！穿上最閃亮的衣服。", bg:"stage", like:["party", "formal"], dislike:["sport", "rain", "warm"], reward:["hat", "crown"]},
   {id:"market",   name:"逛夜市",     desc:"吃雞排、喝珍奶、撈金魚，穿得輕鬆自在。", bg:"market", like:["snack", "casual"], dislike:["formal"], reward:["hat", "catears"]},
   {id:"festival", name:"夏日祭典",   desc:"看煙火、逛攤位，來一套祭典風。", bg:"festival", like:["festival", "summer"], dislike:["winter", "warm"], reward:["hat", "foxmask"]},
+  {id:"halloween", name:"萬聖節派對", desc:"不給糖就搗蛋！來一套有點神祕的萬聖節造型。", bg:"halloween", like:["halloween", "party"], dislike:["sport", "school", "beach"], reward:["hand", "wand"]},
+  {id:"christmas", name:"聖誕節交換禮物", desc:"聖誕夜和朋友交換禮物，穿得溫暖又有節日感。", bg:"xmas", like:["xmas", "winter", "warm"], dislike:["summer", "beach"], reward:["hat", "antlers"]},
 ];
 const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
 const SLOT_LISTS = {top:TOPS, bottom:BOTTOMS, dress:DRESSES, outer:OUTERS, socks:SOCKS, shoes:SHOES, hat:HATS, glasses:GLASSES, hairpin:HAIRPINS, neck:NECKS, scarf:SCARVES, bag:BAGS, hand:HANDS};
@@ -86,10 +90,13 @@ const L = () => S.look;
 // ---------- 畫面 ----------
 function render(){
   $("stage").innerHTML = drawLook(L());
+  $("mini").innerHTML = drawLook(L());
+  $("bUndo").disabled = !HIST.length;
   const t = TH[S.theme];
   $("stageBar").innerHTML = t
     ? `<span class="chip theme">主題挑戰：${esc(t.name)}</span><small class="muted" style="font-weight:700">${esc(t.desc)}</small><span style="flex:1"></span><button class="btn sm" id="bLeave">離開挑戰</button>`
-    : `<span class="chip">自由搭配</span><small class="muted" style="font-weight:700">想挑戰主題，按下面的「主題挑戰」</small>`;
+    : `<span class="chip">自由搭配</span><button class="chip contest" id="bContest">本週比賽：${esc(contestOf(weekOf(Date.now()).key).name)}</button>`;
+  if($("bContest")) $("bContest").onclick = () => loadWall("contest");
   $("bScore").hidden = !t;
   if($("bLeave")) $("bLeave").onclick = () => { S.theme = ""; save(); render(); };
   renderCats(); renderGroups();
@@ -147,6 +154,10 @@ $("cats").addEventListener("click", e => { const b = e.target.closest("[data-cat
 $("groups").addEventListener("click", e => {
   const b = e.target.closest("[data-t]"); if(!b || b.dataset.t === "toggle") return;
   const look = L(), k = b.dataset.k, v = b.dataset.v, t = b.dataset.t;
+  const lockMsg = it => it && lockedItem(it) && `在「${TH[it.lock].name}」挑戰拿到 4 顆星就能解鎖`;
+  const m = lockMsg(t === "slot" ? SLOT_LISTS[k][v] : t === "pick" && KEY_LISTS[k] ? KEY_LISTS[k][v] : null);
+  if(m){ toast(m); return; }
+  snap();
   if(t === "slot"){
     const list = SLOT_LISTS[k], it = list[v];
     if(it && lockedItem(it)){ toast(`在「${TH[it.lock].name}」挑戰拿到 4 顆星就能解鎖`); return; }
@@ -162,7 +173,7 @@ $("groups").addEventListener("click", e => {
   else if(t === "color"){ look[k] = b.dataset.i ? +v : v; }
   save(); render();
 });
-$("groups").addEventListener("change", e => { const b = e.target.closest("[data-t=toggle]"); if(!b) return; L()[b.dataset.k] = b.checked; save(); render(); });
+$("groups").addEventListener("change", e => { const b = e.target.closest("[data-t=toggle]"); if(!b) return; snap(); L()[b.dataset.k] = b.checked; save(); render(); });
 
 // ---------- 隨機搭配 ----------
 const avail = list => Object.keys(list).filter(id => !lockedItem(list[id]));
@@ -184,7 +195,7 @@ function randomLook(){
   look.bg = pick(Object.keys(BGS)); look.pet = Math.random() < .4 ? pick(Object.keys(PETS)) : "";
   return look;
 }
-$("bRandom").onclick = () => { S.look = randomLook(); save(); render(); };
+$("bRandom").onclick = () => { snap(); S.look = randomLook(); save(); render(); };
 
 // ---------- 主題挑戰：選主題 ----------
 const starStr = n => `${"★".repeat(n)}<i>${"★".repeat(5 - n)}</i>`;
@@ -299,6 +310,8 @@ $("bDownload").onclick = () => {
   img.onload = () => {
     const cv = document.createElement("canvas"); cv.width = 600; cv.height = 940;
     cv.getContext("2d").drawImage(img, 0, 0, 600, 940);
+    // 手機（尤其 iPhone、LINE 裡開的網頁）下載檔案常常沒反應：直接顯示圖片，長按就能存到相簿
+    if(TOUCH){ const url = cv.toDataURL("image/png"); openPanel(`<h2>存成圖片</h2><p class="muted" style="text-align:center">長按下面的圖片，選「儲存影像」或「加入照片」就能存到相簿。</p><img src="${url}" alt="我的穿搭" style="width:100%;max-width:320px;display:block;margin:0 auto;border-radius:12px;border:2px solid #EAD7DF"><div class="btns"><a class="btn" href="${url}" download="我的穿搭.png">下載檔案</a><button class="btn" data-close>關閉</button></div>`); return; }
     cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "我的穿搭.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }, "image/png");
   };
   img.onerror = () => toast("圖片產生失敗，請再試一次");
@@ -316,7 +329,7 @@ $("ov").addEventListener("click", e => {
   if(a && a.dataset.act === "save") return saveLook();
   if(a && a.dataset.act === "themes") return showThemes();
   const w = e.target.closest("[data-wear]");
-  if(w){ S.look = Object.assign(clone(DEFAULT_LOOK), clone(S.wardrobe[+w.dataset.wear].look)); save(); closePanel(); render(); toast("換上了！"); return; }
+  if(w){ snap(); S.look = Object.assign(clone(DEFAULT_LOOK), clone(S.wardrobe[+w.dataset.wear].look)); save(); closePanel(); render(); toast("換上了！"); return; }
   const d = e.target.closest("[data-del]");
   if(d && confirm("確定要刪掉這套穿搭嗎？")){ S.wardrobe.splice(+d.dataset.del, 1); save(); showWardrobe(); }
 });
@@ -330,7 +343,7 @@ async function rpc(fn, body){
   return r.json();
 }
 if(!S.client){ S.client = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16)); save(); }
-const wallErr = e => /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "穿搭牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
+const wallErr = e => /contest closed/.test(e.message) ? "這週的比賽已經結束，名次已經固定，不能再按讚了。" : /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "穿搭牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
 // 別人貼的穿搭：每一個欄位都要檢查過才拿來畫（只接受清單裡的單品和 #RRGGBB 顏色），避免被塞奇怪的東西
 const HEX = /^#[0-9a-fA-F]{6}$/;
 function sanitizeLook(raw){
@@ -350,19 +363,24 @@ function sanitizeLook(raw){
 }
 const W8 = {sort:"new", offset:0, rows:[], more:false, loading:false};
 const HEART = `<svg viewBox="0 0 20 20"><path d="M10 17 C1 11 2 4 6.5 4 C8.5 4 9.6 5.4 10 6.4 C10.4 5.4 11.5 4 13.5 4 C18 4 19 11 10 17 Z" fill="currentColor"/></svg>`;
-function wallCard(r){
-  const look = sanitizeLook(r.look), t = TH[r.theme];
-  return `<div class="wp ${r.mine ? "mine" : ""}" data-id="${r.id}">${drawLook(look).replace("<svg ", '<svg class="look" ')}
-    <div class="tx"><b>${esc(r.title || "我的穿搭")}</b>${esc(r.name)}${r.mine ? "（你）" : ""}${t ? ` <span class="tg">${esc(t.name)}</span>` : ""}</div>
-    <div class="row"><button class="likeb ${r.liked ? "on" : ""}" data-w="like" ${r.mine ? "disabled title=\"自己的穿搭\"" : ""}>${HEART}<span>${r.likes}</span></button><button class="btn sm" data-w="try">穿穿看</button>${r.mine ? `<button class="linkb" data-w="del">刪除</button>` : `<button class="linkb" data-w="report">檢舉</button>`}</div></div>`;
+function wallCard(r, rank){
+  const look = sanitizeLook(r.look), t = TH[r.theme], closed = !!r.contest && r.contest !== weekOf(Date.now()).key;
+  const likeOff = r.mine ? `disabled title="自己的穿搭"` : closed ? `disabled title="比賽已經結束"` : "";
+  return `<div class="wp ${r.mine ? "mine" : ""}" data-id="${r.id}">${rank && r.likes > 0 ? `<span class="rank r${rank}">${rank}</span>` : ""}${drawLook(look).replace("<svg ", '<svg class="look" ')}
+    <div class="tx"><b>${esc(r.title || "我的穿搭")}</b>${esc(r.name)}${r.mine ? "（你）" : ""}${t ? ` <span class="tg">${esc(t.name)}</span>` : ""}${r.contest ? ` <span class="tg" style="background:#FFE7B8;color:#8A5300">比賽：${esc(contestOf(r.contest).name)}</span>` : ""}</div>
+    <div class="row"><button class="likeb ${r.liked ? "on" : ""}" data-w="like" ${likeOff}>${HEART}<span>${r.likes}</span></button><button class="btn sm" data-w="try">穿穿看</button><button class="linkb" data-w="share">分享</button>${r.mine ? `<button class="linkb" data-w="del" style="margin-left:0">刪除</button>` : r.rank ? "" : `<button class="linkb" data-w="report" style="margin-left:0">檢舉</button>`}</div></div>`;
 }
 function renderWall(msg){
-  const tabs = [["new", "最新"], ["week", "本週熱門"], ["top", "最多讚"], ["mine", "我貼的"]];
+  const tabs = [["contest", "本週比賽"], ["new", "最新"], ["week", "本週熱門"], ["top", "最多讚"], ["hall", "名人堂"], ["mine", "我貼的"]];
+  const wk = weekOf(Date.now()), ct = contestOf(wk.key), sun = new Date(wk.mon + 6 * DAY);
+  const bar = W8.sort === "contest" ? `<div class="contestbar"><span>本週主題比賽：<b>${esc(ct.name)}</b><br><span class="small">${esc(ct.desc)} 比賽到 ${sun.getUTCMonth() + 1}/${sun.getUTCDate()}（日）晚上 12 點，讚數最多的前三名會進名人堂。</span></span><button class="btn sm acc" data-w="post" data-c="1" style="margin-left:auto">參加比賽</button></div>`
+    : W8.sort === "hall" ? `<div class="contestbar"><span>每週主題比賽讚數最多的前三名。比賽結束後就不能再按讚，名次就固定了。</span></div>` : "";
+  const body = W8.sort === "hall" ? hallHtml() : `<div class="wall">${W8.rows.map((r, i) => wallCard(r, W8.sort === "contest" && i < 3 ? i + 1 : 0)).join("")}</div>`;
   openPanel(`<h2>穿搭牆</h2>
     <p class="muted small" style="text-align:center">大家貼上來的穿搭。喜歡就按愛心，也可以「穿穿看」換到自己身上。</p>
     <div class="btns" style="margin-top:6px"><button class="btn acc" data-w="post">貼上我現在的穿搭</button><button class="btn" data-close>關閉</button></div>
     <div class="wtabs">${tabs.map(([k, n]) => `<button class="${W8.sort === k ? "on" : ""}" data-w="sort" data-v="${k}">${n}</button>`).join("")}</div>
-    <div id="wallBox">${msg ? `<p style="text-align:center">${esc(msg)}</p>` : W8.rows.length ? `<div class="wall">${W8.rows.map(wallCard).join("")}</div>` : `<p style="text-align:center" class="muted">${W8.sort === "mine" ? "你還沒有貼過穿搭。" : "還沒有人貼，當第一個吧！"}</p>`}</div>
+    ${bar}<div id="wallBox">${msg ? `<p style="text-align:center">${esc(msg)}</p>` : W8.rows.length ? body : `<p style="text-align:center" class="muted">${W8.sort === "mine" ? "你還沒有貼過穿搭。" : W8.sort === "hall" ? "還沒有比賽結果，第一屆的冠軍會是你嗎？" : W8.sort === "contest" ? "這週還沒有人參加，按「參加比賽」當第一個！" : "還沒有人貼，當第一個吧！"}</p>`}</div>
     ${W8.more ? `<div class="btns"><button class="btn" data-w="more">看更多</button></div>` : ""}`);
 }
 async function loadWall(sort, append){
@@ -370,18 +388,20 @@ async function loadWall(sort, append){
   W8.loading = true;
   if(!append){ W8.sort = sort; W8.offset = 0; W8.rows = []; renderWall("載入中⋯⋯"); }
   try{
-    const rows = await rpc("dressup_wall", {p_sort:W8.sort, p_client:S.client, p_limit:24, p_offset:W8.offset});
+    const rows = W8.sort === "hall" ? await rpc("dressup_hall", {p_weeks:8}) : await rpc("dressup_wall", {p_sort:W8.sort, p_client:S.client, p_limit:24, p_offset:W8.offset});
+    if(W8.sort === "hall"){ W8.rows = rows; W8.more = false; W8.loading = false; return renderWall(); }
     W8.rows = W8.rows.concat(rows); W8.offset += rows.length; W8.more = rows.length === 24;
     W8.loading = false; renderWall();
   }catch(e){ W8.loading = false; renderWall(wallErr(e)); }
 }
 $("bWall").onclick = () => loadWall(W8.sort);
-function showPost(msg){
+function showPost(msg, contest){
   openPanel(`<h2>貼到穿搭牆</h2>
     <div class="postbox">${drawLook(L())}<div>
       <label>你的暱稱<input id="wName" maxlength="12" value="${esc(S.wallName || "")}" placeholder="1～12 個字"></label>
       <label>幫這套穿搭取個名字（選填）<input id="wTitle" maxlength="20" placeholder="例如：夏天的海風"></label>
       ${TH[S.theme] ? `<p class="small">會標上主題：<b>${esc(TH[S.theme].name)}</b></p>` : ""}
+      <label class="chk"><input type="checkbox" id="wContest" ${contest ? "checked" : ""}> 參加本週主題比賽「${esc(contestOf(weekOf(Date.now()).key).name)}」</label>
       <p class="muted small">穿搭牆大家都看得到，請不要用真實姓名，也不要寫不好的字。被檢舉太多次會自動隱藏。</p>
       ${msg ? `<p class="small" style="color:#D9414E;font-weight:800">${esc(msg)}</p>` : ""}
     </div></div>
@@ -390,31 +410,30 @@ function showPost(msg){
 }
 let posting = false;
 async function sendPost(){
-  const name = ($("wName").value || "").trim(), title = ($("wTitle").value || "").trim();
+  const name = ($("wName").value || "").trim(), title = ($("wTitle").value || "").trim(), contest = $("wContest").checked;
   if(!name){ $("wName").focus(); return; }
   if(posting) return; posting = true;
   S.wallName = name; save();
   const look = clone(L()); Object.keys(SLOT_LISTS).forEach(k => { if(look[k]) delete look[k].custom; });
   try{
-    await rpc("dressup_post", {p_client:S.client, p_name:name, p_title:title, p_look:look, p_theme:S.theme || ""});
-    posting = false; toast("貼上去了！"); loadWall("new");
-  }catch(e){ posting = false; showPost(wallErr(e)); }
+    const body = {p_client:S.client, p_name:name, p_title:title, p_look:look, p_theme:S.theme || ""};
+    try{ await rpc("dressup_post", {...body, p_contest:contest}); }
+    catch(e){ if(!contest && /PGRST202|p_contest/.test(e.message)) await rpc("dressup_post", body); else throw e; }   // 資料庫還沒更新到 v17
+    posting = false; toast(contest ? "參加比賽了！快請朋友來按讚" : "貼上去了！"); loadWall(contest ? "contest" : "new");
+  }catch(e){ posting = false; showPost(wallErr(e), contest); }
 }
 $("ov").addEventListener("click", async e => {
   const b = e.target.closest("[data-w]"); if(!b) return;
   const act = b.dataset.w, card = b.closest("[data-id]"), id = card ? +card.dataset.id : 0, row = W8.rows.find(r => r.id === id);
   if(act === "sort") return loadWall(b.dataset.v);
   if(act === "more") return loadWall(W8.sort, true);
-  if(act === "post") return showPost();
+  if(act === "post") return showPost("", b.dataset.c === "1" || W8.sort === "contest");
   if(act === "back") return renderWall();
   if(act === "send") return sendPost();
   if(!row) return;
+  if(act === "share") return shareLook(sanitizeLook(row.look));
   if(act === "try"){
-    const look = sanitizeLook(row.look);
-    let stripped = false;
-    Object.keys(SLOT_LISTS).forEach(k => { if(look[k] && lockedItem(SLOT_LISTS[k][look[k].id])){ look[k] = null; stripped = true; } });
-    if(lockedItem(EYES[look.eyes])){ look.eyes = "round"; stripped = true; }
-    S.look = look; save(); closePanel(); render();
+    const stripped = wearLook(row.look);
     toast(stripped ? "換上了！有些限定單品你還沒解鎖，先拿掉了" : `換上「${row.title || "我的穿搭"}」了！`);
   }else if(act === "like"){
     // 先改畫面，再送出（失敗再改回來）
@@ -431,5 +450,82 @@ $("ov").addEventListener("click", async e => {
   }
 });
 $("ov").addEventListener("keydown", e => { if(e.key === "Enter" && (e.target.id === "wName" || e.target.id === "wTitle")){ e.preventDefault(); sendPost(); } });
+function hallHtml(){
+  let last = "", h = "";
+  W8.rows.forEach(r => {
+    if(r.week !== last){ last = r.week; const [y, w] = r.week.split("-W"); h += `<div class="hallwk">${y} 年第 ${+w} 週・${esc(contestOf(r.week).name)}</div>`; }
+    h += wallCard({...r, contest:r.week}, +r.rank);
+  });
+  return `<div class="wall">${h}</div>`;
+}
+
+// ---------- 每週主題比賽：週次用台灣時間（週一到週日），跟資料庫的 dressup_week() 一樣 ----------
+const DAY = 864e5;
+function weekOf(ms){
+  const t = new Date(ms + 8 * 3600e3), d = Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
+  const mon = d - ((new Date(d).getUTCDay() + 6) % 7) * DAY, thu = mon + 3 * DAY, y = new Date(thu).getUTCFullYear();
+  const wk = 1 + Math.floor((thu - Date.UTC(y, 0, 1)) / (7 * DAY));
+  return {key:`${y}-W${String(wk).padStart(2, "0")}`, mon};
+}
+// 節日那一週用節日主題，其他週輪流
+const HOLIDAYS = [[9, 31, {name:"萬聖節派對", desc:"不給糖就搗蛋！女巫帽、斗篷、南瓜燈都可以用。"}], [11, 25, {name:"聖誕節交換禮物", desc:"聖誕帽、毛衣、禮物，穿出節日的溫暖。"}], [0, 1, {name:"新年穿新衣", desc:"新的一年，穿上最喜歡的新衣服，拿個紅包！"}]];
+const CONTESTS = [
+  {name:"校外教學", desc:"要走很多路、拍很多照片，方便又好看。"}, {name:"森林野餐", desc:"帶著野餐籃去草地上，清新自然風。"},
+  {name:"偶像演唱會", desc:"今天是舞台上的偶像！閃亮登場。"}, {name:"動物派對", desc:"帶上寵物，或打扮成你最喜歡的動物。"},
+  {name:"甜點下午茶", desc:"粉粉嫩嫩的甜點風，配一杯珍奶也可以。"}, {name:"雨天散步", desc:"下雨也要漂亮出門，雨傘雨鞋準備好。"},
+  {name:"運動明星", desc:"球場上的焦點，帥氣又有活力。"}, {name:"童話故事", desc:"像從童話書裡走出來的角色。"},
+  {name:"全身同色系", desc:"選一個顏色，從頭到腳都用同一個色系。"}, {name:"復古風", desc:"像爸爸媽媽年輕時的照片，格紋、條紋都很適合。"},
+];
+function contestOf(key){
+  const [y, w] = String(key).split("-W").map(Number);
+  if(!y || !w) return {name:"本週主題", desc:""};
+  const jan4 = Date.UTC(y, 0, 4), mon = jan4 - ((new Date(jan4).getUTCDay() + 6) % 7) * DAY + (w - 1) * 7 * DAY;
+  for(let i = 0; i < 7; i++){ const d = new Date(mon + i * DAY); const h = HOLIDAYS.find(([m, dd]) => d.getUTCMonth() === m && d.getUTCDate() === dd); if(h) return h[2]; }
+  return CONTESTS[(y * 53 + w) % CONTESTS.length];
+}
+
+// ---------- 復原 ----------
+function snap(){ HIST.push(JSON.stringify(S.look)); if(HIST.length > 40) HIST.shift(); }
+function undo(){ if(!HIST.length){ toast("沒有可以復原的了"); return; } S.look = JSON.parse(HIST.pop()); save(); render(); }
+$("bUndo").onclick = undo;
+addEventListener("keydown", e => { if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); undo(); } });
+
+// ---------- 換上別人的穿搭（穿搭牆、分享連結）：還沒解鎖的限定單品先拿掉 ----------
+function wearLook(raw){
+  const look = sanitizeLook(raw);
+  let stripped = false;
+  Object.keys(SLOT_LISTS).forEach(k => { if(look[k] && lockedItem(SLOT_LISTS[k][look[k].id])){ look[k] = null; stripped = true; } });
+  if(lockedItem(EYES[look.eyes])){ look.eyes = "round"; stripped = true; }
+  snap(); S.look = look; save(); closePanel(); render();
+  return stripped;
+}
+
+// ---------- 分享連結：整套穿搭放在網址裡（?look=…），朋友打開就看得到 ----------
+const b64e = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_/g, "/"))));
+async function shareLook(look){
+  const l = clone(look); Object.keys(SLOT_LISTS).forEach(k => { if(l[k]) delete l[k].custom; });
+  const url = location.origin + location.pathname + "?look=" + b64e(JSON.stringify(l));
+  if(TOUCH && navigator.share){ try{ await navigator.share({title:"我的穿搭｜換裝小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
+  try{ await navigator.clipboard.writeText(url); toast("分享連結複製好了，貼給朋友就能看到這套穿搭"); }
+  catch(e){ openPanel(`<h2>分享連結</h2><p>複製下面的連結傳給朋友：</p><input readonly value="${esc(url)}" onfocus="this.select()" style="width:100%;font:inherit;padding:8px;border:2px solid #3A2A20;border-radius:10px"><div class="btns"><button class="btn" data-close>關閉</button></div>`); }
+}
+$("bShare").onclick = () => shareLook(L());
+let sharedLook = null;
+{
+  const q = new URLSearchParams(location.search).get("look");
+  if(q){
+    try{ sharedLook = JSON.parse(b64d(q)); }catch(e){ sharedLook = null; }
+    history.replaceState(null, "", location.pathname);
+    if(sharedLook) setTimeout(() => openPanel(`<h2>朋友分享的穿搭</h2><div style="max-width:260px;margin:8px auto;border:2px solid #EAD7DF;border-radius:14px;overflow:hidden;line-height:0">${drawLook(sanitizeLook(sharedLook))}</div><div class="btns"><button class="btn acc" data-w="wearshared">穿上這套</button><button class="btn" data-close>只是看看</button></div>`), 0);
+  }
+}
+$("ov").addEventListener("click", e => { if(e.target.closest("[data-w=wearshared]") && sharedLook){ const s = wearLook(sharedLook); toast(s ? "換上了！有些限定單品你還沒解鎖，先拿掉了" : "換上了！"); } });
+
+// ---------- 手機：往下選衣服時，右下角顯示小預覽 ----------
+if("IntersectionObserver" in window){
+  new IntersectionObserver(([en]) => { $("mini").hidden = en.isIntersecting || innerWidth > 820; }, {threshold:.25}).observe($("stage"));
+}
+$("mini").onclick = () => $("stage").scrollIntoView({behavior:"smooth", block:"center"});
 
 render();

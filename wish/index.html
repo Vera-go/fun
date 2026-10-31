@@ -51,6 +51,14 @@
       </div>
       <div id="evList"><div class="empty">載入中⋯⋯</div></div>
     </div>
+    <div class="card ac" style="margin-bottom:14px" id="dpBox">
+      <h3>換裝小舞台：穿搭牆</h3>
+      <p class="small muted" style="margin:0">被 3 個人檢舉的穿搭會自動隱藏。「取消隱藏」會清掉檢舉紀錄；刪除後就找不回來了。</p>
+      <div class="ac-filter">
+        <button class="btn small on" data-dpf="reported">被檢舉的</button><button class="btn small" data-dpf="hidden">已隱藏</button><button class="btn small" data-dpf="all">全部（最新 100 筆）</button>
+      </div>
+      <div id="dpList"><div class="empty">載入中⋯⋯</div></div>
+    </div>
     <div class="card ac">
       <h3>Lighthouse：紙飛機</h3>
       <div class="stats" id="planeStats"><div class="empty">載入中⋯⋯</div></div>
@@ -110,7 +118,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../assets/icons.js?v=20261031b"></script>
-<script src="../assets/wish-core.js?v=20261024a"></script>
+<script src="../assets/wish-core.js?v=20261031c"></script>
 <script>
 document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = SiteIcons.icon(el.dataset.icon, +el.dataset.size || 24); });
 const { esc, SITES, day } = Wish;
@@ -324,7 +332,37 @@ function renderEvents() {
     </div>`;
   }).join("") : `<div class="empty">${events.length ? "沒有符合的活動" : "還沒有人建立活動"}</div>`;
 }
+// 換裝小舞台的穿搭牆管理
+let dpFilter = "reported", dpRows = [];
+const dpLink = look => "../dressup/?look=" + btoa(unescape(encodeURIComponent(JSON.stringify(look)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+function renderDressup() {
+  document.querySelectorAll("[data-dpf]").forEach(b => b.classList.toggle("on", b.dataset.dpf === dpFilter));
+  $("#dpList").innerHTML = dpRows.length ? dpRows.map(p => `<div class="evwrap"><div class="ev">
+      <div class="info">
+        <div class="t">${esc(p.title || "（沒有取名字）")} <span class="small muted">by ${esc(p.name)}</span></div>
+        <div class="small muted">${day(p.created_at)} 貼的・${p.likes} 個讚・被檢舉 ${p.reports} 次${p.contest ? `・參加 ${esc(p.contest)} 比賽` : ""} ${p.hidden ? '<span class="badge done">已隱藏</span>' : '<span class="badge doing">顯示中</span>'}</div>
+      </div>
+      <div class="acts">
+        <a class="btn small" href="${dpLink(p.look)}" target="_blank" rel="noopener">看穿搭</a>
+        <button class="btn small" data-dphide="${p.id}|${p.hidden ? 0 : 1}">${p.hidden ? "取消隱藏" : "隱藏"}</button>
+        <button class="btn small" data-dpdel="${p.id}" style="color:var(--bad)">刪除</button>
+      </div>
+    </div></div>`).join("") : `<div class="empty">${dpFilter === "reported" ? "沒有被檢舉的穿搭" : dpFilter === "hidden" ? "沒有隱藏的穿搭" : "還沒有人貼穿搭"}</div>`;
+}
+async function loadDressup() {
+  try { dpRows = await Wish.dressupAdminList(dpFilter); renderDressup(); }
+  catch (err) { $("#dpList").innerHTML = `<div class="empty">${esc(err.message)}</div>`; }
+}
+$("#dpBox").addEventListener("click", async e => {
+  const f = e.target.closest("[data-dpf]");
+  if (f) { dpFilter = f.dataset.dpf; $("#dpList").innerHTML = '<div class="empty">載入中⋯⋯</div>'; return loadDressup(); }
+  const h = e.target.closest("[data-dphide]");
+  if (h) { const [id, v] = h.dataset.dphide.split("|"); try { await Wish.dressupAdminSet(+id, v === "1"); toast(v === "1" ? "已隱藏" : "已取消隱藏"); await loadDressup(); } catch (err) { toast(err.message); } return; }
+  const d = e.target.closest("[data-dpdel]");
+  if (d && confirm("確定要刪除這套穿搭嗎？刪除後找不回來。")) { try { await Wish.dressupAdminDelete(+d.dataset.dpdel); toast("已刪除"); await loadDressup(); } catch (err) { toast(err.message); } }
+});
 async function loadAdminCenter() {
+  loadDressup();
   try { events = await Wish.adminEvents(); renderEvents(); }
   catch (err) { $("#evList").innerHTML = `<div class="empty">${esc(err.message)}</div>`; }
   try {

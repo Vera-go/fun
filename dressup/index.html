@@ -117,6 +117,20 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .postbox label{display:block;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:8px}
 .postbox input{display:block;width:100%;margin-top:3px;font:inherit;font-size:15px;border:2px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--ink)}
 @media(max-width:520px){.postbox{grid-template-columns:110px 1fr}}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip.contest{border:0;cursor:pointer;background:#FFE7B8;color:#8A5300;font:inherit;font-weight:900;font-size:13px}
+.mini{position:fixed;right:10px;bottom:12px;width:92px;border:3px solid var(--line);border-radius:14px;background:#fff;box-shadow:3px 3px 0 var(--line);overflow:hidden;z-index:15;cursor:pointer;line-height:0}
+.mini svg{width:100%;height:auto}
+.mini[hidden]{display:none}
+.contestbar{background:#FFF3D6;border:2px solid #F2C14E;border-radius:14px;padding:8px 12px;margin-bottom:10px;font-size:14px;line-height:1.6;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.contestbar b{font-size:16px}
+.rank{position:absolute;top:6px;left:6px;width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;background:#fff}
+.rank.r1{background:#FFD447}.rank.r2{background:#D9DEE6}.rank.r3{background:#E8B07A}
+.wp{position:relative}
+.hallwk{grid-column:1/-1;font-weight:900;font-size:15px;margin:6px 0 0;padding-top:6px;border-top:2px dashed #EAD7DF}
+.hallwk:first-child{border-top:0;padding-top:0}
+.chk{display:flex;gap:6px;align-items:center;font-weight:800;font-size:14px;margin:4px 0 8px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--acc)}
 .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#fff;border:2.5px solid var(--line);border-radius:14px;padding:8px 16px;font-weight:800;box-shadow:3px 3px 0 var(--line);z-index:30}
 .portal-foot{text-align:center;color:#8A7480;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:8px 16px 36px}.portal-foot a{display:inline-block;padding:12px 4px;color:#8A7480;text-decoration:none}.portal-foot svg{display:inline-block}.portal-foot a:hover,.portal-foot a:focus-visible{text-decoration:underline;outline:none}
 </style>
@@ -139,6 +153,8 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
         <button class="btn" id="bWardrobe">我的衣櫥</button>
         <button class="btn" id="bDownload">下載圖片</button>
         <button class="btn acc" id="bWall">穿搭牆</button>
+        <button class="btn" id="bShare">分享連結</button>
+        <button class="btn" id="bUndo" title="Ctrl + Z">復原</button>
       </div>
     </div>
     <div class="card">
@@ -147,11 +163,13 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
     </div>
   </div>
 </div>
+<!-- 手機上往下選衣服時，右下角的小預覽（點了回到舞台） -->
+<div class="mini" id="mini" hidden title="回到舞台"></div>
 <div class="ov" id="ov" hidden><div class="panel" id="panel"></div></div>
 <!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
 <footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
 
-<script src="draw.js"></script>
-<script src="game.js"></script>
+<script src="draw.js?v=20261031b"></script>
+<script src="game.js?v=20261031b"></script>
 </body>
 </html>

@@ -145,8 +145,24 @@
     return { today: Number(data.today) || 0, total: Number(data.total) || 0 };
   }
 
+  // 換裝小舞台的穿搭牆：被檢舉的、已隱藏的、全部（資料庫只回傳給 admins 名單裡的人）
+  const needV17 = error => error.code === "PGRST202" ? "資料庫還沒更新：請先執行 supabase/schema-v17-dressup-contest.sql" : (error.message || "操作失敗");
+  async function dressupAdminList(filter) {
+    const { data, error } = await sb.rpc("dressup_admin_list", { p_filter: filter });
+    if (error) throw new Error(needV17(error));
+    return data;
+  }
+  async function dressupAdminSet(id, hidden) {
+    const { error } = await sb.rpc("dressup_admin_set", { p_id: id, p_hidden: hidden });
+    if (error) throw new Error(needV17(error));
+  }
+  async function dressupAdminDelete(id) {
+    const { error } = await sb.rpc("dressup_admin_delete", { p_id: id });
+    if (error) throw new Error(needV17(error));
+  }
+
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const day = iso => { const d = new Date(iso); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
 
-  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, adminEvents, adminDeleteEvent, adminEventHosts, adminRemoveHost, adminResetEventToken, planeStats, esc, day };
+  window.Wish = { sb, SITES, paidHint, ensureSession, listWishes, authorNews, markSeen, recentDoneCount, addWish, toggleVote, deleteWish, adminLogin, adminLogout, isAdmin, updateWish, adminEvents, adminDeleteEvent, adminEventHosts, adminRemoveHost, adminResetEventToken, planeStats, dressupAdminList, dressupAdminSet, dressupAdminDelete, esc, day };
 })();

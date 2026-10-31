@@ -323,6 +323,64 @@ const BGS = {
   plain:     {name:"純色", tags:[], color:true, draw:c => `<rect width="300" height="470" fill="${c}"/>` + Array.from({length:12}, (_, i) => star(25 + (i % 4) * 85 + (Math.floor(i / 4) % 2) * 40, 40 + Math.floor(i / 4) * 150, 5, "#fff", 0).replace("<path", `<path opacity=".5"`)).join("")},
 };
 
+// ---------- 第二批單品：男生／中性風格、節慶（萬聖節、聖誕節、新年） ----------
+Object.assign(TOPS, {
+  polo:     {name:"Polo 衫", tags:["casual", "sport", "neat"], color:"#4FA36B",
+    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P(TORSO, f) + LN("M150 214 L150 240", 1.8) + C(153, 224, 1.8, shade(c, -.35), 0) + C(153, 234, 1.8, shade(c, -.35), 0) + PB("M150 216 L136 206 L132 220 Z", shade(c, .25), 2.2)},
+  tieshirt: {name:"制服襯衫領帶", tags:["school", "neat", "formal"], color:"#FFFFFF",
+    draw:(f, c) => TUBES(SLEEVE_S, 26, f) + P(TORSO, f) + PB("M150 217 L134 206 L128 222 Z", f) + P("M150 218 L144 226 L147 272 L150 280 L153 272 L156 226 Z", "#2C3E70", 2) + LN("M146 238 L154 232 M146 252 L154 246", 1.6, "#D9414E")},
+  tank:     {name:"背心", tags:["summer", "sport", "beach"], color:"#F6D65A",
+    draw:(f, c) => P("M128 208 Q150 226 172 208 L180 224 Q184 240 184 300 Q150 306 116 300 Q116 240 120 224 Z", f)},
+});
+Object.assign(BOTTOMS, {
+  slacks: {name:"西裝長褲", tags:["school", "neat", "formal"], color:"#2E2B2B",
+    draw:(f, c) => TUBES("M137 312 L135.2 424", 27, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M136 334 L135 424", 1.4, shade(c, .3)) + LN("M164 334 L165 424", 1.4, shade(c, .3)) + P("M117 290 L183 290 L183 298 L117 298 Z", shade(c, -.2), 2)},
+  wide:   {name:"寬褲", tags:["casual", "summer"], color:"#F6E7C8",
+    draw:(f, c) => P("M117 290 L183 290 L194 426 L155 426 L150 330 L145 426 L106 426 Z", f) + LN("M117 298 L183 298", 1.6)},
+  cargo:  {name:"工作短褲", tags:["casual", "sport", "snack"], color:"#8A9A5B",
+    draw:(f, c) => P("M117 290 L183 290 L187 348 L154 348 L150 326 L146 348 L113 348 Z", f) + PB("M113 316 L127 316 L128 336 L114 336 Z", shade(c, -.12), 2) + LN("M117 297 L183 297", 1.6)},
+});
+Object.assign(OUTERS, {
+  track: {name:"運動外套", tags:["sport", "casual"], color:"#D9414E",
+    draw:(f, c) => TUBES(SLEEVE_L, 29, f) + TUBE("M116 226 C106 248 101 280 99.5 302", 2.5, "#fff") + TUBE(MX("M116 226 C106 248 101 280 99.5 302"), 2.5, "#fff") + PB("M114 224 Q117 210 140 208 L148 304 L114 304 Z", f) + LN("M150 214 L150 304", 2.2, "#fff") + LN("M150 214 L150 304", .8) + PB("M138 208 L134 222 L148 222", "none", 2)},
+  cape:  {name:"斗篷", tags:["halloween", "party"], color:"#2E2B2B",
+    draw:(f, c) => PB("M124 210 Q102 270 82 392 Q100 400 116 392 Q120 300 140 214 Z", f) + PB("M128 208 Q150 222 172 208 L176 214 Q150 230 124 214 Z", "#D9414E", 2.2) + C(150, 218, 4, "#F6D65A", 1.6)},
+});
+Object.assign(SHOES, {
+  loafers: {name:"皮鞋", tags:["school", "neat", "formal"], color:"#5A3A2A",
+    draw:(f, c) => PB(SHOE, f) + PB("M124 432 Q134 428 144 432", "none", 2.6) + PB("M121 441 Q134 446 147 441", "none", 1.6)},
+  hightop: {name:"籃球鞋", tags:["sport", "casual"], color:"#D9414E",
+    draw:(f, c) => PB("M122 404 L146 404 L148 438 Q148 447 134 447 Q120 447 120 438 Z", f) + PB("M120 438 Q134 445 148 438 L148 440 Q148 447 134 447 Q120 447 120 440 Z", "#fff", 2) + PB("M128 412 L140 414 M128 420 L140 422 M128 428 L140 430", "none", 1.6) + PB("M122 404 L146 404 L146 410 L122 410 Z", "#fff", 1.8)},
+});
+Object.assign(HAIRB, {
+  buzz: {name:"平頭", draw:h => P("M92 126 C88 66 212 66 208 126 L206 140 Q150 146 94 140 Z", h)},
+});
+Object.assign(HAIRF, {
+  quiff: {name:"往上梳", d:" C208 112 200 92 184 86 C170 70 140 66 120 80 C104 90 94 112 92 142 Z"},
+});
+Object.assign(HATS, {
+  witch:   {name:"女巫帽", tags:["halloween"], color:"#7E5BC2",
+    draw:(f, c) => E(150, 90, 94, 18, f, 2.6) + P("M110 88 Q126 62 140 22 Q146 8 164 18 Q156 24 160 40 L188 88 Z", f) + P("M112 80 Q150 90 186 80 L188 88 Q150 98 110 88 Z", "#F6D65A", 2.2) + star(156, 58, 5, "#F6D65A", 1.2)},
+  santa:   {name:"聖誕帽", tags:["xmas", "winter", "party"], color:"#D9414E",
+    draw:(f, c) => P("M94 100 Q98 48 152 44 Q196 46 214 84 Q226 106 230 126 L212 120 Q204 96 190 82 L206 100 Z", f) + C(228, 128, 10, "#fff", 2.2) + P("M88 94 Q150 80 212 94 L214 112 Q150 98 86 112 Z", "#fff", 2.4)},
+  antlers: {name:"麋鹿角", tags:["xmas", "party"], color:"#8A5A3C", lock:"christmas",
+    draw:(f, c) => LN("M94 104 Q150 56 206 104", 6) + LN("M94 104 Q150 56 206 104", 3.4, "#D9414E") + ["M116 76 L104 30 M108 52 L92 44 M106 40 L114 26", "M184 76 L196 30 M192 52 L208 44 M194 40 L186 26"].map(d => LN(d, 8) + LN(d, 4.6, c)).join("")},
+});
+Object.assign(HANDS, {
+  pumpkin: {name:"南瓜燈", tags:["halloween", "party"], color:"#F59A4A",
+    draw:(f, c) => LN("M200 318 Q212 312 218 326", 2.4) + E(218, 344, 20, 17, f) + LN("M210 330 Q206 344 210 358 M226 330 Q230 344 226 358", 1.6, shade(c, -.3)) + P("M216 326 L218 318 L222 320 L220 327 Z", "#4FA36B", 1.6) + P("M208 338 L213 342 L208 345 Z M228 338 L223 342 L228 345 Z", "#3A2A20", 0) + LN("M209 351 Q218 356 227 351", 2.2)},
+  gift:    {name:"禮物", tags:["xmas", "party"], color:"#4FA36B",
+    draw:(f, c) => P("M198 300 L230 300 L230 332 L198 332 Z", f) + P("M210 300 L218 300 L218 332 L210 332 Z", "#D9414E", 1.6) + P("M214 300 Q204 286 200 294 Q200 300 214 300 Z M214 300 Q224 286 228 294 Q228 300 214 300 Z", "#D9414E", 1.8)},
+  redpack: {name:"紅包", tags:["newyear", "festival"], color:"#D9414E",
+    draw:(f, c) => `<g transform="rotate(-10 214 308)">${P("M202 290 L226 290 L226 326 L202 326 Z", f)}${C(214, 302, 7, "#F6D65A", 1.6)}<text x="214" y="305.5" text-anchor="middle" font-size="9" font-weight="900" fill="#D9414E" font-family="system-ui,'Noto Sans TC',sans-serif">福</text></g>`},
+  wand:    {name:"魔法棒", tags:["halloween", "party"], color:"#F6D65A", lock:"halloween",
+    draw:(f, c) => LN("M200 318 L230 250", 4.5) + LN("M200 318 L230 250", 2.4, "#fff") + star(232, 244, 13, f, 2) + [[250, 232], [246, 262], [220, 228]].map(([x, y]) => star(x, y, 3.5, "#fff", 1)).join("")},
+});
+Object.assign(BGS, {
+  halloween: {name:"萬聖夜", tags:["halloween", "party"], draw:() => `<rect width="300" height="470" fill="#2B1F45"/>` + C(220, 80, 42, "#FFE9A8", 2.4) + C(236, 70, 8, "#F2D88A", 0) + [[70, 70], [110, 110], [180, 150]].map(([x, y]) => P(`M${x} ${y} Q${x - 8} ${y - 8} ${x - 18} ${y - 4} Q${x - 12} ${y + 2} ${x - 14} ${y + 8} Q${x - 6} ${y + 2} ${x} ${y + 6} Q${x + 6} ${y + 2} ${x + 14} ${y + 8} Q${x + 12} ${y + 2} ${x + 18} ${y - 4} Q${x + 8} ${y - 8} ${x} ${y} Z`, "#1B1430", 1.4)).join("") + P("M10 300 L10 220 L40 190 L70 220 L70 300 Z", "#1B1430", 2) + `<rect x="30" y="236" width="14" height="16" fill="#FFD447"/>` + `<rect y="380" width="300" height="90" fill="#3A2E55"/>` + LN("M0 380 L300 380", 2.4) + [[44, 404], [266, 420]].map(([x, y]) => E(x, y, 18, 14, "#F59A4A") + P(`M${x - 8} ${y - 4} L${x - 3} ${y} L${x - 8} ${y + 2} Z M${x + 8} ${y - 4} L${x + 3} ${y} L${x + 8} ${y + 2} Z`, INK, 0) + LN(`M${x - 7} ${y + 7} Q${x} ${y + 11} ${x + 7} ${y + 7}`, 1.8)).join("")},
+  xmas:      {name:"聖誕夜", tags:["xmas", "winter"], draw:() => `<rect width="300" height="470" fill="#FBE9DA"/><rect y="384" width="300" height="86" fill="#B98A5E"/>` + LN("M0 384 L300 384", 2.4) + P("M20 60 L100 60 L100 170 L20 170 Z", "#2B3C6E") + LN("M60 60 L60 170 M20 115 L100 115", 2.4) + Array.from({length:8}, (_, i) => C(30 + (i * 23) % 66, 70 + (i * 37) % 92, 2, "#fff", 0)).join("") + [[250, 230, 46], [250, 280, 56], [250, 330, 66]].map(([x, y, w]) => P(`M${x} ${y - 50} L${x + w} ${y + 20} L${x - w} ${y + 20} Z`, "#3E8A5A", 2.4)).join("") + P("M242 350 L258 350 L258 384 L242 384 Z", "#8A5A3C", 2) + star(250, 176, 12, "#FFD447", 2) + [[230, 250, "#D9414E"], [270, 270, "#F6D65A"], [236, 300, "#4C8FE0"], [266, 320, "#D9414E"], [222, 340, "#F6D65A"]].map(([x, y, col]) => C(x, y, 5, col, 1.6)).join("") + P("M188 362 L214 362 L214 386 L188 386 Z", "#D9414E", 2) + LN("M201 362 L201 386", 3, "#F6D65A")},
+});
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
