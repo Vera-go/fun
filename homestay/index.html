@@ -135,6 +135,16 @@ textarea{resize:vertical;line-height:1.6}
 .book .glance{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .book .glance div{background:#F2FAF5;border-radius:12px;padding:8px 10px;font-size:14px}
 .book .glance small{display:block;color:var(--muted);font-size:12px}
+.tw .w{font-size:clamp(22px,6.8vw,30px);font-weight:900;line-height:1.5;margin:10px 0 4px;overflow-wrap:anywhere}
+.tw .py{font-size:14px;color:var(--acc);font-weight:800;line-height:1.6}
+.tw .m{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+.tw .cnt{margin-top:12px;font-weight:900;font-size:16px}.tw .cnt.ok{color:var(--acc)}
+.tfq{font-size:clamp(19px,5.6vw,24px);font-weight:900;line-height:1.5}
+.tfbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.tfbtns button{border:0;border-radius:16px;padding:18px 8px;font:inherit;font-size:18px;font-weight:900;cursor:pointer}
+.tfbtns .t{background:var(--acc);color:#fff;box-shadow:0 4px 0 #147A5E}.tfbtns .f{background:#FFE6DA;color:#C5602F;box-shadow:0 4px 0 #F2CDB9}
+.tfres{margin-top:14px;border-radius:14px;padding:12px;font-size:14.5px;line-height:1.7;text-align:left}
+.tfres.good{background:#DDF3EA}.tfres.bad{background:#FFE6DA}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -179,7 +189,7 @@ textarea{resize:vertical;line-height:1.6}
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const KEY = "homestay.v1";
-let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}, go:{}, prep:{}, arrive:"", days:{}, daysDone:{}, rules:""};
+let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}, go:{}, twist:{}, prep:{}, arrive:"", days:{}, daysDone:{}, rules:""};
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 const fill = (t) => t
@@ -578,6 +588,64 @@ const TIPS = [
   ["Temples: be quiet, and don't take photos of people who are praying.","進廟裡要安靜，不要拍正在祈禱的人。"]
 ];
 const WORDS = [["Hello","你好","nǐ hǎo"],["Thank you","謝謝","xiè xie"],["Sorry","對不起","duì bu qǐ"],["How much?","多少錢？","duō shǎo qián"],["Where is the toilet?","廁所在哪裡？","cè suǒ zài nǎ lǐ"],["Delicious!","好吃！","hǎo chī"]];
+/* 繞口令對決：念三次沒念錯就過關。lv 是難度 */
+const TWIST = {
+  zh:[
+    {id:"z1", w:"媽媽騎馬，馬慢媽媽罵馬", py:"mā ma qí mǎ, mǎ màn mā ma mà mǎ", m:"Mum rides a horse. The horse is slow, so Mum scolds the horse.", lv:1},
+    {id:"z2", w:"四是四，十是十，十四是十四，四十是四十", py:"sì shì sì, shí shì shí, shí sì shì shí sì, sì shí shì sì shí", m:"Four is four, ten is ten, fourteen is fourteen, forty is forty.", lv:2},
+    {id:"z3", w:"吃葡萄不吐葡萄皮，不吃葡萄倒吐葡萄皮", py:"chī pú tao bù tǔ pú tao pí, bù chī pú tao dào tǔ pú tao pí", m:"Eat grapes without spitting out the skins; don't eat grapes but spit out the skins.", lv:2},
+    {id:"z4", w:"紅鳳凰，粉鳳凰，紅粉鳳凰花鳳凰", py:"hóng fèng huáng, fěn fèng huáng, hóng fěn fèng huáng huā fèng huáng", m:"Red phoenix, pink phoenix, a red-and-pink patterned phoenix.", lv:2},
+    {id:"z5", w:"牛郎戀劉娘，劉娘戀牛郎", py:"niú láng liàn liú niáng, liú niáng liàn niú láng", m:"The cowherd loves Miss Liu; Miss Liu loves the cowherd.", lv:3},
+    {id:"z6", w:"板凳寬，扁擔長，扁擔想綁在板凳上", py:"bǎn dèng kuān, biǎn dan cháng, biǎn dan xiǎng bǎng zài bǎn dèng shàng", m:"The bench is wide, the carrying pole is long; the pole wants to be tied to the bench.", lv:3},
+    {id:"z7", w:"黑化肥發灰，灰化肥發黑", py:"hēi huà féi fā huī, huī huà féi fā hēi", m:"Black fertiliser turns grey; grey fertiliser turns black.", lv:3}
+  ],
+  en:[
+    {id:"e1", w:"She sells seashells by the seashore.", m:"她在海邊賣貝殼。", lv:1},
+    {id:"e2", w:"I scream, you scream, we all scream for ice cream.", m:"我尖叫，你尖叫，我們都為了冰淇淋尖叫。", lv:1},
+    {id:"e3", w:"Fuzzy Wuzzy was a bear. Fuzzy Wuzzy had no hair.", m:"毛毛熊是一隻熊，毛毛熊沒有毛。", lv:1},
+    {id:"e4", w:"Unique New York.", m:"獨特的紐約。", lv:2},
+    {id:"e5", w:"Peter Piper picked a peck of pickled peppers.", m:"彼得派珀摘了一斗醃辣椒。", lv:2},
+    {id:"e6", w:"How much wood would a woodchuck chuck if a woodchuck could chuck wood?", m:"如果土撥鼠能丟木頭，牠會丟多少木頭？", lv:2},
+    {id:"e7", w:"Red lorry, yellow lorry.", m:"紅色卡車，黃色卡車。", lv:3},
+    {id:"e8", w:"Betty Botter bought some butter, but she said the butter's bitter.", m:"貝蒂買了奶油，但她說奶油是苦的。", lv:3}
+  ]
+};
+/* 台灣和澳洲是非題：who 是題目講哪裡。澳洲的題目我依一般認知寫，各地可能不同，她說了算 */
+const TF = [
+  {who:"tw", en:"In Taiwan, garbage trucks play music when they come.", zh:"在台灣，垃圾車來的時候會放音樂。", a:true, why:"對。很多社區的垃圾車會放古典音樂，大家聽到音樂就把垃圾拿出去。"},
+  {who:"tw", en:"You must leave a tip at restaurants in Taiwan.", zh:"在台灣的餐廳一定要給小費。", a:false, why:"不對。台灣通常不用給小費，有些餐廳會直接加服務費。"},
+  {who:"tw", en:"Convenience stores in Taiwan sell hot tea eggs, and you can pay bills there.", zh:"台灣的便利商店賣熱茶葉蛋，也可以繳費。", a:true, why:"對。便利商店可以買熱食，也能繳水電費、寄包裹、領錢。"},
+  {who:"tw", en:"In Taiwan, cars drive on the left.", zh:"在台灣，車子靠左行駛。", a:false, why:"不對。台灣是靠右行駛，跟澳洲相反，過馬路要先看清楚左邊還是右邊。"},
+  {who:"tw", en:"In Taiwan, the number 4 is thought to be unlucky.", zh:"在台灣，數字 4 被認為不吉利。", a:true, why:"對。因為「四」的發音很像「死」，有些大樓沒有 4 樓。"},
+  {who:"tw", en:"Many Taiwanese families take their shoes off at the front door.", zh:"很多台灣家庭會在門口脫鞋。", a:true, why:"對。進家裡通常要脫鞋，換上拖鞋。"},
+  {who:"tw", en:"Bubble tea comes from Taiwan.", zh:"珍珠奶茶是台灣發明的。", a:true, why:"對。珍珠奶茶是台灣的發明，現在全世界都喝得到。"},
+  {who:"tw", en:"Taipei 101 was once the tallest building in the world.", zh:"台北 101 曾經是世界最高的大樓。", a:true, why:"對。它在 2004 年到 2010 年是世界最高。"},
+  {who:"tw", en:"The money in Taiwan is called the yen.", zh:"台灣用的錢叫日圓。", a:false, why:"不對。台灣用新台幣，英文是 NT dollar。"},
+  {who:"tw", en:"Students in Taiwan help clean their own classroom.", zh:"台灣學生要自己打掃教室。", a:true, why:"對。學校有打掃時間，學生一起掃教室和公共區域。"},
+  {who:"tw", en:"Many Taiwanese students take a nap at school after lunch.", zh:"很多台灣學生中午吃完飯會在學校午休。", a:true, why:"對。很多學校有午休時間，可以趴在桌上睡一下。"},
+  {who:"tw", en:"Earthquakes happen quite often in Taiwan.", zh:"台灣常常有地震。", a:true, why:"對。台灣常有小地震，大家從小學過怎麼躲。"},
+  {who:"tw", en:"Sticking chopsticks upright in a bowl of rice is rude.", zh:"把筷子直直插在飯裡很沒禮貌。", a:true, why:"對。看起來像拜拜的香，有不吉利的意思。"},
+  {who:"tw", en:"Taiwan uses 110V power, lower than Australia's 230V.", zh:"台灣用 110 伏特的電，比澳洲的 230 伏特低。", a:true, why:"對。所以澳洲的電器要先確認能不能用，通常需要轉接頭。"},
+  {who:"tw", en:"The main language taught in Taiwanese schools is Cantonese.", zh:"台灣學校主要教的語言是廣東話。", a:false, why:"不對。學校主要用華語（國語），日常也有很多人說台語和客語。"},
+  {who:"tw", en:"Night markets in Taiwan usually open in the early morning.", zh:"台灣的夜市通常是清晨開始營業。", a:false, why:"不對。夜市通常傍晚開始，到晚上最熱鬧。"},
+  {who:"tw", en:"Convenience stores in Taiwan usually close at 6 pm.", zh:"台灣的便利商店通常下午六點就關門。", a:false, why:"不對。很多便利商店 24 小時營業，半夜也買得到東西。"},
+  {who:"tw", en:"It snows heavily in Taipei every winter.", zh:"台北每年冬天都會下大雪。", a:false, why:"不對。台北冬天又濕又冷，但平地幾乎不會下雪。"},
+  {who:"tw", en:"Most people in Taiwan drink tap water straight from the tap.", zh:"大部分台灣人直接喝水龍頭的水。", a:false, why:"不對。大家通常會煮開或用過濾器，也常買桶裝水或瓶裝水。"},
+  {who:"au", en:"Australia is in the northern hemisphere.", zh:"澳洲在北半球。", a:false, why:"不對。澳洲在南半球，所以季節跟台灣相反。"},
+  {who:"au", en:"The money in Australia is called the euro.", zh:"澳洲用的錢叫歐元。", a:false, why:"不對。澳洲用澳幣，英文是 Australian dollar。"},
+  {who:"au", en:"The platypus is a mammal that lays eggs.", zh:"鴨嘴獸是會生蛋的哺乳動物。", a:true, why:"對。鴨嘴獸是少數會生蛋的哺乳動物，這是它很特別的地方。"},
+  {who:"au", en:"The middle of Australia is mostly desert, called the outback.", zh:"澳洲中部大多是沙漠，叫做內陸。", a:true, why:"對。那一帶叫 outback，人很少，所以大多數人住在海邊。"},
+  {who:"au", en:"Christmas in Australia is in summer.", zh:"澳洲的聖誕節在夏天。", a:true, why:"對。南半球的 12 月是夏天，很多人在海邊或烤肉過聖誕節。"},
+  {who:"au", en:"Cars drive on the left in Australia.", zh:"澳洲的車子靠左行駛。", a:true, why:"對。澳洲靠左，台灣靠右，她在台灣過馬路要特別小心方向。"},
+  {who:"au", en:"The capital of Australia is Sydney.", zh:"澳洲的首都是雪梨。", a:false, why:"不對。首都是坎培拉，雪梨是最大的城市。"},
+  {who:"au", en:"Koalas are a kind of bear.", zh:"無尾熊是一種熊。", a:false, why:"不對。無尾熊是有袋動物，不是熊。"},
+  {who:"au", en:"Australians often say \"no worries\".", zh:"澳洲人常常說「no worries」。", a:true, why:"對。意思是「沒問題」「不客氣」，是很常聽到的口頭禪。"},
+  {who:"au", en:"It is expected to leave a big tip in Australia, like in the US.", zh:"在澳洲要像美國一樣給很多小費。", a:false, why:"不對。澳洲通常不要求給小費，這點跟台灣有點像。"},
+  {who:"au", en:"It snows in some parts of Australia.", zh:"澳洲有些地方會下雪。", a:true, why:"對。例如雪山區（Snowy Mountains）冬天有雪，可以滑雪。"},
+  {who:"au", en:"Most Australians live near the coast.", zh:"大部分澳洲人住在靠海的地方。", a:true, why:"對。主要城市多半在海岸邊，中部大多是沙漠。"},
+  {who:"au", en:"The Great Barrier Reef is off the coast of Queensland.", zh:"大堡礁在昆士蘭外海。", a:true, why:"對。它是世界最大的珊瑚礁群，在澳洲東北方。"},
+  {who:"au", en:"Many Australians eat Vegemite on toast.", zh:"很多澳洲人會在吐司上抹 Vegemite。", a:true, why:"對。Vegemite 是鹹鹹的酵母醬，澳洲人很熟悉，外國人常覺得味道很特別。"}
+];
 const PLANS = {
   A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
     "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
@@ -637,12 +705,12 @@ function pickVoice(lang){
   for(const p of pref){ const v = voices.find(v => v.lang && v.lang.replace("_","-").toLowerCase().startsWith(p.toLowerCase())); if(v) return v; }
   return null;
 }
-function say(text, lang){
+function say(text, lang, rate){
   if(!window.speechSynthesis){ toast("這個瀏覽器不能念出來，可以用「放大」給她看"); return; }
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   const v = pickVoice(lang); if(v){ u.voice = v; u.lang = v.lang; } else u.lang = lang === "en" ? "en-AU" : "zh-TW";
-  u.rate = lang === "en" && S.slow ? .75 : .95;
+  u.rate = rate || (lang === "en" && S.slow ? .75 : .95);
   speechSynthesis.speak(u);
 }
 let toastTimer = null;
@@ -772,6 +840,29 @@ function headsView(){
     <div class="card"><h2>猜對的</h2>${list(PLAY.hOK, "ok")}<h2 style="margin-top:12px">跳過的</h2>${list(PLAY.hSkip, "")}</div>
     <div class="bar"><button class="btn" data-hstart="1">同一主題再玩一輪</button><button class="btn ghost" data-hmenu="1">換主題</button></div>`;
 }
+function twistView(){
+  const lang = PLAY.tLang, c = PLAY.deck[PLAY.i], n = PLAY.deck.length, cnt = PLAY.step, done = !!S.twist[c.id];
+  const total = TWIST[lang].length, finished = TWIST[lang].filter(x => S.twist[x.id]).length;
+  return `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><span class="muted small">過關 ${finished} / ${total}</span></div>
+    <div class="card deck tw"><div class="prog">${PLAY.i + 1} / ${n}・${"★".repeat(c.lv)}${"☆".repeat(3 - c.lv)}</div><div class="muted small">${lang === "zh" ? "她念中文" : "你念英文"}${done ? "・已過關 ✓" : ""}</div>
+    <div class="w">${esc(c.w)}</div>${c.py ? `<div class="py">${esc(c.py)}</div>` : ""}<div class="m">${esc(c.m)}</div>
+    <div class="cnt ${cnt >= 3 ? "ok" : ""}">${cnt >= 3 ? "過關！念了三次都沒念錯" : cnt ? "已經念對 " + cnt + " 次" : "念三次都沒念錯就過關"}</div>
+    <div class="ctl"><button class="btn ghost sm" data-pspeak="w">念標準版</button><button class="btn ghost sm" data-pslow="1">念慢一點</button><button class="btn sm" data-tgood="1" ${cnt >= 3 ? "disabled" : ""}>念對了 +1</button></div>
+    <div class="ctl"><button class="btn ghost sm" data-pprev="1" ${PLAY.i ? "" : "disabled"}>上一句</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一句" : "再來一輪"}</button></div></div>`;
+}
+function tfView(){
+  const c = PLAY.deck[PLAY.i], n = PLAY.deck.length, ans = PLAY.step;
+  const who = c.who === "tw" ? "台灣" : "澳洲";
+  let res = "";
+  if(ans){
+    const picked = ans === 1, right = picked === c.a;
+    res = `<div class="tfres ${right ? "good" : "bad"}"><b>${right ? "答對了！" : "不對喔。"}</b> ${esc(c.why)}${c.who === "au" ? '<br><span class="muted small">這題是我依一般情形寫的，請問問她：她那裡是不是這樣？她說了算。</span>' : ""}</div>`;
+  }
+  return `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><span class="muted small">答對 ${PLAY.tfOK} / ${PLAY.tfN}</span></div>
+    <div class="card deck"><div class="prog">${PLAY.i + 1} / ${n}・關於${who}</div><div class="tfq">${esc(c.en)}</div><div class="qzh">${esc(c.zh)}</div>
+    ${ans ? "" : `<div class="tfbtns"><button class="t" data-tf="1">對 True</button><button class="f" data-tf="0">錯 False</button></div>`}${res}
+    <div class="ctl"><button class="btn ghost sm" data-pspeak="q">念英文</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一題" : "再來一輪"}</button></div></div>`;
+}
 function playView(){
   if(!PLAY.mode){
     return `<div class="note">一起玩，不計分，目的是聊天。用同一支手機，念出來給她聽，也讓她看英文。她不想回答的題目可以直接跳過。</div>
@@ -779,10 +870,14 @@ function playView(){
       <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>
       <div class="card"><h2>台灣體驗賓果</h2><p class="hint">10 天裡完成 16 件台灣的事，做完就打勾，連成一線有亮框。進度記在這支手機上。</p><button class="btn" data-pmode="bingo">開始</button></div>
       <div class="card"><h2>景點盲翻</h2><p class="hint">16 個外國人來台灣常去的北部景點，每張都蓋著，隨便翻開一張，看看運氣把你們帶去哪裡。</p><button class="btn" data-pmode="spots">開始翻</button></div>
+      <div class="card"><h2>繞口令對決</h2><p class="hint">她念中文繞口令，你念英文繞口令，念三次都沒念錯就過關。每句有拼音和意思，可以念標準版給對方聽。</p><div class="row"><button class="btn" data-pmode="twist-zh">她念中文</button><button class="btn ghost" data-pmode="twist-en">你念英文</button></div></div>
+      <div class="card"><h2>台灣和澳洲是非題</h2><p class="hint">猜猜看對還是錯。台灣的題目她來猜，澳洲的題目你來猜，她可以糾正我寫的答案。</p><div class="row"><button class="btn" data-pmode="tf-tw">她猜台灣</button><button class="btn ghost" data-pmode="tf-au">你猜澳洲</button><button class="btn ghost" data-pmode="tf-all">混合</button></div></div>
       <div class="card"><h2>猜猜我是誰</h2><p class="hint">手機放額頭，對方用動作和簡單的字提示，在時間內猜越多越好。有台灣食物、澳洲、動物、日常物品等 7 個主題。</p><button class="btn" data-pmode="heads">開始</button></div>
       <div class="card"><h2>零食盲測</h2><p class="hint">準備幾種台灣零食，她邊吃邊打星星，最後出現「她最喜歡的台灣味」排行榜。</p><button class="btn" data-pmode="snack">開始</button></div>
       <div class="card"><h2>學中文小挑戰</h2><p class="hint">數字、顏色、家人、問候、點餐，每個詞有拼音，點一下念出來。</p><button class="btn" data-pmode="learn">開始</button></div>`;
   }
+  if(PLAY.mode === "twist") return twistView();
+  if(PLAY.mode === "tf") return tfView();
   if(PLAY.mode === "heads") return headsView();
   if(PLAY.mode === "spots") return spotsView();
   if(PLAY.mode === "bingo") return bingoView();
@@ -896,6 +991,9 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  if(e.target.closest("[data-tgood]")){ if(PLAY.step < 3){ PLAY.step++; if(PLAY.step >= 3){ S.twist[PLAY.deck[PLAY.i].id] = true; save(); if(navigator.vibrate) try{ navigator.vibrate(120); }catch(err){} } render(); } return; }
+  if(e.target.closest("[data-pslow]")){ const c = PLAY.deck[PLAY.i]; say(c.w, PLAY.side === "au" ? "en" : "zh", .6); return; }
+  const tf = e.target.closest("[data-tf]"); if(tf){ if(PLAY.step) return; const c = PLAY.deck[PLAY.i], picked = tf.dataset.tf === "1"; PLAY.step = picked ? 1 : 2; PLAY.tfN++; if(picked === c.a) PLAY.tfOK++; render(); return; }
   const hc = e.target.closest("[data-hcat]"); if(hc){ const k = hc.dataset.hcat; const all = k === "all"; const items = all ? HEADS.flatMap(h => h.items) : HEADS[+k].items; PLAY.hName = all ? "全部混合" : HEADS[+k].cat; PLAY.hAll = items; PLAY.hStage = "ready"; render(); return; }
   const hd = e.target.closest("[data-hdur]"); if(hd){ PLAY.hDur = +hd.dataset.hdur; render(); return; }
   if(e.target.closest("[data-hstart]")){ PLAY.hDeck = shuffle(PLAY.hAll); headsStart(); return; }
@@ -917,7 +1015,9 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-plearned]")){ const c = PLAY.deck[PLAY.i]; S.learned[c.w] = !S.learned[c.w]; save(); render(); return; }
   const pm = e.target.closest("[data-pmode]"); if(pm){
     const m = pm.dataset.pmode;
-    if(m === "heads"){ PLAY = {mode:"heads", deck:[], i:0, step:0, side:"au", hStage:"menu", hDur:60}; }
+    if(m === "twist-zh" || m === "twist-en"){ const l = m.endsWith("zh") ? "zh" : "en"; PLAY = {mode:"twist", deck:shuffle(TWIST[l]), i:0, step:0, side:l === "zh" ? "tw" : "au", tLang:l}; }
+    else if(m.startsWith("tf-")){ const w = m.slice(3); PLAY = {mode:"tf", deck:shuffle(TF.filter(x => w === "all" || x.who === w)), i:0, step:0, side:"au", tfOK:0, tfN:0}; }
+    else if(m === "heads"){ PLAY = {mode:"heads", deck:[], i:0, step:0, side:"au", hStage:"menu", hDur:60}; }
     else if(m === "spots"){ PLAY = {mode:"spots", deck:shuffle(SPOTS), i:0, step:0, side:"au", flip:{}, cur:null}; }
     else if(m === "bingo" || m === "snack"){ PLAY = {mode:m, deck:[], i:0, step:0, side:"au"}; }
     else if(m === "learn"){ PLAY = {mode:"learn", deck:[], i:0, step:0, side:"learn", cat:null}; }
@@ -932,7 +1032,8 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-pwhy]")){ say("Why did you choose that?", "en"); return; }
   const ps = e.target.closest("[data-pspeak]"); if(ps){
     const c = PLAY.deck[PLAY.i], k = ps.dataset.pspeak;
-    if(k === "q") say(c.en + ". " + c.o.map(o => o[0]).join(". "), "en");
+    if(k === "q" && PLAY.mode === "tf") say(c.en, "en");
+    else if(k === "q") say(c.en + ". " + c.o.map(o => o[0]).join(". "), "en");
     else if(k === "ex") say(c.ex, PLAY.side === "au" ? "en" : "zh");
     else say(c.w, PLAY.side === "au" ? "en" : "zh");
     return; }
