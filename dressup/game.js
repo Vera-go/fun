@@ -14,15 +14,15 @@ const TOUCH = matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 // ---------- 主題挑戰 ----------
 const THEMES = [
-  {id:"school",   name:"開學第一天", desc:"第一天上學，穿得整齊又有精神！", bg:"classroom", like:["school", "neat"], dislike:["party", "beach", "festival"], reward:["eyes", "star"]},
-  {id:"beach",    name:"海邊度假",   desc:"陽光、沙灘、海風，穿得清涼又可愛。", bg:"beach", like:["beach", "summer"], dislike:["winter", "warm", "formal", "rain"], reward:["glasses", "heart"]},
+  {id:"school",   name:"開學第一天", desc:"第一天上學，穿得整齊又有精神！", bg:"classroom", like:["school", "neat"], dislike:["beach", "festival", "halloween", "fancy"], reward:["eyes", "star"]},
+  {id:"beach",    name:"海邊度假",   desc:"陽光、沙灘、海風，穿得清涼又可愛。", bg:"beach", like:["beach", "summer"], dislike:["winter", "warm", "rain", "fancy"], reward:["glasses", "heart"]},
   {id:"winter",   name:"下雪天出門", desc:"外面好冷，要穿得暖暖的才出門。", bg:"snow", like:["winter", "warm"], dislike:["summer", "beach"], reward:["hat", "earmuffs"]},
-  {id:"rain",     name:"下雨天上學", desc:"外面下大雨，不要被淋濕了！", bg:"rain", like:["rain"], dislike:["beach", "formal", "party"], reward:["hand", "rainbow"]},
-  {id:"sport",    name:"運動會",     desc:"要跑步、跳遠、拔河，穿得方便好活動。", bg:"park", like:["sport"], dislike:["formal", "party"], reward:["neck", "medal"]},
-  {id:"party",    name:"畢業舞會",   desc:"今晚是主角！穿上最閃亮的衣服。", bg:"stage", like:["party", "formal"], dislike:["sport", "rain", "warm"], reward:["hat", "crown"]},
-  {id:"market",   name:"逛夜市",     desc:"吃雞排、喝珍奶、撈金魚，穿得輕鬆自在。", bg:"market", like:["snack", "casual"], dislike:["formal"], reward:["hat", "catears"]},
+  {id:"rain",     name:"下雨天上學", desc:"外面下大雨，不要被淋濕了！", bg:"rain", like:["rain"], dislike:["beach", "fancy"], reward:["hand", "rainbow"]},
+  {id:"sport",    name:"運動會",     desc:"要跑步、跳遠、拔河，穿得方便好活動。", bg:"park", like:["sport"], dislike:["fancy", "formal"], reward:["neck", "medal"]},
+  {id:"party",    name:"畢業舞會",   desc:"今晚是主角！穿上最閃亮的衣服。", bg:"stage", like:["party", "formal", "fancy"], dislike:["sport", "rain"], reward:["hat", "crown"]},
+  {id:"market",   name:"逛夜市",     desc:"吃雞排、喝珍奶、撈金魚，穿得輕鬆自在。", bg:"market", like:["snack", "casual"], dislike:["fancy"], reward:["hat", "catears"]},
   {id:"festival", name:"夏日祭典",   desc:"看煙火、逛攤位，來一套祭典風。", bg:"festival", like:["festival", "summer"], dislike:["winter", "warm"], reward:["hat", "foxmask"]},
-  {id:"halloween", name:"萬聖節派對", desc:"不給糖就搗蛋！來一套有點神祕的萬聖節造型。", bg:"halloween", like:["halloween", "party"], dislike:["sport", "school", "beach"], reward:["hand", "wand"]},
+  {id:"halloween", name:"萬聖節派對", desc:"不給糖就搗蛋！來一套有點神祕的萬聖節造型。", bg:"halloween", like:["halloween", "party"], dislike:["sport", "beach"], reward:["hand", "wand"]},
   {id:"christmas", name:"聖誕節交換禮物", desc:"聖誕夜和朋友交換禮物，穿得溫暖又有節日感。", bg:"xmas", like:["xmas", "winter", "warm"], dislike:["summer", "beach"], reward:["hat", "antlers"]},
 ];
 const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
@@ -36,12 +36,15 @@ const CATS = [
   {id:"hair", name:"髮型", groups:[
     {type:"pick", key:"hairB", label:"髮型", list:HAIRB, vb:"60 26 180 290"},
     {type:"pick", key:"hairF", label:"瀏海", list:HAIRF, vb:"84 44 132 132"},
-    {type:"color", key:"hairC", label:"髮色", pal:HAIR_PAL}]},
+    {type:"color", key:"hairC", label:"髮色", pal:HAIR_PAL},
+    {type:"color", key:"hairTip", label:"挑染（髮尾變色）", pal:TIP_PAL, none:true}]},
   {id:"face", name:"五官", groups:[
     {type:"color", key:"skin", label:"膚色", pal:SKIN, index:true},
+    {type:"pick", key:"faceShape", label:"臉型", list:FACES, vb:"76 62 148 148"},
     {type:"pick", key:"eyes", label:"眼睛", list:EYES, vb:"100 106 100 64"},
     {type:"color", key:"eyeC", label:"眼睛顏色", pal:EYE_PAL},
     {type:"pick", key:"brows", label:"眉毛", list:BROWS, vb:"104 98 92 56"},
+    {type:"pick", key:"nose", label:"鼻子", list:NOSES, vb:"124 134 52 36"},
     {type:"pick", key:"mouth", label:"嘴巴", list:MOUTHS, vb:"118 138 64 44"}]},
   {id:"makeup", name:"妝容", groups:[
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
@@ -74,7 +77,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
 const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
-  blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"",
+  blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"",
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
   hat:null, glasses:null, hairpin:null, neck:null, scarf:null, bag:null, hand:null};
@@ -184,6 +187,7 @@ function randomLook(){
   const scheme = pick([["#FFFFFF", "#2C3E70", "#D9414E"], ["#F7A8C4", "#FFFFFF", "#B9A3E8"], ["#F6E7C8", "#8A5A3C", "#4FA36B"], ["#9BD0F5", "#FFFFFF", "#F6D65A"], ["#2E2B2B", "#FFFFFF", "#E8679A"], ["#9ADBC0", "#F6E7C8", "#F59A4A"], ["#B9A3E8", "#7E5BC2", "#F7A8C4"]]);
   const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list)); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
   look.hairB = pick(Object.keys(HAIRB)); look.hairF = pick(Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
+  look.faceShape = pick(Object.keys(FACES)); look.nose = pick(Object.keys(NOSES)); look.hairTip = Math.random() < .2 ? pick(TIP_PAL) : "";
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.mouth = pick(Object.keys(MOUTHS)); look.brows = pick(["soft", "soft", "straight", "worried"]);
   look.blush = Math.random() < .7 ? pick(BLUSH) : ""; look.lip = Math.random() < .4 ? pick(LIPS) : ""; look.shadow = Math.random() < .3 ? pick(SHADOW) : "";
   look.dress = null; look.top = null; look.bottom = null;
@@ -232,12 +236,14 @@ function scoreLook(look, t){
   const items = worn(look), lines = [];
   let pts = 30;
   const has = (it, tags) => it.tags.some(x => tags.includes(x));
-  const good = items.filter(x => has(x.it, t.like)), bad = items.filter(x => !has(x.it, t.like) && has(x.it, t.dislike));
+  // 穿在外套裡面的上衣看不到，不算不適合；小配件和日常百搭的單品不適合只扣一半
+  const hidden = x => x.slot === "top" && look.outer;
+  const good = items.filter(x => has(x.it, t.like)), bad = items.filter(x => !hidden(x) && !has(x.it, t.like) && has(x.it, t.dislike));
   const gp = Math.min(45, good.length * 9);
   if(good.length) lines.push([`符合主題：${good.map(x => x.it.name).join("、")}`, gp]);
   else lines.push(["還沒有符合主題的單品", 0]);
   // 不適合的單品扣分；日常百搭的單品（casual）只扣一半
-  const penalty = x => x.it.tags.includes("casual") ? 6 : 12, bp = bad.reduce((a, x) => a + penalty(x), 0);
+  const penalty = x => x.it.tags.includes("casual") || ["hairpin", "neck", "glasses", "socks"].includes(x.slot) ? 6 : 12, bp = bad.reduce((a, x) => a + penalty(x), 0);
   if(bad.length) lines.push([`不太適合這個主題：${bad.map(x => x.it.name).join("、")}`, -bp]);
   pts += gp - bp;
   // 背景
@@ -357,6 +363,8 @@ function sanitizeLook(raw){
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
   ["hairC", "eyeC", "bgC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
   o.freckles = raw.freckles === true;
