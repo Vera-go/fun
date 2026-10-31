@@ -448,7 +448,7 @@ function drawLook(L, opt = {}){
   const itemS = (cat, slot) => shaded(item(cat, slot));   // 加上明暗的單品
   const skin = SKIN[L.skin] || SKIN[0];
   const sh = (id, a, b) => `<linearGradient id="${uid}-${id}" gradientUnits="userSpaceOnUse" x1="96" y1="0" x2="206" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="${a}"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/><stop offset=".6" stop-color="#2B1D16" stop-opacity="0"/><stop offset="1" stop-color="#2B1D16" stop-opacity="${b}"/></linearGradient>`;
-  defs.push(sh("sh", .26, .22), sh("sk", .14, .13), sh("hf", .06, .18),
+  defs.push(sh("sh", .26, .22), sh("sk", .14, .13), sh("hf", .06, .18), `<radialGradient id="${uid}-gl"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>`,
     `<linearGradient id="${uid}-hv" gradientUnits="userSpaceOnUse" x1="0" y1="120" x2="0" y2="310"><stop offset="0" stop-color="#2B1D16" stop-opacity="0"/><stop offset="1" stop-color="#2B1D16" stop-opacity=".3"/></linearGradient>`);
   let nClip = 0;
   const clip = svg => { const id = `${uid}-k${nClip++}`; defs.push(`<clipPath id="${id}">${svg}</clipPath>`); return id; };
@@ -465,8 +465,8 @@ function drawLook(L, opt = {}){
   const parts = [BODY, ARM_SHAPE, MX(ARM_SHAPE), LEG_SHAPE, MX(LEG_SHAPE)];
   s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
   const bodyClip = clip(parts.map(d => `<path d="${d}"/>`).join(""));
-  s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${bodyClip})"/>` + `<ellipse cx="150" cy="190" rx="22" ry="11" fill="#2B1D16" opacity=".1" clip-path="url(#${bodyClip})"/>`;
-  s += LN("M142 184 Q150 190 158 184", 2, shade(skin, -.14));   // 下巴下面淡淡的影子
+  s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${bodyClip})"/>` + `<ellipse cx="150" cy="197" rx="20" ry="9" fill="#2B1D16" opacity=".1" clip-path="url(#${bodyClip})"/>`;
+  s += LN("M143 198 Q150 202 157 198", 2, shade(skin, -.14));   // 下巴下面淡淡的影子
   // 襪子、鞋子
   s += item(SOCKS, "socks");
   const shoe = L.shoes && SHOES[L.shoes.id];
@@ -488,10 +488,10 @@ function drawLook(L, opt = {}){
   s += hand(HAND) + hand(MX(HAND));
   // 頭
   s += C(93, 142, 10, skin) + C(207, 142, 10, skin);
-  s += E(150, 128, 58, 60, skin, 2.8);
+  s += E(150, 131, 58, 63, skin, 2.8);
   const hb = HAIRB[L.hairB] || HAIRB.long;
   const hf = HAIRF[L.hairF] || HAIRF.blunt, front = [CROWN + hf.d, ...(hb.side ? [sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
-  const faceClip = clip(`<ellipse cx="150" cy="128" rx="57" ry="59"/>`);
+  const faceClip = clip(`<ellipse cx="150" cy="131" rx="57" ry="62"/>`);
   s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${faceClip})"/>`;
   s += `<g clip-path="url(#${faceClip})"><path d="${front[0]}" transform="translate(0 6)" fill="#2B1D16" opacity=".13"/></g>`;
   // 妝容和五官
@@ -525,7 +525,7 @@ function drawLook(L, opt = {}){
   if(hf.lines) s += LN(hf.lines, 1.8, strand(L.hairC), `opacity=".8"`);
   if(hb.front) s += hb.front(L.hairC);
   const hairClip = clip(front.map(d => `<path d="${d}"/>`).join(""));
-  s += `<g clip-path="url(#${hairClip})"><rect width="${W}" height="${H}" fill="url(#${uid}-hf)"/>${[[96, 92, 104, 84, 3], [112, 79, 126, 72, 5], [136, 68, 150, 66, 5.5], [160, 67, 176, 71, 5], [186, 77, 196, 84, 3.5]].map(([x1, y1, x2, y2, w]) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#fff" stroke-width="${w}" stroke-opacity=".32" stroke-linecap="round"/>`).join("")}<path d="M110 70 Q124 62 138 60" fill="none" stroke="#fff" stroke-width="4" stroke-opacity=".45" stroke-linecap="round"/></g>`;
+  s += `<g clip-path="url(#${hairClip})"><rect width="${W}" height="${H}" fill="url(#${uid}-hf)"/><ellipse cx="128" cy="74" rx="34" ry="16" transform="rotate(-14 128 74)" fill="url(#${uid}-gl)"/></g>`;
   // 頭上、臉上的配件
   s += item(GLASSES, "glasses");
   s += item(HAIRPINS, "hairpin");
