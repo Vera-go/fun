@@ -86,6 +86,20 @@ textarea{resize:vertical;line-height:1.6}
 .deck .ans{margin-top:14px;background:#F2FAF5;border-radius:14px;padding:12px;font-size:15px;line-height:1.7}
 .deck .ans .ex{color:var(--muted);font-size:13.5px;margin-top:4px}
 .prog{font-size:12.5px;color:var(--muted);font-weight:800;margin-bottom:8px}
+.bingo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+.bcell{border:2px solid var(--line);border-radius:12px;background:#FBFEFC;padding:6px 3px;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:inherit;color:inherit;cursor:pointer;line-height:1.25;position:relative}
+.bcell b{font-size:13px}.bcell small{font-size:10.5px;color:var(--muted);font-weight:700;overflow-wrap:anywhere}
+.bcell.on{background:var(--acc);border-color:var(--acc);color:#fff}.bcell.on small{color:#D6F3E8}
+.bcell.line{box-shadow:0 0 0 3px var(--acc2)}
+.stars{display:flex;gap:2px}
+.stars button{border:0;background:transparent;font-size:24px;line-height:1;color:#D2DED7;cursor:pointer;padding:2px}
+.stars button.on{color:#FFB020}
+.snackrow{border:2px solid var(--line);border-radius:16px;padding:10px 12px;margin-bottom:8px;background:#FBFEFC}
+.snackrow .top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.snackrow p{margin:4px 0 6px;font-size:13px;color:#3C5A50;line-height:1.6}
+.rank{list-style:none;margin:6px 0 0;padding:0}.rank li{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-weight:800}
+.rank li:last-child{border-bottom:0}.rank .st{color:#FFB020;margin-left:auto;letter-spacing:1px}
+.cat{display:flex;justify-content:space-between;align-items:center;gap:8px}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -127,7 +141,7 @@ textarea{resize:vertical;line-height:1.6}
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const KEY = "homestay.v1";
-let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}};
+let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}};
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 const fill = (t) => t
@@ -415,6 +429,36 @@ const SLANG = {
     {w:"不好意思", py:"bù hǎo yì si", en:"excuse me / sorry / I feel a bit shy", zh:"請問、抱歉、害羞都可以用", ex:"不好意思，請問廁所在哪裡？"}
   ]
 };
+/* 台灣體驗賓果：4×4，做了就打勾，連成一條線有亮框 */
+const BINGO = [
+  ["搭一次捷運","Ride the MRT"],["喝珍珠奶茶","Bubble tea"],["便利商店新發現","Shop find"],["說一次謝謝","Say 謝謝"],
+  ["逛夜市","Night market"],["去廟裡看看","Visit a temple"],["吃沒吃過的食物","Try a new food"],["整餐用筷子","Chopsticks meal"],
+  ["學一句中文","Learn a phrase"],["景點拍照","Landmark photo"],["買紀念品","Buy a souvenir"],["台灣早餐","Taiwanese breakfast"],
+  ["夾娃娃機","Claw machine"],["看夜景","City lights"],["一起煮飯","Cook together"],["跟同學吃飯","Lunch with a mate"]
+];
+/* 零食盲測：1～5 顆星，0 是還沒吃。brave：1 新手友善 2 可以試試 3 勇敢挑戰 */
+const SNACKS = [
+  {zh:"鳳梨酥", en:"Pineapple cake", d:"酥酥的外皮包鳳梨餡，台灣最常見的伴手禮。", brave:1},
+  {zh:"乖乖（玉米點心）", en:"Kuai Kuai corn snack", d:"玉米口味的膨化點心，台灣人從小吃到大。", brave:1},
+  {zh:"旺旺仙貝", en:"Rice crackers", d:"米做的脆餅，微甜微鹹。", brave:1},
+  {zh:"牛軋糖", en:"Nougat", d:"有牛奶味的軟糖加花生，黏牙但很香。注意：有花生。", brave:1},
+  {zh:"麻糬", en:"Mochi", d:"軟 Q 的糯米，包花生粉或紅豆。", brave:1},
+  {zh:"蛋捲", en:"Egg rolls", d:"薄脆的蛋香捲餅。", brave:1},
+  {zh:"芒果乾", en:"Dried mango", d:"有嚼勁的甜芒果乾。", brave:1},
+  {zh:"海苔", en:"Seaweed snack", d:"薄脆的烤海苔片，偏鹹。", brave:1},
+  {zh:"茶葉蛋", en:"Tea egg", d:"用茶葉和醬油滷的蛋，便利商店就有。", brave:2},
+  {zh:"豆乾", en:"Dried tofu", d:"滷過的豆腐乾，有嚼勁，鹹香。", brave:2},
+  {zh:"肉鬆", en:"Pork floss", d:"像棉絮一樣的肉絲，常撒在飯糰或粥上，甜鹹。", brave:2},
+  {zh:"梅子", en:"Preserved plum", d:"酸、鹹、甜混在一起的醃梅子，對外國人是挑戰。", brave:3}
+];
+/* 學中文小挑戰：w 中文、py 拼音、en 英文意思 */
+const LEARN = [
+  {cat:"數字", items:[["一","yī","one"],["二","èr","two"],["三","sān","three"],["四","sì","four"],["五","wǔ","five"],["六","liù","six"],["七","qī","seven"],["八","bā","eight"],["九","jiǔ","nine"],["十","shí","ten"]]},
+  {cat:"顏色", items:[["紅","hóng","red"],["藍","lán","blue"],["綠","lǜ","green"],["黃","huáng","yellow"],["黑","hēi","black"],["白","bái","white"],["粉紅","fěn hóng","pink"]]},
+  {cat:"家人", items:[["爸爸","bà ba","dad"],["媽媽","mā ma","mum"],["哥哥","gē ge","older brother"],["姐姐","jiě jie","older sister"],["弟弟","dì di","younger brother"],["妹妹","mèi mei","younger sister"],["奶奶","nǎi nai","grandma (dad's side)"],["爺爺","yé ye","grandpa (dad's side)"]]},
+  {cat:"問候和禮貌", items:[["你好","nǐ hǎo","hello"],["謝謝","xiè xie","thank you"],["不客氣","bú kè qi","you're welcome"],["對不起","duì bu qǐ","sorry"],["請","qǐng","please"],["早安","zǎo ān","good morning"],["晚安","wǎn ān","good night"],["再見","zài jiàn","goodbye"]]},
+  {cat:"點餐", items:[["我要這個","wǒ yào zhè ge","I want this one"],["多少錢","duō shǎo qián","how much"],["不要辣","bú yào là","not spicy"],["不要香菜","bú yào xiāng cài","no coriander"],["我吃素","wǒ chī sù","I'm vegetarian"],["好吃","hǎo chī","delicious"],["外帶","wài dài","takeaway"],["買單","mǎi dān","the bill, please"]]}
+];
 let PLAY = {mode:null, deck:[], i:0, step:0, side:"au"};
 const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const PLANS = {
@@ -523,12 +567,55 @@ function funView(){
     <div class="bar"><span class="muted small">她想去的：${n} 個</span></div>` +
     ACTS.map((a, i) => `<div class="food"><div class="top"><span class="zhn">${esc(a.zh)}</span><span class="enn">${esc(a.en)}</span></div><p>${esc(a.d)}</p><div class="meta"><span class="pill">${esc(a.io)}</span>${a.rain ? '<span class="pill">雨天可以</span>' : '<span class="pill hot">雨天要考慮</span>'}<span class="pill">${eff[a.eff]}</span><span class="btns"><button class="btn ${S.want[a.zh] ? "" : "ghost"} sm" data-awant="${i}">${S.want[a.zh] ? "想去 ✓" : "想去"}</button><button class="btn sm" data-aask="${i}">問她</button></span></div></div>`).join("");
 }
+const cellsLines = () => { const L = []; for(let i = 0; i < 4; i++){ L.push([0,1,2,3].map(j => i * 4 + j)); L.push([0,1,2,3].map(j => j * 4 + i)); } L.push([0,5,10,15], [3,6,9,12]); return L; };
+function bingoView(){
+  const on = i => !!S.bingo[i];
+  const lines = cellsLines().filter(l => l.every(on));
+  const inLine = new Set(lines.flat());
+  const done = BINGO.filter((_, i) => on(i)).length;
+  const msg = done === BINGO.length ? "全部完成！你們把台灣玩透了。" : lines.length ? `已經連成 ${lines.length} 條線！` : "做到一件就點一格。連成一條線就有亮框。";
+  return `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><button class="btn ghost sm" data-bingoreset="1">全部重來</button></div>
+    <div class="card"><h2>台灣體驗賓果</h2><p class="hint">10 天裡完成這些事，做完一件就點一格。完成 ${done} / ${BINGO.length}。</p>
+    <div class="bingo">${BINGO.map((b, i) => `<button class="bcell ${on(i) ? "on" : ""} ${on(i) && inLine.has(i) ? "line" : ""}" data-bingo="${i}"><b>${esc(b[0])}</b><small>${esc(b[1])}</small></button>`).join("")}</div>
+    <p style="margin:0;font-weight:800">${msg}</p><div class="bar" style="margin-top:12px"><button class="btn sm" data-bingocopy="1">複製成文字</button></div></div>`;
+}
+const allSnacks = () => SNACKS.map(x => ({k:x.zh, ...x})).concat(S.mySnacks.map(n => ({k:n, zh:n, en:"", d:"自己加的零食", brave:1})));
+function snackView(){
+  const list = allSnacks();
+  const rated = list.filter(x => S.snacks[x.k] > 0).sort((a, b) => S.snacks[b.k] - S.snacks[a.k]);
+  const star = n => "★".repeat(n) + "☆".repeat(5 - n);
+  const brave = n => n === 1 ? "新手友善" : n === 2 ? "可以試試" : "勇敢挑戰";
+  return `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button></div>
+    <div class="note">準備一些零食，讓她邊吃邊打星星（1～5 顆）。吃之前先確認她有沒有過敏，尤其是花生。不想吃可以不打分數。</div>
+    <div class="card"><h2>她最喜歡的台灣味</h2>${rated.length ? `<ol class="rank">${rated.slice(0, 5).map((x, i) => `<li><span>${i + 1}.</span><span>${esc(x.zh)}</span><span class="st">${star(S.snacks[x.k])}</span></li>`).join("")}</ol><div class="bar" style="margin-top:10px"><button class="btn sm" data-snackcopy="1">複製成文字</button></div>` : '<p class="hint" style="margin:0">還沒有評分，吃了之後在下面打星星。</p>'}</div>` +
+    list.map(x => `<div class="snackrow"><div class="top"><span class="zhn" style="font-size:16px;font-weight:900">${esc(x.zh)}</span>${x.en ? `<span class="enn" style="font-size:14px;font-weight:800;color:var(--acc)">${esc(x.en)}</span>` : ""}</div><p>${esc(x.d)}</p><div class="meta" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill ${x.brave === 3 ? "hot" : ""}">${brave(x.brave)}</span><span class="stars" role="group" aria-label="評分">${[1,2,3,4,5].map(n => `<button class="${S.snacks[x.k] >= n ? "on" : ""}" data-snack="${esc(x.k)}" data-star="${n}" aria-label="${n} 顆星">★</button>`).join("")}</span></div></div>`).join("") +
+    `<div class="card"><h2>加自己準備的零食</h2><div class="row"><label>名稱<input id="snackName" maxlength="16" placeholder="例如：旺仔小饅頭"></label><button class="btn sm" data-snackadd="1">加入</button></div></div>`;
+}
+function learnView(){
+  if(PLAY.cat == null){
+    return `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button></div>
+      <div class="note">輪流學：她學一句中文，你也跟著學一句英文（可以看「晚餐聊天」和「在家」的句卡）。點一個主題開始，會念出來、附拼音，學會就按「學會了」。</div>` +
+      LEARN.map((c, ci) => { const n = c.items.filter(it => S.learned[it[0]]).length; return `<div class="card"><div class="cat"><div><h2 style="margin:0">${esc(c.cat)}</h2><div class="hint" style="margin:2px 0 0">學會 ${n} / ${c.items.length}</div></div><button class="btn sm" data-lcat="${ci}">開始</button></div></div>`; }).join("");
+  }
+  const n = PLAY.deck.length, c = PLAY.deck[PLAY.i], reveal = PLAY.step === 1, got = !!S.learned[c.w];
+  return `<div class="bar"><button class="btn ghost sm" data-lback="1">← 回主題</button><span class="sp"></span><span class="muted small">${esc(LEARN[PLAY.cat].cat)}</span></div>
+    <div class="card deck"><div class="prog">${PLAY.i + 1} / ${n}</div><div class="big">${esc(c.w)}</div><div class="qzh">${esc(c.py)}</div>
+    ${reveal ? `<div class="ans"><b>${esc(c.en)}</b></div>` : '<div class="qzh" style="margin-top:10px">Can you guess? Or just repeat after me.</div>'}
+    <div class="ctl"><button class="btn ghost sm" data-pspeak="w">念中文</button>${reveal ? "" : '<button class="btn" data-preveal="1">看意思</button>'}<button class="btn ${got ? "" : "ghost"} sm" data-plearned="1">${got ? "學會了 ✓" : "學會了"}</button></div>
+    <div class="ctl"><button class="btn ghost sm" data-pprev="1" ${PLAY.i ? "" : "disabled"}>上一個</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一個" : "再來一輪"}</button></div></div>`;
+}
 function playView(){
   if(!PLAY.mode){
     return `<div class="note">一起玩，不計分，目的是聊天。用同一支手機，念出來給她聽，也讓她看英文。她不想回答的題目可以直接跳過。</div>
       <div class="card"><h2>默契大考驗</h2><p class="hint">每題四個選項，數到三，兩個人同時指出自己的選擇，再問「為什麼？」。看看我們一不一樣。</p><button class="btn" data-pmode="match">開始（${MATCH_Q.length} 題）</button></div>
-      <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>`;
+      <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>
+      <div class="card"><h2>台灣體驗賓果</h2><p class="hint">10 天裡完成 16 件台灣的事，做完就打勾，連成一線有亮框。進度記在這支手機上。</p><button class="btn" data-pmode="bingo">開始</button></div>
+      <div class="card"><h2>零食盲測</h2><p class="hint">準備幾種台灣零食，她邊吃邊打星星，最後出現「她最喜歡的台灣味」排行榜。</p><button class="btn" data-pmode="snack">開始</button></div>
+      <div class="card"><h2>學中文小挑戰</h2><p class="hint">數字、顏色、家人、問候、點餐，每個詞有拼音，點一下念出來。</p><button class="btn" data-pmode="learn">開始</button></div>`;
   }
+  if(PLAY.mode === "bingo") return bingoView();
+  if(PLAY.mode === "snack") return snackView();
+  if(PLAY.mode === "learn") return learnView();
   const back = '<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><button class="btn ghost sm" data-pshuf="1">重新洗牌</button></div>';
   const n = PLAY.deck.length, c = PLAY.deck[PLAY.i], prog = `<div class="prog">${PLAY.i + 1} / ${n}</div>`;
   const nav = `<div class="ctl"><button class="btn ghost sm" data-pprev="1" ${PLAY.i ? "" : "disabled"}>上一題</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一題" : "再玩一輪"}</button></div>`;
@@ -587,9 +674,20 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  if(e.target.closest("[data-bingo]")){ const i = e.target.closest("[data-bingo]").dataset.bingo; S.bingo[i] = !S.bingo[i]; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  if(e.target.closest("[data-bingoreset]")){ if(confirm("要把賓果全部清掉重來嗎？")){ S.bingo = {}; save(); render(); } return; }
+  if(e.target.closest("[data-bingocopy]")){ const t = "台灣體驗賓果\n" + BINGO.map((b, i) => (S.bingo[i] ? "✓ " : "□ ") + b[0] + " " + b[1]).join("\n"); navigator.clipboard.writeText(t).then(() => toast("已複製"), () => prompt("複製下面的文字：", t)); return; }
+  const sk = e.target.closest("[data-snack]"); if(sk){ const k = sk.dataset.snack, n = +sk.dataset.star; S.snacks[k] = S.snacks[k] === n ? 0 : n; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  if(e.target.closest("[data-snackadd]")){ const el = $("#snackName"), name = (el.value || "").trim().slice(0, 16); if(!name) return; if(!S.mySnacks.includes(name) && !SNACKS.some(x => x.zh === name) && S.mySnacks.length < 12){ S.mySnacks.push(name); save(); } render(); return; }
+  if(e.target.closest("[data-snackcopy]")){ const t = "她最喜歡的台灣味\n" + allSnacks().filter(x => S.snacks[x.k] > 0).sort((a, b) => S.snacks[b.k] - S.snacks[a.k]).map((x, i) => (i + 1) + ". " + x.zh + " " + "★".repeat(S.snacks[x.k])).join("\n"); navigator.clipboard.writeText(t).then(() => toast("已複製"), () => prompt("複製下面的文字：", t)); return; }
+  const lc = e.target.closest("[data-lcat]"); if(lc){ const ci = +lc.dataset.lcat; PLAY.cat = ci; PLAY.deck = shuffle(LEARN[ci].items.map(it => ({w:it[0], py:it[1], en:it[2]}))); PLAY.i = 0; PLAY.step = 0; PLAY.side = "learn"; render(); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-lback]")){ PLAY.cat = null; PLAY.deck = []; render(); return; }
+  if(e.target.closest("[data-plearned]")){ const c = PLAY.deck[PLAY.i]; S.learned[c.w] = !S.learned[c.w]; save(); render(); return; }
   const pm = e.target.closest("[data-pmode]"); if(pm){
     const m = pm.dataset.pmode;
-    if(m === "match"){ PLAY = {mode:"match", deck:shuffle(MATCH_Q), i:0, step:0, side:"au"}; }
+    if(m === "bingo" || m === "snack"){ PLAY = {mode:m, deck:[], i:0, step:0, side:"au"}; }
+    else if(m === "learn"){ PLAY = {mode:"learn", deck:[], i:0, step:0, side:"learn", cat:null}; }
+    else if(m === "match"){ PLAY = {mode:"match", deck:shuffle(MATCH_Q), i:0, step:0, side:"au"}; }
     else { const side = m === "slang-au" ? "au" : "tw"; PLAY = {mode:"slang", deck:shuffle(SLANG[side]), i:0, step:0, side}; }
     render(); window.scrollTo(0, 0); return; }
   if(e.target.closest("[data-pback]")){ PLAY.mode = null; render(); return; }
