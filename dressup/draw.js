@@ -536,8 +536,25 @@ Object.assign(SHOES, {
 });
 Object.assign(HAIRB, {
   buzz: {name:"平頭", draw:h => P("M92 126 C88 66 212 66 208 126 L206 140 Q150 146 94 140 Z", h)},
+  // ---- 第二批髮型 ----
+  sidepony: {name:"側馬尾", draw:h => P("M90 124 C86 60 214 60 210 124 Z", h) + P("M200 92 C236 104 244 170 232 246 Q226 238 222 246 Q218 232 212 240 Q214 214 210 190 C206 156 200 126 190 108 Z", h) + LN("M206 104 C228 130 230 190 222 236", 1.6, strand(h), `opacity=".75"`),
+    front:() => TIE(200, 98, 50)},
+  // 雙麻花辮：辮子從耳朵下面垂到胸前（畫在身體前面，front）
+  braids:   {name:"雙麻花辮", side:true, draw:h => P("M90 124 C86 60 214 60 210 124 L212 168 Q150 176 88 168 Z", h),
+    front:h => [-1, 1].map(sx => {
+      const seg = Array.from({length:6}, (_, i) => { const y = 176 + i * 17, x = 150 + sx * (48 - i * 2.2);
+        return E(x, y, 10 - i * .5, 10.5, h, 2.4) + LN(`M${x - 6} ${y - 3} Q${x} ${y + 3} ${x + 6} ${y - 3}`, 1.4, strand(h), `opacity=".8"`); }).reverse().join("");
+      const tx = 150 + sx * 36;
+      return seg + C(tx, 272, 5, "#F2668B", 2) + P(`M${tx - 6} 276 Q${tx} 296 ${tx + 6} 276 Z`, h, 2);
+    }).join("")},
+  curly:    {name:"大捲髮", side:true, draw:h => P("M88 120 C80 52 220 52 212 120 Q226 140 218 162 Q232 184 222 206 Q236 230 224 252 Q236 276 218 292 Q206 304 194 296 Q180 308 166 300 L134 300 Q120 308 106 296 Q94 304 82 292 Q64 276 76 252 Q64 230 78 206 Q68 184 82 162 Q74 140 88 120 Z", h) +
+      LN("M84 170 Q76 186 86 200 M88 222 Q78 240 90 254 M216 170 Q224 186 214 200 M212 222 Q222 240 210 254", 1.6, strand(h), `opacity=".7"`)},
+  halfup:   {name:"公主頭", side:true, draw:(h, hat) => (hat ? "" : C(150, 50, 14, h) + LN("M140 58 Q150 64 160 58", 3.4, "#F2668B")) + P("M88 120 C80 52 220 52 212 120 C214 180 222 240 230 292 Q224 300 218 294 Q216 310 206 302 Q198 316 190 304 Q178 312 170 304 L130 304 Q122 312 110 304 Q102 316 94 302 Q84 310 82 294 Q76 300 70 292 C78 240 86 180 88 120 Z", h)},
+  odango:   {name:"雙丸子頭", draw:(h, hat) => (hat ? "" : C(106, 60, 20, h) + C(194, 60, 20, h) + LN("M96 74 Q106 80 116 74 M184 74 Q194 80 204 74", 3.4, "#F2668B")) + P("M88 126 C84 60 216 60 212 126 L208 150 Q150 158 92 150 Z", h)},
 });
 Object.assign(HAIRF, {
+  curtain: {name:"八字瀏海", d:" C209 114 198 92 166 84 Q154 92 150 98 Q146 92 134 84 C102 92 91 114 89 152 Z", cl:[100, 116], cr:[100, 116], lines:"M150 56 L150 96 M166 86 Q188 96 200 122 M134 86 Q112 96 100 122"},
+  short:   {name:"眉上短瀏海", d:" C209 120 204 102 192 98 Q171 102 150 101 Q129 102 108 98 C96 102 91 120 89 152 Z", cl:[108, 98], cr:[108, 98], lines:"M124 70 Q120 84 120 98 M150 62 Q148 80 150 100 M176 70 Q180 84 180 98"},
   quiff: {name:"往上梳", d:" C210 116 202 94 186 88 C172 72 140 68 120 82 C104 92 93 114 89 152 Z", cl:[100, 100], cr:[100, 100], lines:"M128 70 Q144 62 164 70 M120 80 Q140 70 168 78"},
 });
 Object.assign(HATS, {
@@ -599,7 +616,7 @@ function drawLook(L, opt = {}){
   s += E(150, 448, 62, 9, "rgba(58,42,32,.18)", 0);
   // 後面的頭髮
   // 戴了整個包住頭頂的帽子，丸子頭的髮髻就藏在帽子裡
-  const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa"].includes(L.hat.id);
+  const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa", "bucket"].includes(L.hat.id);
   const backHair = (HAIRB[L.hairB] || HAIRB.long).draw(L.hairC, fullHat);
   s += shaded(backHair, "hv");
   if(L.hairTip){
