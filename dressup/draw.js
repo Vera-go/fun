@@ -322,11 +322,11 @@ const HANDS = {
     draw:(f, c) => LN("M200 318 L234 112", 3) + ["#FF6B6B", "#FFB347", "#FFE066", "#7BD88F", "#6FB8FF", "#B68CFF"].map((col, i) => { const a0 = Math.PI + i * Math.PI / 6, a1 = a0 + Math.PI / 6, r = 66, cx = 234, cy = 116; return `<path d="M${cx} ${cy} L${(cx + Math.cos(a0) * r).toFixed(1)} ${(cy + Math.sin(a0) * r * .9).toFixed(1)} L${(cx + Math.cos(a1) * r).toFixed(1)} ${(cy + Math.sin(a1) * r * .9).toFixed(1)} Z" fill="${col}" stroke="${INK}" stroke-width="2"/>`; }).join("") + LN("M200 318 Q194 330 202 334", 3)},
   balloon:  {name:"氣球", tags:["party", "snack", "festival"], grip:true, color:"#D9414E",
     draw:(f, c) => LN("M201 312 Q222 240 234 152", 1.6) + P(heartD(236, 124, 26), f) + LN("M222 112 Q226 104 234 102", 3, "rgba(255,255,255,.7)")},
-  boba:     {name:"珍珠奶茶", tags:["snack", "casual", "summer"], color:"#D9B99B",
-    draw:(f, c) => LN("M214 270 L208 300", 3.4, "#E8679A") + P("M196 298 L224 298 L220 340 L200 340 Z", f) + E(210, 298, 14, 3.5, "#fff", 2) + [[204, 332], [210, 334], [216, 332], [207, 326], [213, 326]].map(([x, y]) => C(x, y, 2.4, "#3A2A20", 0)).join("")},
-  book:     {name:"書", tags:["school"], color:"#4FA36B",
+  boba:     {name:"珍珠奶茶", tags:["snack", "casual", "summer"], grip:true, color:"#D9B99B",
+    draw:(f, c) => LN("M208 262 L202 292", 3.4, "#E8679A") + P("M188 290 L216 290 L212 340 L192 340 Z", f) + E(202, 290, 14, 3.5, "#fff", 2) + [[196, 334], [202, 336], [208, 334], [199, 328], [205, 328]].map(([x, y]) => C(x, y, 2.4, "#3A2A20", 0)).join("")},
+  book:     {name:"書", tags:["school"], grip:true, color:"#4FA36B",
     draw:(f, c) => `<g transform="rotate(-12 214 306)">${P("M200 288 L230 288 L230 326 L200 326 Z", f)}${P("M203 288 L203 326", "none", 2)}${LN("M210 300 L224 300 M210 308 L224 308", 1.6, "#fff")}</g>`},
-  bouquet:  {name:"花束", tags:["party", "formal"], color:"#F7A8C4",
+  bouquet:  {name:"花束", tags:["party", "formal"], grip:true, color:"#F7A8C4",
     draw:(f, c) => P("M200 330 L214 290 L232 300 Z", "#F6E7C8") + [[212, 286, "#E8679A"], [224, 282, f], [232, 292, "#F6D65A"], [218, 276, "#D9414E"], [206, 280, f]].map(([x, y, col]) => C(x, y, 8, col, 2)).join("") + LN("M210 300 L214 310", 2, "#4FA36B")},
   uchiwa:   {name:"扇子", tags:["festival", "summer"], grip:true, color:"#9BD0F5",
     draw:(f, c) => LN("M201 318 L214 296", 3.4, "#C99A6A") + C(222, 276, 22, f) + [0, 1, 2].map(i => C(222 + (i - 1) * 9, 276 + (i === 1 ? -6 : 4), 4, "#fff", 0)).join("")},
@@ -412,9 +412,9 @@ Object.assign(HATS, {
 Object.assign(HANDS, {
   pumpkin: {name:"南瓜燈", tags:["halloween", "party"], grip:true, color:"#F59A4A",
     draw:(f, c) => LN("M200 318 Q212 312 218 326", 2.4) + E(218, 344, 20, 17, f) + LN("M210 330 Q206 344 210 358 M226 330 Q230 344 226 358", 1.6, shade(c, -.3)) + P("M216 326 L218 318 L222 320 L220 327 Z", "#4FA36B", 1.6) + P("M208 338 L213 342 L208 345 Z M228 338 L223 342 L228 345 Z", "#3A2A20", 0) + LN("M209 351 Q218 356 227 351", 2.2)},
-  gift:    {name:"禮物", tags:["xmas", "party"], color:"#4FA36B",
+  gift:    {name:"禮物", tags:["xmas", "party"], grip:true, color:"#4FA36B",
     draw:(f, c) => P("M198 300 L230 300 L230 332 L198 332 Z", f) + P("M210 300 L218 300 L218 332 L210 332 Z", "#D9414E", 1.6) + P("M214 300 Q204 286 200 294 Q200 300 214 300 Z M214 300 Q224 286 228 294 Q228 300 214 300 Z", "#D9414E", 1.8)},
-  redpack: {name:"紅包", tags:["newyear", "festival"], color:"#D9414E",
+  redpack: {name:"紅包", tags:["newyear", "festival"], grip:true, color:"#D9414E",
     draw:(f, c) => `<g transform="rotate(-10 214 308)">${P("M202 290 L226 290 L226 326 L202 326 Z", f)}${C(214, 302, 7, "#F6D65A", 1.6)}<text x="214" y="305.5" text-anchor="middle" font-size="9" font-weight="900" fill="#D9414E" font-family="system-ui,'Noto Sans TC',sans-serif">福</text></g>`},
   wand:    {name:"魔法棒", tags:["halloween", "party"], grip:true, color:"#F6D65A", lock:"halloween",
     draw:(f, c) => LN("M200 318 L230 250", 4.5) + LN("M200 318 L230 250", 2.4, "#fff") + star(232, 244, 13, f, 2) + [[250, 232], [246, 262], [220, 228]].map(([x, y]) => star(x, y, 3.5, "#fff", 1)).join("")},
@@ -496,7 +496,13 @@ function drawLook(L, opt = {}){
   // 眼影：貼著上眼線的月牙形，靠近睫毛最濃，往眉毛慢慢變淡（眼睛畫在上面）
   if(L.shadow){
     defs.push(`<radialGradient id="${uid}-es" cx=".5" cy=".95" r=".8"><stop offset=".3" stop-color="${L.shadow}" stop-opacity="1"/><stop offset=".7" stop-color="${L.shadow}" stop-opacity=".55"/><stop offset="1" stop-color="${L.shadow}" stop-opacity="0"/></radialGradient>`);
-    s += EYE_X.map(x => `<path d="M${x - 15} ${EYE_Y + 3} Q${x - 15} ${EYE_Y - 19} ${x} ${EYE_Y - 19} Q${x + 15} ${EYE_Y - 19} ${x + 15} ${EYE_Y + 3} Q${x} ${EYE_Y - 9} ${x - 15} ${EYE_Y + 3} Z" fill="url(#${uid}-es)"/>`).join("");
+    const lid = (x, right) => {
+      const y = EYE_Y, closed = L.eyes === "smile" || (L.eyes === "wink" && right);
+      if(closed) return `M${x - 13} ${y + 4} Q${x} ${y - 25} ${x + 13} ${y + 4} Q${x} ${y - 9} ${x - 13} ${y + 4} Z`;
+      if(L.eyes === "sleepy") return `M${x - 12} ${y + 1} Q${x} ${y - 15} ${x + 12} ${y + 1} Q${x} ${y + 7} ${x - 12} ${y + 1} Z`;
+      return `M${x - 15} ${y + 3} Q${x - 15} ${y - 19} ${x} ${y - 19} Q${x + 15} ${y - 19} ${x + 15} ${y + 3} Q${x} ${y - 9} ${x - 15} ${y + 3} Z`;
+    };
+    s += EYE_X.map((x, i) => `<path d="${lid(x, i === 1)}" fill="url(#${uid}-es)"/>`).join("");
   }
   s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1)).join("");
   s += EYE_X.map((x, i) => LN((BROWS[L.brows] || BROWS.soft).d(x, i === 1), 2.8, shade(L.hairC, -.25))).join("");
