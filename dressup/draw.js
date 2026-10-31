@@ -197,7 +197,7 @@ const HAIRF = {
 // 從瀏海的轉角 (x, y) 順著往下垂到下巴旁邊
 // 沒有長髮絲的髮型：太陽穴一小撮圓圓的短髮，讓瀏海自然收尾（不會尖尖的刺出來）
 const shortLock = ([x, y]) => `M${x} ${y} C${x - 3} ${y + 22} ${x - 4} 148 106 164 Q98 172 91 164 C86 150 86 132 ${Math.max(x - 14, 92)} ${y + 16} Z`;
-const sideLock = ([x, y]) => `M${x} ${y} C${x - 4} ${y + 40} ${x - 3} ${y + 72} 113 194 Q112 206 100 216 Q101 206 95 198 C84 178 86 150 ${Math.max(x - 14, 92)} ${y + 16} Z`;
+const sideLock = ([x, y]) => `M${x} ${y} C${x - 5} ${y + 10} 100 124 99 144 C98 162 103 180 111 194 Q109 205 101 213 Q99 202 93 194 C88 180 86 162 86 146 C86 128 ${Math.max(x - 16, 90)} ${y + 6} ${Math.max(x - 10, 92)} ${y - 2} Z`;
 
 // ---------- 臉 ----------
 const EYE_X = [128, 172], EYE_Y = 138;
@@ -485,9 +485,9 @@ function drawLook(L, opt = {}){
   s += EYE_X.map((x, i) => LN((BROWS[L.brows] || BROWS.soft).d(x, i === 1), 2.8, shade(L.hairC, -.25))).join("");
   s += LN("M148 153 Q150 155 152 153", 2, shade(skin, -.35));
   s += drawMouth(L.mouth, L.lip);
-  if(L.sticker === "heart") s += P(heartD(186, 170, 5), "#E8679A", 1.4);
-  else if(L.sticker === "star") s += star(186, 170, 6, "#F6D65A", 1.4);
-  else if(L.sticker === "tear") s += C(182, 150, 1.8, INK, 0);
+  if(L.sticker === "heart") s += P(heartD(179, 167, 5), "#E8679A", 1.4);
+  else if(L.sticker === "star") s += star(179, 167, 6, "#F6D65A", 1.4);
+  else if(L.sticker === "tear") s += C(178, 150, 1.8, INK, 0);
   // 前面的頭髮
   s += front.map(d => `<path d="${d}" fill="${L.hairC}" stroke="${INK}" stroke-width="5.6" stroke-linejoin="round"/>`).join("");
   s += front.map(d => `<path d="${d}" fill="${L.hairC}"/>`).join("");
