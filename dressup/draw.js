@@ -523,7 +523,7 @@ function drawLook(L, opt = {}){
   if(hf.lines) s += LN(hf.lines, 1.8, strand(L.hairC), `opacity=".8"`);
   if(hb.front) s += hb.front(L.hairC);
   const hairClip = clip(front.map(d => `<path d="${d}"/>`).join(""));
-  s += `<g clip-path="url(#${hairClip})"><rect width="${W}" height="${H}" fill="url(#${uid}-hf)"/><path d="M84 100 Q150 50 216 100" fill="none" stroke="#fff" stroke-width="9" stroke-opacity=".3"/><path d="M110 70 Q124 62 138 60" fill="none" stroke="#fff" stroke-width="4" stroke-opacity=".45" stroke-linecap="round"/></g>`;
+  s += `<g clip-path="url(#${hairClip})"><rect width="${W}" height="${H}" fill="url(#${uid}-hf)"/>${[[96, 92, 104, 84, 3], [112, 79, 126, 72, 5], [136, 68, 150, 66, 5.5], [160, 67, 176, 71, 5], [186, 77, 196, 84, 3.5]].map(([x1, y1, x2, y2, w]) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#fff" stroke-width="${w}" stroke-opacity=".32" stroke-linecap="round"/>`).join("")}<path d="M110 70 Q124 62 138 60" fill="none" stroke="#fff" stroke-width="4" stroke-opacity=".45" stroke-linecap="round"/></g>`;
   // 頭上、臉上的配件
   s += item(GLASSES, "glasses");
   s += item(HAIRPINS, "hairpin");
