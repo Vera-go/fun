@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>電玩廳</title>
-<meta name="description" content="30 秒小遊戲和復古經典：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒，還有打磚塊、星際防衛、落磚方塊、拍翅小鳥、2048、跳跳跑酷、過馬路、迷宮吃豆、乒乓、踩地雷。破自己的紀錄、上排行榜。">
+<meta name="description" content="30 秒小遊戲和復古經典：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒，還有打磚塊、落磚方塊、坦克大戰、炸彈超人、迷宮吃豆、四子棋、黑白棋、五子棋、推箱子、數獨、踩地雷、2048 等復古經典。破自己的紀錄、上排行榜。">
 <meta property="og:title" content="電玩廳｜30 秒小遊戲">
 <meta property="og:description" content="反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒。破自己的紀錄，傳給朋友比一比。">
 <meta name="theme-color" content="#14142F">
@@ -67,6 +67,9 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .lbrow .rk.r1{background:#FFD84A;color:#14142F}.lbrow .rk.r2{background:#D6D9E8;color:#14142F}.lbrow .rk.r3{background:#E0A06A;color:#14142F}
 .lbrow .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lbrow .v{font-weight:900;color:var(--yellow)}
+.lvgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.lvbtn{aspect-ratio:1;border:2px solid var(--card2);border-radius:14px;background:var(--card);color:var(--ink);font:900 18px system-ui,sans-serif;cursor:pointer;touch-action:manipulation}
+.lvbtn.done{background:#1F7B58;border-color:#1F7B58;color:#BFFFE0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -172,7 +175,7 @@ function afterResult(id, newBest){
 async function lbView(id){
   cleanup();
   view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">排行榜</span></div>
-    <div class="lbtabs">${Object.entries(GAMES).map(([k, g]) => `<button class="${k === id ? "on" : ""}" data-lbgame="${k}">${esc(g.name)}</button>`).join("")}</div>
+    <div class="lbtabs">${Object.entries(GAMES).filter(([, g]) => !g.nolb).map(([k, g]) => `<button class="${k === id ? "on" : ""}" data-lbgame="${k}">${esc(g.name)}</button>`).join("")}</div>
     <div id="lblist"><p class="sub2" style="text-align:center">載入中⋯⋯</p></div>
     <p class="sub2" style="text-align:center">${D.name ? "你的名字：" + esc(D.name) : "還沒上榜：玩完一局後留下名字就會出現在這裡。"}</p>`);
   let rows;
@@ -325,6 +328,9 @@ window.Arcade.RUN = RUN;
 menu();
 </script>
 <script src="retro.js?v=2"></script>
-<script src="retro2.js?v=1"></script>
+<script src="retro2.js?v=2"></script>
+<script src="retro3.js?v=1"></script>
+<script src="retro4.js?v=1"></script>
+<script src="retro5.js?v=1"></script>
 </body>
 </html>
