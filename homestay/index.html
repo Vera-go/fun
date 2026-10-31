@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>寄宿小幫手</title>
+<meta name="description" content="接待外國交換學生用的中英句卡：晚餐聊天、家裡規矩、夜市點餐、週末行程和緊急聯絡卡，點一下就能念出來或放大給對方看。">
+<meta property="og:title" content="寄宿小幫手｜接待交換學生的中英句卡">
+<meta property="og:description" content="晚餐聊天、家裡規矩、夜市點餐、週末行程和緊急聯絡卡，點一下念出來或放大給對方看。">
+<meta name="theme-color" content="#F2FAF5">
+<style>
+:root{--bg:#F2FAF5;--card:#fff;--ink:#1F3B33;--muted:#6B8A7F;--line:#DDEBE3;--acc:#1F9D7A;--acc2:#FF8A5B;--warn:#D65A4A}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;overflow-x:clip}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+header h1{margin:0;font-size:24px;font-weight:900}
+header .sub{font-size:13px;color:var(--muted);font-weight:700}
+.tabs{display:flex;gap:4px;background:#E2F0E8;border-radius:16px;padding:4px;margin-bottom:14px;overflow-x:auto}
+.tabs button{flex:1 0 auto;border:0;background:transparent;border-radius:12px;padding:9px 12px;font:inherit;font-size:14.5px;font-weight:900;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(31,59,51,.1)}
+.card{background:var(--card);border-radius:20px;padding:16px;box-shadow:0 2px 0 var(--line),0 8px 24px rgba(31,59,51,.06);margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:17px}
+.card .hint{margin:0 0 10px;font-size:13px;color:var(--muted);line-height:1.6}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.note{background:#FFF4DD;border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.65;margin-bottom:14px}
+.group{font-size:13px;font-weight:900;color:var(--acc);margin:14px 0 6px}
+.group:first-of-type{margin-top:0}
+.phrase{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:10px 12px;margin-bottom:8px;background:#FBFEFC;cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}
+.phrase:active{transform:translateY(1px);background:#F0F9F4}
+.phrase .t{flex:1;min-width:0}
+.phrase .en{font-size:16px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+.phrase .zh{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.5}
+.phrase .go{flex:none;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center}
+.phrase.her .go{background:#8C9FD8}
+.phrase.vendor .go{background:var(--acc2)}
+.tag{display:inline-block;font-size:11.5px;font-weight:900;border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:1px}
+.tag.me{background:#DDF3EA;color:#1A7D61}.tag.her{background:#E4E9F8;color:#5B6FB0}.tag.ven{background:#FFE6DA;color:#C5602F}
+.row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.row>label{flex:1;min-width:130px}
+label{font-size:13px;font-weight:800;color:var(--muted);display:grid;gap:4px}
+input,textarea{font:inherit;font-size:15px;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:#FBFEFC;min-width:0;width:100%}
+textarea{resize:vertical;line-height:1.6}
+.btn{border:0;border-radius:12px;padding:10px 16px;font:inherit;font-size:15px;font-weight:900;cursor:pointer;background:var(--acc);color:#fff;box-shadow:0 3px 0 #147A5E}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #147A5E}
+.btn.ghost{background:#E6F3EC;color:var(--ink);box-shadow:0 3px 0 #CFE4D8}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:10px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.bar .sp{flex:1}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--muted);cursor:pointer}
+.chk input{width:auto}
+/* 美食 */
+.food{border:2px solid var(--line);border-radius:16px;padding:12px;margin-bottom:8px;background:#FBFEFC}
+.food .top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.food .zhn{font-size:17px;font-weight:900}
+.food .enn{font-size:15px;font-weight:800;color:var(--acc)}
+.food p{margin:6px 0 8px;font-size:13.5px;line-height:1.65;color:#3C5A50}
+.food .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{font-size:12px;font-weight:900;border-radius:99px;padding:2px 9px;background:#EEF5F1;color:#4F6F63}
+.pill.hot{background:#FFE6E1;color:#C4452F}
+.food .btns{margin-left:auto;display:flex;gap:6px}
+/* 行程 */
+.plan h3{margin:0 0 2px;font-size:16px}
+.plan .when{font-size:12.5px;font-weight:900;color:var(--acc);margin-bottom:6px}
+.plan ol{margin:6px 0 8px;padding-left:20px;font-size:14px;line-height:1.75}
+.plan .tip{font-size:13px;line-height:1.65;color:#3C5A50;background:#F2FAF5;border-radius:12px;padding:8px 10px;margin-top:6px}
+/* 全螢幕給她看 */
+.show{position:fixed;inset:0;z-index:50;background:#fff;display:none;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center}
+.show.on{display:flex}
+.show .big{font-size:clamp(28px,9vw,56px);font-weight:900;line-height:1.35;overflow-wrap:anywhere}
+.show .sm{font-size:clamp(15px,4.5vw,22px);color:var(--muted);margin-top:14px}
+.show .acts{display:flex;gap:10px;margin-top:28px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#1F3B33;color:#fff;border-radius:99px;padding:9px 18px;font-size:14px;font-weight:800;z-index:60}
+.portal-foot{text-align:center;color:#6B8A7F;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#6B8A7F;text-decoration:none}.portal-foot a:hover{text-decoration:underline}
+@media print{
+  header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
+  body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M6 23 L24 8 L42 23" fill="none" stroke="#1F3B33" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 21 V39 Q11 41 13 41 H35 Q37 41 37 39 V21 L24 10.5 Z" fill="#FFF" stroke="#1F3B33" stroke-width="3" stroke-linejoin="round"/><path d="M24 36 C16 30.5 16 24 20.5 24 C22.4 24 23.4 25.2 24 26.4 C24.6 25.2 25.6 24 27.5 24 C32 24 32 30.5 24 36 Z" fill="#FF8A5B" stroke="#1F3B33" stroke-width="2.2" stroke-linejoin="round"/></svg>
+    <div><h1>寄宿小幫手</h1><div class="sub">接待交換學生用的中英句卡</div></div>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist">
+    <button data-tab="chat" class="on">晚餐聊天</button>
+    <button data-tab="home">在家</button>
+    <button data-tab="food">夜市美食</button>
+    <button data-tab="order">點餐和逛街</button>
+    <button data-tab="plan">週末行程</button>
+    <button data-tab="sos">緊急卡</button>
+  </div>
+
+  <div id="view"></div>
+</div>
+
+<div class="show" id="show" role="dialog" aria-modal="true">
+  <div class="big" id="showBig"></div>
+  <div class="sm" id="showSm"></div>
+  <div class="acts"><button class="btn" id="showSay">念出來</button><button class="btn ghost" id="showClose">關閉</button></div>
+</div>
+
+<!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
+<footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = "homestay.v1";
+let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}};
+try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+const fill = (t) => t
+  .replace(/\{wifiName\}/g, S.wifiName || "___").replace(/\{wifiPass\}/g, S.wifiPass || "___")
+  .replace(/\{dinner\}/g, S.dinner || "___").replace(/\{curfew\}/g, S.curfew || "___");
+
+/* ---------- 句卡資料 ----------
+   m = 我說給她聽（英文念出來）　h = 她可能會問我（英文，附中文意思）　v = 給店家看（中文念出來） */
+const CARDS = {
+  chat: [
+    {g:"第一次見面", items:[
+      {t:"m", en:"Welcome to Taiwan! Welcome to our home.", zh:"歡迎來到台灣！歡迎來我們家。"},
+      {t:"m", en:"My English is not very good, so I will use a translator. Is that OK?", zh:"我的英文不太好，所以我會用翻譯。可以嗎？"},
+      {t:"m", en:"Please speak slowly. If I don't understand, I will say it again.", zh:"請說慢一點。如果我沒聽懂，我會再說一次。"},
+      {t:"m", en:"Please feel at home. If you need anything, just tell me.", zh:"請當作在自己家。有需要什麼，直接告訴我。"},
+      {t:"m", en:"Are you tired from the flight? Do you want to rest first?", zh:"搭飛機累嗎？要先休息嗎？"}
+    ]},
+    {g:"吃飯的時候", items:[
+      {t:"m", en:"Dinner is ready!", zh:"晚餐好了！"},
+      {t:"m", en:"Do you like this food? It's OK to say no.", zh:"你喜歡這道菜嗎？說不喜歡也沒關係。"},
+      {t:"m", en:"Is it too spicy? Too salty?", zh:"會太辣嗎？太鹹嗎？"},
+      {t:"m", en:"Would you like some more?", zh:"要再來一點嗎？"},
+      {t:"m", en:"What do you usually eat for dinner in Australia?", zh:"你在澳洲晚餐通常吃什麼？"},
+      {t:"m", en:"What food do you want to try in Taiwan?", zh:"你想在台灣試試什麼食物？"},
+      {t:"h", en:"What is this? What is it made of?", zh:"這是什麼？是用什麼做的？"},
+      {t:"h", en:"I'm full, thank you. It was delicious!", zh:"我吃飽了，謝謝。很好吃！"}
+    ]},
+    {g:"聊聊天", items:[
+      {t:"m", en:"How was school today?", zh:"今天學校怎麼樣？"},
+      {t:"m", en:"Did you make any friends?", zh:"你有交到朋友嗎？"},
+      {t:"m", en:"What was the most interesting thing today?", zh:"今天最有趣的事是什麼？"},
+      {t:"m", en:"Tell me about your family and your home in Australia.", zh:"說說你的家人和你在澳洲的家。"},
+      {t:"m", en:"What do you like to do on weekends?", zh:"你週末喜歡做什麼？"},
+      {t:"m", en:"Is there a word people say in Australia that we wouldn't understand?", zh:"澳洲有沒有什麼說法，我們可能聽不懂？"},
+      {t:"h", en:"Can you teach me some Chinese words?", zh:"你可以教我一些中文嗎？"},
+      {t:"h", en:"How do you say this in Chinese?", zh:"這個中文怎麼說？"}
+    ]},
+    {g:"聽不懂的時候", items:[
+      {t:"m", en:"Sorry, I didn't understand. Can you type it into the translator?", zh:"抱歉我沒聽懂。可以打進翻譯軟體嗎？"},
+      {t:"h", en:"Sorry, can you say that again, more slowly?", zh:"抱歉，可以再說一次，慢一點嗎？"},
+      {t:"h", en:"I don't understand. Can you show me?", zh:"我不懂。可以比給我看嗎？"}
+    ]}
+  ],
+  home: [
+    {g:"家裡的安排（先到上面「設定」填好，句子會自動帶入）", items:[
+      {t:"m", en:"Dinner is at {dinner}.", zh:"晚餐時間是 {dinner}。"},
+      {t:"m", en:"The Wi-Fi name is {wifiName}. The password is {wifiPass}.", zh:"Wi-Fi 名稱是 {wifiName}，密碼是 {wifiPass}。"},
+      {t:"m", en:"Please be home by {curfew}. If you will be late, please send me a message.", zh:"請在 {curfew} 以前回到家。如果會晚到，請傳訊息給我。"}
+    ]},
+    {g:"房間和浴室", items:[
+      {t:"m", en:"This is your room. You can put your things here.", zh:"這是你的房間。東西可以放這裡。"},
+      {t:"m", en:"This is the bathroom. The hot water takes a moment to warm up.", zh:"這是浴室。熱水要等一下才會熱。"},
+      {t:"m", en:"Here is your towel.", zh:"這是你的毛巾。"},
+      {t:"m", en:"It can be cold and wet in winter here. Do you have a warm jacket?", zh:"這裡冬天又濕又冷。你有帶保暖的外套嗎？"},
+      {t:"h", en:"Is it OK if I take a shower now?", zh:"我現在可以洗澡嗎？"},
+      {t:"h", en:"Can I wash my clothes? How do I use the washing machine?", zh:"我可以洗衣服嗎？洗衣機怎麼用？"},
+      {t:"h", en:"Where can I charge my phone?", zh:"我可以在哪裡充電？"}
+    ]},
+    {g:"上學和出門", items:[
+      {t:"m", en:"How do you get to school? I will show you the way.", zh:"你怎麼去學校？我帶你認路。"},
+      {t:"m", en:"Do you have your key and your phone?", zh:"你有帶鑰匙和手機嗎？"},
+      {t:"m", en:"It might rain today. Please take an umbrella.", zh:"今天可能下雨，請帶傘。"},
+      {t:"m", en:"Please tell me before you go out, and tell me where you are going.", zh:"出門前請先告訴我，也告訴我你要去哪裡。"},
+      {t:"h", en:"Can I go out with my friends this weekend?", zh:"這個週末我可以跟朋友出去嗎？"},
+      {t:"h", en:"Can I call my parents tonight?", zh:"我今晚可以打給爸媽嗎？"}
+    ]},
+    {g:"不舒服的時候", items:[
+      {t:"m", en:"Are you OK? Do you feel sick?", zh:"你還好嗎？會不舒服嗎？"},
+      {t:"m", en:"Where does it hurt?", zh:"哪裡痛？"},
+      {t:"m", en:"I will take you to the doctor.", zh:"我帶你去看醫生。"},
+      {t:"h", en:"I don't feel well. I have a headache.", zh:"我不太舒服。我頭痛。"},
+      {t:"h", en:"I have a stomachache.", zh:"我肚子痛。"},
+      {t:"h", en:"I feel homesick. Can we talk?", zh:"我有點想家。我們可以聊聊嗎？"}
+    ]}
+  ],
+  order: [
+    {g:"給店家看（點一下放大，也可以念中文）", items:[
+      {t:"v", en:"I'd like this one, please.", zh:"請給我這個。"},
+      {t:"v", en:"No coriander, please.", zh:"不要香菜。"},
+      {t:"v", en:"Not spicy, please.", zh:"不要辣。"},
+      {t:"v", en:"I'm vegetarian. Does this have meat?", zh:"我吃素。這個有肉嗎？"},
+      {t:"v", en:"I'm allergic to peanuts. Does this have peanuts?", zh:"我對花生過敏。這個有花生嗎？"},
+      {t:"v", en:"How much is it?", zh:"多少錢？"},
+      {t:"v", en:"Can I pay by card or phone?", zh:"可以刷卡或用手機付款嗎？"},
+      {t:"v", en:"Takeaway, please.", zh:"我要外帶。"},
+      {t:"v", en:"Thank you! It was delicious.", zh:"謝謝！很好吃。"}
+    ]},
+    {g:"交通", items:[
+      {t:"v", en:"Excuse me, where is the toilet?", zh:"請問廁所在哪裡？"},
+      {t:"v", en:"Excuse me, how do I get to the MRT station?", zh:"請問捷運站怎麼走？"},
+      {t:"v", en:"Excuse me, can you take a photo of us?", zh:"不好意思，可以幫我們拍張照嗎？"},
+      {t:"h", en:"Where are we going next? How long will it take?", zh:"我們下一站要去哪裡？要多久？"},
+      {t:"h", en:"I'm tired. Can we sit down for a bit?", zh:"我累了。我們可以坐一下嗎？"},
+      {t:"h", en:"I'm cold. Can we go somewhere warm?", zh:"我覺得冷。我們可以去暖和的地方嗎？"}
+    ]},
+    {g:"走散了怎麼辦", items:[
+      {t:"m", en:"If we lose each other, stay where you are and call me.", zh:"如果走散了，請待在原地並打給我。"},
+      {t:"m", en:"Let's take a photo of the place we meet if we get separated.", zh:"如果走散了，我們先拍下集合的地方。"}
+    ]}
+  ]
+};
+
+/* 夜市美食：spice 0 不辣 1 有點辣 2 辣；brave 1 新手友善 2 可以試試 3 勇敢挑戰 */
+const FOODS = [
+  {zh:"滷肉飯", en:"Braised pork rice", d:"碎豬肉用醬油慢滷，淋在白飯上，鹹香好入口。台灣的國民美食。", spice:0, brave:1},
+  {zh:"雞排", en:"Giant fried chicken cutlet", d:"比臉還大的炸雞排，外酥內多汁，可以選辣粉或梅子粉。", spice:1, brave:1},
+  {zh:"鹽酥雞", en:"Salt & pepper crispy chicken", d:"一口大小的炸雞塊，加胡椒鹽和九層塔。也有炸地瓜、甜不辣可以選。", spice:1, brave:1},
+  {zh:"珍珠奶茶", en:"Bubble milk tea", d:"奶茶加上 Q 彈的粉圓。可以選甜度和冰量，建議先點半糖或微糖。", spice:0, brave:1},
+  {zh:"蔥抓餅", en:"Scallion pancake", d:"煎得酥脆的蔥味餅皮，可以加蛋、起司，很像澳洲的 savoury crepe。", spice:0, brave:1},
+  {zh:"地瓜球", en:"Sweet potato balls", d:"炸得外脆內軟的小圓球，微甜，剛起鍋最好吃。", spice:0, brave:1},
+  {zh:"烤玉米", en:"Grilled corn", d:"刷上醬油、烤到有香氣的玉米，是夜市很典型的味道。", spice:0, brave:1},
+  {zh:"小籠包", en:"Soup dumplings", d:"薄皮包著肉餡和熱湯。小心湯很燙，先咬一小口、吸掉湯再吃。", spice:0, brave:1},
+  {zh:"蚵仔煎", en:"Oyster omelette", d:"小牡蠣、蛋、青菜和粉漿一起煎，淋上甜甜鹹鹹的醬。有海鮮的味道，第一次吃可以先試一口。", spice:0, brave:2},
+  {zh:"刈包", en:"Taiwanese hamburger (pork belly bun)", d:"白軟的饅頭夾滷五花肉、酸菜和花生粉。注意：有花生。", spice:0, brave:2},
+  {zh:"胡椒餅", en:"Pepper bun", d:"在炭爐裡烤的肉餡餅，胡椒味重，咬下去很燙很香。", spice:1, brave:2},
+  {zh:"大腸包小腸", en:"Sausage in sticky-rice sausage", d:"用糯米腸把香腸包起來的「台灣熱狗」，可以加醬料和配料。", spice:0, brave:2},
+  {zh:"牛肉麵", en:"Beef noodle soup", d:"燉得軟爛的牛肉和湯麵，有些店湯頭偏辣，可以先問辣不辣。", spice:1, brave:2},
+  {zh:"豆花", en:"Tofu pudding", d:"像布丁一樣滑的豆腐，配花生、紅豆、粉圓和糖水，是甜點。", spice:0, brave:2},
+  {zh:"紅豆餅", en:"Red bean wheel cake", d:"像小鬆餅，裡面包甜紅豆，也有奶油或芋頭口味。", spice:0, brave:1},
+  {zh:"臭豆腐", en:"Stinky tofu", d:"發酵過的豆腐，味道很強，炸過之後外酥內軟。聞起來臭、吃起來鹹香，是台灣夜市最有名的挑戰。", spice:1, brave:3},
+  {zh:"豬血糕", en:"Pig's blood rice cake", d:"糯米加豬血蒸成，口感像軟糯米糕，沾花生粉和香菜。對外國人來說算勇敢挑戰。", spice:0, brave:3}
+];
+
+/* 週末行程：夜市加輕鬆逛。營業時間、票價、交通班次我沒有即時資料，出發前請再查一次 */
+const PLANS = {
+  A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
+    "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
+    "淡水老街邊走邊吃：阿給、鐵蛋、魚酥、烤魷魚都是這裡的名物。",
+    "傍晚到河邊或漁人碼頭看夕陽，晚上在老街吃點東西再回家。"],
+    tip:"冬天河邊風大，記得帶外套。她從夏天來，可能沒帶夠冬衣。"},
+  B:{name:"夜市日・台北市區和士林夜市", when:"下午出發、晚上回", steps:[
+    "從林口搭機場捷運到台北車站，下午在車站周邊或西門町逛街、吃點心。",
+    "傍晚搭捷運到劍潭站，步行到士林夜市。",
+    "夜市裡先逛一圈再決定吃什麼：雞排、地瓜球、大腸包小腸、珍珠奶茶都很適合第一次吃。",
+    "8、9 點前回家，不要太晚，隔天可以休息。"],
+    tip:"夜市人多、有點擠，請先約好走散時的集合地點（見「點餐和逛街」的最後一組句卡）。"},
+  C:{name:"雨天・室內輕鬆逛", when:"約半天", steps:[
+    "林口有大型購物中心和暢貨中心，都在室內，下雨也能逛。",
+    "在美食街或餐廳吃一頓有台灣特色的午餐，例如牛肉麵、滷肉飯、小籠包。",
+    "回程順路買珍珠奶茶或台灣零食，當作她帶回澳洲的紀念品。"],
+    tip:"北部冬天常下雨。這個方案不用走很多路，適合第一個週末、她還在適應的時候。"}
+};
+
+const SOS_FIELDS = [
+  ["name","她的名字 Her name"],["host","接待家庭聯絡人 Host contact"],["phone","接待家庭電話 Host phone"],
+  ["addr","家裡地址（英文）Home address"],["school","學校聯絡人和電話 School contact"],["allergy","過敏和飲食 Allergies / diet"],["other","其他 Other"]
+];
+
+/* ---------- 念出來 ---------- */
+let voices = [];
+const loadVoices = () => { voices = (window.speechSynthesis && speechSynthesis.getVoices()) || []; };
+if(window.speechSynthesis){ loadVoices(); speechSynthesis.addEventListener && speechSynthesis.addEventListener("voiceschanged", loadVoices); }
+function pickVoice(lang){
+  const pref = lang === "en" ? ["en-AU","en-GB","en-US","en"] : ["zh-TW","zh-HK","zh-CN","zh"];
+  for(const p of pref){ const v = voices.find(v => v.lang && v.lang.replace("_","-").toLowerCase().startsWith(p.toLowerCase())); if(v) return v; }
+  return null;
+}
+function say(text, lang){
+  if(!window.speechSynthesis){ toast("這個瀏覽器不能念出來，可以用「放大」給她看"); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(lang); if(v){ u.voice = v; u.lang = v.lang; } else u.lang = lang === "en" ? "en-AU" : "zh-TW";
+  u.rate = lang === "en" && S.slow ? .75 : .95;
+  speechSynthesis.speak(u);
+}
+let toastTimer = null;
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const el = document.createElement("div"); el.className = "toast"; el.textContent = msg;
+  document.body.appendChild(el); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.remove(), 2400);
+}
+
+/* ---------- 畫面 ---------- */
+let tab = "chat", lastShow = null;
+const SPK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg>';
+function phraseCard(c, idx, g){
+  const cls = c.t === "h" ? "her" : c.t === "v" ? "vendor" : "";
+  const tag = c.t === "h" ? '<span class="tag her">她可能會問</span>' : c.t === "v" ? '<span class="tag ven">給店家</span>' : '<span class="tag me">我說</span>';
+  const en = fill(c.en), zh = fill(c.zh);
+  // 給店家看的卡：中文放大、念中文；其他卡：英文放大、念英文
+  return `<button class="phrase ${cls}" data-g="${g}" data-i="${idx}"><div class="t"><div class="en">${esc(en)}</div><div class="zh">${esc(zh)}${tag}</div></div><div class="go" aria-hidden="true">${SPK}</div></button>`;
+}
+function cardsView(key){
+  const settings = key === "home" ? `<div class="card"><h2>家裡的設定</h2><p class="hint">填好之後，下面的句子會自動換成你們家的資料。只存在這支手機。</p><div class="row">
+    <label>晚餐時間<input id="sDinner" value="${esc(S.dinner)}" placeholder="例如 6:30 pm"></label>
+    <label>門禁時間<input id="sCurfew" value="${esc(S.curfew)}" placeholder="例如 9:00 pm"></label></div><div class="row" style="margin-top:8px">
+    <label>Wi-Fi 名稱<input id="sWifiName" value="${esc(S.wifiName)}" placeholder="Wi-Fi name"></label>
+    <label>Wi-Fi 密碼<input id="sWifiPass" value="${esc(S.wifiPass)}" placeholder="Password"></label></div></div>` : "";
+  const note = key === "order" ? `<div class="note">這一頁可以給她自己用：她看英文挑句子，點一下會把中文放大並念給店家聽。標「她可能會問」的，是讓你知道她在問什麼。</div>` : key === "chat" ? `<div class="note">點一張卡，會用英文念出來。她可能會問的句子，旁邊標了「她可能會問」，是讓你聽懂或看懂她在說什麼。</div>` : "";
+  return note + settings + CARDS[key].map((grp, gi) => `<div class="card"><div class="group">${esc(grp.g)}</div>${grp.items.map((c, i) => phraseCard(c, i, gi)).join("")}</div>`).join("");
+}
+function foodView(){
+  const sp = n => n === 0 ? '<span class="pill">不辣</span>' : n === 1 ? '<span class="pill hot">可能有點辣</span>' : '<span class="pill hot">辣</span>';
+  const br = n => n === 1 ? '<span class="pill">新手友善</span>' : n === 2 ? '<span class="pill">可以試試</span>' : '<span class="pill hot">勇敢挑戰</span>';
+  return `<div class="note">給她看這一頁，問「想試試嗎？」。我是依一般做法寫的，每家店配料不同，過敏或吃素請在攤位上再問一次（見「點餐和逛街」）。</div>` +
+    FOODS.map((f, i) => `<div class="food"><div class="top"><span class="zhn">${esc(f.zh)}</span><span class="enn">${esc(f.en)}</span></div><p>${esc(f.d)}</p><div class="meta">${br(f.brave)}${sp(f.spice)}<span class="btns"><button class="btn ghost sm" data-fshow="${i}">放大</button><button class="btn sm" data-fsay="${i}">念英文</button></span></div></div>`).join("");
+}
+function planView(){
+  const cur = PLANS[S.plan];
+  return `<div class="note">這是「夜市加輕鬆逛」的三個選項，營業時間、票價和班次我沒有即時資料，<b>出發前請用 Google 地圖和官方網站再確認一次</b>。也記得先問學校有沒有規定交換學生週末能去哪裡。</div>
+    <div class="tabs" id="planTabs">${Object.entries(PLANS).map(([k, p]) => `<button data-plan="${k}" class="${k === S.plan ? "on" : ""}">${esc(p.name.split("・")[0])}</button>`).join("")}</div>
+    <div class="card plan"><h3>${esc(cur.name)}</h3><div class="when">${esc(cur.when)}</div><ol>${cur.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol><div class="tip">${esc(cur.tip)}</div></div>
+    <div class="card"><h2>想去的地方、要記得的事</h2><p class="hint">自己的筆記，只存在這支手機。</p><textarea id="planNotes" rows="5" placeholder="例如：問她想吃什麼、想去哪裡">${esc(S.notes)}</textarea></div>`;
+}
+function sosView(){
+  return `<div class="note noprint">把資料填好，印出來貼在家裡，或給她的手機拍照存起來。資料只存在這支手機，不會上傳。</div>
+    <div class="card"><h2>緊急聯絡卡 Emergency card</h2><div style="display:grid;gap:8px;margin-top:8px">${SOS_FIELDS.map(([k, label]) => `<label>${esc(label)}<input data-sos="${k}" value="${esc(S.sos[k] || "")}"></label>`).join("")}</div>
+    <div class="bar noprint" style="margin-top:12px"><button class="btn" id="sosCopy">複製成文字</button><button class="btn ghost" id="sosPrint">列印</button></div></div>
+    <div class="card noprint"><h2>常用緊急句卡</h2>${[
+      {t:"h", en:"I need help. Please call this number.", zh:"我需要幫忙。請打這支電話。"},
+      {t:"h", en:"I'm lost. I'm at this address.", zh:"我迷路了。我在這個地址。"},
+      {t:"h", en:"I need a doctor. I'm allergic to this.", zh:"我需要看醫生。我對這個過敏。"}
+    ].map((c, i) => phraseCard(c, i, "sos")).join("")}<p class="hint">台灣的緊急電話：報警 110，火警和救護車 119。</p></div>`;
+}
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  const v = $("#view");
+  if(tab === "food") v.innerHTML = foodView();
+  else if(tab === "plan") v.innerHTML = planView();
+  else if(tab === "sos") v.innerHTML = sosView();
+  else v.innerHTML = `<div class="bar"><label class="chk"><input type="checkbox" id="slow" ${S.slow ? "checked" : ""}> 念慢一點</label><span class="sp"></span></div>` + cardsView(tab);
+}
+function cardAt(g, i){
+  if(g === "sos") return [{t:"h", en:"I need help. Please call this number.", zh:"我需要幫忙。請打這支電話。"},{t:"h", en:"I'm lost. I'm at this address.", zh:"我迷路了。我在這個地址。"},{t:"h", en:"I need a doctor. I'm allergic to this.", zh:"我需要看醫生。我對這個過敏。"}][i];
+  return CARDS[tab][g].items[i];
+}
+function openShow(big, sm, lang){
+  $("#showBig").textContent = big; $("#showSm").textContent = sm; $("#show").classList.add("on"); lastShow = {text:big, lang};
+}
+/* ---------- 事件 ---------- */
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if(!b) return; tab = b.dataset.tab; render(); window.scrollTo(0, 0); });
+$("#view").addEventListener("click", e => {
+  const ph = e.target.closest(".phrase");
+  if(ph){
+    const c = cardAt(ph.dataset.g, +ph.dataset.i); if(!c) return;
+    if(c.t === "v"){ openShow(fill(c.zh), fill(c.en), "zh"); say(fill(c.zh), "zh"); }
+    else say(fill(c.en), "en");
+    return;
+  }
+  const fs = e.target.closest("[data-fsay]"); if(fs){ const f = FOODS[+fs.dataset.fsay]; say(f.en, "en"); return; }
+  const fh = e.target.closest("[data-fshow]"); if(fh){ const f = FOODS[+fh.dataset.fshow]; openShow(f.zh, f.en, "zh"); return; }
+  const pt = e.target.closest("[data-plan]"); if(pt){ S.plan = pt.dataset.plan; save(); render(); return; }
+  if(e.target.id === "sosCopy"){
+    const t = SOS_FIELDS.map(([k, l]) => `${l}: ${S.sos[k] || ""}`).join("\n");
+    navigator.clipboard.writeText(t).then(() => toast("已複製"), () => prompt("複製下面的文字：", t)); return;
+  }
+  if(e.target.id === "sosPrint") window.print();
+});
+$("#view").addEventListener("input", e => {
+  const t = e.target;
+  if(t.id === "slow"){ S.slow = t.checked; save(); return; }
+  const map = {sDinner:"dinner", sCurfew:"curfew", sWifiName:"wifiName", sWifiPass:"wifiPass"};
+  if(map[t.id]){ S[map[t.id]] = t.value.trim().slice(0, 40); save(); return; }
+  if(t.id === "planNotes"){ S.notes = t.value.slice(0, 2000); save(); return; }
+  if(t.dataset && t.dataset.sos){ S.sos[t.dataset.sos] = t.value.slice(0, 200); save(); }
+});
+// 設定欄位改完離開時才重畫句卡，避免輸入到一半被打斷
+$("#view").addEventListener("focusout", e => { if(/^s(Dinner|Curfew|WifiName|WifiPass)$/.test(e.target.id)) setTimeout(() => { if(!document.activeElement || !/^s(Dinner|Curfew|WifiName|WifiPass)$/.test(document.activeElement.id)) render(); }, 80); });
+$("#showClose").addEventListener("click", () => { $("#show").classList.remove("on"); if(window.speechSynthesis) speechSynthesis.cancel(); });
+$("#showSay").addEventListener("click", () => { if(lastShow) say(lastShow.text, lastShow.lang); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") $("#showClose").click(); });
+render();
+</script>
+</body>
+</html>

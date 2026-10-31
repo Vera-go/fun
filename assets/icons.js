@@ -49,6 +49,8 @@
     // 打字練習：鍵盤，下一個要按的鍵是藍色
     typing: () => ring("#E3ECFF") + `<rect x="7" y="13" width="26" height="15" rx="3.5" fill="#fff" stroke="${K}" stroke-width="1.8"/><g fill="#B8EBC4"><rect x="10" y="16" width="4" height="3.2" rx=".8"/><rect x="15.5" y="16" width="4" height="3.2" rx=".8"/><rect x="21" y="16" width="4" height="3.2" rx=".8"/><rect x="26.5" y="16" width="4" height="3.2" rx=".8"/><rect x="12" y="20.5" width="4" height="3.2" rx=".8"/><rect x="23.5" y="20.5" width="4" height="3.2" rx=".8"/></g><rect x="17.7" y="20.5" width="4" height="3.2" rx=".8" fill="#3B6FE0"/><rect x="13" y="24.8" width="14" height="1.8" rx=".8" fill="#C9D1E0"/>`,
     // 換裝小舞台：衣架掛著粉紅洋裝
+    // 寄宿小幫手：小房子和愛心
+    homestay: () => ring("#DDF3EA") + `<path d="M8.5 20 L20 10 L31.5 20" fill="none" stroke="${K}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 19 V30 H28 V19 L20 12 Z" fill="#fff" stroke="${K}" stroke-width="1.8" stroke-linejoin="round"/><path d="M20 27.5 C15.2 24 15.2 20.5 17.8 20.5 C19 20.5 19.7 21.2 20 22 C20.3 21.2 21 20.5 22.2 20.5 C24.8 20.5 24.8 24 20 27.5 Z" fill="#FF8A5B" stroke="${K}" stroke-width="1.3" stroke-linejoin="round"/>`,
     dressup: () => ring("#FFE3EE") + `<path d="M20 8.5 V11 Q23.5 11 23.5 8.2 Q23.5 5.5 20 5.5" fill="none" stroke="${K}" stroke-width="1.7" stroke-linecap="round"/><path d="M20 11.5 L8.5 18.5 Q7.5 19.6 9 19.6 H31 Q32.5 19.6 31.5 18.5 Z" fill="#fff" stroke="${K}" stroke-width="1.7" stroke-linejoin="round"/><path d="M16 19.6 L14.5 23 L11 33 Q20 35.5 29 33 L25.5 23 L24 19.6 Z" fill="#F7A8C4" stroke="${K}" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 23.2 Q20 25 25.5 23.2" fill="none" stroke="#E8679A" stroke-width="1.6"/><circle cx="20" cy="29" r="1.6" fill="#fff"/>`,
     portal: () => ring("#FFD60A") + g(`<path d="M16 2 L19.6 11 L29 11.6 L21.8 17.8 L24.2 27 L16 22 L7.8 27 L10.2 17.8 L3 11.6 L12.4 11 Z" fill="#FFFFFF" stroke="${K}" stroke-width="2" stroke-linejoin="round"/>`),
     idea: () => ring("#FFFDF5") + g(`<path d="M11 24 Q6 19 6 14 Q6 6 16 6 Q26 6 26 14 Q26 19 21 24 Z" fill="#FFF3A3" stroke="${K}" stroke-width="2" stroke-linejoin="round"/><rect x="11" y="24" width="10" height="5" rx="1.5" fill="#D9D9D9" stroke="${K}" stroke-width="2"/><path d="M16 1.5 V3.5 M4.5 8 L6.5 9.5 M27.5 8 L25.5 9.5" stroke="${K}" stroke-width="1.8" stroke-linecap="round"/>`),
@@ -74,7 +76,7 @@
   window.SiteIcons = {
     /** 功能小圖示：wish、sprout、flower、moon、chat、news、done、book、toolbox */
     icon: (name, size = 24) => wrap(32, ICONS[name] || "", size, "wicon"),
-    /** 網站徽章：restaurant、wheel、english、nostrings、lighthouse、meowtrain、study、plan、seats、typing、dressup、portal、idea */
+    /** 網站徽章：restaurant、wheel、english、nostrings、lighthouse、meowtrain、study、plan、seats、typing、dressup、homestay、portal、idea */
     badge: (name, size = 32) => wrap(40, (BADGES[name] || (() => ""))(), size, "wbadge"),
     /** 線條圖示：calc、bubbles、lock、unlock、moon、volume、mute、trophy、headset、anchor、star（fill 填 "currentColor" 就是實心） */
     line: (name, size = 18, fill = "none") => `<svg class="wline" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${fill}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${LINE[name] || ""}</svg>`,
