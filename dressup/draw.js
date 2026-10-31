@@ -629,6 +629,77 @@ Object.assign(SOCKS, {
     draw:(f) => U(["M114 296 L186 296 L186 318 L114 318 Z", "M120 300 C121 350 125.5 392 126.5 433 L143.5 433 C143.5 394 148 352 151 300 Z", MX("M120 300 C121 350 125.5 392 126.5 433 L143.5 433 C143.5 394 148 352 151 300 Z")], f)},
 });
 
+// ---------- 第三批：配件 ----------
+Object.assign(HATS, {
+  bucket:    {name:"漁夫帽", tags:["casual", "summer", "snack"], color:"#F6E7C8",
+    draw:(f, c) => P("M97 102 C95 58 120 44 150 44 C180 44 205 58 203 102 Q150 92 97 102 Z", f) + P("M78 106 Q150 84 222 106 Q226 118 214 120 Q150 102 86 120 Q74 118 78 106 Z", shade(c, -.08)) + LN("M98 92 Q150 82 202 92", 1.6, shade(c, -.3))},
+  bunny:     {name:"兔耳髮箍", tags:["party", "animal", "casual"], color:"#FFFFFF",
+    draw:(f, c) => LN("M94 104 Q150 46 206 104", 6) + LN("M94 104 Q150 46 206 104", 3.4, "#F7A8C4") + PB("M122 72 Q108 22 122 12 Q138 18 136 68 Z", f) + PB("M124 62 Q116 30 123 22 Q131 28 130 62 Z", "#F7A8C4", 0)},
+  headband:  {name:"布髮箍", tags:["casual", "school", "neat"], color:"#D9414E",
+    draw:(f, c) => LN("M92 106 Q150 44 208 106", 10) + LN("M92 106 Q150 44 208 106", 6.5, f) + P("M178 62 L166 52 L166 70 Z M178 62 L190 52 L190 70 Z", f, 2) + C(178, 62, 3.6, shade(c, -.2), 1.8)},
+  headphones:{name:"耳機", tags:["casual", "snack", "sport"], color:"#2E2B2B",
+    draw:(f, c) => LN("M86 132 Q84 36 150 34 Q216 36 214 132", 8) + LN("M86 132 Q84 36 150 34 Q216 36 214 132", 4.6, f) + P("M74 124 Q74 112 86 112 L96 112 L96 160 L86 160 Q74 160 74 148 Z", f) + P(MX("M74 124 Q74 112 86 112 L96 112 L96 160 L86 160 Q74 160 74 148 Z"), f) + C(84, 136, 4, shade(c, .4), 0) + C(216, 136, 4, shade(c, .4), 0)},
+});
+Object.assign(GLASSES, {
+  starg: {name:"星星眼鏡", tags:["party", "funny"], color:"#F6D65A",
+    draw:(f, c) => star(128, 138, 18, "rgba(255,255,255,.2)", 3).replace(`stroke="${INK}"`, `stroke="${c}"`) + star(172, 138, 18, "rgba(255,255,255,.2)", 3).replace(`stroke="${INK}"`, `stroke="${c}"`) + LN("M144 136 Q150 132 156 136", 2.6, c)},
+  catg:  {name:"貓眼眼鏡", tags:["neat", "party"], color:"#E8679A",
+    draw:(f, c) => P("M108 130 L113 124 Q128 126 146 130 Q146 148 128 149 Q112 148 108 130 Z", "rgba(255,255,255,.15)", 2.8, `stroke="${c}"`) + P(MX("M108 130 L113 124 Q128 126 146 130 Q146 148 128 149 Q112 148 108 130 Z"), "rgba(255,255,255,.15)", 2.8, `stroke="${c}"`) + LN("M146 134 Q150 131 154 134", 2.6, c)},
+});
+Object.assign(HAIRPINS, {
+  pearls: {name:"珍珠髮夾", tags:["party", "neat", "formal"], color:"#FFFFFF", draw:(f) => [[180, 96], [189, 93], [198, 92], [207, 94]].map(([x, y]) => C(x, y, 4, f, 1.6) + C(x - 1.2, y - 1.2, 1.1, "#fff", 0)).join("")},
+  cherry: {name:"櫻桃髮圈", tags:["casual", "summer"], color:"#D9414E", draw:(f) => LN("M190 80 Q194 88 186 98 M190 80 Q198 86 200 96", 1.8, "#4F8F45") + C(186, 100, 5.5, f, 1.8) + C(200, 98, 5.5, f, 1.8) + C(184, 98, 1.4, "#fff", 0) + C(198, 96, 1.4, "#fff", 0)},
+});
+Object.assign(NECKS, {
+  choker: {name:"頸鍊", tags:["party", "casual"], color:"#2E2B2B", draw:(f) => LN("M141 204 Q150 209 159 204", 5.5) + LN("M141 204 Q150 209 159 204", 3, f) + P(heartD(150, 212, 3.5), "#E8679A", 1.2)},
+});
+Object.assign(BAGS, {
+  tote:   {name:"帆布袋", tags:["casual", "school", "snack"], color:"#F6E7C8",
+    draw:(f, c) => LN("M122 214 L108 290 M130 214 L124 290", 4) + LN("M122 214 L108 290 M130 214 L124 290", 2, shade(c, -.2)) + P("M96 288 L136 288 L138 330 L94 330 Z", f) + P(heartD(116, 308, 6), "#E8679A", 1.4)},
+  catbag: {name:"貓咪包", tags:["casual", "snack", "animal"], color:"#2E2B2B",
+    draw:(f, c) => LN("M178 212 L122 294", 4.5) + LN("M178 212 L122 294", 2.6, "#F7A8C4") + P("M102 294 L106 280 L112 290 L124 290 L130 280 L134 294 Q138 318 118 320 Q98 318 102 294 Z", f) + C(112, 302, 2, "#F6D65A", 0) + C(124, 302, 2, "#F6D65A", 0) + E(118, 307, 1.8, 1.3, "#F7A8C4", 0)},
+});
+Object.assign(HANDS, {
+  phone:    {name:"手機", tags:["casual", "snack"], grip:true, color:"#B9A3E8",
+    draw:(f, c) => P("M194 286 Q194 282 198 282 L214 282 Q218 282 218 286 L218 324 Q218 328 214 328 L198 328 Q194 328 194 324 Z", f) + P("M197 287 L215 287 L215 318 L197 318 Z", "#2B3C6E", 1.2) + star(206, 300, 4, "#FFE98A", 0)},
+  icecream: {name:"冰淇淋", tags:["summer", "snack"], grip:true, color:"#F7A8C4",
+    draw:(f, c) => P("M196 300 L216 300 L206 330 Z", "#E8B57A") + LN("M199 306 L213 306 M202 314 L210 314", 1.2, "#B8864E") + C(206, 292, 11, f) + C(198, 298, 5, f, 0) + C(214, 298, 5, f, 0) + C(203, 288, 2.4, "#fff", 0) + C(206, 280, 3.5, "#D9414E", 1.4)},
+  teddy:    {name:"小熊玩偶", tags:["casual", "party"], grip:true, color:"#C98A4B",
+    draw:(f, c) => `<g transform="translate(-5 0)">` + C(212, 312, 6, f) + C(226, 312, 6, f) + E(216, 342, 13, 14, f) + C(219, 320, 12, f) + C(214, 318, 1.6, INK, 0) + C(224, 318, 1.6, INK, 0) + E(219, 324, 4, 3, shade(c, .4), 0) + E(219, 323, 1.4, 1, INK, 0) + LN("M216 352 Q219 354 222 352", 1.4) + `</g>`},
+  lollipop: {name:"棒棒糖", tags:["snack", "party"], grip:true, color:"#E8679A",
+    draw:(f, c) => LN("M203 322 L208 276", 3.6) + LN("M203 322 L208 276", 2, "#fff") + C(209, 268, 13, f) + `<path d="M209 268 m-9 0 a9 9 0 0 1 9 -9 a6 6 0 0 1 6 6 a4 4 0 0 1 -4 4 a2 2 0 0 1 -2 -2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>`},
+  camera:   {name:"相機", tags:["casual", "summer"], grip:true, color:"#2E2B2B",
+    draw:(f, c) => `<g transform="translate(6 14)">` + P("M190 300 L222 300 L222 324 L190 324 Z", f) + P("M196 296 L206 296 L208 300 L194 300 Z", f, 1.6) + C(208, 312, 8, "#9BD0F5", 2) + C(206, 310, 2, "#fff", 0) + C(216, 304, 1.6, "#F6D65A", 0) + `</g>`},
+});
+
+// ---------- 第四批：背景 ----------
+const TXT = (x, y, t, size, col) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" font-weight="900" fill="${col}" font-family="system-ui,'Noto Sans TC',sans-serif">${t}</text>`;
+Object.assign(BGS, {
+  library: {name:"圖書館", tags:["school", "neat"], draw:() => `<rect width="300" height="470" fill="#F1E4CC"/><rect y="390" width="300" height="80" fill="#9C6B45"/>` + LN("M0 390 L300 390", 2.4) +
+    [[8, 40], [8, 140], [8, 240], [204, 40], [204, 140], [204, 240]].map(([x, y], i) => P(`M${x} ${y} L${x + 88} ${y} L${x + 88} ${y + 96} L${x} ${y + 96} Z`, "#B9835A", 2.4) +
+      Array.from({length:7}, (_, k) => { const w = 9 + (k * 7 + i * 3) % 5, h = 62 + (k * 13 + i * 5) % 22, bx = x + 6 + k * 11.4;
+        return `<rect x="${bx.toFixed(1)}" y="${y + 92 - h}" width="${w}" height="${h}" fill="${["#D9414E", "#4C8FE0", "#F6D65A", "#4FA36B", "#B9A3E8", "#F59A4A", "#F7A8C4"][(k + i) % 7]}" stroke="${INK}" stroke-width="1.4"/>`; }).join("")).join("") +
+    P("M110 60 L190 60 L190 160 L110 160 Z", "#CDEBFA", 2.4) + LN("M150 60 L150 160 M110 110 L190 110", 2.2) + TXT(150, 192, "安靜看書", 15, "#9C6B45")},
+  cafe:    {name:"咖啡廳", tags:["casual", "snack", "neat"], draw:() => `<rect width="300" height="470" fill="#F6E2CF"/>` + Array.from({length:12}, (_, i) => `<rect x="${i * 25}" y="0" width="12.5" height="380" fill="#EFD3BA"/>`).join("") + `<rect y="380" width="300" height="90" fill="#7A4E36"/>` + LN("M0 380 L300 380", 2.4) +
+    P("M18 40 L120 40 L120 120 L18 120 Z", "#3A2A20", 3, `stroke="#8A5A3C"`) + TXT(69, 70, "MENU", 16, "#fff") + LN("M34 84 L100 84 M34 96 L90 96 M34 108 L96 108", 1.6, "rgba(255,255,255,.7)") +
+    [[200, 70], [260, 70]].map(([x, y]) => LN(`M${x} 0 L${x} ${y}`, 1.6) + P(`M${x - 16} ${y + 18} Q${x - 16} ${y} ${x} ${y} Q${x + 16} ${y} ${x + 16} ${y + 18} Z`, "#F6D65A", 2) + C(x, y + 22, 4, "#FFF4C2", 1.4)).join("") +
+    P("M226 310 L290 310 L286 322 L230 322 Z", "#C98A4B", 2) + LN("M258 322 L258 380", 4) + P("M244 290 L262 290 L260 310 L246 310 Z", "#fff", 2) + LN("M262 296 Q270 298 261 304", 2) + LN("M250 282 Q246 276 251 270 M256 282 Q252 276 257 270", 1.4, "#B9A39A")},
+  sakura:  {name:"櫻花樹下", tags:["casual", "formal", "festival"], draw:() => `<defs><linearGradient id="skyK" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE3FA"/><stop offset="1" stop-color="#FCE8F0"/></linearGradient></defs><rect width="300" height="470" fill="url(#skyK)"/>` +
+    P("M-4 350 Q150 326 304 350 L304 474 L-4 474 Z", "#A9DB8C") + P("M30 352 L42 352 Q40 290 52 240 L40 236 Q30 290 30 352 Z", "#8A5A3C", 2.2) + P("M258 352 L270 352 Q272 290 262 240 L250 244 Q258 290 258 352 Z", "#8A5A3C", 2.2) +
+    [[46, 200, 52], [10, 230, 32], [86, 228, 30], [262, 196, 54], [296, 232, 34], [222, 230, 30]].map(([x, y, r]) => C(x, y, r, "#F8C6D8", 2.4)).join("") +
+    Array.from({length:26}, (_, i) => { const x = (i * 67 + 13) % 300, y = (i * 41 + 30) % 420; return `<g transform="rotate(${i * 37} ${x} ${y})">${E(x, y, 4, 2.6, i % 2 ? "#F7A8C4" : "#FBD3E2", 0)}</g>`; }).join("")},
+  space:   {name:"太空", tags:["party", "fancy"], draw:() => `<defs><radialGradient id="neb" cx=".3" cy=".3" r=".8"><stop offset="0" stop-color="#5B3E9E"/><stop offset="1" stop-color="#140F2E"/></radialGradient></defs><rect width="300" height="470" fill="url(#neb)"/>` +
+    Array.from({length:40}, (_, i) => C((i * 71 + 7) % 300, (i * 53 + 11) % 470, (i % 3) * .6 + .8, "#fff", 0)).join("") + [[40, 60], [250, 140], [70, 300], [270, 380]].map(([x, y]) => star(x, y, 5, "#FFE98A", 0)).join("") +
+    C(236, 74, 30, "#F59A4A", 2.4) + E(236, 74, 50, 10, "none", 2.4, `transform="rotate(-18 236 74)"`) + LN("M214 66 Q236 60 258 70 M212 82 Q236 78 258 88", 1.6, "#D9763A") +
+    C(46, 400, 24, "#9BD0F5", 2.4) + C(40, 394, 5, "#7AB8E6", 0) + C(54, 408, 4, "#7AB8E6", 0)},
+  amusement: {name:"遊樂園", tags:["casual", "snack", "party"], draw:() => `<rect width="300" height="470" fill="#CDEFFF"/>` + E(60, 50, 30, 11, "#fff", 0) + E(250, 90, 32, 11, "#fff", 0) +
+    C(220, 210, 74, "none", 4) + C(220, 210, 74, "none", 2, `stroke="#F7A8C4"`) + Array.from({length:8}, (_, i) => { const a = i * Math.PI / 4, x = 220 + Math.cos(a) * 74, y = 210 + Math.sin(a) * 74;
+      return LN(`M220 210 L${x.toFixed(1)} ${y.toFixed(1)}`, 1.6) + P(`M${(x - 9).toFixed(1)} ${(y - 2).toFixed(1)} L${(x + 9).toFixed(1)} ${(y - 2).toFixed(1)} L${(x + 7).toFixed(1)} ${(y + 12).toFixed(1)} L${(x - 7).toFixed(1)} ${(y + 12).toFixed(1)} Z`, ["#D9414E", "#F6D65A", "#4C8FE0", "#4FA36B"][i % 4], 2); }).join("") +
+    C(220, 210, 8, "#F6D65A", 2) + LN("M220 210 L188 370 M220 210 L252 370", 3) +
+    P("M10 230 L70 230 L80 250 L0 250 Z", "#D9414E", 2.2) + [0, 1, 2, 3].map(k => `<rect x="${4 + k * 19}" y="231" width="9" height="18" fill="#fff" opacity=".6"/>`).join("") + P("M8 250 L72 250 L72 330 L8 330 Z", "#FFF4E0", 2) + TXT(40, 296, "爆米花", 14, "#D9414E") +
+    P("M-4 370 L304 370 L304 474 L-4 474 Z", "#E7D3B4") + LN("M0 370 L300 370", 2.4) + [[106, 96, "#F7A8C4"], [124, 84, "#9BD0F5"], [140, 100, "#F6D65A"]].map(([x, y, col]) => LN(`M${x} ${y + 14} Q${x + 4} ${y + 60} 120 170`, 1.2) + E(x, y, 10, 12, col, 2)).join("")},
+});
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
