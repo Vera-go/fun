@@ -78,6 +78,7 @@ const HAND = "M94 304 C91 314 92 323 99 327 C105 330 110 326 110 320 C113 319 11
 // 袖子：跟著手臂的形狀，上寬下窄（w 越大越寬鬆）；長袖有袖口線
 const SLV_L = (f, w = 26) => { const k = (w - 24) / 2; return PB(`M${113 - k} 218 C${101 - k} 242 ${93 - k} 272 ${91 - k} 305 L${111 + k * .4} 305 C${113 + k * .4} 282 119 258 129 234 Z`, f) + PB(`M${91.5 - k} 298 L${111 + k * .4} 298`, "none", 1.6); };
 const SLV_S = (f, w = 26) => { const k = (w - 26) / 2; return PB(`M${113 - k} 216 C${105 - k} 228 ${99 - k} 242 ${98 - k} 254 L121 258 C122 248 125 238 130 230 Z`, f); };
+const PANTLEG = "M123 310 L121.5 424 Q135 430 148.5 424 L151 312 Z";   // 長褲的左褲管
 const TORSO = "M114 224 Q117 210 150 207 Q183 210 186 224 L184 300 Q150 306 116 300 Z";
 
 // ---------- 上衣 ----------
@@ -106,11 +107,11 @@ const BOTTOMS = {
   mini:   {name:"A 字短裙", tags:["casual", "party", "summer"], color:"#F7A8C4",
     draw:(f, c) => P("M118 290 L182 290 L192 336 Q150 342 108 336 Z", f) + LN("M118 297 L182 297", 1.6)},
   jeans:  {name:"牛仔褲", tags:["casual", "snack"], color:"#4C8FE0",
-    draw:(f, c) => TUBES("M137 312 L135.2 424", 27, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M150 300 L150 332", 1.6) + LN("M125 298 Q132 306 140 300", 1.4, shade(c, -.35))},
+    draw:(f, c) => PB(PANTLEG, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M150 300 L150 332", 1.6) + LN("M125 298 Q132 306 140 300", 1.4, shade(c, -.35))},
   shorts: {name:"短褲", tags:["summer", "beach", "sport", "snack"], color:"#D9B99B",
     draw:(f, c) => P("M117 290 L183 290 L187 344 L154 344 L150 324 L146 344 L113 344 Z", f) + LN("M117 297 L183 297", 1.6)},
   track:  {name:"運動褲", tags:["sport"], color:"#2C3E70",
-    draw:(f, c) => TUBES("M137 312 L135.2 424", 27, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M124 300 L122 424", 3.4, "#fff") + LN("M176 300 L178 424", 3.4, "#fff")},
+    draw:(f, c) => PB(PANTLEG, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M124 300 L122 424", 3.4, "#fff") + LN("M176 300 L178 424", 3.4, "#fff")},
   maxi:   {name:"長裙", tags:["summer", "neat"], color:"#9ADBC0",
     draw:(f, c) => P("M118 290 L182 290 L202 412 Q150 420 98 412 Z", f) + LN("M120 300 L180 300", 1.6)},
 };
@@ -368,7 +369,7 @@ Object.assign(TOPS, {
 });
 Object.assign(BOTTOMS, {
   slacks: {name:"西裝長褲", tags:["school", "neat", "formal"], color:"#2E2B2B",
-    draw:(f, c) => TUBES("M137 312 L135.2 424", 27, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M136 334 L135 424", 1.4, shade(c, .3)) + LN("M164 334 L165 424", 1.4, shade(c, .3)) + P("M117 290 L183 290 L183 298 L117 298 Z", shade(c, -.2), 2)},
+    draw:(f, c) => PB(PANTLEG, f) + P("M117 290 L183 290 L185 330 Q150 336 115 330 Z", f) + LN("M136 334 L135 424", 1.4, shade(c, .3)) + LN("M164 334 L165 424", 1.4, shade(c, .3)) + P("M117 290 L183 290 L183 298 L117 298 Z", shade(c, -.2), 2)},
   wide:   {name:"寬褲", tags:["casual", "summer"], color:"#F6E7C8",
     draw:(f, c) => P("M117 290 L183 290 L194 426 L155 426 L150 330 L145 426 L106 426 Z", f) + LN("M117 298 L183 298", 1.6)},
   cargo:  {name:"工作短褲", tags:["casual", "sport", "snack"], color:"#8A9A5B",
@@ -430,37 +431,52 @@ function drawLook(L, opt = {}){
     let f = fill(slot, v);
     if(it.stripe){ const id = `${uid}-${slot}s`; defs.push(patDef(id, "stripes", v.color).replace('width="10" height="10"', 'width="10" height="10" patternTransform="rotate(90)"')); f = `url(#${id})`; }
     return it.draw(f, v.color); };
+  const itemS = (cat, slot) => shaded(item(cat, slot));   // 加上明暗的單品
   const skin = SKIN[L.skin] || SKIN[0];
+  const sh = (id, a, b) => `<linearGradient id="${uid}-${id}" gradientUnits="userSpaceOnUse" x1="96" y1="0" x2="206" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="${a}"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/><stop offset=".6" stop-color="#2B1D16" stop-opacity="0"/><stop offset="1" stop-color="#2B1D16" stop-opacity="${b}"/></linearGradient>`;
+  defs.push(sh("sh", .26, .22), sh("sk", .14, .13), sh("hf", .06, .18),
+    `<linearGradient id="${uid}-hv" gradientUnits="userSpaceOnUse" x1="0" y1="120" x2="0" y2="310"><stop offset="0" stop-color="#2B1D16" stop-opacity="0"/><stop offset="1" stop-color="#2B1D16" stop-opacity=".3"/></linearGradient>`);
+  let nClip = 0;
+  const clip = svg => { const id = `${uid}-k${nClip++}`; defs.push(`<clipPath id="${id}">${svg}</clipPath>`); return id; };
+  const overlay = (svg, grad) => `<rect width="${W}" height="${H}" fill="url(#${uid}-${grad})" clip-path="url(#${clip(svg)})"/>`;
+  const shaded = (svg, grad = "sh") => svg ? svg + overlay(svg, grad) : "";
   let s = "";
   if(opt.bg !== false){ const b = BGS[L.bg] || BGS.room; s += b.draw(L.bgC || "#F7D3E0"); }
   s += E(150, 448, 62, 9, "rgba(58,42,32,.18)", 0);
   // 後面的頭髮
-  s += (HAIRB[L.hairB] || HAIRB.long).draw(L.hairC);
+  s += shaded((HAIRB[L.hairB] || HAIRB.long).draw(L.hairC), "hv");
   // 身體：全部合成一塊描邊（先畫粗的墨線，再蓋上膚色），接縫不會有線
   const parts = [BODY, ARM_SHAPE, MX(ARM_SHAPE), LEG_SHAPE, MX(LEG_SHAPE)];
   s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
+  const bodyClip = clip(parts.map(d => `<path d="${d}"/>`).join(""));
+  s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${bodyClip})"/>` + `<ellipse cx="150" cy="190" rx="22" ry="11" fill="#2B1D16" opacity=".1" clip-path="url(#${bodyClip})"/>`;
   s += LN("M142 184 Q150 190 158 184", 2, shade(skin, -.14));   // 下巴下面淡淡的影子
   // 襪子、鞋子
   s += item(SOCKS, "socks");
   const shoe = L.shoes && SHOES[L.shoes.id];
   if(!shoe || shoe.bare) s += E(133, 437, 11, 8, skin) + E(167, 437, 11, 8, skin);
-  s += item(SHOES, "shoes");
+  s += itemS(SHOES, "shoes");
   // 打底的小背心和短褲（不會露出不雅的地方）
   s += P("M120 230 Q150 240 180 230 L184 300 Q150 306 116 300 Z", "#F6F2EA", 2.2) + P("M117 292 L183 292 L185 326 L153 326 L150 318 L147 326 L115 326 Z", "#F6F2EA", 2.2);
   const dress = L.dress && DRESSES[L.dress.id];
-  if(!dress) s += item(BOTTOMS, "bottom");
-  if(!dress || dress.overTop) s += item(TOPS, "top");   // 吊帶裙露出裡面的上衣，下身被裙子蓋住
-  if(dress) s += item(DRESSES, "dress");
-  s += item(OUTERS, "outer");
+  if(!dress) s += itemS(BOTTOMS, "bottom");
+  if(!dress || dress.overTop) s += itemS(TOPS, "top");   // 吊帶裙露出裡面的上衣，下身被裙子蓋住
+  if(dress) s += itemS(DRESSES, "dress");
+  s += itemS(OUTERS, "outer");
   s += item(NECKS, "neck");
-  s += item(SCARVES, "scarf");
-  if(L.bag && L.bag.id !== "handbag") s += item(BAGS, "bag");
+  s += itemS(SCARVES, "scarf");
+  if(L.bag && L.bag.id !== "handbag") s += itemS(BAGS, "bag");
   // 手
   s += [HAND, MX(HAND)].map(d => `<path d="${d} Z" fill="${skin}"/>` + LN(d, 2.6)).join("");
-  if(L.bag && L.bag.id === "handbag") s += item(BAGS, "bag");
+  if(L.bag && L.bag.id === "handbag") s += itemS(BAGS, "bag");
   // 頭
   s += C(93, 142, 10, skin) + C(207, 142, 10, skin);
   s += E(150, 128, 58, 60, skin, 2.8);
+  const hb = HAIRB[L.hairB] || HAIRB.long;
+  const hf = HAIRF[L.hairF] || HAIRF.blunt, front = [CROWN + hf.d, ...(hb.side ? [sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
+  const faceClip = clip(`<ellipse cx="150" cy="128" rx="57" ry="59"/>`);
+  s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${faceClip})"/>`;
+  s += `<g clip-path="url(#${faceClip})"><path d="${front[0]}" transform="translate(0 6)" fill="#2B1D16" opacity=".13"/></g>`;
   // 妝容和五官
   if(L.blush) s += E(116, 160, 12, 7, L.blush, 0, `opacity=".55"`) + E(184, 160, 12, 7, L.blush, 0, `opacity=".55"`);
   if(L.freckles) s += [[112, 154], [118, 158], [114, 162], [186, 154], [182, 158], [188, 162]].map(([x, y]) => C(x, y, 1.4, shade(skin, -.4), 0)).join("");
@@ -473,17 +489,16 @@ function drawLook(L, opt = {}){
   else if(L.sticker === "star") s += star(186, 170, 6, "#F6D65A", 1.4);
   else if(L.sticker === "tear") s += C(182, 150, 1.8, INK, 0);
   // 前面的頭髮
-  const hb = HAIRB[L.hairB] || HAIRB.long;
-  const hf = HAIRF[L.hairF] || HAIRF.blunt, front = [CROWN + hf.d, ...(hb.side ? [sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
   s += front.map(d => `<path d="${d}" fill="${L.hairC}" stroke="${INK}" stroke-width="5.6" stroke-linejoin="round"/>`).join("");
   s += front.map(d => `<path d="${d}" fill="${L.hairC}"/>`).join("");
   if(hf.lines) s += LN(hf.lines, 1.8, strand(L.hairC), `opacity=".8"`);
   if(hb.front) s += hb.front(L.hairC);
-  s += LN("M116 74 Q128 64 142 61", 4, "rgba(255,255,255,.45)");
+  const hairClip = clip(front.map(d => `<path d="${d}"/>`).join(""));
+  s += `<g clip-path="url(#${hairClip})"><rect width="${W}" height="${H}" fill="url(#${uid}-hf)"/><path d="M84 100 Q150 50 216 100" fill="none" stroke="#fff" stroke-width="9" stroke-opacity=".3"/><path d="M110 70 Q124 62 138 60" fill="none" stroke="#fff" stroke-width="4" stroke-opacity=".45" stroke-linecap="round"/></g>`;
   // 頭上、臉上的配件
   s += item(GLASSES, "glasses");
   s += item(HAIRPINS, "hairpin");
-  s += item(HATS, "hat");
+  s += itemS(HATS, "hat");
   s += item(HANDS, "hand");
   if(L.pet && PETS[L.pet]) s += drawPet(L.pet);
   const vb = opt.vb || `0 0 ${W} ${H}`;
