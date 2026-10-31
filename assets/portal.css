@@ -37,7 +37,7 @@ h2 [data-icon]{margin-right:2px}
 .site .d{font-size:14px}
 .site .go{margin-top:auto;padding-top:8px;font-weight:900;font-size:14px}
 .site .pic{display:block;width:calc(100% + 32px);max-width:none;height:auto;margin:-16px -16px 12px;border-bottom:3px solid #00FF66;aspect-ratio:1200/630;object-fit:cover;background:#000}
-.l1{background:#FFB4A2}.l2{background:#B7E4C7}.l3{background:#A2D2FF}.l6{background:#FFD8A8}.l7{background:#BFE8DD}.l8{background:#D5D7FA}.l9{background:#FFD9C7}
+.l1{background:#FFB4A2}.l2{background:#B7E4C7}.l3{background:#A2D2FF}.l6{background:#FFD8A8}.l7{background:#BFE8DD}.l8{background:#D5D7FA}.l9{background:#FFD9C7}.l10{background:#CFE0FF}
 .l4{background:#111;color:#00FF66}
 .l4 .d{color:#D6F5E2}
 @media(prefers-color-scheme:dark){.l4{border-color:#00FF66}}

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>打字練習</title>
+<meta name="description" content="英文打字和注音打字，從手指放哪裡開始，一課一課慢慢練。">
+<meta property="og:title" content="打字練習｜英文和注音">
+<meta property="og:description" content="英文打字和注音打字，從手指放哪裡開始，一課一課慢慢練。">
+<meta name="theme-color" content="#F2F5FB">
+<style>
+:root{--bg:#F2F5FB;--card:#fff;--ink:#1E2A44;--muted:#6E7A93;--line:#DCE3F0;--acc:#3B6FE0;--good:#27A06A;--bad:#E05050;
+  --f-lp:#FFB3C1;--f-lr:#FFD59A;--f-lm:#FFF0A0;--f-li:#B8EBC4;--f-ri:#A9DDF5;--f-rm:#C9C2F7;--f-rr:#F5C3EA;--f-rp:#FFC9A8;--f-th:#E3E7EF}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:24px;font-weight:900}
+header .sub{font-size:13px;color:var(--muted);font-weight:700}
+.tabs{display:flex;gap:4px;background:#E3E9F5;border-radius:99px;padding:4px;margin-left:auto}
+.tabs button{border:0;background:transparent;border-radius:99px;padding:8px 16px;font:inherit;font-size:15px;font-weight:900;color:var(--muted);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(30,42,68,.1)}
+.grid{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:18px;padding:14px;box-shadow:0 2px 0 var(--line),0 8px 24px rgba(30,42,68,.06);margin-bottom:16px}
+.card h2{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:6px}
+.card h2 .r{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.lessons{display:grid;gap:6px}
+.les{display:flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:#FAFBFE;cursor:pointer;font:inherit;text-align:left;color:inherit;width:100%}
+.les:hover{border-color:#B9C8EA}
+.les.on{border-color:var(--acc);background:#EEF3FF}
+.les .n{flex:none;width:24px;height:24px;border-radius:50%;background:#E3E9F5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900}
+.les.done .n{background:var(--good);color:#fff}
+.les .t{flex:1;min-width:0}
+.les .t b{display:block;font-size:14px}
+.les .t span{font-size:12px;color:var(--muted)}
+.stars{flex:none;font-size:13px;letter-spacing:1px;color:#F2B01E}
+.stars i{font-style:normal;color:#D5DBE8}
+/* 練習區 */
+.practice{position:relative}
+.ptop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.ptop h2{margin:0;font-size:18px}
+.live{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.pill{background:#F2F5FB;border-radius:99px;padding:4px 10px;font-size:13px;font-weight:800}
+.pill b{font-variant-numeric:tabular-nums}
+.target{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:28px;line-height:1.9;background:#FAFBFE;border:2px solid var(--line);border-radius:14px;padding:12px 16px;min-height:110px;word-break:break-all;letter-spacing:1px;outline:none}
+.target:focus-within,.target.focus{border-color:#9BB5EE}
+.target .ch{border-radius:4px;padding:0 1px}
+.target .ok{color:var(--good)}
+.target .cur{background:#DCE7FF;box-shadow:inset 0 -3px 0 var(--acc)}
+.target .err{background:#FFDADA;color:var(--bad)}
+.target .todo{color:#9AA6BE}
+.target .sp{display:inline-block;min-width:.6em}
+/* 注音 */
+.zy{display:flex;flex-wrap:wrap;gap:10px 6px;font-family:inherit;letter-spacing:0}
+.zc{display:flex;flex-direction:column;align-items:center;min-width:54px;padding:4px 4px 6px;border-radius:12px}
+.zc .hz{font-size:30px;font-weight:800;line-height:1.2}
+.zc .bp{display:flex;gap:1px;font-size:20px;line-height:1.3}
+.zc .bp span{padding:0 2px;border-radius:4px;color:#9AA6BE}
+.zc.cur{background:#EEF3FF}
+.zc .bp .ok{color:var(--good)}
+.zc .bp .cur{background:#DCE7FF;color:var(--ink);box-shadow:inset 0 -3px 0 var(--acc)}
+.zc .bp .err{background:#FFDADA;color:var(--bad)}
+.zc.done .hz{color:var(--good)}
+.zc.todo .hz{color:#9AA6BE}
+.hint{margin:10px 0 6px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;min-height:28px}
+.hint .dot{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid rgba(0,0,0,.15)}
+.warn{background:#FFF3E0;color:#8A5300;border-radius:12px;padding:8px 12px;font-size:13.5px;font-weight:700;margin-bottom:8px}
+.warn[hidden]{display:none}
+/* 鍵盤 */
+.kb{display:flex;flex-direction:column;gap:5px;margin-top:6px;user-select:none}
+.krow{display:flex;gap:5px}
+.key{flex:1 1 0;min-width:0;height:48px;border-radius:9px;border:1.5px solid rgba(30,42,68,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:800;position:relative;transition:transform .08s}
+.key small{font-size:10px;font-weight:700;opacity:.65;line-height:1}
+.key .zh{font-size:17px;line-height:1.1}
+.key.w15{flex-grow:1.5}.key.w175{flex-grow:1.75}.key.w2{flex-grow:2.2}.key.w25{flex-grow:2.6}.key.sp{flex-grow:7}
+.key.mod{background:#EEF1F7!important;color:var(--muted);font-size:12px}
+.key.home::after{content:"";position:absolute;bottom:6px;width:12px;height:2px;border-radius:2px;background:rgba(30,42,68,.45)}
+.key.next{outline:3px solid var(--acc);outline-offset:1px;transform:translateY(-2px);box-shadow:0 6px 14px rgba(59,111,224,.35);z-index:1}
+.key.press{transform:translateY(2px)}
+.key.wrong{outline:3px solid var(--bad);outline-offset:1px}
+.fingers{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:12px;font-weight:700;color:var(--muted)}
+.fingers span{display:inline-flex;align-items:center;gap:4px}
+.fingers i{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
+.btn{border:0;border-radius:12px;padding:10px 18px;font:inherit;font-size:15px;font-weight:900;cursor:pointer;background:var(--acc);color:#fff;box-shadow:0 3px 0 #2A54B5}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2A54B5}
+.btn.ghost{background:#EEF1F7;color:var(--ink);box-shadow:0 3px 0 #D3DAE8}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+/* 結果 */
+.ov{position:absolute;inset:0;background:rgba(242,245,251,.92);display:flex;align-items:center;justify-content:center;border-radius:18px;z-index:5;padding:12px}
+.ov[hidden]{display:none}
+.res{background:#fff;border-radius:18px;padding:18px;max-width:440px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(30,42,68,.18)}
+.res h3{margin:0 0 4px;font-size:22px}
+.res .big{font-size:34px;color:#F2B01E;letter-spacing:4px}
+.res .big i{font-style:normal;color:#D5DBE8}
+.res .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.res .nums div{background:#F2F5FB;border-radius:12px;padding:8px}
+.res .nums b{display:block;font-size:24px}
+.res .nums span{font-size:12px;color:var(--muted);font-weight:700}
+.res .miss{font-size:13.5px;color:var(--muted)}
+.touchnote{background:#FFF3E0;border-radius:14px;padding:12px;font-size:14px;line-height:1.6;margin-bottom:12px}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#fff;border-radius:14px;padding:10px 16px;font-weight:800;box-shadow:0 8px 30px rgba(30,42,68,.18);z-index:20}
+.portal-foot{text-align:center;color:#6E7A93;font:13px/1.6 system-ui,"Noto Sans TC",sans-serif;padding:20px 16px 36px}.portal-foot a{color:#6E7A93;text-decoration:none}.portal-foot svg{display:inline-block}.portal-foot a:hover,.portal-foot a:focus-visible{text-decoration:underline;outline:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="3" y="12" width="42" height="26" rx="6" fill="#fff" stroke="#1E2A44" stroke-width="2.4"/><g fill="#B8EBC4" stroke="#1E2A44" stroke-width="1.4"><rect x="8" y="17" width="6" height="5" rx="1.4"/><rect x="16" y="17" width="6" height="5" rx="1.4"/><rect x="24" y="17" width="6" height="5" rx="1.4"/><rect x="32" y="17" width="6" height="5" rx="1.4"/><rect x="11" y="24" width="6" height="5" rx="1.4"/><rect x="27" y="24" width="6" height="5" rx="1.4"/><rect x="35" y="24" width="5" height="5" rx="1.4"/></g><rect x="19" y="24" width="6" height="5" rx="1.4" fill="#3B6FE0" stroke="#1E2A44" stroke-width="1.4"/><rect x="13" y="31" width="22" height="4" rx="1.4" fill="#E3E7EF" stroke="#1E2A44" stroke-width="1.4"/></svg>
+    <div><h1>打字練習</h1><div class="sub">英文和注音，從手指放哪裡開始，一課一課慢慢練</div></div>
+    <div class="tabs" id="tabs"><button data-mode="en">英文打字</button><button data-mode="zy">注音打字</button></div>
+  </header>
+  <div class="touchnote" id="touchNote" hidden>打字練習需要<b>實體鍵盤</b>。手機或平板可以接上藍牙鍵盤使用，或改用電腦打開這個網頁。</div>
+  <div class="grid">
+    <div>
+      <div class="card"><h2>課程 <span class="r" id="progTxt"></span></h2><div class="lessons" id="lessons"></div></div>
+      <div class="card small muted" style="line-height:1.7">
+        <b style="color:var(--ink)">小提醒</b><br>
+        ・手指放在<b>主鍵列</b>：左手 A S D F、右手 J K L ;（F 和 J 上有小凸點）。<br>
+        ・眼睛看螢幕，不要看鍵盤；鍵盤上會亮出下一個要按的鍵和顏色對應的手指。<br>
+        ・先求正確，再求速度。正確率 95% 以上，速度自然會變快。<br>
+        <span id="zyTip" hidden>・注音打字前，請先把輸入法切成<b>英文</b>（例如按 Shift 或 Ctrl＋空白鍵）；練習時一聲按<b>空白鍵</b>。</span>
+      </div>
+    </div>
+    <div>
+      <div class="card practice" id="practice">
+        <div class="ptop"><h2 id="pTitle"></h2>
+          <div class="live"><span class="pill">速度 <b id="lSpeed">0</b> <span id="lUnit"></span></span><span class="pill">正確率 <b id="lAcc">100</b>%</span><span class="pill">進度 <b id="lProg">0</b>%</span></div></div>
+        <div class="warn" id="imeWarn" hidden>偵測到中文輸入法正在打字。請先切換成英文輸入（按 Shift 或 Ctrl＋空白鍵），這裡會自動把按鍵換成注音。</div>
+        <div class="target" id="target" tabindex="0" aria-label="練習的文字，直接開始打字"></div>
+        <div class="hint" id="hint"></div>
+        <div class="kb" id="kb"></div>
+        <div class="fingers" id="fingers"></div>
+        <div class="btns"><button class="btn ghost sm" id="restart">重新開始這一課（Esc）</button></div>
+        <div class="ov" id="ov" hidden><div class="res" id="res"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 回工具箱放在頁面最下方（各網站一致：上方不放） -->
+<footer class="portal-foot"><a href="../"><svg viewBox="0 0 32 32" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M10 11 V8 Q10 5 13 5 H19 Q22 5 22 8 V11" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="11" width="26" height="16" rx="3" fill="#E6325F" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18 H29" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="15.5" width="7" height="5.5" rx="1.5" fill="#FFD60A" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> 回工具箱</a>・<a href="../wish/#new">想要新功能？來許願</a></footer>
+
+<script>
+/* =========================================================
+   打字練習（許願池 #21、#23）
+   - 英文：主鍵列 → 上排 → 下排 → 常用字 → 大寫 → 數字 → 句子 → 短文 → 速度測驗
+   - 注音：標準（大千）注音鍵盤，一列一列學 → 拼一個字 → 詞語 → 句子 → 速度測驗
+   用 KeyboardEvent.code 判斷實體按鍵，所以注音練習不用開中文輸入法（反而要切成英文）。
+   每一課要按對才會往下走，錯的鍵會記下來；結束時算速度、正確率和星星。進度存在瀏覽器。
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// ---------- 鍵盤：位置、手指、英文字、注音 ----------
+const ROWS = [
+  [["Backquote","`","~"],["Digit1","1","!"],["Digit2","2","@"],["Digit3","3","#"],["Digit4","4","$"],["Digit5","5","%"],["Digit6","6","^"],["Digit7","7","&"],["Digit8","8","*"],["Digit9","9","("],["Digit0","0",")"],["Minus","-","_"],["Equal","=","+"],["Backspace","⌫","",,"w2"]],
+  [["Tab","Tab","",,"w15"],["KeyQ","q","Q"],["KeyW","w","W"],["KeyE","e","E"],["KeyR","r","R"],["KeyT","t","T"],["KeyY","y","Y"],["KeyU","u","U"],["KeyI","i","I"],["KeyO","o","O"],["KeyP","p","P"],["BracketLeft","[","{"],["BracketRight","]","}"],["Backslash","\\","|",,"w15"]],
+  [["CapsLock","Caps","",,"w175"],["KeyA","a","A"],["KeyS","s","S"],["KeyD","d","D"],["KeyF","f","F"],["KeyG","g","G"],["KeyH","h","H"],["KeyJ","j","J"],["KeyK","k","K"],["KeyL","l","L"],["Semicolon",";",":"],["Quote","'",'"'],["Enter","Enter","",,"w2"]],
+  [["ShiftLeft","Shift","",,"w25"],["KeyZ","z","Z"],["KeyX","x","X"],["KeyC","c","C"],["KeyV","v","V"],["KeyB","b","B"],["KeyN","n","N"],["KeyM","m","M"],["Comma",",","<"],["Period",".",">"],["Slash","/","?"],["ShiftRight","Shift","",,"w25"]],
+  [["Space","空白鍵","",,"sp"]],
+];
+const FINGER = {
+  Backquote:"lp", Digit1:"lp", KeyQ:"lp", KeyA:"lp", KeyZ:"lp", Tab:"lp", CapsLock:"lp", ShiftLeft:"lp",
+  Digit2:"lr", KeyW:"lr", KeyS:"lr", KeyX:"lr",
+  Digit3:"lm", KeyE:"lm", KeyD:"lm", KeyC:"lm",
+  Digit4:"li", Digit5:"li", KeyR:"li", KeyT:"li", KeyF:"li", KeyG:"li", KeyV:"li", KeyB:"li",
+  Digit6:"ri", Digit7:"ri", KeyY:"ri", KeyU:"ri", KeyH:"ri", KeyJ:"ri", KeyN:"ri", KeyM:"ri",
+  Digit8:"rm", KeyI:"rm", KeyK:"rm", Comma:"rm",
+  Digit9:"rr", KeyO:"rr", KeyL:"rr", Period:"rr",
+  Digit0:"rp", Minus:"rp", Equal:"rp", KeyP:"rp", BracketLeft:"rp", BracketRight:"rp", Backslash:"rp", Semicolon:"rp", Quote:"rp", Slash:"rp", Enter:"rp", ShiftRight:"rp", Backspace:"rp",
+  Space:"th",
+};
+const FINGER_NAME = {lp:"左手小指", lr:"左手無名指", lm:"左手中指", li:"左手食指", ri:"右手食指", rm:"右手中指", rr:"右手無名指", rp:"右手小指", th:"大拇指"};
+const HOME = ["KeyA","KeyS","KeyD","KeyF","KeyJ","KeyK","KeyL","Semicolon"];
+// 標準（大千）注音鍵盤
+const ZY_KEY = {"ㄅ":"Digit1","ㄆ":"KeyQ","ㄇ":"KeyA","ㄈ":"KeyZ","ㄉ":"Digit2","ㄊ":"KeyW","ㄋ":"KeyS","ㄌ":"KeyX","ˇ":"Digit3","ㄍ":"KeyE","ㄎ":"KeyD","ㄏ":"KeyC","ˋ":"Digit4","ㄐ":"KeyR","ㄑ":"KeyF","ㄒ":"KeyV","ㄓ":"Digit5","ㄔ":"KeyT","ㄕ":"KeyG","ㄖ":"KeyB","ˊ":"Digit6","ㄗ":"KeyY","ㄘ":"KeyH","ㄙ":"KeyN","˙":"Digit7","ㄧ":"KeyU","ㄨ":"KeyJ","ㄩ":"KeyM","ㄚ":"Digit8","ㄛ":"KeyI","ㄜ":"KeyK","ㄝ":"Comma","ㄞ":"Digit9","ㄟ":"KeyO","ㄠ":"KeyL","ㄡ":"Period","ㄢ":"Digit0","ㄣ":"KeyP","ㄤ":"Semicolon","ㄥ":"Slash","ㄦ":"Minus","ˉ":"Space"};
+const CODE_ZY = Object.fromEntries(Object.entries(ZY_KEY).map(([z, c]) => [c, z]));
+// 英文字元 → 實體鍵和要不要按 Shift
+const CHAR_KEY = {};
+ROWS.flat().forEach(([code, lo, up]) => { if(lo && lo.length === 1) CHAR_KEY[lo] = {code, shift:false}; if(up && up.length === 1) CHAR_KEY[up] = {code, shift:true}; });
+CHAR_KEY[" "] = {code:"Space", shift:false};
+
+// ---------- 注音字典（練習用的字）：「字＋注音」接在一起，一聲不標 ----------
+const ZY_DICT_SRC = "我ㄨㄛˇ你ㄋㄧˇ他ㄊㄚ她ㄊㄚ的ㄉㄜ˙是ㄕˋ不ㄅㄨˋ了ㄌㄜ˙人ㄖㄣˊ在ㄗㄞˋ有ㄧㄡˇ大ㄉㄚˋ小ㄒㄧㄠˇ好ㄏㄠˇ天ㄊㄧㄢ學ㄒㄩㄝˊ生ㄕㄥ上ㄕㄤˋ下ㄒㄧㄚˋ來ㄌㄞˊ去ㄑㄩˋ吃ㄔ喝ㄏㄜ看ㄎㄢˋ書ㄕㄨ家ㄐㄧㄚ愛ㄞˋ中ㄓㄨㄥ文ㄨㄣˊ英ㄧㄥ打ㄉㄚˇ字ㄗˋ電ㄉㄧㄢˋ腦ㄋㄠˇ手ㄕㄡˇ機ㄐㄧ水ㄕㄨㄟˇ火ㄏㄨㄛˇ山ㄕㄢ花ㄏㄨㄚ草ㄘㄠˇ魚ㄩˊ鳥ㄋㄧㄠˇ貓ㄇㄠ狗ㄍㄡˇ朋ㄆㄥˊ友ㄧㄡˇ老ㄌㄠˇ師ㄕ同ㄊㄨㄥˊ快ㄎㄨㄞˋ樂ㄌㄜˋ謝ㄒㄧㄝˋ早ㄗㄠˇ安ㄢ晚ㄨㄢˇ媽ㄇㄚ爸ㄅㄚˋ哥ㄍㄜ姐ㄐㄧㄝˇ弟ㄉㄧˋ妹ㄇㄟˋ雨ㄩˇ風ㄈㄥ雲ㄩㄣˊ月ㄩㄝˋ日ㄖˋ年ㄋㄧㄢˊ今ㄐㄧㄣ明ㄇㄧㄥˊ時ㄕˊ間ㄐㄧㄢ校ㄒㄧㄠˋ想ㄒㄧㄤˇ說ㄕㄨㄛ話ㄏㄨㄚˋ聽ㄊㄧㄥ走ㄗㄡˇ跑ㄆㄠˇ玩ㄨㄢˊ開ㄎㄞ心ㄒㄧㄣ飯ㄈㄢˋ菜ㄘㄞˋ茶ㄔㄚˊ熱ㄖㄜˋ冷ㄌㄥˇ多ㄉㄨㄛ少ㄕㄠˇ很ㄏㄣˇ也ㄧㄝˇ都ㄉㄡ會ㄏㄨㄟˋ能ㄋㄥˊ要ㄧㄠˋ和ㄏㄜˊ們ㄇㄣ˙這ㄓㄜˋ那ㄋㄚˋ什ㄕㄣˊ麼ㄇㄜ˙練ㄌㄧㄢˋ習ㄒㄧˊ鍵ㄐㄧㄢˋ盤ㄆㄢˊ注ㄓㄨˋ音ㄧㄣ台ㄊㄞˊ灣ㄨㄢ車ㄔㄜ路ㄌㄨˋ門ㄇㄣˊ窗ㄔㄨㄤ綠ㄌㄩˋ紅ㄏㄨㄥˊ白ㄅㄞˊ黑ㄏㄟ兒ㄦˊ二ㄦˋ耳ㄦˇ氣ㄑㄧˋ一ㄧ起ㄑㄧˇ幫ㄅㄤ忙ㄇㄤˊ隻ㄓ帶ㄉㄞˋ傘ㄙㄢˇ美ㄇㄟˇ見ㄐㄧㄢˋ身ㄕㄣ體ㄊㄧˇ先ㄒㄧㄢ回ㄏㄨㄟˊ每ㄇㄟˇ慢ㄇㄢˋ點ㄉㄧㄢˇ讀ㄉㄨˊ寫ㄒㄧㄝˇ從ㄘㄨㄥˊ頭ㄊㄡˊ就ㄐㄧㄡˋ可ㄎㄜˇ以ㄧˇ自ㄗˋ己ㄐㄧˇ歡ㄏㄨㄢ喜ㄒㄧˇ公ㄍㄨㄥ園ㄩㄢˊ海ㄏㄞˇ邊ㄅㄧㄢ吧ㄅㄚ˙急ㄐㄧˊ始ㄕˇ";
+const ZY = {};
+{ let cur = null; for(const ch of ZY_DICT_SRC){ if(/[一-鿿]/.test(ch)){ cur = ch; ZY[cur] = ""; } else if(cur) ZY[cur] += ch; } }
+// 一個字的按鍵：注音符號依序，最後沒有聲調符號就是一聲，按空白鍵
+const zyKeys = ch => { const z = ZY[ch]; const syms = [...z]; if(!/[ˊˇˋ˙]/.test(syms[syms.length - 1])) syms.push("ˉ"); return syms; };
+const ZY_WORDS = "你好 學生 老師 朋友 電腦 手機 快樂 謝謝 早安 晚安 媽媽 爸爸 中文 英文 打字 注音 鍵盤 練習 台灣 花草 山水 今天 明天 時間 開心 吃飯 喝水 看書 聽話 下雨 白天 黑貓 紅花 綠草 學校 家人 小狗 大魚 上學 回家 公園 海邊 喜歡 自己 身體 天氣 一起 幫忙 每天 慢慢".split(" ");
+const ZY_SENT = ["我愛我的家", "今天天氣很好", "我們一起練習打字", "早安老師", "謝謝你的幫忙", "我家有一隻貓", "下雨天要帶傘", "台灣的山很美", "明天見", "多喝水身體好", "打字要先學好注音", "每天練習一點點", "慢慢打不要急", "我喜歡去公園玩", "我們去海邊吧", "從頭開始就可以了", "我想看書", "你好不好", "這是我的電腦", "爸爸媽媽都很好"];
+
+// ---------- 英文字和句子 ----------
+const EN_WORDS = "the and you that was for are with his they have this from one had word but not what all were when your can said there use each which she how their will other about out many then them these some her would make like him into time has look two more write see number way could people than first water been call who its now find long down day did get come made may part over new sound take only little work know place year live back give most very after thing our just name good man think say great where help through much before line right too mean old any same tell boy follow came want show also around form three small set put end does another well large must big even such because turn here why ask went men read need land different home move try kind hand picture again change off play spell air away animal house point page letter mother answer found study still learn should world high every near add food between own below country plant last school father keep tree never start city earth eye light thought head under story saw left few while along might close something seem next hard open example begin life always those both paper together got group often run important until children side feet car mile night walk white sea began grow took river four carry state once book hear stop without second later miss idea enough eat face watch far really almost let above girl sometimes mountain cut young talk soon list song being leave family".split(" ");
+const EN_SENT = ["The quick brown fox jumps over the lazy dog.", "Practice makes perfect, so keep typing every day.", "My cat likes to sleep in the warm sun.", "We will meet at the library after school.", "Reading books can take you to new places.", "Please type slowly and keep your eyes on the screen.", "Small steps every day lead to big results.", "She bought three apples and two bananas.", "Our class went to the museum last Friday.", "Do not look at the keyboard when you type!", "Taiwan has tall mountains and beautiful beaches.", "Learning to type well is a useful skill.", "Can you help me carry these boxes?", "It is raining, so take an umbrella with you.", "Good morning! How are you today?"];
+
+// ---------- 課程 ----------
+// make() 回傳這一輪的練習內容：英文是一串字元，注音是一串「字」
+const lettersDrill = (set, n = 48) => { const out = []; let len = 0; while(len < n){ const w = Array.from({length: 2 + Math.floor(Math.random() * 3)}, () => pick(set)).join(""); out.push(w); len += w.length + 1; } return out.join(" "); };
+const wordsFrom = (set, n = 60) => { const ok = EN_WORDS.filter(w => [...w].every(c => set.includes(c))); if(ok.length < 6) return lettersDrill(set, n); const out = []; let len = 0; while(len < n){ const w = pick(ok); out.push(w); len += w.length + 1; } return out.join(" "); };
+const HOME_L = [..."asdfjkl;"], HOME_ALL = [..."asdfghjkl;"], TOP = [..."qwertyuiop"], BOTTOM = [..."zxcvbnm,./"];
+const EN_LESSONS = [
+  {t:"主鍵列：左手 A S D F", d:"手指放好，左手食指在 F", make:() => lettersDrill([..."asdf"])},
+  {t:"主鍵列：右手 J K L ;", d:"右手食指在 J（有小凸點）", make:() => lettersDrill([..."jkl;"])},
+  {t:"主鍵列全部和 G H", d:"食指往中間伸一格按 G、H", make:() => lettersDrill(HOME_ALL, 54)},
+  {t:"上排 Q W E R T Y U I O P", d:"手指往上伸，按完回到主鍵列", make:() => Math.random() < .5 ? wordsFrom([...HOME_ALL, ...TOP]) : lettersDrill([...TOP, ...HOME_L], 54)},
+  {t:"下排 Z X C V B N M , . /", d:"手指往下彎，按完回到主鍵列", make:() => wordsFrom([...HOME_ALL, ...TOP, ...BOTTOM], 64)},
+  {t:"常用英文單字", d:"所有字母都用上了", make:() => wordsFrom([..."abcdefghijklmnopqrstuvwxyz"], 80)},
+  {t:"大寫和 Shift", d:"用另一隻手的小指按 Shift", make:() => shuffle(EN_WORDS.filter(w => w.length > 2)).slice(0, 12).map(w => w[0].toUpperCase() + w.slice(1)).join(" ")},
+  {t:"數字列 1～0", d:"手指往上伸兩格", make:() => Array.from({length: 12}, () => String(Math.floor(Math.random() * (Math.random() < .5 ? 100 : 10000)))).join(" ")},
+  {t:"句子和標點", d:"逗號、句號、問號、驚嘆號", make:() => shuffle(EN_SENT).slice(0, 2).join(" ")},
+  {t:"短文練習", d:"一次打一小段", make:() => shuffle(EN_SENT).slice(0, 4).join(" ")},
+];
+const ZY_ROWS = [
+  {t:"數字列：ㄅ ㄉ ˇ ˋ ㄓ ˊ ˙ ㄚ ㄞ ㄢ ㄦ", syms:[..."ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦ"], d:"手指往上伸兩格"},
+  {t:"第二列：ㄆ ㄊ ㄍ ㄐ ㄔ ㄗ ㄧ ㄛ ㄟ ㄣ", syms:[..."ㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣ"], d:"手指往上伸一格"},
+  {t:"中間列：ㄇ ㄋ ㄎ ㄑ ㄕ ㄘ ㄨ ㄜ ㄠ ㄤ", syms:[..."ㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤ"], d:"主鍵列，手指放這裡"},
+  {t:"下排：ㄈ ㄌ ㄏ ㄒ ㄖ ㄙ ㄩ ㄝ ㄡ ㄥ", syms:[..."ㄈㄌㄏㄒㄖㄙㄩㄝㄡㄥ"], d:"手指往下彎"},
+];
+// 注音符號單獨練習：每個符號當一個「字」，只有一個鍵
+const symDrill = syms => Array.from({length: 30}, () => ({hz:"", keys:[pick(syms)]}));
+const charUnits = chars => [...chars].map(ch => ({hz:ch, keys:zyKeys(ch)}));
+const ZY_LESSONS = [
+  {...ZY_ROWS[2], make:() => symDrill(ZY_ROWS[2].syms)},
+  {...ZY_ROWS[1], make:() => symDrill([...ZY_ROWS[1].syms, ...ZY_ROWS[2].syms])},
+  {...ZY_ROWS[3], make:() => symDrill([...ZY_ROWS[3].syms, ...ZY_ROWS[2].syms])},
+  {...ZY_ROWS[0], make:() => symDrill([...ZY_ROWS[0].syms, ...ZY_ROWS[1].syms])},
+  {t:"拼一個字（聲母＋韻母＋聲調）", d:"一聲按空白鍵，其他聲調按數字列", make:() => charUnits(shuffle(Object.keys(ZY)).slice(0, 14).join(""))},
+  {t:"常用詞語", d:"兩個字一組", make:() => charUnits(shuffle(ZY_WORDS).slice(0, 8).join(""))},
+  {t:"短句", d:"一句一句打", make:() => charUnits(shuffle(ZY_SENT).slice(0, 3).join(""))},
+  {t:"短文練習", d:"一次打一小段", make:() => charUnits(shuffle(ZY_SENT).slice(0, 6).join(""))},
+];
+// 速度測驗：一分鐘
+const TEST = {en:{t:"速度測驗（1 分鐘）", d:"盡量快，也要正確", test:true, make:() => shuffle(EN_SENT).join(" ")},
+              zy:{t:"速度測驗（1 分鐘）", d:"盡量快，也要正確", test:true, make:() => charUnits(shuffle(ZY_SENT).join(""))}};
+const lessonsOf = m => [...(m === "en" ? EN_LESSONS : ZY_LESSONS), TEST[m]];
+
+// ---------- 存檔 ----------
+const KEY = "typing.v1";
+let S = {mode:"en", idx:{en:0, zy:0}, stars:{en:{}, zy:{}}, best:{en:{}, zy:{}}};
+try{ const v = JSON.parse(localStorage.getItem(KEY) || "null"); if(v) S = Object.assign(S, v); }catch(e){}
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+
+// ---------- 練習狀態 ----------
+// R.units：英文是字元陣列；注音是 [{hz, keys}]。pos 是第幾個單位，sub 是注音的第幾個符號
+let R = null;
+function startLesson(){
+  const L = lessonsOf(S.mode)[S.idx[S.mode]];
+  const content = L.make();
+  R = {L, units: S.mode === "en" ? [...content] : content, pos:0, sub:0, typed:0, errors:0, t0:0, done:false, miss:{}, errAt:{}, endAt:L.test ? 0 : null};
+  $("#ov").hidden = true;
+  // 按鈕還有焦點的話，按空白鍵會變成再按一次按鈕
+  if(document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  renderAll();
+}
+// 目前要按的鍵
+function expected(){
+  if(!R || R.done) return null;
+  if(S.mode === "en"){ const ch = R.units[R.pos]; const k = CHAR_KEY[ch]; return k ? {...k, label: ch === " " ? "空白鍵" : ch} : null; }
+  const u = R.units[R.pos]; const sym = u.keys[R.sub];
+  return {code: ZY_KEY[sym], shift:false, label: sym === "ˉ" ? "空白鍵（一聲）" : sym};
+}
+function onKey(e){
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  if(e.code === "Escape"){ startLesson(); return; }
+  if(!R || R.done) return;
+  if(["ShiftLeft","ShiftRight","CapsLock","Tab"].includes(e.code)) { if(e.code === "Tab") e.preventDefault(); return; }
+  // 中文輸入法開著時，瀏覽器會給 Process；注音練習要切成英文才準
+  if(e.key === "Process" || e.isComposing){ $("#imeWarn").hidden = false; e.preventDefault(); return; }
+  $("#imeWarn").hidden = true;
+  const exp = expected(); if(!exp) return;
+  e.preventDefault();
+  if(!R.t0){ R.t0 = performance.now(); if(R.L.test) R.endAt = R.t0 + 60000; }
+  let ok;
+  if(S.mode === "en"){ ok = e.key === R.units[R.pos]; }
+  else ok = e.code === exp.code;
+  flashKey(e.code, ok);
+  if(ok){
+    R.typed++;
+    if(S.mode === "en"){ R.pos++; }
+    else { R.sub++; if(R.sub >= R.units[R.pos].keys.length){ R.pos++; R.sub = 0; } }
+    if(R.pos >= R.units.length){ if(R.L.test){ extendTest(); } else return finish(); }
+  }else{
+    R.errors++; R.errAt[R.pos + ":" + R.sub] = true;
+    R.miss[exp.label] = (R.miss[exp.label] || 0) + 1;
+    tick(false);
+  }
+  renderTarget(); renderKeyboard(); renderLive();
+}
+// 速度測驗打完了內容但時間還沒到：再補一段
+function extendTest(){ const more = TEST[S.mode].make(); R.units = R.units.concat(S.mode === "en" ? [" ", ...more] : more); }
+function finish(){
+  R.done = true;
+  const ms = Math.max(1000, (R.endAt && performance.now() > R.endAt ? 60000 : performance.now() - R.t0));
+  const acc = R.typed ? R.typed / (R.typed + R.errors) : 0;
+  const speed = speedOf(ms);
+  const stars = acc >= .97 && speed >= goal() ? 3 : acc >= .93 ? 2 : acc >= .85 ? 1 : 0;
+  const i = S.idx[S.mode], st = S.stars[S.mode], best = S.best[S.mode];
+  if(stars > (st[i] || 0)) st[i] = stars;
+  const newBest = !best[i] || speed > best[i]; if(newBest) best[i] = speed;
+  save();
+  const misses = Object.entries(R.miss).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const L = lessonsOf(S.mode), hasNext = i + 1 < L.length;
+  $("#res").innerHTML = `<h3>${stars >= 3 ? "太棒了！" : stars === 2 ? "很好！" : stars === 1 ? "完成了！" : "再試一次吧"}</h3>
+    <div class="big">${"★".repeat(stars)}<i>${"★".repeat(3 - stars)}</i></div>
+    <div class="nums"><div><b>${speed}</b><span>${unit()}</span></div><div><b>${Math.round(acc * 100)}%</b><span>正確率</span></div><div><b>${Math.round(ms / 1000)}</b><span>秒</span></div></div>
+    <p class="miss">${misses.length ? `最常按錯：${misses.map(([k, n]) => `<b>${esc(k)}</b>（${n} 次）`).join("、")}` : "一個字都沒按錯！"}${newBest ? "<br>這一課的新紀錄！" : ""}</p>
+    <p class="small muted">${stars < 3 ? `三顆星的條件：正確率 97% 以上、速度 ${goal()} ${unit()}以上。` : "可以挑戰下一課了。"}</p>
+    <div class="btns"><button class="btn ghost" data-act="again">再練一次</button>${hasNext ? `<button class="btn" data-act="next">下一課</button>` : ""}</div>`;
+  $("#ov").hidden = false;
+  tick(true, true);
+  renderLessons();
+}
+// 速度：英文用 WPM（每 5 個字元算一個字），注音用「每分鐘幾個中文字」
+function speedOf(ms){
+  if(S.mode === "en") return Math.round((R.typed / 5) / (ms / 60000));
+  const chars = R.units.slice(0, R.pos).filter(u => u.hz).length || R.pos;
+  return Math.round(chars / (ms / 60000));
+}
+const unit = () => S.mode === "en" ? "WPM" : "字／分";
+const goal = () => S.mode === "en" ? (S.idx.en < 3 ? 15 : S.idx.en < 6 ? 20 : 25) : (S.idx.zy < 4 ? 30 : 15);
+
+// ---------- 畫面 ----------
+function renderLessons(){
+  const L = lessonsOf(S.mode), st = S.stars[S.mode];
+  $("#lessons").innerHTML = L.map((l, i) => `<button class="les ${i === S.idx[S.mode] ? "on" : ""} ${st[i] ? "done" : ""}" data-les="${i}"><span class="n">${l.test ? "⏱" : i + 1}</span><span class="t"><b>${esc(l.t)}</b><span>${esc(l.d)}${S.best[S.mode][i] ? `・最快 ${S.best[S.mode][i]} ${unit()}` : ""}</span></span><span class="stars">${"★".repeat(st[i] || 0)}<i>${"★".repeat(3 - (st[i] || 0))}</i></span></button>`).join("");
+  const done = L.filter((_, i) => st[i]).length;
+  $("#progTxt").textContent = `完成 ${done} / ${L.length}`;
+}
+function renderTarget(){
+  const el = $("#target");
+  if(S.mode === "en"){
+    // 只顯示目前附近的一段，長文不會一直往下長
+    const start = Math.max(0, R.pos - 40), end = Math.min(R.units.length, start + 140);
+    el.className = "target";
+    el.innerHTML = R.units.slice(start, end).map((ch, k) => {
+      const i = start + k, cls = i < R.pos ? (R.errAt[i + ":0"] ? "ok err" : "ok") : i === R.pos ? "cur" : "todo";
+      return `<span class="ch ${cls} ${ch === " " ? "sp" : ""}">${ch === " " ? "&nbsp;" : esc(ch)}</span>`;
+    }).join("");
+  }else{
+    const start = Math.max(0, R.pos - 10), end = Math.min(R.units.length, start + 30);
+    el.className = "target zy";
+    el.innerHTML = R.units.slice(start, end).map((u, k) => {
+      const i = start + k, state = i < R.pos ? "done" : i === R.pos ? "cur" : "todo";
+      const bp = u.keys.map((s, j) => { const c = i < R.pos || (i === R.pos && j < R.sub) ? "ok" : i === R.pos && j === R.sub ? (R.errAt[i + ":" + j] ? "cur err" : "cur") : ""; return `<span class="${c}">${s === "ˉ" ? "␣" : s}</span>`; }).join("");
+      return `<div class="zc ${state}">${u.hz ? `<span class="hz">${u.hz}</span>` : ""}<span class="bp">${bp}</span></div>`;
+    }).join("");
+  }
+}
+function renderKeyboard(){
+  const exp = expected();
+  const needShift = exp && exp.shift ? (FINGER[exp.code][0] === "l" ? "ShiftRight" : "ShiftLeft") : null;
+  $("#kb").innerHTML = ROWS.map(row => `<div class="krow">${row.map(([code, lo, up, , w]) => {
+    const f = FINGER[code] || "th", mod = ["Backspace","Tab","CapsLock","Enter","ShiftLeft","ShiftRight"].includes(code);
+    const zh = CODE_ZY[code];
+    let inner;
+    if(S.mode === "zy" && zh && code !== "Space") inner = `<span class="zh">${zh}</span><small>${esc(lo)}</small>`;
+    else if(code === "Space") inner = S.mode === "zy" ? `空白鍵<small>一聲</small>` : "空白鍵";
+    else inner = up && /[^a-z]/i.test(up) && up.length === 1 ? `<small>${esc(up)}</small>${esc(lo.toUpperCase())}` : esc(mod ? lo : lo.toUpperCase());
+    const cls = ["key", w || "", mod ? "mod" : "", HOME.includes(code) ? "home" : "", exp && (code === exp.code || code === needShift) ? "next" : ""].join(" ");
+    return `<div class="${cls}" data-code="${code}" style="background:var(--f-${f})">${inner}</div>`;
+  }).join("")}</div>`).join("");
+  // 提示：用哪隻手指按哪個鍵
+  if(exp){
+    const f = FINGER[exp.code];
+    $("#hint").innerHTML = `<span class="dot" style="background:var(--f-${f})"></span>下一個：<b style="font-size:20px">${esc(exp.label)}</b>，用<b>${FINGER_NAME[f]}</b>${needShift ? `，同時用${FINGER_NAME[FINGER[needShift]]}按住 Shift` : ""}`;
+  }else $("#hint").textContent = "";
+}
+function renderLive(){
+  const ms = R.t0 ? performance.now() - R.t0 : 0;
+  $("#lSpeed").textContent = ms > 1500 ? speedOf(ms) : 0;
+  $("#lUnit").textContent = unit();
+  $("#lAcc").textContent = R.typed + R.errors ? Math.round(R.typed / (R.typed + R.errors) * 100) : 100;
+  $("#lProg").textContent = R.L.test ? (R.t0 ? Math.max(0, Math.ceil((R.endAt - performance.now()) / 1000)) : 60) : Math.round(R.pos / R.units.length * 100);
+}
+function renderAll(){
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.mode === S.mode));
+  $("#zyTip").hidden = S.mode !== "zy";
+  $("#pTitle").textContent = R.L.t;
+  $("#fingers").innerHTML = Object.entries(FINGER_NAME).map(([k, n]) => `<span><i style="background:var(--f-${k})"></i>${n}</span>`).join("");
+  renderLessons(); renderTarget(); renderKeyboard(); renderLive();
+  // 進度單位：測驗顯示剩幾秒
+  $("#lProg").parentElement.innerHTML = R.L.test ? `剩 <b id="lProg">60</b> 秒` : `進度 <b id="lProg">0</b>%`;
+  renderLive();
+}
+function flashKey(code, ok){
+  const k = document.querySelector(`.key[data-code="${code}"]`); if(!k) return;
+  k.classList.add(ok ? "press" : "wrong"); setTimeout(() => k.classList.remove("press", "wrong"), 140);
+}
+// 測驗計時、即時速度
+setInterval(() => {
+  if(!R || R.done || !R.t0) return;
+  if(R.L.test && performance.now() >= R.endAt) return finish();
+  renderLive();
+}, 250);
+
+// ---------- 聲音：按錯的時候輕輕「咚」一聲，完成時叮一下 ----------
+let AC = null;
+function tick(ok, done){
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const notes = done ? [660, 880, 1100] : ok ? [] : [180];
+    notes.forEach((f, i) => { const t = AC.currentTime + i * .1, o = AC.createOscillator(), g = AC.createGain(); o.type = done ? "sine" : "triangle"; o.frequency.value = f; g.gain.setValueAtTime(done ? .12 : .08, t); g.gain.exponentialRampToValueAtTime(.001, t + .25); o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + .3); });
+  }catch(e){}
+}
+
+// ---------- 操作 ----------
+document.addEventListener("keydown", onKey);
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if(!b) return; S.mode = b.dataset.mode; save(); startLesson(); });
+$("#lessons").addEventListener("click", e => { const b = e.target.closest("[data-les]"); if(!b) return; S.idx[S.mode] = +b.dataset.les; save(); startLesson(); b.blur(); });
+$("#restart").onclick = e => { e.target.blur(); startLesson(); };
+$("#res").addEventListener("click", e => {
+  const a = e.target.closest("[data-act]"); if(!a) return;
+  if(a.dataset.act === "next") S.idx[S.mode]++;
+  save(); startLesson();
+});
+// 觸控裝置提醒要接實體鍵盤
+if(matchMedia("(hover: none) and (pointer: coarse)").matches) $("#touchNote").hidden = false;
+// 檢查注音字典有沒有缺字（開發時看主控台）
+[...ZY_WORDS.join(""), ...ZY_SENT.join("")].forEach(ch => { if(!ZY[ch]) console.warn("注音字典缺：", ch); });
+startLesson();
+</script>
+</body>
+</html>
