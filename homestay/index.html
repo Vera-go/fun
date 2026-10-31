@@ -158,6 +158,13 @@ textarea{resize:vertical;line-height:1.6}
 .ttcard{border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;background:#FBFEFC;text-align:left}
 .ttcard.lie{border-color:#E8A58C;background:#FFE6DA}
 .ttcard b{font-size:16px;display:block;line-height:1.5}.ttcard span{font-size:13px;color:var(--muted)}
+.wyr{display:grid;gap:10px;margin:16px 0 6px}
+.wyr .o{border:2px solid var(--line);border-radius:16px;padding:16px 12px;background:#FBFEFC;font-weight:900;font-size:17px;line-height:1.45}
+.wyr .o small{display:block;font-weight:700;font-size:13px;color:var(--muted);margin-top:4px}
+.wyr .or{font-size:13px;font-weight:900;color:var(--acc2)}
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+.tile.m{font-size:22px}.tile.open.m{font-size:12.5px;line-height:1.3}
+.tile.done{background:#DDF3EA;border-color:var(--acc);color:#1A7D61}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -723,6 +730,32 @@ const TT_BANK = [
   ["I am afraid of cockroaches.","我怕蟑螂。"],["I once met a famous person.","我曾經遇過名人。"],["I once saw a typhoon.","我曾經遇過颱風。"],["My favourite colour is blue.","我最喜歡的顏色是藍色。"],
   ["I have never been on a plane.","我從來沒搭過飛機。"],["I can drive a car.","我會開車。"],["I have two jobs.","我有兩份工作。"],["I can speak three languages.","我會說三種語言。"]
 ];
+/* 二選一：兩個人同時指出自己的選擇，再問為什麼 */
+const WYR = [
+  ["Eat only stinky tofu for a month","一個月只吃臭豆腐"],["Eat only Vegemite for a month","一個月只吃維吉麥（澳洲人常吃的鹹味酵母醬）"],
+  ["Live where it is always hot","住在永遠很熱的地方"],["Live where it is always cold","住在永遠很冷的地方"],
+  ["Be able to fly","會飛"],["Be invisible","會隱形"],
+  ["Have a pet kangaroo","養一隻袋鼠"],["Have a pet panda","養一隻熊貓"],
+  ["Only drink bubble tea forever","一輩子只喝珍珠奶茶"],["Only drink coffee forever","一輩子只喝咖啡"],
+  ["Go to a night market every day","每天逛夜市"],["Go to the beach every day","每天去海邊"],
+  ["Never use your phone for a week","一個星期不能用手機"],["Never eat sweets for a month","一個月不能吃甜食"],
+  ["Talk to animals","能跟動物說話"],["Speak every language","會說所有語言"],
+  ["Have no homework for a year","一年都沒有功課"],["Have no exams for a year","一年都沒有考試"],
+  ["Sleep in a tent","睡在帳篷裡"],["Sleep in a treehouse","睡在樹屋裡"],
+  ["Eat spicy food at every meal","每餐都吃辣"],["Never eat spicy food again","再也不能吃辣"],
+  ["Ride a scooter through Taipei traffic","騎機車穿過台北的車陣"],["Ride a camel across the desert","騎駱駝穿過沙漠"],
+  ["Live in a big city","住在大城市"],["Live in a quiet village","住在安靜的小村莊"],
+  ["Wear a school uniform every day","每天都穿制服"],["Wear pyjamas every day","每天都穿睡衣"],
+  ["Visit space","去太空"],["Visit the deep ocean","去深海"],
+  ["Be great at sports","很會運動"],["Be great at music","很會音樂"],
+  ["Never eat rice again","再也不能吃米飯"],["Never eat bread again","再也不能吃麵包"],
+  ["Christmas at the beach","在海邊過聖誕節"],["Christmas with snow","在雪地裡過聖誕節"],
+  ["Hug a koala","抱一隻無尾熊"],["Feed a kangaroo","餵一隻袋鼠"],
+  ["Eat only dumplings","只吃水餃"],["Eat only noodles","只吃麵"],
+  ["Watch the sunrise","看日出"],["Watch the sunset","看日落"]
+];
+/* 小吃記憶翻牌：中文名和英文名配對 */
+const MEM = [["滷肉飯","Pork rice"],["雞排","Chicken cutlet"],["珍珠奶茶","Bubble tea"],["小籠包","Soup dumpling"],["蔥抓餅","Scallion pancake"],["鹽酥雞","Crispy chicken"],["芒果冰","Mango ice"],["牛肉麵","Beef noodles"],["鳳梨酥","Pineapple cake"],["豆花","Tofu pudding"],["水餃","Dumplings"],["烤玉米","Grilled corn"],["臭豆腐","Stinky tofu"],["地瓜球","Sweet potato ball"],["刈包","Pork belly bun"],["紅豆餅","Red bean cake"]];
 const PLANS = {
   A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
     "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
@@ -983,6 +1016,27 @@ function ttView(){
     `<div class="ctl">${PLAY.ttReveal ? `<button class="btn sm" data-ttscore2="her">她猜對了</button><button class="btn ghost sm" data-ttscore2="me">她被騙了</button>` : '<button class="btn ghost sm" data-ttask="1">念「哪一句是假的？」</button><button class="btn" data-ttreveal="1">揭曉</button>'}</div>
     ${PLAY.ttReveal ? '<div class="ctl"><button class="btn ghost" data-ttmode="me">再來一輪</button></div>' : ""}`;
 }
+function wyrView(){
+  const c = PLAY.deck[PLAY.i], n = PLAY.deck.length;
+  const nav = `<div class="ctl"><button class="btn ghost sm" data-pprev="1" ${PLAY.i ? "" : "disabled"}>上一題</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一題" : "再玩一輪"}</button></div>`;
+  return '<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><button class="btn ghost sm" data-pshuf="1">重新洗牌</button></div>' +
+    `<div class="card deck"><div class="prog">${PLAY.i + 1} / ${n}</div><div class="qen">Would you rather ...</div><div class="qzh">你比較想要 ...</div>
+    <div class="wyr"><div class="o">${esc(c[0][0])}<small>${esc(c[0][1])}</small></div><div class="or">or 還是</div><div class="o">${esc(c[1][0])}<small>${esc(c[1][1])}</small></div></div>
+    <div class="count" id="count"></div>
+    <div class="ctl"><button class="btn ghost sm" data-pspeak="q">念題目</button><button class="btn" data-p321="1">數到三，一起指！</button><button class="btn ghost sm" data-pwhy="1">為什麼？</button></div>${nav}</div>`;
+}
+function memStart(){
+  const pick = shuffle(MEM).slice(0, 8);
+  const cards = shuffle(pick.flatMap((m, k) => [{k, t:m[0], z:true}, {k, t:m[1], z:false}]));
+  PLAY.mc = cards; PLAY.mOpen = []; PLAY.mDone = {}; PLAY.mFirst = null; PLAY.mLock = false; PLAY.mTurn = 0; PLAY.mPairs = [0, 0]; PLAY.mTries = 0; PLAY.mGen = (PLAY.mGen || 0) + 1;
+}
+function memView(){
+  const names = ["她", "你"], cards = PLAY.mc, total = cards.length / 2, found = PLAY.mPairs[0] + PLAY.mPairs[1], end = found === total;
+  const bar = `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><button class="btn ghost sm" data-mnew="1">重新開始</button></div>`;
+  const status = end ? `<div class="card deck"><div class="qzh">全部配對完成！</div><div class="big">她 ${PLAY.mPairs[0]} 對・你 ${PLAY.mPairs[1]} 對</div><p class="hint">一共翻了 ${PLAY.mTries} 次。</p><div class="ctl"><button class="btn" data-mnew="1">再玩一輪</button></div></div>` :
+    `<div class="note" style="margin-bottom:8px">輪到：<b>${names[PLAY.mTurn]}</b>。翻兩張，中文名和英文名一樣就配對成功，可以再翻。她 ${PLAY.mPairs[0]} 對・你 ${PLAY.mPairs[1]} 對。</div>`;
+  return bar + status + `<div class="mem">${cards.map((c, i) => { const open = PLAY.mOpen.includes(i) || PLAY.mDone[i]; return `<button class="tile m ${open ? "open" : ""} ${PLAY.mDone[i] ? "done" : ""}" data-mcard="${i}" aria-label="${open ? esc(c.t) : "還沒翻開"}">${open ? esc(c.t) : "?"}</button>`; }).join("")}</div>`;
+}
 function playView(){
   if(!PLAY.mode){
     return `<div class="note">一起玩，不計分，目的是聊天。用同一支手機，念出來給她聽，也讓她看英文。她不想回答的題目可以直接跳過。</div>
@@ -990,6 +1044,8 @@ function playView(){
       <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>
       <div class="card"><h2>台灣體驗賓果</h2><p class="hint">10 天裡完成 16 件台灣的事，做完就打勾，連成一線有亮框。進度記在這支手機上。</p><button class="btn" data-pmode="bingo">開始</button></div>
       <div class="card"><h2>景點盲翻</h2><p class="hint">16 個外國人來台灣常去的北部景點，每張都蓋著，隨便翻開一張，看看運氣把你們帶去哪裡。</p><button class="btn" data-pmode="spots">開始翻</button></div>
+      <div class="card"><h2>二選一</h2><p class="hint">比默契大考驗更荒謬的選擇題：「一個月只吃臭豆腐，還是只吃維吉麥？」兩個人同時指，再問為什麼。</p><button class="btn" data-pmode="wyr">開始（${WYR.length / 2} 題）</button></div>
+      <div class="card"><h2>小吃記憶翻牌</h2><p class="hint">翻牌找對子，中文名和英文名配成一對。輪流翻，看誰找到比較多，順便記下夜市小吃的英文。</p><button class="btn" data-pmode="mem">開始</button></div>
       <div class="card"><h2>夜市和便利商店角色扮演</h2><p class="hint">她當客人，一步一步用中文點餐、付錢。選對老闆就聽得懂，選錯會有搞笑的後果。去夜市前先練一遍。</p><div class="row"><button class="btn" data-pmode="role-0">夜市點雞排</button><button class="btn ghost" data-pmode="role-1">便利商店</button></div></div>
       <div class="card"><h2>兩真一假</h2><p class="hint">說三件關於自己的事，其中一件是假的，讓對方猜。你不會英文也沒關係，我準備了句子可以挑。</p><button class="btn" data-pmode="tt">開始</button></div>
       <div class="card"><h2>繞口令對決</h2><p class="hint">她念中文繞口令，你念英文繞口令，念三次都沒念錯就過關。每句有拼音和意思，可以念標準版給對方聽。</p><div class="row"><button class="btn" data-pmode="twist-zh">她念中文</button><button class="btn ghost" data-pmode="twist-en">你念英文</button></div></div>
@@ -998,6 +1054,8 @@ function playView(){
       <div class="card"><h2>零食盲測</h2><p class="hint">準備幾種台灣零食，她邊吃邊打星星，最後出現「她最喜歡的台灣味」排行榜。</p><button class="btn" data-pmode="snack">開始</button></div>
       <div class="card"><h2>學中文小挑戰</h2><p class="hint">數字、顏色、家人、問候、點餐，每個詞有拼音，點一下念出來。</p><button class="btn" data-pmode="learn">開始</button></div>`;
   }
+  if(PLAY.mode === "wyr") return wyrView();
+  if(PLAY.mode === "mem") return memView();
   if(PLAY.mode === "role") return roleView();
   if(PLAY.mode === "tt") return ttView();
   if(PLAY.mode === "twist") return twistView();
@@ -1115,6 +1173,24 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  if(e.target.closest("[data-mnew]")){ memStart(); render(); return; }
+  const mc = e.target.closest("[data-mcard]"); if(mc){
+    const i = +mc.dataset.mcard;
+    if(PLAY.mLock || PLAY.mDone[i] || PLAY.mOpen.includes(i)) return;
+    const card = PLAY.mc[i];
+    PLAY.mOpen.push(i);
+    say(card.t, card.z ? "zh" : "en");
+    if(PLAY.mFirst == null){ PLAY.mFirst = i; render(); return; }
+    const a = PLAY.mc[PLAY.mFirst]; PLAY.mTries++;
+    if(a.k === card.k){
+      PLAY.mDone[PLAY.mFirst] = true; PLAY.mDone[i] = true; PLAY.mOpen = []; PLAY.mFirst = null; PLAY.mPairs[PLAY.mTurn]++;
+      if(navigator.vibrate) try{ navigator.vibrate(60); }catch(err){}
+      render(); return;
+    }
+    PLAY.mLock = true; render();
+    const gen = PLAY.mGen;
+    setTimeout(() => { if(PLAY.mode !== "mem" || PLAY.mGen !== gen) return; PLAY.mOpen = []; PLAY.mFirst = null; PLAY.mLock = false; PLAY.mTurn = 1 - PLAY.mTurn; if(tab === "play") render(); }, 1100);
+    return; }
   const rp = e.target.closest("[data-rpick]"); if(rp){ if(PLAY.rp != null && ROLE[PLAY.sc].steps[PLAY.rs].opts[PLAY.rp].ok) return; PLAY.rp = +rp.dataset.rpick; const o = ROLE[PLAY.sc].steps[PLAY.rs].opts[PLAY.rp]; render(); if(o.ok) say(o.zh, "zh"); return; }
   if(e.target.closest("[data-rnext]")){ PLAY.rs++; PLAY.rp = null; render(); window.scrollTo(0, 0); return; }
   if(e.target.closest("[data-rretry]")){ PLAY.rp = null; render(); return; }
@@ -1153,7 +1229,9 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-plearned]")){ const c = PLAY.deck[PLAY.i]; S.learned[c.w] = !S.learned[c.w]; save(); render(); return; }
   const pm = e.target.closest("[data-pmode]"); if(pm){
     const m = pm.dataset.pmode;
-    if(m.startsWith("role-")){ PLAY = {mode:"role", deck:[], i:0, step:0, side:"tw", sc:+m.slice(5), rs:0, rp:null}; }
+    if(m === "wyr"){ const pairs = []; for(let i = 0; i < WYR.length; i += 2) pairs.push([WYR[i], WYR[i + 1]]); PLAY = {mode:"wyr", deck:shuffle(pairs), i:0, step:0, side:"au"}; }
+    else if(m === "mem"){ PLAY = {mode:"mem", deck:[], i:0, step:0, side:"au"}; memStart(); }
+    else if(m.startsWith("role-")){ PLAY = {mode:"role", deck:[], i:0, step:0, side:"tw", sc:+m.slice(5), rs:0, rp:null}; }
     else if(m === "tt"){ PLAY = {mode:"tt", deck:[], i:0, step:0, side:"au", tt:"menu", ttMe:0, ttHer:0, ttI:Math.floor(Math.random() * TT_START.length), ttSel:[], ttLie:null, ttReveal:false}; }
     else if(m === "twist-zh" || m === "twist-en"){ const l = m.endsWith("zh") ? "zh" : "en"; PLAY = {mode:"twist", deck:shuffle(TWIST[l]), i:0, step:0, side:l === "zh" ? "tw" : "au", tLang:l}; }
     else if(m.startsWith("tf-")){ const w = m.slice(3); PLAY = {mode:"tf", deck:shuffle(TF.filter(x => w === "all" || x.who === w)), i:0, step:0, side:"au", tfOK:0, tfN:0}; }
@@ -1172,6 +1250,7 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-pwhy]")){ say("Why did you choose that?", "en"); return; }
   const ps = e.target.closest("[data-pspeak]"); if(ps){
     const c = PLAY.deck[PLAY.i], k = ps.dataset.pspeak;
+    if(k === "q" && PLAY.mode === "wyr"){ say("Would you rather " + c[0][0].charAt(0).toLowerCase() + c[0][0].slice(1) + ", or " + c[1][0].charAt(0).toLowerCase() + c[1][0].slice(1) + "?", "en"); return; }
     if(k === "q" && PLAY.mode === "tt"){ say(TT_START[PLAY.ttI % TT_START.length][0].replace(/\.\.\./g, "something"), "en"); return; }
     if(k === "q" && PLAY.mode === "tf") say(c.en, "en");
     else if(k === "q") say(c.en + ". " + c.o.map(o => o[0]).join(". "), "en");
