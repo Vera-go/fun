@@ -322,4 +322,114 @@ $("ov").addEventListener("click", e => {
 });
 addEventListener("keydown", e => { if(e.key === "Escape" && !$("ov").hidden) closePanel(); });
 
+// ---------- 穿搭牆（存在 Supabase，大家看得到；每個瀏覽器用自己產生的代號，不用登入） ----------
+const SUPA_URL = "https://bbydhrcyxxwxtbtemszb.supabase.co", SUPA_KEY = "sb_publishable_hlbBn6LWqC5oLdCS32lchw_xzZeIph7";
+async function rpc(fn, body){
+  const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, {method:"POST", headers:{apikey:SUPA_KEY, Authorization:`Bearer ${SUPA_KEY}`, "Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+if(!S.client){ S.client = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16)); save(); }
+const wallErr = e => /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "穿搭牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
+// 別人貼的穿搭：每一個欄位都要檢查過才拿來畫（只接受清單裡的單品和 #RRGGBB 顏色），避免被塞奇怪的東西
+const HEX = /^#[0-9a-fA-F]{6}$/;
+function sanitizeLook(raw){
+  const o = clone(DEFAULT_LOOK);
+  if(!raw || typeof raw !== "object") return o;
+  [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
+  ["hairC", "eyeC", "bgC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
+  ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
+  if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
+  o.freckles = raw.freckles === true;
+  Object.keys(SLOT_LISTS).forEach(k => {
+    const v = raw[k];
+    o[k] = v && typeof v === "object" && typeof v.id === "string" && SLOT_LISTS[k][v.id] && HEX.test(v.color) ? {id:v.id, color:v.color, pat:PATS[v.pat] ? v.pat : "none"} : null;
+  });
+  return o;
+}
+const W8 = {sort:"new", offset:0, rows:[], more:false, loading:false};
+const HEART = `<svg viewBox="0 0 20 20"><path d="M10 17 C1 11 2 4 6.5 4 C8.5 4 9.6 5.4 10 6.4 C10.4 5.4 11.5 4 13.5 4 C18 4 19 11 10 17 Z" fill="currentColor"/></svg>`;
+function wallCard(r){
+  const look = sanitizeLook(r.look), t = TH[r.theme];
+  return `<div class="wp ${r.mine ? "mine" : ""}" data-id="${r.id}">${drawLook(look).replace("<svg ", '<svg class="look" ')}
+    <div class="tx"><b>${esc(r.title || "我的穿搭")}</b>${esc(r.name)}${r.mine ? "（你）" : ""}${t ? ` <span class="tg">${esc(t.name)}</span>` : ""}</div>
+    <div class="row"><button class="likeb ${r.liked ? "on" : ""}" data-w="like" ${r.mine ? "disabled title=\"自己的穿搭\"" : ""}>${HEART}<span>${r.likes}</span></button><button class="btn sm" data-w="try">穿穿看</button>${r.mine ? `<button class="linkb" data-w="del">刪除</button>` : `<button class="linkb" data-w="report">檢舉</button>`}</div></div>`;
+}
+function renderWall(msg){
+  const tabs = [["new", "最新"], ["week", "本週熱門"], ["top", "最多讚"], ["mine", "我貼的"]];
+  openPanel(`<h2>穿搭牆</h2>
+    <p class="muted small" style="text-align:center">大家貼上來的穿搭。喜歡就按愛心，也可以「穿穿看」換到自己身上。</p>
+    <div class="btns" style="margin-top:6px"><button class="btn acc" data-w="post">貼上我現在的穿搭</button><button class="btn" data-close>關閉</button></div>
+    <div class="wtabs">${tabs.map(([k, n]) => `<button class="${W8.sort === k ? "on" : ""}" data-w="sort" data-v="${k}">${n}</button>`).join("")}</div>
+    <div id="wallBox">${msg ? `<p style="text-align:center">${esc(msg)}</p>` : W8.rows.length ? `<div class="wall">${W8.rows.map(wallCard).join("")}</div>` : `<p style="text-align:center" class="muted">${W8.sort === "mine" ? "你還沒有貼過穿搭。" : "還沒有人貼，當第一個吧！"}</p>`}</div>
+    ${W8.more ? `<div class="btns"><button class="btn" data-w="more">看更多</button></div>` : ""}`);
+}
+async function loadWall(sort, append){
+  if(W8.loading) return;
+  W8.loading = true;
+  if(!append){ W8.sort = sort; W8.offset = 0; W8.rows = []; renderWall("載入中⋯⋯"); }
+  try{
+    const rows = await rpc("dressup_wall", {p_sort:W8.sort, p_client:S.client, p_limit:24, p_offset:W8.offset});
+    W8.rows = W8.rows.concat(rows); W8.offset += rows.length; W8.more = rows.length === 24;
+    W8.loading = false; renderWall();
+  }catch(e){ W8.loading = false; renderWall(wallErr(e)); }
+}
+$("bWall").onclick = () => loadWall(W8.sort);
+function showPost(msg){
+  openPanel(`<h2>貼到穿搭牆</h2>
+    <div class="postbox">${drawLook(L())}<div>
+      <label>你的暱稱<input id="wName" maxlength="12" value="${esc(S.wallName || "")}" placeholder="1～12 個字"></label>
+      <label>幫這套穿搭取個名字（選填）<input id="wTitle" maxlength="20" placeholder="例如：夏天的海風"></label>
+      ${TH[S.theme] ? `<p class="small">會標上主題：<b>${esc(TH[S.theme].name)}</b></p>` : ""}
+      <p class="muted small">穿搭牆大家都看得到，請不要用真實姓名，也不要寫不好的字。被檢舉太多次會自動隱藏。</p>
+      ${msg ? `<p class="small" style="color:#D9414E;font-weight:800">${esc(msg)}</p>` : ""}
+    </div></div>
+    <div class="btns"><button class="btn acc" data-w="send">貼上去</button><button class="btn" data-w="back">回穿搭牆</button></div>`);
+  setTimeout(() => { const el = $(S.wallName ? "wTitle" : "wName"); if(el) el.focus(); }, 0);
+}
+let posting = false;
+async function sendPost(){
+  const name = ($("wName").value || "").trim(), title = ($("wTitle").value || "").trim();
+  if(!name){ $("wName").focus(); return; }
+  if(posting) return; posting = true;
+  S.wallName = name; save();
+  const look = clone(L()); Object.keys(SLOT_LISTS).forEach(k => { if(look[k]) delete look[k].custom; });
+  try{
+    await rpc("dressup_post", {p_client:S.client, p_name:name, p_title:title, p_look:look, p_theme:S.theme || ""});
+    posting = false; toast("貼上去了！"); loadWall("new");
+  }catch(e){ posting = false; showPost(wallErr(e)); }
+}
+$("ov").addEventListener("click", async e => {
+  const b = e.target.closest("[data-w]"); if(!b) return;
+  const act = b.dataset.w, card = b.closest("[data-id]"), id = card ? +card.dataset.id : 0, row = W8.rows.find(r => r.id === id);
+  if(act === "sort") return loadWall(b.dataset.v);
+  if(act === "more") return loadWall(W8.sort, true);
+  if(act === "post") return showPost();
+  if(act === "back") return renderWall();
+  if(act === "send") return sendPost();
+  if(!row) return;
+  if(act === "try"){
+    const look = sanitizeLook(row.look);
+    let stripped = false;
+    Object.keys(SLOT_LISTS).forEach(k => { if(look[k] && lockedItem(SLOT_LISTS[k][look[k].id])){ look[k] = null; stripped = true; } });
+    if(lockedItem(EYES[look.eyes])){ look.eyes = "round"; stripped = true; }
+    S.look = look; save(); closePanel(); render();
+    toast(stripped ? "換上了！有些限定單品你還沒解鎖，先拿掉了" : `換上「${row.title || "我的穿搭"}」了！`);
+  }else if(act === "like"){
+    // 先改畫面，再送出（失敗再改回來）
+    row.liked = !row.liked; row.likes += row.liked ? 1 : -1;
+    b.classList.toggle("on", row.liked); b.querySelector("span").textContent = row.likes;
+    try{ const r = await rpc("dressup_like", {p_client:S.client, p_id:id}); row.likes = r.likes; row.liked = r.liked; b.classList.toggle("on", r.liked); b.querySelector("span").textContent = r.likes; }
+    catch(err){ row.liked = !row.liked; row.likes += row.liked ? 1 : -1; b.classList.toggle("on", row.liked); b.querySelector("span").textContent = row.likes; toast(wallErr(err)); }
+  }else if(act === "del"){
+    if(!confirm("確定要從穿搭牆刪掉這套嗎？")) return;
+    try{ await rpc("dressup_delete", {p_client:S.client, p_id:id}); W8.rows = W8.rows.filter(r => r.id !== id); renderWall(); toast("刪掉了"); }catch(err){ toast(wallErr(err)); }
+  }else if(act === "report"){
+    if(!confirm("這套穿搭的名字或內容不恰當嗎？被檢舉 3 次會自動隱藏。")) return;
+    try{ await rpc("dressup_report", {p_client:S.client, p_id:id}); toast("已經收到檢舉，謝謝你"); b.disabled = true; b.textContent = "已檢舉"; }catch(err){ toast(wallErr(err)); }
+  }
+});
+$("ov").addEventListener("keydown", e => { if(e.key === "Enter" && (e.target.id === "wName" || e.target.id === "wTitle")){ e.preventDefault(); sendPost(); } });
+
 render();
