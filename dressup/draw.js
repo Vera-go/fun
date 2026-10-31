@@ -479,9 +479,17 @@ function drawLook(L, opt = {}){
   s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${faceClip})"/>`;
   s += `<g clip-path="url(#${faceClip})"><path d="${front[0]}" transform="translate(0 6)" fill="#2B1D16" opacity=".13"/></g>`;
   // 妝容和五官
-  if(L.blush) s += E(116, 160, 12, 7, L.blush, 0, `opacity=".55"`) + E(184, 160, 12, 7, L.blush, 0, `opacity=".55"`);
+  // 腮紅：中間濃、往外暈開，加三條斜斜的害羞線
+  if(L.blush){
+    defs.push(`<radialGradient id="${uid}-bl"><stop offset="0" stop-color="${L.blush}" stop-opacity=".75"/><stop offset=".55" stop-color="${L.blush}" stop-opacity=".4"/><stop offset="1" stop-color="${L.blush}" stop-opacity="0"/></radialGradient>`);
+    s += [117, 183].map(x => E(x, 160, 17, 11, `url(#${uid}-bl)`, 0) + LN(`M${x - 6} 163 L${x - 3} 157 M${x - 1} 163 L${x + 2} 157 M${x + 4} 163 L${x + 7} 157`, 1.2, shade(L.blush, -.25), `opacity=".55"`)).join("");
+  }
   if(L.freckles) s += [[112, 154], [118, 158], [114, 162], [186, 154], [182, 158], [188, 162]].map(([x, y]) => C(x, y, 1.4, shade(skin, -.4), 0)).join("");
-  if(L.shadow) s += E(128, 128, 14, 7, L.shadow, 0, `opacity=".6"`) + E(172, 128, 14, 7, L.shadow, 0, `opacity=".6"`);
+  // 眼影：貼著上眼線的月牙形，靠近睫毛最濃，往眉毛慢慢變淡（眼睛畫在上面）
+  if(L.shadow){
+    defs.push(`<radialGradient id="${uid}-es" cx=".5" cy=".95" r=".8"><stop offset=".3" stop-color="${L.shadow}" stop-opacity="1"/><stop offset=".7" stop-color="${L.shadow}" stop-opacity=".55"/><stop offset="1" stop-color="${L.shadow}" stop-opacity="0"/></radialGradient>`);
+    s += EYE_X.map(x => `<path d="M${x - 15} ${EYE_Y + 3} Q${x - 15} ${EYE_Y - 19} ${x} ${EYE_Y - 19} Q${x + 15} ${EYE_Y - 19} ${x + 15} ${EYE_Y + 3} Q${x} ${EYE_Y - 9} ${x - 15} ${EYE_Y + 3} Z" fill="url(#${uid}-es)"/>`).join("");
+  }
   s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1)).join("");
   s += EYE_X.map((x, i) => LN((BROWS[L.brows] || BROWS.soft).d(x, i === 1), 2.8, shade(L.hairC, -.25))).join("");
   s += LN("M148 153 Q150 155 152 153", 2, shade(skin, -.35));
