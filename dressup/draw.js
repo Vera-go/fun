@@ -327,7 +327,7 @@ const HANDS = {
   boba:     {name:"珍珠奶茶", tags:["snack", "casual", "summer"], grip:true, color:"#D9B99B",
     draw:(f, c) => LN("M208 262 L202 292", 3.4, "#E8679A") + P("M188 290 L216 290 L212 340 L192 340 Z", f) + E(202, 290, 14, 3.5, "#fff", 2) + [[196, 334], [202, 336], [208, 334], [199, 328], [205, 328]].map(([x, y]) => C(x, y, 2.4, "#3A2A20", 0)).join("")},
   book:     {name:"書", tags:["school"], grip:true, color:"#4FA36B",
-    draw:(f, c) => `<g transform="rotate(-12 214 306)">${P("M200 288 L230 288 L230 326 L200 326 Z", f)}${P("M203 288 L203 326", "none", 2)}${LN("M210 300 L224 300 M210 308 L224 308", 1.6, "#fff")}</g>`},
+    draw:(f, c) => `<g transform="rotate(6 203 316)">${P("M189 306 L217 306 L217 352 L189 352 Z", f)}${P("M193 306 L193 352", "none", 2)}${LN("M199 334 L212 334 M199 341 L212 341", 1.6, "#fff")}${P("M217 308 L219 309 L219 352 L217 352", "#fff", 1.4)}</g>`},
   bouquet:  {name:"花束", tags:["party", "formal"], grip:true, color:"#F7A8C4",
     draw:(f, c) => P("M200 330 L214 290 L232 300 Z", "#F6E7C8") + [[212, 286, "#E8679A"], [224, 282, f], [232, 292, "#F6D65A"], [218, 276, "#D9414E"], [206, 280, f]].map(([x, y, col]) => C(x, y, 8, col, 2)).join("") + LN("M210 300 L214 310", 2, "#4FA36B")},
   uchiwa:   {name:"扇子", tags:["festival", "summer"], grip:true, color:"#9BD0F5",
@@ -417,9 +417,11 @@ Object.assign(HANDS, {
   pumpkin: {name:"南瓜燈", tags:["halloween", "party"], grip:true, color:"#F59A4A",
     draw:(f, c) => LN("M200 318 Q212 312 218 326", 2.4) + E(218, 344, 20, 17, f) + LN("M210 330 Q206 344 210 358 M226 330 Q230 344 226 358", 1.6, shade(c, -.3)) + P("M216 326 L218 318 L222 320 L220 327 Z", "#4FA36B", 1.6) + P("M208 338 L213 342 L208 345 Z M228 338 L223 342 L228 345 Z", "#3A2A20", 0) + LN("M209 351 Q218 356 227 351", 2.2)},
   gift:    {name:"禮物", tags:["xmas", "party"], grip:true, color:"#4FA36B",
-    draw:(f, c) => P("M198 300 L230 300 L230 332 L198 332 Z", f) + P("M210 300 L218 300 L218 332 L210 332 Z", "#D9414E", 1.6) + P("M214 300 Q204 286 200 294 Q200 300 214 300 Z M214 300 Q224 286 228 294 Q228 300 214 300 Z", "#D9414E", 1.8)},
+    draw:(f, c) => LN("M196 336 C194 318 199 308 203 308 C207 308 212 318 210 336", 5.4) + LN("M196 336 C194 318 199 308 203 308 C207 308 212 318 210 336", 2.8, "#D9414E") +
+      P("M186 334 L220 334 L220 366 L186 366 Z", f) + P("M200 334 L206 334 L206 366 L200 366 Z", "#D9414E", 1.6) + P("M186 346 L220 346 L220 351 L186 351 Z", "#D9414E", 1.6) +
+      P("M203 336 Q193 326 191 332 Q191 338 203 336 Z M203 336 Q213 326 215 332 Q215 338 203 336 Z", "#D9414E", 1.6)},
   redpack: {name:"紅包", tags:["newyear", "festival"], grip:true, color:"#D9414E",
-    draw:(f, c) => `<g transform="rotate(-10 214 308)">${P("M202 290 L226 290 L226 326 L202 326 Z", f)}${C(214, 302, 7, "#F6D65A", 1.6)}<text x="214" y="305.5" text-anchor="middle" font-size="9" font-weight="900" fill="#D9414E" font-family="system-ui,'Noto Sans TC',sans-serif">福</text></g>`},
+    draw:(f, c) => `<g transform="rotate(5 203 316)">${P("M192 306 L214 306 L214 346 L192 346 Z", f)}${C(203, 333, 7, "#F6D65A", 1.6)}<text x="203" y="336.5" text-anchor="middle" font-size="9" font-weight="900" fill="#D9414E" font-family="system-ui,'Noto Sans TC',sans-serif">福</text></g>`},
   wand:    {name:"魔法棒", tags:["halloween", "party"], grip:true, color:"#F6D65A", lock:"halloween",
     draw:(f, c) => LN("M200 318 L230 250", 4.5) + LN("M200 318 L230 250", 2.4, "#fff") + star(232, 244, 13, f, 2) + [[250, 232], [246, 262], [220, 228]].map(([x, y]) => star(x, y, 3.5, "#fff", 1)).join("")},
 });
