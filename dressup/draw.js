@@ -325,7 +325,8 @@ const HANDS = {
   balloon:  {name:"氣球", tags:["party", "snack", "festival"], grip:true, color:"#D9414E",
     draw:(f, c) => LN("M201 312 Q222 240 234 152", 1.6) + P(heartD(236, 124, 26), f) + LN("M222 112 Q226 104 234 102", 3, "rgba(255,255,255,.7)")},
   boba:     {name:"珍珠奶茶", tags:["snack", "casual", "summer"], grip:true, color:"#D9B99B",
-    draw:(f, c) => LN("M208 262 L202 292", 3.4, "#E8679A") + P("M188 290 L216 290 L212 340 L192 340 Z", f) + E(202, 290, 14, 3.5, "#fff", 2) + [[196, 334], [202, 336], [208, 334], [199, 328], [205, 328]].map(([x, y]) => C(x, y, 2.4, "#3A2A20", 0)).join("")},
+    // 杯子在手腕下面、偏外側，手從側邊握住杯身內側；吸管往外斜，不會跟手臂重疊
+    draw:(f, c) => LN("M219 309 L229 280", 3.4, "#E8679A") + P("M199 308 L227 308 L223 350 L203 350 Z", f) + E(213, 308, 14, 3.5, "#fff", 2) + [[207, 344], [213, 346], [219, 344], [210, 338], [216, 338]].map(([x, y]) => C(x, y, 2.4, "#3A2A20", 0)).join("")},
   book:     {name:"書", tags:["school"], grip:true, color:"#4FA36B",
     draw:(f, c) => `<g transform="rotate(6 203 316)">${P("M189 306 L217 306 L217 352 L189 352 Z", f)}${P("M193 306 L193 352", "none", 2)}${LN("M199 334 L212 334 M199 341 L212 341", 1.6, "#fff")}${P("M217 308 L219 309 L219 352 L217 352", "#fff", 1.4)}</g>`},
   bouquet:  {name:"花束", tags:["party", "formal"], grip:true, color:"#F7A8C4",
