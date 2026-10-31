@@ -186,7 +186,7 @@ const HAIRB = {
     front:() => TIE(200, 74, 40)},
   bob:   {name:"鮑伯頭", draw:h => P("M86 126 C80 56 220 56 214 126 C216 160 218 178 226 194 Q214 202 204 194 Q200 200 190 196 L110 196 Q100 200 96 194 Q86 202 74 194 C82 178 84 160 86 126 Z", h)},
   short: {name:"短髮", draw:h => P("M88 126 C84 60 216 60 212 126 L213 166 Q208 176 198 170 L102 170 Q92 176 87 166 Z", h)},
-  bun:   {name:"丸子頭", draw:h => C(150, 50, 24, h) + LN("M134 64 Q150 72 166 64", 4, "#F2668B") + P("M88 126 C84 60 216 60 212 126 L208 150 Q150 158 92 150 Z", h)},
+  bun:   {name:"丸子頭", draw:(h, hat) => (hat ? "" : C(150, 50, 24, h) + LN("M134 64 Q150 72 166 64", 4, "#F2668B")) + P("M88 126 C84 60 216 60 212 126 L208 150 Q150 158 92 150 Z", h)},
 };
 // 瀏海（畫在臉的前面）：頭頂到額頭的形狀
 const CROWN = "M89 152 C82 80 114 52 150 52 C186 52 218 80 211 152";
@@ -259,7 +259,7 @@ const HATS = {
   beret:    {name:"貝雷帽", tags:["neat", "casual"], color:"#D9414E",
     draw:(f, c) => P("M92 104 C84 70 108 42 152 38 C200 34 230 52 224 74 C220 88 208 94 202 94 Q150 84 92 104 Z", f) + LN("M96 100 Q150 82 202 94", 2, shade(c, -.25)) + LN("M152 38 L155 28", 3.4) + LN("M120 56 Q140 46 166 46", 3, "rgba(255,255,255,.35)")},
   straw:    {name:"草帽", tags:["summer", "beach"], color:"#E8679A",
-    draw:(f, c) => E(150, 90, 98, 22, "#F2D48A", 2.6) + P("M108 90 Q108 44 150 42 Q192 44 192 90 Z", "#F2D48A") + P("M109 78 Q150 86 191 78 L192 88 Q150 96 108 88 Z", f, 2.2)},
+    draw:(f, c) => E(150, 92, 104, 24, "#F2D48A", 2.6) + P("M94 94 C92 56 120 40 150 40 C180 40 208 56 206 94 Q150 84 94 94 Z", "#F2D48A") + P("M95 78 Q150 68 205 78 L206 90 Q150 80 94 90 Z", f, 2.2)},
   beanie:   {name:"毛帽", tags:["winter", "warm"], color:"#7E5BC2",
     draw:(f, c) => P("M88 110 Q86 44 150 42 Q214 44 212 110 Z", f) + P("M86 96 Q150 84 214 96 L214 116 Q150 104 86 116 Z", shade(c, -.15)) + C(150, 38, 12, shade(c, .5))},
   cap:      {name:"棒球帽", tags:["sport", "casual"], color:"#4C8FE0",
@@ -403,7 +403,7 @@ Object.assign(HAIRF, {
 });
 Object.assign(HATS, {
   witch:   {name:"女巫帽", tags:["halloween"], color:"#7E5BC2",
-    draw:(f, c) => E(150, 90, 94, 18, f, 2.6) + P("M110 88 Q126 62 140 22 Q146 8 164 18 Q156 24 160 40 L188 88 Z", f) + P("M112 80 Q150 90 186 80 L188 88 Q150 98 110 88 Z", "#F6D65A", 2.2) + star(156, 58, 5, "#F6D65A", 1.2)},
+    draw:(f, c) => E(150, 92, 100, 20, f, 2.6) + P("M90 94 C88 64 108 50 128 44 Q138 24 146 12 Q154 2 170 12 Q160 18 160 32 L162 46 C196 54 212 70 210 94 Q150 84 90 94 Z", f) + P("M92 82 Q150 70 208 82 L209 92 Q150 82 91 92 Z", "#F6D65A", 2.2) + star(152, 60, 5, "#F6D65A", 1.2)},
   santa:   {name:"聖誕帽", tags:["xmas", "winter", "party"], color:"#D9414E",
     draw:(f, c) => P("M94 100 Q98 48 152 44 Q196 46 214 84 Q226 106 230 126 L212 120 Q204 96 190 82 L206 100 Z", f) + C(228, 128, 10, "#fff", 2.2) + P("M88 94 Q150 80 212 94 L214 112 Q150 98 86 112 Z", "#fff", 2.4)},
   antlers: {name:"麋鹿角", tags:["xmas", "party"], color:"#8A5A3C", lock:"christmas",
@@ -452,7 +452,9 @@ function drawLook(L, opt = {}){
   if(opt.bg !== false){ const b = BGS[L.bg] || BGS.room; s += b.draw(L.bgC || "#F7D3E0"); }
   s += E(150, 448, 62, 9, "rgba(58,42,32,.18)", 0);
   // 後面的頭髮
-  s += shaded((HAIRB[L.hairB] || HAIRB.long).draw(L.hairC), "hv");
+  // 戴了整個包住頭頂的帽子，丸子頭的髮髻就藏在帽子裡
+  const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa"].includes(L.hat.id);
+  s += shaded((HAIRB[L.hairB] || HAIRB.long).draw(L.hairC, fullHat), "hv");
   // 身體：全部合成一塊描邊（先畫粗的墨線，再蓋上膚色），接縫不會有線
   const parts = [BODY, ARM_SHAPE, MX(ARM_SHAPE), LEG_SHAPE, MX(LEG_SHAPE)];
   s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
