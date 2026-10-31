@@ -100,6 +100,15 @@ textarea{resize:vertical;line-height:1.6}
 .rank{list-style:none;margin:6px 0 0;padding:0}.rank li{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-weight:800}
 .rank li:last-child{border-bottom:0}.rank .st{color:#FFB020;margin-left:auto;letter-spacing:1px}
 .cat{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.spots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+.tile{aspect-ratio:1;border-radius:12px;border:2px solid #147A5E;background:linear-gradient(135deg,#27B38E,#147A5E);color:#fff;font:inherit;font-size:24px;font-weight:900;cursor:pointer;padding:2px;line-height:1.25;display:grid;place-items:center}
+.tile:active{transform:scale(.96)}
+.tile.open{background:#fff;border-color:var(--line);color:var(--ink);font-size:11.5px;font-weight:800;animation:flip .45s}
+.tile.cur{border-color:var(--acc2);box-shadow:0 0 0 2px var(--acc2)}
+.tile.go{background:#DDF3EA;border-color:var(--acc)}
+@keyframes flip{from{transform:rotateY(90deg)}to{transform:rotateY(0)}}
+@media(prefers-reduced-motion:reduce){.tile.open{animation:none}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chips span{background:#DDF3EA;color:#1A7D61;border-radius:99px;padding:3px 10px;font-size:13px;font-weight:900}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -141,7 +150,7 @@ textarea{resize:vertical;line-height:1.6}
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const KEY = "homestay.v1";
-let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}};
+let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}, go:{}};
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 const fill = (t) => t
@@ -459,6 +468,25 @@ const LEARN = [
   {cat:"問候和禮貌", items:[["你好","nǐ hǎo","hello"],["謝謝","xiè xie","thank you"],["不客氣","bú kè qi","you're welcome"],["對不起","duì bu qǐ","sorry"],["請","qǐng","please"],["早安","zǎo ān","good morning"],["晚安","wǎn ān","good night"],["再見","zài jiàn","goodbye"]]},
   {cat:"點餐", items:[["我要這個","wǒ yào zhè ge","I want this one"],["多少錢","duō shǎo qián","how much"],["不要辣","bú yào là","not spicy"],["不要香菜","bú yào xiāng cài","no coriander"],["我吃素","wǒ chī sù","I'm vegetarian"],["好吃","hǎo chī","delicious"],["外帶","wài dài","takeaway"],["買單","mǎi dān","the bill, please"]]}
 ];
+/* 北部景點盲翻：外國人來台灣常去的北部景點。交通、營業時間、票價我沒有即時資料，出發前請再查 */
+const SPOTS = [
+  {zh:"台北 101", en:"Taipei 101", area:"台北信義區", ed:"A famous skyscraper with a view of the whole city.", d:"台北最有名的地標，可以上觀景台看整座城市，樓下的商場也很好逛。", io:"室內", rain:true, how:"台北市區，捷運可到"},
+  {zh:"士林夜市", en:"Shilin Night Market", area:"台北士林", ed:"The most famous night market in Taipei.", d:"台北最有名的夜市，小吃、遊戲和衣服都有，傍晚以後最熱鬧。", io:"室內外", rain:false, how:"台北市區，捷運可到"},
+  {zh:"九份老街", en:"Jiufen Old Street", area:"新北瑞芳", ed:"A mountain town with red lanterns and tea houses.", d:"山城裡的石階、紅燈籠和茶樓。人多、階梯多，記得穿好走的鞋。", io:"戶外", rain:true, how:"新北山區，要轉火車或客運"},
+  {zh:"十分老街放天燈", en:"Shifen Sky Lanterns", area:"新北平溪", ed:"A small old street where you can send a wish up in a sky lantern.", d:"在天燈上寫願望再放上天空，也可以搭小火車。山區又濕又冷，下雨可能放不了。", io:"戶外", rain:false, how:"新北山區，搭平溪線小火車"},
+  {zh:"淡水老街和漁人碼頭", en:"Tamsui Old Street", area:"新北淡水", ed:"A riverside town with street food and beautiful sunsets.", d:"沿河邊邊走邊吃，傍晚在漁人碼頭看夕陽。冬天河邊風大。", io:"戶外", rain:false, how:"台北捷運可到"},
+  {zh:"國立故宮博物院", en:"National Palace Museum", area:"台北士林", ed:"A museum with thousands of years of Chinese treasures.", d:"有很多中國古代文物，例如有名的翠玉白菜。展品會輪換，不一定當天看得到，下雨天最適合。", io:"室內", rain:true, how:"台北市區，捷運加公車"},
+  {zh:"中正紀念堂", en:"Chiang Kai-shek Memorial Hall", area:"台北中正區", ed:"A big white hall with a large square and a guard ceremony.", d:"白色大廳和很大的廣場，有衛兵交接儀式。交接時間請查官方資訊。", io:"室內外", rain:true, how:"台北市區，捷運可到"},
+  {zh:"龍山寺", en:"Longshan Temple", area:"台北萬華", ed:"A very old and famous temple in Taipei.", d:"台北很有名的古廟，可以看建築和拜拜的人。進去要安靜，不拍正在祈禱的人。", io:"室內外", rain:true, how:"台北市區，捷運可到"},
+  {zh:"北投溫泉和地熱谷", en:"Beitou Hot Springs", area:"台北北投", ed:"A hot spring area with steaming green water.", d:"地熱谷冒著煙的溫泉很特別，也有溫泉博物館。要不要泡湯另外決定，公共溫泉要穿泳衣。", io:"室內外", rain:true, how:"台北市區，捷運可到"},
+  {zh:"象山步道", en:"Elephant Mountain", area:"台北信義", ed:"A short hike with a great view of Taipei 101.", d:"走約三十分鐘的階梯，就能看到 101 和夜景。天氣好、天黑前去最好。", io:"戶外", rain:false, how:"台北市區，捷運可到"},
+  {zh:"西門町", en:"Ximending", area:"台北萬華", ed:"A busy shopping area for young people.", d:"年輕人逛街的地方，有小吃、服飾、電影院和夾娃娃機。週末人很多。", io:"室內外", rain:true, how:"台北市區，捷運可到"},
+  {zh:"貓空纜車", en:"Maokong Gondola", area:"台北文山", ed:"A cable car up a mountain, with tea houses at the top.", d:"搭纜車上山，在茶館喝台灣茶。山上冷，也要確認纜車當天有沒有營運。", io:"室內外", rain:false, how:"台北市區，捷運加纜車"},
+  {zh:"猴硐貓村", en:"Houtong Cat Village", area:"新北瑞芳", ed:"An old mining village full of cats.", d:"舊礦村裡有很多貓，喜歡動物的人會很開心。不要餵人類的食物。", io:"戶外", rain:false, how:"新北山區，搭火車"},
+  {zh:"野柳地質公園", en:"Yehliu Geopark", area:"新北萬里", ed:"Strange rock shapes by the sea, including the famous Queen's Head.", d:"海邊有很多奇特的岩石，最有名的是女王頭。風大，要遵守園區規定，不爬岩石。", io:"戶外", rain:false, how:"新北海邊，要轉客運"},
+  {zh:"基隆廟口夜市", en:"Keelung Miaokou Night Market", area:"基隆", ed:"A famous night market in a port city, known for seafood snacks.", d:"港口城市的夜市，海鮮和小吃很有名，營業時間和日期請查詢。", io:"室內外", rain:false, how:"基隆，搭火車"},
+  {zh:"鶯歌陶瓷老街", en:"Yingge Ceramics Old Street", area:"新北鶯歌", ed:"A pottery town where you can make your own cup.", d:"有很多陶瓷店，也可以手作自己的陶杯，有些體驗要預約。", io:"室內外", rain:true, how:"新北，搭火車"}
+];
 let PLAY = {mode:null, deck:[], i:0, step:0, side:"au"};
 const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const PLANS = {
@@ -604,15 +632,29 @@ function learnView(){
     <div class="ctl"><button class="btn ghost sm" data-pspeak="w">念中文</button>${reveal ? "" : '<button class="btn" data-preveal="1">看意思</button>'}<button class="btn ${got ? "" : "ghost"} sm" data-plearned="1">${got ? "學會了 ✓" : "學會了"}</button></div>
     <div class="ctl"><button class="btn ghost sm" data-pprev="1" ${PLAY.i ? "" : "disabled"}>上一個</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一個" : "再來一輪"}</button></div></div>`;
 }
+function spotsView(){
+  const cur = PLAY.cur != null ? PLAY.deck[PLAY.cur] : null;
+  const chosen = SPOTS.filter(x => S.go[x.zh]);
+  const detail = cur ? `<div class="card"><div class="top" style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span style="font-size:20px;font-weight:900">${esc(cur.zh)}</span><span class="enn" style="font-weight:800;color:var(--acc)">${esc(cur.en)}</span></div>
+      <p class="hint" style="margin:6px 0">${esc(cur.area)}・${esc(cur.how)}</p><p style="margin:0 0 8px;font-size:14px;line-height:1.7">${esc(cur.d)}</p>
+      <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">${esc(cur.io)}</span>${cur.rain ? '<span class="pill">雨天可以</span>' : '<span class="pill hot">雨天要考慮</span>'}</div>
+      <div class="ctl" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn sm" data-spotask="1">問她要不要去</button><button class="btn ${S.go[cur.zh] ? "" : "ghost"} sm" data-spotgo="1">${S.go[cur.zh] ? "決定去 ✓" : "就決定去這個"}</button></div></div>` : `<div class="note">點任何一張綠色卡片，翻開看看今天要去哪裡。翻到不喜歡的可以再翻，也可以全部翻完再選。</div>`;
+  return `<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><button class="btn ghost sm" data-spotshuf="1">重新洗牌</button></div>
+    ${detail}
+    <div class="spots">${PLAY.deck.map((x, i) => `<button class="tile ${PLAY.flip[i] ? "open" : ""} ${PLAY.cur === i ? "cur" : ""} ${PLAY.flip[i] && S.go[x.zh] ? "go" : ""}" data-spot="${i}" aria-label="${PLAY.flip[i] ? esc(x.zh) : "還沒翻開的景點"}">${PLAY.flip[i] ? esc(x.zh) : "?"}</button>`).join("")}</div>
+    <div class="card"><h2>決定要去的</h2>${chosen.length ? `<div class="chips">${chosen.map(x => `<span>${esc(x.zh)}</span>`).join("")}</div>` : '<p class="hint" style="margin:0">還沒決定。翻到喜歡的，按「就決定去這個」。</p>'}</div>`;
+}
 function playView(){
   if(!PLAY.mode){
     return `<div class="note">一起玩，不計分，目的是聊天。用同一支手機，念出來給她聽，也讓她看英文。她不想回答的題目可以直接跳過。</div>
       <div class="card"><h2>默契大考驗</h2><p class="hint">每題四個選項，數到三，兩個人同時指出自己的選擇，再問「為什麼？」。看看我們一不一樣。</p><button class="btn" data-pmode="match">開始（${MATCH_Q.length} 題）</button></div>
       <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>
       <div class="card"><h2>台灣體驗賓果</h2><p class="hint">10 天裡完成 16 件台灣的事，做完就打勾，連成一線有亮框。進度記在這支手機上。</p><button class="btn" data-pmode="bingo">開始</button></div>
+      <div class="card"><h2>景點盲翻</h2><p class="hint">16 個外國人來台灣常去的北部景點，每張都蓋著，隨便翻開一張，看看運氣把你們帶去哪裡。</p><button class="btn" data-pmode="spots">開始翻</button></div>
       <div class="card"><h2>零食盲測</h2><p class="hint">準備幾種台灣零食，她邊吃邊打星星，最後出現「她最喜歡的台灣味」排行榜。</p><button class="btn" data-pmode="snack">開始</button></div>
       <div class="card"><h2>學中文小挑戰</h2><p class="hint">數字、顏色、家人、問候、點餐，每個詞有拼音，點一下念出來。</p><button class="btn" data-pmode="learn">開始</button></div>`;
   }
+  if(PLAY.mode === "spots") return spotsView();
   if(PLAY.mode === "bingo") return bingoView();
   if(PLAY.mode === "snack") return snackView();
   if(PLAY.mode === "learn") return learnView();
@@ -674,6 +716,10 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  const sp = e.target.closest("[data-spot]"); if(sp){ const i = +sp.dataset.spot; PLAY.flip[i] = true; PLAY.cur = i; render(); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-spotshuf]")){ PLAY.deck = shuffle(SPOTS); PLAY.flip = {}; PLAY.cur = null; render(); return; }
+  if(e.target.closest("[data-spotgo]")){ const c = PLAY.deck[PLAY.cur]; S.go[c.zh] = !S.go[c.zh]; save(); render(); return; }
+  if(e.target.closest("[data-spotask]")){ const c = PLAY.deck[PLAY.cur]; const q = "How about " + c.en + "? " + c.ed; openShow(q, c.zh + "（" + c.en + "）", "en"); say(q, "en"); return; }
   if(e.target.closest("[data-bingo]")){ const i = e.target.closest("[data-bingo]").dataset.bingo; S.bingo[i] = !S.bingo[i]; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
   if(e.target.closest("[data-bingoreset]")){ if(confirm("要把賓果全部清掉重來嗎？")){ S.bingo = {}; save(); render(); } return; }
   if(e.target.closest("[data-bingocopy]")){ const t = "台灣體驗賓果\n" + BINGO.map((b, i) => (S.bingo[i] ? "✓ " : "□ ") + b[0] + " " + b[1]).join("\n"); navigator.clipboard.writeText(t).then(() => toast("已複製"), () => prompt("複製下面的文字：", t)); return; }
@@ -685,7 +731,8 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-plearned]")){ const c = PLAY.deck[PLAY.i]; S.learned[c.w] = !S.learned[c.w]; save(); render(); return; }
   const pm = e.target.closest("[data-pmode]"); if(pm){
     const m = pm.dataset.pmode;
-    if(m === "bingo" || m === "snack"){ PLAY = {mode:m, deck:[], i:0, step:0, side:"au"}; }
+    if(m === "spots"){ PLAY = {mode:"spots", deck:shuffle(SPOTS), i:0, step:0, side:"au", flip:{}, cur:null}; }
+    else if(m === "bingo" || m === "snack"){ PLAY = {mode:m, deck:[], i:0, step:0, side:"au"}; }
     else if(m === "learn"){ PLAY = {mode:"learn", deck:[], i:0, step:0, side:"learn", cat:null}; }
     else if(m === "match"){ PLAY = {mode:"match", deck:shuffle(MATCH_Q), i:0, step:0, side:"au"}; }
     else { const side = m === "slang-au" ? "au" : "tw"; PLAY = {mode:"slang", deck:shuffle(SLANG[side]), i:0, step:0, side}; }
