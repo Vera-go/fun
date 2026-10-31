@@ -148,12 +148,20 @@ const SHOES = {
 };
 
 // ---------- 頭髮 ----------
+const TAIL = "M100 84 C80 84 62 104 58 140 C54 180 62 214 58 250 C56 274 50 292 54 308 Q60 298 64 302 Q66 288 72 296 Q74 282 80 290 C84 262 80 232 84 200 C88 170 96 146 92 124 C90 108 96 96 106 92 Z";
+const TAIL_LINES = "M88 98 C72 112 66 150 70 190 C74 230 66 270 62 298 M96 112 C84 140 84 180 80 222";
+const PONY = "M198 70 C232 66 252 100 250 150 C248 200 238 230 244 270 Q236 262 232 272 Q228 258 222 266 Q220 250 214 256 C220 220 224 180 220 140 C218 110 206 92 192 86 Z";
+const strand = h => shade(h, lum(h) < .25 ? .25 : -.22);
+const TIE = (x, y, rot) => `<g transform="translate(${x} ${y}) rotate(${rot})">${E(0, 0, 5.5, 9, "#F2668B", 2.2)}${LN("M-3 -5 L3 -5 M-3 5 L3 5", 1.2, "#fff", 'opacity=".7"')}</g>`;
 // 後面的頭髮（畫在身體後面）；side：臉兩邊要不要有垂下來的髮絲
 const HAIRB = {
   long:  {name:"長直髮", side:true, draw:h => P("M88 120 C80 52 220 52 212 120 C214 180 222 240 230 292 Q224 300 218 294 Q216 310 206 302 Q198 316 190 304 Q178 312 170 304 L130 304 Q122 312 110 304 Q102 316 94 302 Q84 310 82 294 Q76 300 70 292 C78 240 86 180 88 120 Z", h) + LN("M84 170 Q82 230 90 290 M216 170 Q218 230 210 290 M96 200 Q96 250 102 296 M204 200 Q204 250 198 296", 1.6, shade(h, lum(h) < .25 ? .25 : -.22), `opacity=".7"`)},
   wavy:  {name:"大波浪", side:true, draw:h => P("M88 120 C82 52 218 52 212 120 C226 170 210 220 228 260 Q222 300 196 296 Q174 308 150 300 Q126 308 104 296 Q78 300 72 260 C90 220 74 170 88 120 Z", h)},
-  twin:  {name:"雙馬尾", side:true, draw:h => P("M90 124 C86 60 214 60 210 124 Z", h) + PB("M98 100 C56 120 50 220 72 300 C86 286 88 236 106 140 Z", h) + C(100, 104, 6, "#F2668B", 2) + C(200, 104, 6, "#F2668B", 2)},
-  pony:  {name:"馬尾", draw:h => P("M90 124 C86 60 214 60 210 124 Z", h) + P("M196 74 C252 90 250 210 222 282 C222 220 212 160 192 112 Z", h) + C(198, 82, 6, "#F2668B", 2)},
+  // 雙馬尾：從綁髮的地方細細的出來，往外蓬再順順垂下，髮尾一束一束；髮圈畫在瀏海前面（front）
+  twin:  {name:"雙馬尾", side:true, draw:h => P("M90 124 C86 60 214 60 210 124 Z", h) + PB(TAIL, h) + LN(TAIL_LINES + " " + MX(TAIL_LINES), 1.6, strand(h), `opacity=".75"`),
+    front:() => TIE(97, 90, -35) + TIE(203, 90, 35)},
+  pony:  {name:"馬尾", draw:h => P("M90 124 C86 60 214 60 210 124 Z", h) + P(PONY, h) + LN("M210 84 C238 104 244 170 234 250 M204 96 C226 130 228 200 220 268", 1.6, strand(h), `opacity=".75"`),
+    front:() => TIE(200, 74, 40)},
   bob:   {name:"鮑伯頭", draw:h => P("M86 126 C80 56 220 56 214 126 C216 160 218 178 226 194 Q214 202 204 194 Q200 200 190 196 L110 196 Q100 200 96 194 Q86 202 74 194 C82 178 84 160 86 126 Z", h)},
   short: {name:"短髮", draw:h => P("M88 126 C84 60 216 60 212 126 L213 166 Q208 176 198 170 L102 170 Q92 176 87 166 Z", h)},
   bun:   {name:"丸子頭", draw:h => C(150, 50, 24, h) + LN("M134 64 Q150 72 166 64", 4, "#F2668B") + P("M88 126 C84 60 216 60 212 126 L208 150 Q150 158 92 150 Z", h)},
@@ -168,6 +176,8 @@ const HAIRF = {
   spiky: {name:"刺刺短髮", d:" C209 122 200 104 188 100 L182 112 L172 98 L164 112 L152 96 L142 112 L132 98 L124 112 L114 100 C100 104 91 122 89 152 Z", cl:[114, 100], cr:[114, 100], lines:"M130 66 Q128 84 132 98 M170 66 Q172 84 168 98"},
 };
 // 從瀏海的轉角 (x, y) 順著往下垂到下巴旁邊
+// 沒有長髮絲的髮型：太陽穴一小撮圓圓的短髮，讓瀏海自然收尾（不會尖尖的刺出來）
+const shortLock = ([x, y]) => `M${x} ${y} C${x - 3} ${y + 22} ${x - 4} 148 106 164 Q98 172 91 164 C86 150 86 132 ${Math.max(x - 14, 92)} ${y + 16} Z`;
 const sideLock = ([x, y]) => `M${x} ${y} C${x - 4} ${y + 40} ${x - 3} ${y + 72} 113 194 Q112 206 100 216 Q101 206 95 198 C84 178 86 150 ${Math.max(x - 14, 92)} ${y + 16} Z`;
 
 // ---------- 臉 ----------
@@ -440,10 +450,11 @@ function drawLook(L, opt = {}){
   else if(L.sticker === "tear") s += C(182, 150, 1.8, INK, 0);
   // 前面的頭髮
   const hb = HAIRB[L.hairB] || HAIRB.long;
-  const hf = HAIRF[L.hairF] || HAIRF.blunt, front = [CROWN + hf.d, ...(hb.side ? [sideLock(hf.cl), MX(sideLock(hf.cr))] : [])];
+  const hf = HAIRF[L.hairF] || HAIRF.blunt, front = [CROWN + hf.d, ...(hb.side ? [sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
   s += front.map(d => `<path d="${d}" fill="${L.hairC}" stroke="${INK}" stroke-width="5.6" stroke-linejoin="round"/>`).join("");
   s += front.map(d => `<path d="${d}" fill="${L.hairC}"/>`).join("");
-  if(hf.lines) s += LN(hf.lines, 1.8, shade(L.hairC, lum(L.hairC) < .25 ? .25 : -.22), `opacity=".8"`);
+  if(hf.lines) s += LN(hf.lines, 1.8, strand(L.hairC), `opacity=".8"`);
+  if(hb.front) s += hb.front(L.hairC);
   s += LN("M116 74 Q128 64 142 61", 4, "rgba(255,255,255,.45)");
   // 頭上、臉上的配件
   s += item(GLASSES, "glasses");
