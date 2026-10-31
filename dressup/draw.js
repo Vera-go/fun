@@ -702,9 +702,13 @@ function drawLook(L, opt = {}){
   if(hb.front) s += hb.front(L.hairC);
   // 比 YA 的手：畫在頭髮前面（食指和中指比 V，其他手指收在手心）
   if(POSE === "peace"){
-    const fingers = [[[96, 183], [88, 164]], [[102, 182], [106, 162]]].map(pts => tube(pts, 6.4));
-    const palm = "M93 184 Q91 197 99 201 Q108 202 110 192 Q111 183 104 181 L97 181 Q93 181 93 184 Z";
-    s += fingers.map(d => P(d, skin, 2.4)).join("") + P(palm, skin, 2.4) + LN("M95 189 Q101 186 108 190", 1.6) + LN("M110 186 Q114 184 113 189", 1.6);
+    // 拳頭＋兩根手指合成一塊描邊；大拇指壓在收起來的手指上
+    const parts = [
+      "M91 187 C90 178 95 173 102 173 C109 173 114 178 113 187 C112 196 107 202 100 202 C94 202 91 195 91 187 Z",
+      tube([[97, 177], [90, 155]], 8), tube([[104, 176], [109, 153]], 8)];
+    s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
+    s += overlay(parts.map(d => `<path d="${d}"/>`).join(""), "sk");
+    s += LN("M100.5 177 L101 168", 1.4, shade(skin, -.3)) + LN("M112 184 Q105 181 97 186", 2) + LN("M94 192 Q99 195 105 193", 1.6, shade(skin, -.35)) + LN("M95 197 Q99 199 103 198", 1.4, shade(skin, -.35));
   }
   // 漫畫符號：浮在頭髮上面
   if(fun.includes("anger")) s += `<g transform="translate(196 96)">${["M-7 -3 Q-3 -3 -3 -7", "M3 -7 Q3 -3 7 -3", "M7 3 Q3 3 3 7", "M-3 7 Q-3 3 -7 3"].map(d => LN(d, 5.5, "#fff") + LN(d, 3, "#E0303E")).join("")}</g>`;
