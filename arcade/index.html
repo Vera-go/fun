@@ -19,6 +19,10 @@ header h1{margin:0;font-size:28px;font-weight:900;letter-spacing:2px;text-shadow
 header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .snd{margin-left:auto;border:2px solid var(--card2);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
 .menu{display:grid;gap:12px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px;position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 70%,transparent);padding-top:6px}
+.chip{flex:none;border:2px solid var(--card2);background:var(--card);color:var(--muted);border-radius:99px;padding:8px 14px;font:inherit;font-size:14px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.chip.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.newtag{font-style:normal;font-size:10px;font-weight:900;background:var(--yellow);color:#14142F;border-radius:99px;padding:1px 6px;margin-left:6px;vertical-align:2px}
 .sec{font-size:13px;font-weight:900;letter-spacing:2px;color:var(--cyan);margin:6px 2px 10px}.sec:not(:first-child){margin-top:20px}
 .game{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--card2);border-radius:18px;padding:14px;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;touch-action:manipulation}
 .game:active{transform:scale(.985)}
@@ -90,9 +94,9 @@ header .sub{font-size:13px;color:var(--muted);font-weight:700}
 "use strict";
 const $ = s => document.querySelector(s);
 const KEY = "arcade.v1";
-let D = {best:{}, mute:false, name:"", client:"", sent:{}};
+let D = {best:{}, mute:false, name:"", client:"", sent:{}, recent:[], played:{}, filter:"all"};
 try{ Object.assign(D, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
-D.best = D.best || {}; D.sent = D.sent || {};
+D.best = D.best || {}; D.sent = D.sent || {}; D.recent = D.recent || []; D.played = D.played || {}; D.filter = D.filter || "all";
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} };
 
 /* ---------- 聲音 ---------- */
@@ -187,11 +191,37 @@ async function lbView(id){
 }
 
 /* ---------- 選單 ---------- */
+/* 分類：quick 30 秒、action 動作、puzzle 益智、board 棋類 */
+const CATS = [["all", "全部"], ["recent", "最近玩過"], ["action", "動作"], ["puzzle", "益智"], ["board", "棋類"], ["quick", "30 秒"]];
+const CAT = {react:"quick", whack:"quick", simon:"quick", nums:"quick", tap:"quick",
+  brick:"action", invader:"action", flap:"action", run:"action", cross:"action", maze:"action", pong:"action", race:"action", catch:"action", galaxy:"action", rocks:"action", tank:"action", bomber:"action", piano:"action",
+  block:"puzzle", merge:"puzzle", mine1:"puzzle", mine2:"puzzle", mine3:"puzzle", sokoban:"puzzle", sudoku:"puzzle", slide:"puzzle", bubble:"puzzle", match3:"puzzle",
+  c4:"board", reversi:"board", gomoku:"board", chess:"board"};
+const catOf = id => CAT[id] || "action";
+function markPlayed(id){
+  if(!GAMES[id] || GAMES[id].hide && !/^(sudoku|mine)/.test(id)) return;
+  const key = /^sudoku\d$/.test(id) ? "sudoku" : /^mine\d$/.test(id) ? id : id;
+  D.played[key] = true; D.recent = [key].concat(D.recent.filter(x => x !== key)).slice(0, 8); save();
+}
 function menu(){
   cleanup();
-  const card = ([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`;
-  const all = Object.entries(GAMES).filter(([, g]) => !g.hide), quick = all.filter(([, g]) => !g.group), retro = all.filter(([, g]) => g.group === "retro");
-  view(`<div class="row" style="margin:0 0 12px;justify-content:flex-end"><button class="btn ghost sm" data-lbgame="react">排行榜</button></div><div class="sec">30 秒小遊戲</div><div class="menu">${quick.map(card).join("")}</div>${retro.length ? `<div class="sec">復古經典</div><div class="menu">${retro.map(card).join("")}</div>` : ""}`);
+  const card = ([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}${D.played[id] ? "" : '<i class="newtag">NEW</i>'}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`;
+  const all = Object.entries(GAMES).filter(([, g]) => !g.hide);
+  const f = D.filter || "all";
+  const chips = CATS.map(([k, n]) => `<button class="chip ${f === k ? "on" : ""}" data-filter="${k}">${n}</button>`).join("");
+  const bar = `<div class="chips">${chips}</div><div class="row" style="margin:0 0 12px;justify-content:space-between"><button class="btn sm" data-random="1">隨便玩一個</button><button class="btn ghost sm" data-lbgame="react">排行榜</button></div>`;
+  let body;
+  if(f === "all"){
+    const recent = D.recent.map(id => all.find(([k]) => k === id)).filter(Boolean).slice(0, 3);
+    const quick = all.filter(([, g]) => !g.group), retro = all.filter(([, g]) => g.group === "retro");
+    body = (recent.length ? `<div class="sec">最近玩過</div><div class="menu">${recent.map(card).join("")}</div>` : "") + `<div class="sec">30 秒小遊戲</div><div class="menu">${quick.map(card).join("")}</div>${retro.length ? `<div class="sec">復古經典</div><div class="menu">${retro.map(card).join("")}</div>` : ""}`;
+  }else if(f === "recent"){
+    const list = D.recent.map(id => all.find(([k]) => k === id)).filter(Boolean);
+    body = list.length ? `<div class="menu">${list.map(card).join("")}</div>` : '<p class="sub2" style="text-align:center">還沒有玩過的遊戲，先玩一個吧。</p>';
+  }else{
+    body = `<div class="menu">${all.filter(([id]) => catOf(id) === f).map(card).join("")}</div>`;
+  }
+  view(bar + body);
 }
 
 /* ---------- 1. 反應速度 ---------- */
@@ -310,7 +340,11 @@ function gTap(){
 window.Arcade = {GAMES, RUN:null, view, later, cleanup, onCleanup, beep, buzz, record, resultView, down, esc, $, D, save, menu, toast, audio};
 const RUN = {react:gReact, whack:gWhack, simon:gSimon, nums:gNums, tap:gTap};
 $("#view").addEventListener("click", e => {
-  const p = e.target.closest("[data-play]"); if(p){ audio(); RUN[p.dataset.play](); window.scrollTo(0, 0); return; }
+  const fl = e.target.closest("[data-filter]"); if(fl){ D.filter = fl.dataset.filter; save(); menu(); return; }
+  if(e.target.closest("[data-random]")){
+    const ids = Object.entries(GAMES).filter(([, g]) => !g.hide).map(([id]) => id), fresh = ids.filter(id => !D.played[id]), pool = fresh.length ? fresh : ids;
+    const id = pool[Math.floor(Math.random() * pool.length)]; audio(); toast("抽到：" + GAMES[id].name); markPlayed(id); RUN[id](); window.scrollTo(0, 0); return; }
+  const p = e.target.closest("[data-play]"); if(p){ audio(); markPlayed(p.dataset.play); RUN[p.dataset.play](); window.scrollTo(0, 0); return; }
   if(e.target.closest("[data-menu]")){ menu(); return; }
   const lg = e.target.closest("[data-lbgame]"); if(lg){ lbView(lg.dataset.lbgame); window.scrollTo(0, 0); return; }
   const ls = e.target.closest("[data-lbsave]"); if(ls){
@@ -320,7 +354,7 @@ $("#view").addEventListener("click", e => {
     Object.keys(D.best).filter(k => GAMES[k] && k !== id).forEach(k => rpc("arcade_submit", {p_client:D.client, p_name:D.name, p_game:k, p_score:D.best[k]}).then(() => { D.sent[k] = D.best[k]; save(); }).catch(() => {}));
     submitBest(id); return; }
   if(e.target.closest("[data-lbrename]")){ e.preventDefault(); const n = (prompt("新的暱稱（1～12 個字）", D.name) || "").trim().slice(0, 12); if(n){ D.name = n; D.sent = {}; save(); toast("改好了，下次上傳會用新名字"); } return; }
-  const a = e.target.closest("[data-again]"); if(a){ audio(); RUN[a.dataset.again](); window.scrollTo(0, 0); return; }
+  const a = e.target.closest("[data-again]"); if(a){ audio(); markPlayed(a.dataset.again); RUN[a.dataset.again](); window.scrollTo(0, 0); return; }
   if(e.target.closest("[data-copy]")){ const t = $("#view").dataset.copy || ""; navigator.clipboard.writeText(t).then(() => toast("已複製，傳給朋友比一比"), () => prompt("複製下面的文字：", t)); }
 });
 document.addEventListener("visibilitychange", () => { if(document.hidden && loop){ /* 切到別的畫面就回選單，避免偷跑 */ menu(); } });
@@ -332,5 +366,7 @@ menu();
 <script src="retro3.js?v=1"></script>
 <script src="retro4.js?v=1"></script>
 <script src="retro5.js?v=1"></script>
+<script src="xiangqi.js?v=1"></script>
+<script src="retro6.js?v=1"></script>
 </body>
 </html>
