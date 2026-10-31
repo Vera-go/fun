@@ -127,7 +127,8 @@ function renderGroups(){
       if(none) h += `<button class="it ${!cur ? "on" : ""}" data-t="${g.type}" data-k="${g.key}" data-v=""><span class="none">✕</span>不要</button>`;
       h += Object.entries(g.list).map(([id, it]) => {
         const lk = lockedItem(it);
-        return `<button class="it ${cur === id ? "on" : ""} ${lk ? "lock" : ""}" data-t="${g.type}" data-k="${g.key}" data-v="${id}">${thumb(g, id)}${lk ? `<span class="lk">挑戰解鎖</span>` : ""}${esc(it.name)}</button>`;
+        const wk = !lk && weekTags().length && (it.tags || []).some(t => weekTags().includes(t));
+        return `<button class="it ${cur === id ? "on" : ""} ${lk ? "lock" : ""}" data-t="${g.type}" data-k="${g.key}" data-v="${id}">${thumb(g, id)}${lk ? `<span class="lk">挑戰解鎖</span>` : ""}${wk ? `<span class="wk">本週</span>` : ""}${esc(it.name)}</button>`;
       }).join("");
       h += `</div>`;
       // 選了衣服：可以換顏色和花紋
@@ -375,7 +376,7 @@ function wallCard(r, rank){
 function renderWall(msg){
   const tabs = [["contest", "本週比賽"], ["new", "最新"], ["week", "本週熱門"], ["top", "最多讚"], ["hall", "名人堂"], ["mine", "我貼的"]];
   const wk = weekOf(Date.now()), ct = contestOf(wk.key), sun = new Date(wk.mon + 6 * DAY);
-  const bar = W8.sort === "contest" ? `<div class="contestbar"><span>本週主題比賽：<b>${esc(ct.name)}</b><br><span class="small">${esc(ct.desc)} 比賽到 ${sun.getUTCMonth() + 1}/${sun.getUTCDate()}（日）晚上 12 點，讚數最多的前三名會進名人堂。</span></span><button class="btn sm acc" data-w="post" data-c="1" style="margin-left:auto">參加比賽</button></div>`
+  const bar = W8.sort === "contest" ? `<div class="contestbar"><span>本週主題比賽：<b>${esc(ct.name)}</b><br><span class="small">${esc(ct.desc)}${weekItems() ? `<br>相關單品：${esc(weekItems())}` : ""}<br>比賽到 ${sun.getUTCMonth() + 1}/${sun.getUTCDate()}（日）晚上 12 點，讚數最多的前三名會進名人堂。</span></span><button class="btn sm acc" data-w="post" data-c="1" style="margin-left:auto">參加比賽</button></div>`
     : W8.sort === "hall" ? `<div class="contestbar"><span>每週主題比賽讚數最多的前三名。比賽結束後就不能再按讚，名次就固定了。</span></div>` : "";
   const body = W8.sort === "hall" ? hallHtml() : `<div class="wall">${W8.rows.map((r, i) => wallCard(r, W8.sort === "contest" && i < 3 ? i + 1 : 0)).join("")}</div>`;
   openPanel(`<h2>穿搭牆</h2>
@@ -470,14 +471,24 @@ function weekOf(ms){
   return {key:`${y}-W${String(wk).padStart(2, "0")}`, mon};
 }
 // 節日那一週用節日主題，其他週輪流
-const HOLIDAYS = [[9, 31, {name:"萬聖節派對", desc:"不給糖就搗蛋！女巫帽、斗篷、南瓜燈都可以用。"}], [11, 25, {name:"聖誕節交換禮物", desc:"聖誕帽、毛衣、禮物，穿出節日的溫暖。"}], [0, 1, {name:"新年穿新衣", desc:"新的一年，穿上最喜歡的新衣服，拿個紅包！"}]];
+// tags：跟這個主題有關的單品標籤（單品小圖會標上「本週」）
+const HOLIDAYS = [[9, 31, {name:"萬聖節派對", desc:"不給糖就搗蛋！來一套有點神祕的萬聖節造型。", tags:["halloween"]}], [11, 25, {name:"聖誕節交換禮物", desc:"聖誕帽、毛衣、禮物，穿出節日的溫暖。", tags:["xmas"]}], [0, 1, {name:"新年穿新衣", desc:"新的一年，穿上最喜歡的新衣服，拿個紅包！", tags:["newyear"]}]];
 const CONTESTS = [
-  {name:"校外教學", desc:"要走很多路、拍很多照片，方便又好看。"}, {name:"森林野餐", desc:"帶著野餐籃去草地上，清新自然風。"},
-  {name:"偶像演唱會", desc:"今天是舞台上的偶像！閃亮登場。"}, {name:"動物派對", desc:"帶上寵物，或打扮成你最喜歡的動物。"},
-  {name:"甜點下午茶", desc:"粉粉嫩嫩的甜點風，配一杯珍奶也可以。"}, {name:"雨天散步", desc:"下雨也要漂亮出門，雨傘雨鞋準備好。"},
-  {name:"運動明星", desc:"球場上的焦點，帥氣又有活力。"}, {name:"童話故事", desc:"像從童話書裡走出來的角色。"},
-  {name:"全身同色系", desc:"選一個顏色，從頭到腳都用同一個色系。"}, {name:"復古風", desc:"像爸爸媽媽年輕時的照片，格紋、條紋都很適合。"},
+  {name:"校外教學", desc:"要走很多路、拍很多照片，方便又好看。", tags:["school"]}, {name:"森林野餐", desc:"帶著野餐籃去草地上，清新自然風。", tags:["casual"]},
+  {name:"偶像演唱會", desc:"今天是舞台上的偶像！閃亮登場。", tags:["party"]}, {name:"動物派對", desc:"帶上寵物，或打扮成你最喜歡的動物。", tags:["animal"]},
+  {name:"甜點下午茶", desc:"粉粉嫩嫩的甜點風，配一杯珍奶也可以。", tags:["snack"]}, {name:"雨天散步", desc:"下雨也要漂亮出門，雨傘雨鞋準備好。", tags:["rain"]},
+  {name:"運動明星", desc:"球場上的焦點，帥氣又有活力。", tags:["sport"]}, {name:"童話故事", desc:"像從童話書裡走出來的角色。", tags:["formal"]},
+  {name:"全身同色系", desc:"選一個顏色，從頭到腳都用同一個色系。", tags:[]}, {name:"復古風", desc:"像爸爸媽媽年輕時的照片，格紋、條紋都很適合。", tags:["neat"]},
 ];
+// 本週比賽的標籤、相關單品（列在比賽說明裡，例如「女巫帽（配件）」）
+const weekTags = () => contestOf(weekOf(Date.now()).key).tags || [];
+function weekItems(){
+  const tags = weekTags(); if(!tags.length) return "";
+  const where = {top:"上衣", bottom:"下身", dress:"洋裝", outer:"外套", socks:"鞋襪", shoes:"鞋襪", hat:"配件", glasses:"配件", hairpin:"配件", neck:"配件", scarf:"配件", bag:"配件", hand:"配件"};
+  const list = Object.entries(SLOT_LISTS).flatMap(([k, items]) => Object.values(items).filter(it => (it.tags || []).some(t => tags.includes(t))).map(it => `${it.name}（${where[k]}${it.lock && !unlocked(it.lock) ? "，挑戰解鎖" : ""}）`));
+  const bgs = Object.values(BGS).filter(b => b.tags.some(t => tags.includes(t))).map(b => `${b.name}（背景）`);
+  return [...list, ...bgs].join("、");
+}
 function contestOf(key){
   const [y, w] = String(key).split("-W").map(Number);
   if(!y || !w) return {name:"本週主題", desc:""};

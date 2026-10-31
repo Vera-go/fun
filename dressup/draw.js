@@ -267,11 +267,11 @@ const HATS = {
       P("M84 100 Q150 86 216 100 Q222 114 208 120 Q150 106 92 120 Q78 114 84 100 Z", shade(c, -.15))},
   crown:    {name:"皇冠", tags:["party"], color:"#F6D65A", lock:"party",
     draw:(f, c) => P("M112 72 L116 40 L134 58 L150 32 L166 58 L184 40 L188 72 Z", f) + C(150, 62, 4.5, "#D9414E", 1.6) + C(128, 66, 3.2, "#4C8FE0", 1.4) + C(172, 66, 3.2, "#4FA36B", 1.4)},
-  catears:  {name:"貓耳髮箍", tags:["snack", "casual", "party"], color:"#2E2B2B", lock:"market",
+  catears:  {name:"貓耳髮箍", tags:["snack", "casual", "party", "animal"], color:"#2E2B2B", lock:"market",
     draw:(f, c) => LN("M94 104 Q150 46 206 104", 6) + LN("M94 104 Q150 46 206 104", 3.4, c) + PB("M106 76 L100 36 L132 58 Z", f) + PB("M110 68 L107 46 L124 59 Z", "#F7A8C4", 0)},
   earmuffs: {name:"毛毛耳罩", tags:["winter", "warm"], color:"#F7A8C4", lock:"winter",
     draw:(f, c) => LN("M92 132 Q88 38 150 36 Q212 38 208 132", 7) + LN("M92 132 Q88 38 150 36 Q212 38 208 132", 4, c) + C(90, 140, 18, f) + C(210, 140, 18, f) + C(90, 140, 10, shade(c, .5), 0) + C(210, 140, 10, shade(c, .5), 0)},
-  foxmask:  {name:"狐狸面具", tags:["festival"], color:"#D9414E", lock:"festival",
+  foxmask:  {name:"狐狸面具", tags:["festival", "animal"], color:"#D9414E", lock:"festival",
     draw:(f, c) => `<g transform="translate(196 84) rotate(22)">${P("M-22 -6 L-20 -26 L-8 -14 L8 -14 L20 -26 L22 -6 Q20 18 0 24 Q-20 18 -22 -6 Z", "#fff")}${LN("M-12 -2 Q-7 -6 -3 -1", 2.4, f)}${LN("M3 -1 Q7 -6 12 -2", 2.4, f)}${C(0, 14, 2.6, f, 0)}${LN("M-16 -18 L-13 -10", 2.4, f)}${LN("M16 -18 L13 -10", 2.4, f)}</g>`},
 };
 const GLASSES = {
@@ -286,6 +286,8 @@ const HAIRPINS = {
   bow:    {name:"蝴蝶結", tags:["party", "school"], color:"#E8679A",
     draw:(f) => P("M196 92 L180 80 L180 104 Z", f, 2.2) + P("M196 92 L212 80 L212 104 Z", f, 2.2) + C(196, 92, 4.5, f, 2.2)},
   star:   {name:"星星髮夾", tags:["casual", "party"], color:"#F6D65A", draw:(f) => star(192, 92, 11, f, 2)},
+  bat:    {name:"蝙蝠髮夾", tags:["halloween", "party"], color:"#7E5BC2",
+    draw:(f) => P("M192 92 Q186 80 172 82 Q178 88 176 96 Q182 92 186 98 Q189 94 192 98 Q195 94 198 98 Q202 92 208 96 Q206 88 212 82 Q198 80 192 92 Z", f, 2) + C(188.5, 89, 1.1, "#F6D65A", 0) + C(195.5, 89, 1.1, "#F6D65A", 0)},
   flower: {name:"小花", tags:["festival", "summer", "beach"], color:"#F7A8C4",
     draw:(f) => [0, 1, 2, 3, 4].map(i => { const a = i * Math.PI * 2 / 5 - Math.PI / 2; return C(+(192 + Math.cos(a) * 8).toFixed(1), +(92 + Math.sin(a) * 8).toFixed(1), 6, f, 2); }).join("") + C(192, 92, 4.5, "#F6D65A", 1.8)},
 };
@@ -406,10 +408,12 @@ Object.assign(HATS, {
     draw:(f, c) => E(150, 92, 100, 20, f, 2.6) + P("M90 94 C88 64 108 50 128 44 Q138 24 146 12 Q154 2 170 12 Q160 18 160 32 L162 46 C196 54 212 70 210 94 Q150 84 90 94 Z", f) + P("M92 82 Q150 70 208 82 L209 92 Q150 82 91 92 Z", "#F6D65A", 2.2) + star(152, 60, 5, "#F6D65A", 1.2)},
   santa:   {name:"聖誕帽", tags:["xmas", "winter", "party"], color:"#D9414E",
     draw:(f, c) => P("M94 100 Q98 48 152 44 Q196 46 214 84 Q226 106 230 126 L212 120 Q204 96 190 82 L206 100 Z", f) + C(228, 128, 10, "#fff", 2.2) + P("M88 94 Q150 80 212 94 L214 112 Q150 98 86 112 Z", "#fff", 2.4)},
-  antlers: {name:"麋鹿角", tags:["xmas", "party"], color:"#8A5A3C", lock:"christmas",
+  antlers: {name:"麋鹿角", tags:["xmas", "party", "animal"], color:"#8A5A3C", lock:"christmas",
     draw:(f, c) => LN("M94 104 Q150 56 206 104", 6) + LN("M94 104 Q150 56 206 104", 3.4, "#D9414E") + ["M116 76 L104 30 M108 52 L92 44 M106 40 L114 26", "M184 76 L196 30 M192 52 L208 44 M194 40 L186 26"].map(d => LN(d, 8) + LN(d, 4.6, c)).join("")},
 });
 Object.assign(HANDS, {
+  candy:   {name:"糖果桶", tags:["halloween", "party", "snack"], grip:true, color:"#F59A4A",
+    draw:(f, c) => LN("M193 318 Q202 296 213 318", 2.6) + P("M188 318 L218 318 L214 348 Q203 354 192 348 Z", f) + P("M197 328 L200 324 L203 328 Z M203 328 L206 324 L209 328 Z", INK, 0) + LN("M198 337 Q203 341 208 337", 2) + [[194, 314, "#E8679A"], [204, 312, "#9ADBC0"], [212, 315, "#F6D65A"]].map(([x, y, col]) => C(x, y, 4, col, 1.6)).join("")},
   pumpkin: {name:"南瓜燈", tags:["halloween", "party"], grip:true, color:"#F59A4A",
     draw:(f, c) => LN("M200 318 Q212 312 218 326", 2.4) + E(218, 344, 20, 17, f) + LN("M210 330 Q206 344 210 358 M226 330 Q230 344 226 358", 1.6, shade(c, -.3)) + P("M216 326 L218 318 L222 320 L220 327 Z", "#4FA36B", 1.6) + P("M208 338 L213 342 L208 345 Z M228 338 L223 342 L228 345 Z", "#3A2A20", 0) + LN("M209 351 Q218 356 227 351", 2.2)},
   gift:    {name:"禮物", tags:["xmas", "party"], grip:true, color:"#4FA36B",
