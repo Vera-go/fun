@@ -172,7 +172,7 @@ function afterResult(id, newBest){
 async function lbView(id){
   cleanup();
   view(`<div class="top"><button class="btn ghost sm" data-menu="1">← 選單</button><span class="sp"></span><span class="t">排行榜</span></div>
-    <div class="lbtabs">${Object.entries(GAMES).map(([k, g]) => `<button class="${k === id ? "on" : ""}" data-lbgame="${k}">${esc(g.name)}</button>`).join("")}</div>
+    <div class="lbtabs">${Object.entries(GAMES).filter(([, g]) => !g.nolb).map(([k, g]) => `<button class="${k === id ? "on" : ""}" data-lbgame="${k}">${esc(g.name)}</button>`).join("")}</div>
     <div id="lblist"><p class="sub2" style="text-align:center">載入中⋯⋯</p></div>
     <p class="sub2" style="text-align:center">${D.name ? "你的名字：" + esc(D.name) : "還沒上榜：玩完一局後留下名字就會出現在這裡。"}</p>`);
   let rows;
@@ -325,6 +325,9 @@ window.Arcade.RUN = RUN;
 menu();
 </script>
 <script src="retro.js?v=2"></script>
-<script src="retro2.js?v=1"></script>
+<script src="retro2.js?v=2"></script>
+<script src="retro3.js?v=1"></script>
+<script src="retro4.js?v=1"></script>
+<script src="retro5.js?v=1"></script>
 </body>
 </html>
