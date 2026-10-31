@@ -33,6 +33,7 @@ const ACC_SLOTS = ["hat", "glasses", "hairpin", "neck", "scarf", "bag", "hand"];
 // ---------- 分類 ----------
 // type：slot 衣服配件（可以換顏色）、pick 選一種、color 顏色、toggle 開關
 const CATS = [
+  {id:"role", name:"角色", groups:[{type:"pick", key:"role", label:"選角色（會換成這個角色的基本造型，之後衣服配件都可以自由搭）", list:ROLES, vb:"40 20 220 440"}]},
   {id:"hair", name:"髮型", groups:[
     {type:"pick", key:"hairB", label:"髮型", list:HAIRB, vb:"60 26 180 290"},
     {type:"pick", key:"hairF", label:"瀏海", list:HAIRF, vb:"84 44 132 132"},
@@ -82,11 +83,24 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {role:"girl", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
   hat:null, glasses:null, hairpin:null, neck:null, scarf:null, bag:null, hand:null};
+// 換角色時套用的基本造型
+const ROLE_PRESET = {
+  girl:{hairB:"long", hairF:"blunt", brows:"soft", eyes:"round", blush:"#FF9AAE", top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
+    socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"}, hairpin:null, neck:null},
+  boy:{hairB:"boycut", hairF:"boyfringe", brows:"bold", eyes:"round", blush:"", lip:"", shadow:"", eyeliner:"", gloss:false, glitter:false, hairTip:"",
+    top:{id:"hoodboy", color:"#2C3E70", pat:"none"}, bottom:{id:"khaki", color:"#C9A877", pat:"none"}, dress:null, outer:null,
+    socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"}, hairpin:null, neck:null},
+};
+const BOY_HAIR = ["boycut", "mushroom", "wolf", "curlyboy", "buzz", "short"], BOY_FRINGE = ["boyfringe", "sweep", "bowl", "spiky", "quiff", "side"];
+// 男生隨機搭配時不抽這些（自己選還是可以穿）
+const BOY_SKIP = ["cami", "crop", "blouse", "sailor", "maryjane", "heels", "lace", "tights", "knee", "striped", "pearl", "heart", "choker", "handbag", "catbag", "bunny", "bouquet"];
+const BOY_BOTTOM = ["khaki", "bshorts", "jeans", "shorts", "slacks", "wide", "cargo", "track"];
+const applyRole = (look, r) => Object.assign(look, clone(ROLE_PRESET[r] || ROLE_PRESET.girl), {role:r});
 let S = {look:clone(DEFAULT_LOOK), cat:"hair", theme:"", best:{}, wardrobe:[]};
 try{ const v = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if(v) S = Object.assign(S, v); }catch(e){}
 S.look = Object.assign(clone(DEFAULT_LOOK), S.look);
@@ -119,6 +133,7 @@ function thumb(g, v){
   const look = clone(L());
   if(g.type === "slot") look[g.key] = v ? {id:v, color:(look[g.key] && look[g.key].id === v ? look[g.key].color : g.list[v].color), pat:(look[g.key] && look[g.key].id === v ? look[g.key].pat : "none")} : null;
   else if(g.type === "multi") look[g.key] = v ? [v] : [];
+  else if(g.key === "role") applyRole(look, v);
   else look[g.key] = v;
   if(g.type === "slot" && v){
     if(g.key === "top" || g.key === "bottom"){ if(look.dress && !DRESSES[look.dress.id].overTop) look.dress = null; }
@@ -181,7 +196,8 @@ $("groups").addEventListener("click", e => {
   }else if(t === "pick"){
     const it = KEY_LISTS[k] && KEY_LISTS[k][v];
     if(it && lockedItem(it)){ toast(`在「${TH[it.lock].name}」挑戰拿到 4 顆星就能解鎖`); return; }
-    look[k] = v;
+    if(k === "role"){ if(look.role !== v) applyRole(look, v); }
+    else look[k] = v;
   }else if(t === "scol"){ look[k].color = v; look[k].custom = true; }
   else if(t === "spat"){ look[k].pat = v; look[k].custom = true; }
   else if(t === "multi"){ const a = look[k] || []; look[k] = !v ? [] : a.includes(v) ? a.filter(x => x !== v) : [...a, v]; }
@@ -195,20 +211,23 @@ const avail = list => Object.keys(list).filter(id => !lockedItem(list[id]));
 function randomLook(){
   const look = clone(L());
   const scheme = pick([["#FFFFFF", "#2C3E70", "#D9414E"], ["#F7A8C4", "#FFFFFF", "#B9A3E8"], ["#F6E7C8", "#8A5A3C", "#4FA36B"], ["#9BD0F5", "#FFFFFF", "#F6D65A"], ["#2E2B2B", "#FFFFFF", "#E8679A"], ["#9ADBC0", "#F6E7C8", "#F59A4A"], ["#B9A3E8", "#7E5BC2", "#F7A8C4"]]);
-  const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list)); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
-  look.hairB = pick(Object.keys(HAIRB)); look.hairF = pick(Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
+  const boy = look.role === "boy";
+  const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list).filter(k => !boy || !BOY_SKIP.includes(k))); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
+  look.hairB = pick(boy ? BOY_HAIR : Object.keys(HAIRB).filter(k => !BOY_HAIR.includes(k) || Math.random() < .3)); look.hairF = pick(boy ? BOY_FRINGE : Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
   look.pose = pick(["down", "down", "behind", "wave", "peace"]);
   look.faceShape = pick(Object.keys(FACES)); look.nose = pick(Object.keys(NOSES)); look.hairTip = Math.random() < .2 ? pick(TIP_PAL) : "";
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.mouth = pick(Object.keys(MOUTHS)); look.brows = pick(["soft", "soft", "straight", "worried"]);
-  look.blush = Math.random() < .7 ? pick(BLUSH) : ""; look.lip = Math.random() < .4 ? pick(LIPS) : ""; look.shadow = Math.random() < .3 ? pick(SHADOW) : "";
+  look.blush = Math.random() < (boy ? .2 : .7) ? pick(BLUSH) : ""; look.lip = !boy && Math.random() < .4 ? pick(LIPS) : ""; look.shadow = !boy && Math.random() < .3 ? pick(SHADOW) : "";
+  if(boy){ look.brows = pick(["bold", "bold", "straight", "sharp", "soft"]); look.eyeliner = ""; look.gloss = false; look.glitter = false; look.hairTip = Math.random() < .1 ? look.hairTip : ""; }
   look.dress = null; look.top = null; look.bottom = null;
-  if(Math.random() < .35){ look.dress = it(DRESSES); if(DRESSES[look.dress.id].overTop) look.top = it(TOPS, 0); }
+  if(boy){ look.top = it(TOPS); look.bottom = {...it(BOTTOMS), id:pick(BOY_BOTTOM)}; }
+  else if(Math.random() < .35){ look.dress = it(DRESSES); if(DRESSES[look.dress.id].overTop) look.top = it(TOPS, 0); }
   else { look.top = it(TOPS); look.bottom = it(BOTTOMS); }
   look.outer = Math.random() < .35 ? it(OUTERS, 0) : null;
   look.socks = Math.random() < .5 ? it(SOCKS, 0) : null;
   look.shoes = it(SHOES, 0);
   ACC_SLOTS.forEach(k => look[k] = null);
-  for(let n = 1 + Math.floor(Math.random() * 3), tries = 0; n > 0 && tries < 20; tries++){ const k = pick(ACC_SLOTS); if(look[k]) continue; look[k] = it(SLOT_LISTS[k], 0); n--; }
+  for(let n = 1 + Math.floor(Math.random() * 3), tries = 0; n > 0 && tries < 20; tries++){ const k = pick(ACC_SLOTS); if(look[k] || (boy && k === "hairpin")) continue; look[k] = it(SLOT_LISTS[k], 0); n--; }
   look.bg = pick(Object.keys(BGS)); look.pet = Math.random() < .4 ? pick(Object.keys(PETS)) : "";
   return look;
 }
@@ -376,7 +395,7 @@ function sanitizeLook(raw){
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
   ["hairC", "eyeC", "bgC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
-  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;

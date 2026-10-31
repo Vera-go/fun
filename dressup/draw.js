@@ -287,6 +287,8 @@ const HAIRF = {
 // 從瀏海的轉角 (x, y) 順著往下垂到下巴旁邊
 // 沒有長髮絲的髮型：太陽穴一小撮圓圓的短髮，讓瀏海自然收尾（不會尖尖的刺出來）
 const shortLock = ([x, y]) => `M${x} ${y} C${x - 3} ${y + 22} ${x - 4} 148 106 164 Q98 172 91 164 C86 150 86 132 ${Math.max(x - 14, 92)} ${y + 16} Z`;
+// 男生的短髮：鬢角短短的，露出耳朵
+const tinyLock = ([x, y]) => `M${x} ${y} C${x - 2} ${y + 14} 104 134 102 146 Q97 151 92 146 C89 136 88 126 ${Math.max(x - 14, 92)} ${y + 14} Z`;
 const sideLock = ([x, y]) => `M${x} ${y} C${x - 5} ${y + 10} 100 124 99 144 C98 162 103 180 111 194 Q109 205 101 213 Q99 202 93 194 C88 180 86 162 86 146 C86 128 ${Math.max(x - 16, 90)} ${y + 6} ${Math.max(x - 10, 92)} ${y - 2} Z`;
 
 // ---------- 臉 ----------
@@ -535,7 +537,7 @@ Object.assign(SHOES, {
     draw:(f, c) => PB("M122 404 L146 404 L148 438 Q148 447 134 447 Q120 447 120 438 Z", f) + PB("M120 438 Q134 445 148 438 L148 440 Q148 447 134 447 Q120 447 120 440 Z", "#fff", 2) + PB("M128 412 L140 414 M128 420 L140 422 M128 428 L140 430", "none", 1.6) + PB("M122 404 L146 404 L146 410 L122 410 Z", "#fff", 1.8)},
 });
 Object.assign(HAIRB, {
-  buzz: {name:"平頭", draw:h => P("M92 126 C88 66 212 66 208 126 L206 140 Q150 146 94 140 Z", h)},
+  buzz: {name:"平頭", crop:true, draw:h => P("M92 126 C88 66 212 66 208 126 L206 140 Q150 146 94 140 Z", h)},
   // ---- 第二批髮型 ----
   sidepony: {name:"側馬尾", draw:h => P("M90 124 C86 60 214 60 210 124 Z", h) + P("M200 92 C236 104 244 170 232 246 Q226 238 222 246 Q218 232 212 240 Q214 214 210 190 C206 156 200 126 190 108 Z", h) + LN("M206 104 C228 130 230 190 222 236", 1.6, strand(h), `opacity=".75"`),
     front:() => TIE(200, 98, 50)},
@@ -700,6 +702,39 @@ Object.assign(BGS, {
     P("M-4 370 L304 370 L304 474 L-4 474 Z", "#E7D3B4") + LN("M0 370 L300 370", 2.4) + [[106, 96, "#F7A8C4"], [124, 84, "#9BD0F5"], [140, 100, "#F6D65A"]].map(([x, y, col]) => LN(`M${x} ${y + 14} Q${x + 4} ${y + 60} 120 170`, 1.2) + E(x, y, 10, 12, col, 2)).join("")},
 });
 
+// ---------- 男生角色 ----------
+const ROLES = {girl:{name:"女生"}, boy:{name:"男生"}};
+Object.assign(HAIRB, {
+  boycut:    {name:"男生短髮", crop:true, draw:h => P("M88 126 C84 60 216 60 212 126 L211 150 Q205 160 197 154 L103 154 Q95 160 89 150 Z", h)},
+  mushroom:  {name:"香菇頭", draw:h => P("M84 128 C78 54 222 54 216 128 Q219 150 211 162 Q150 170 89 162 Q81 150 84 128 Z", h)},
+  wolf:      {name:"狼尾頭", crop:true, draw:h => P("M88 126 C84 60 216 60 212 126 L210 156 Q204 168 198 176 Q202 196 194 210 Q188 200 184 206 Q178 196 172 202 L128 202 Q122 196 116 206 Q112 200 106 210 Q98 196 102 176 Q96 168 90 156 Z", h) + LN("M108 182 Q110 196 110 204 M192 182 Q190 196 190 204", 1.6, strand(h), `opacity=".7"`)},
+  curlyboy:  {name:"捲捲短髮", crop:true, draw:h => P("M90 128 Q78 116 86 100 Q80 82 96 74 Q98 56 118 56 Q130 42 150 48 Q170 42 182 56 Q202 56 204 74 Q220 82 214 100 Q222 116 210 128 Q216 146 206 156 Q196 162 190 156 L110 156 Q104 162 94 156 Q84 146 90 128 Z", h)},
+});
+Object.assign(HAIRF, {
+  boyfringe: {name:"自然短瀏海", d:" C209 118 203 102 192 98 Q186 108 178 112 Q178 100 170 96 Q162 108 152 112 Q152 98 144 96 Q136 108 126 110 Q128 98 120 96 Q114 104 108 104 C96 110 91 126 89 152 Z", cl:[108, 104], cr:[108, 104], lines:"M128 70 Q124 86 126 100 M160 66 Q158 84 160 100"},
+  sweep:     {name:"斜瀏海", d:" C209 118 201 98 188 92 Q172 104 142 108 Q120 110 106 114 C96 120 91 132 89 152 Z", cl:[106, 114], cr:[100, 96], lines:"M186 70 Q170 92 146 104 M160 62 Q140 88 116 108"},
+  bowl:      {name:"西瓜皮瀏海", d:" C210 130 206 116 196 112 Q150 118 104 112 C94 116 90 130 89 152 Z", cl:[104, 112], cr:[104, 112], lines:"M124 70 Q120 92 122 112 M150 62 Q150 90 150 114 M176 70 Q180 92 178 112"},
+});
+Object.assign(BROWS, {
+  bold:  {name:"粗眉", d:cx => `M${cx - 11} 118 Q${cx} 111 ${cx + 11} 116 Q${cx} 114.5 ${cx - 11} 118 Z`},
+  sharp: {name:"劍眉", d:(cx, r) => r ? `M${cx - 10} 117 L${cx + 11} 112 L${cx - 10} 119 Z` : `M${cx + 10} 117 L${cx - 11} 112 L${cx + 10} 119 Z`},
+});
+Object.assign(TOPS, {
+  hoodboy:  {name:"棒球T", tags:["casual", "sport", "school"], color:"#2C3E70",
+    draw:(f, c) => U([...sleevesS(26), TORSO], "#fff") + U([...sleevesS(27)], f) + P("M140 210 Q150 220 160 210", "none", 2.2) + `<text x="150" y="262" text-anchor="middle" font-size="22" font-weight="900" fill="${c}" font-family="system-ui,sans-serif">23</text>`},
+  openshirt:{name:"開襟襯衫", long:true, tags:["casual", "summer"], color:"#4C8FE0",
+    draw:(f, c) => P(TORSO, "#fff") + U([...sleevesL(27), "M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 L144 304 L114 304 Z", MX("M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 L144 304 L114 304 Z")], f) + cuffs(27) + PB("M140 204 L132 212 L141 226", "none", 2)},
+});
+Object.assign(BOTTOMS, {
+  khaki:  {name:"卡其長褲", tags:["casual", "school", "neat"], color:"#C9A877",
+    draw:(f, c) => PANTS(f) + LN("M113 297 L187 297", 1.6) + PB("M118 300 Q124 312 134 304", "none", 1.4)},
+  bshorts: {name:"運動短褲", tags:["sport", "summer", "casual"], color:"#2C3E70",
+    draw:(f, c) => P("M112.5 290 L187.5 290 L192 352 L154 352 L150 330 L146 352 L108 352 Z", f) + PB("M110 340 L110 350 M114 290 L110 352", "none", 3.2, `stroke="#fff"`) + LN("M113 297 L187 297", 1.6)},
+});
+Object.assign(NECKS, {
+  necktie: {name:"領帶", tags:["formal", "neat", "school"], color:"#2C3E70", draw:(f) => P("M150 214 L144 222 L147 266 L150 274 L153 266 L156 222 Z", f, 2) + P("M145 212 L155 212 L153 222 L147 222 Z", f, 1.8)},
+});
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
@@ -786,7 +821,7 @@ function drawLook(L, opt = {}){
   s += P(face.d, skin, 2.8);
   const hb = HAIRB[L.hairB] || HAIRB.long;
   const hf = HAIRF[L.hairF] || HAIRF.blunt, // 揮手時，揮手那一側臉旁的髮絲改短，舉起來的手臂才不會被頭髮蓋住
-  front = [CROWN + hf.d, ...(hb.side ? [POSE === "wave" || POSE === "peace" ? shortLock(hf.cl) : sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
+  front = [CROWN + hf.d, ...(hb.side ? [POSE === "wave" || POSE === "peace" ? shortLock(hf.cl) : sideLock(hf.cl), MX(sideLock(hf.cr))] : hb.crop ? [tinyLock(hf.cl), MX(tinyLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
   const faceClip = clip(`<path d="${face.d}"/>`);
   s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${faceClip})"/>`;
   s += `<g clip-path="url(#${faceClip})"><path d="${front[0]}" transform="translate(0 6)" fill="#2B1D16" opacity=".13"/></g>`;
