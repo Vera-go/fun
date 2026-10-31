@@ -308,11 +308,11 @@ const BAGS = {
     draw:(f, c) => LN("M128 210 L128 290", 7) + LN("M172 210 L172 290", 7) + LN("M128 210 L128 290", 4.5, f) + LN("M172 210 L172 290", 4.5, f)},
 };
 const HANDS = {
-  umbrella: {name:"雨傘", tags:["rain"], color:"#4C8FE0",
+  umbrella: {name:"雨傘", tags:["rain"], grip:true, color:"#4C8FE0",
     draw:(f, c) => LN("M200 318 L234 112", 3) + P("M168 116 Q234 40 298 116 Q290 108 282 116 Q274 108 266 116 Q258 108 250 116 Q242 108 234 116 Q226 108 218 116 Q210 108 202 116 Q194 108 186 116 Q178 108 168 116 Z", f) + LN("M200 318 Q194 330 202 334", 3)},
-  rainbow:  {name:"彩虹雨傘", tags:["rain", "party"], color:"#F6D65A", lock:"rain",
+  rainbow:  {name:"彩虹雨傘", tags:["rain", "party"], grip:true, color:"#F6D65A", lock:"rain",
     draw:(f, c) => LN("M200 318 L234 112", 3) + ["#FF6B6B", "#FFB347", "#FFE066", "#7BD88F", "#6FB8FF", "#B68CFF"].map((col, i) => { const a0 = Math.PI + i * Math.PI / 6, a1 = a0 + Math.PI / 6, r = 66, cx = 234, cy = 116; return `<path d="M${cx} ${cy} L${(cx + Math.cos(a0) * r).toFixed(1)} ${(cy + Math.sin(a0) * r * .9).toFixed(1)} L${(cx + Math.cos(a1) * r).toFixed(1)} ${(cy + Math.sin(a1) * r * .9).toFixed(1)} Z" fill="${col}" stroke="${INK}" stroke-width="2"/>`; }).join("") + LN("M200 318 Q194 330 202 334", 3)},
-  balloon:  {name:"氣球", tags:["party", "snack", "festival"], color:"#D9414E",
+  balloon:  {name:"氣球", tags:["party", "snack", "festival"], grip:true, color:"#D9414E",
     draw:(f, c) => LN("M201 312 Q222 240 234 152", 1.6) + P(heartD(236, 124, 26), f) + LN("M222 112 Q226 104 234 102", 3, "rgba(255,255,255,.7)")},
   boba:     {name:"珍珠奶茶", tags:["snack", "casual", "summer"], color:"#D9B99B",
     draw:(f, c) => LN("M214 270 L208 300", 3.4, "#E8679A") + P("M196 298 L224 298 L220 340 L200 340 Z", f) + E(210, 298, 14, 3.5, "#fff", 2) + [[204, 332], [210, 334], [216, 332], [207, 326], [213, 326]].map(([x, y]) => C(x, y, 2.4, "#3A2A20", 0)).join("")},
@@ -320,7 +320,7 @@ const HANDS = {
     draw:(f, c) => `<g transform="rotate(-12 214 306)">${P("M200 288 L230 288 L230 326 L200 326 Z", f)}${P("M203 288 L203 326", "none", 2)}${LN("M210 300 L224 300 M210 308 L224 308", 1.6, "#fff")}</g>`},
   bouquet:  {name:"花束", tags:["party", "formal"], color:"#F7A8C4",
     draw:(f, c) => P("M200 330 L214 290 L232 300 Z", "#F6E7C8") + [[212, 286, "#E8679A"], [224, 282, f], [232, 292, "#F6D65A"], [218, 276, "#D9414E"], [206, 280, f]].map(([x, y, col]) => C(x, y, 8, col, 2)).join("") + LN("M210 300 L214 310", 2, "#4FA36B")},
-  uchiwa:   {name:"扇子", tags:["festival", "summer"], color:"#9BD0F5",
+  uchiwa:   {name:"扇子", tags:["festival", "summer"], grip:true, color:"#9BD0F5",
     draw:(f, c) => LN("M201 318 L214 296", 3.4, "#C99A6A") + C(222, 276, 22, f) + [0, 1, 2].map(i => C(222 + (i - 1) * 9, 276 + (i === 1 ? -6 : 4), 4, "#fff", 0)).join("")},
 };
 const PETS = {
@@ -402,13 +402,13 @@ Object.assign(HATS, {
     draw:(f, c) => LN("M94 104 Q150 56 206 104", 6) + LN("M94 104 Q150 56 206 104", 3.4, "#D9414E") + ["M116 76 L104 30 M108 52 L92 44 M106 40 L114 26", "M184 76 L196 30 M192 52 L208 44 M194 40 L186 26"].map(d => LN(d, 8) + LN(d, 4.6, c)).join("")},
 });
 Object.assign(HANDS, {
-  pumpkin: {name:"南瓜燈", tags:["halloween", "party"], color:"#F59A4A",
+  pumpkin: {name:"南瓜燈", tags:["halloween", "party"], grip:true, color:"#F59A4A",
     draw:(f, c) => LN("M200 318 Q212 312 218 326", 2.4) + E(218, 344, 20, 17, f) + LN("M210 330 Q206 344 210 358 M226 330 Q230 344 226 358", 1.6, shade(c, -.3)) + P("M216 326 L218 318 L222 320 L220 327 Z", "#4FA36B", 1.6) + P("M208 338 L213 342 L208 345 Z M228 338 L223 342 L228 345 Z", "#3A2A20", 0) + LN("M209 351 Q218 356 227 351", 2.2)},
   gift:    {name:"禮物", tags:["xmas", "party"], color:"#4FA36B",
     draw:(f, c) => P("M198 300 L230 300 L230 332 L198 332 Z", f) + P("M210 300 L218 300 L218 332 L210 332 Z", "#D9414E", 1.6) + P("M214 300 Q204 286 200 294 Q200 300 214 300 Z M214 300 Q224 286 228 294 Q228 300 214 300 Z", "#D9414E", 1.8)},
   redpack: {name:"紅包", tags:["newyear", "festival"], color:"#D9414E",
     draw:(f, c) => `<g transform="rotate(-10 214 308)">${P("M202 290 L226 290 L226 326 L202 326 Z", f)}${C(214, 302, 7, "#F6D65A", 1.6)}<text x="214" y="305.5" text-anchor="middle" font-size="9" font-weight="900" fill="#D9414E" font-family="system-ui,'Noto Sans TC',sans-serif">福</text></g>`},
-  wand:    {name:"魔法棒", tags:["halloween", "party"], color:"#F6D65A", lock:"halloween",
+  wand:    {name:"魔法棒", tags:["halloween", "party"], grip:true, color:"#F6D65A", lock:"halloween",
     draw:(f, c) => LN("M200 318 L230 250", 4.5) + LN("M200 318 L230 250", 2.4, "#fff") + star(232, 244, 13, f, 2) + [[250, 232], [246, 262], [220, 228]].map(([x, y]) => star(x, y, 3.5, "#fff", 1)).join("")},
 });
 Object.assign(BGS, {
@@ -466,9 +466,10 @@ function drawLook(L, opt = {}){
   s += item(NECKS, "neck");
   s += itemS(SCARVES, "scarf");
   if(L.bag && L.bag.id !== "handbag") s += itemS(BAGS, "bag");
-  // 手
-  s += [HAND, MX(HAND)].map(d => `<path d="${d} Z" fill="${skin}"/>` + LN(d, 2.6)).join("");
+  // 手（跟手臂一樣有明暗）；手提包先畫，手再握在提把上
   if(L.bag && L.bag.id === "handbag") s += itemS(BAGS, "bag");
+  const hand = d => `<path d="${d} Z" fill="${skin}"/>` + overlay(`<path d="${d} Z"/>`, "sk") + LN(d, 2.6);
+  s += hand(HAND) + hand(MX(HAND));
   // 頭
   s += C(93, 142, 10, skin) + C(207, 142, 10, skin);
   s += E(150, 128, 58, 60, skin, 2.8);
@@ -500,6 +501,8 @@ function drawLook(L, opt = {}){
   s += item(HAIRPINS, "hairpin");
   s += itemS(HATS, "hat");
   s += item(HANDS, "hand");
+  // 握著握把的東西（雨傘、氣球、扇子⋯⋯）：手要蓋在握把上面
+  if(L.hand && HANDS[L.hand.id] && HANDS[L.hand.id].grip) s += hand(MX(HAND));
   if(L.pet && PETS[L.pet]) s += drawPet(L.pet);
   const vb = opt.vb || `0 0 ${W} ${H}`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${opt.size ? ` width="${opt.size[0]}" height="${opt.size[1]}"` : ""}><defs>${defs.join("")}</defs>${s}</svg>`;
