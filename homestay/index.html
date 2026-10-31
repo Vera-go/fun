@@ -119,6 +119,22 @@ textarea{resize:vertical;line-height:1.6}
 .hbtns button:active{transform:translateY(3px);box-shadow:none}
 .hcount{font-size:110px;font-weight:900;color:var(--acc2);line-height:1.2;padding:30px 0}
 .words{margin:6px 0 0;padding:0;list-style:none;display:flex;gap:6px;flex-wrap:wrap}.words li{background:#EEF5F1;border-radius:99px;padding:3px 10px;font-size:13px;font-weight:800}.words.ok li{background:#DDF3EA;color:#1A7D61}
+.chkrow{display:flex;gap:10px;align-items:flex-start;padding:8px 2px;border-bottom:1px dashed var(--line);font-size:14.5px;line-height:1.6;cursor:pointer}
+.chkrow:last-child{border-bottom:0}
+.chkrow input{width:20px;height:20px;margin-top:3px;flex:none;accent-color:var(--acc)}
+.chkrow small{display:block;color:var(--muted);font-size:12.5px}
+.chkrow.done span{text-decoration:line-through;color:var(--muted)}
+.day{border:2px solid var(--line);border-radius:16px;padding:10px 12px;margin-bottom:8px;background:#FBFEFC}
+.day.we{background:#FFF8EA}
+.day .hd{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:900;margin-bottom:6px}
+.day textarea{min-height:44px}
+.day .dn{margin-left:auto}
+.book h3{margin:16px 0 6px;font-size:16px;color:var(--acc)}
+.book .ln{margin:0 0 8px;line-height:1.55}
+.book .ln b{display:block;font-size:15px}.book .ln span{color:var(--muted);font-size:13.5px}
+.book .glance{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.book .glance div{background:#F2FAF5;border-radius:12px;padding:8px 10px;font-size:14px}
+.book .glance small{display:block;color:var(--muted);font-size:12px}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -141,6 +157,9 @@ textarea{resize:vertical;line-height:1.6}
     <button data-tab="order">點餐和逛街</button>
     <button data-tab="plan">週末行程</button>
     <button data-tab="sos">緊急卡</button>
+    <button data-tab="prep">行前準備</button>
+    <button data-tab="days">10 天行程</button>
+    <button data-tab="book">歡迎手冊</button>
   </div>
 
   <div id="view"></div>
@@ -160,7 +179,7 @@ textarea{resize:vertical;line-height:1.6}
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const KEY = "homestay.v1";
-let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}, go:{}};
+let S = {wifiName:"", wifiPass:"", dinner:"", curfew:"", slow:false, plan:"A", notes:"", sos:{}, want:{}, bingo:{}, snacks:{}, mySnacks:[], learned:{}, go:{}, prep:{}, arrive:"", days:{}, daysDone:{}, rules:""};
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); }catch(e){}
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 const fill = (t) => t
@@ -509,6 +528,56 @@ const HEADS = [
 ];
 let PLAY = {mode:null, deck:[], i:0, step:0, side:"au"};
 const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/* 行前準備：先問她、家裡準備、第一天要做的事 */
+const PREP = [
+  {g:"先問她（越早問越好）", items:[
+    ["p1","抵達日期、航班、幾點到","桃園機場可以搭機場捷運到林口，行李多就叫車或開車去接。"],
+    ["p2","有沒有飲食限制、過敏、需要吃的藥","吃素、不吃牛或豬、堅果和海鮮過敏都要問。"],
+    ["p3","她會帶哪些電器？充電器能不能用 110V？","澳洲是 230V，台灣是 110V，插頭形狀也不同。手機和筆電的充電器通常能用，只需要轉接頭；吹風機和電棒類很多是 230V 專用，不要直接插。"],
+    ["p4","手機有沒有開國際漫遊、要不要買台灣 SIM 或 eSIM",""],
+    ["p5","保險資料和護照影本","看醫生時會用到，請她傳一份給你。"],
+    ["p6","學校的聯絡窗口和交換計劃的規定","門禁、週末能去哪裡、要不要事先通知。"],
+    ["p7","她的興趣、想去哪裡、想吃什麼","可以拿來決定行程和賓果。"]
+  ]},
+  {g:"家裡要準備", items:[
+    ["h1","房間、床鋪、棉被","冬天又濕又冷，她從夏天來，可能怕冷。"],
+    ["h2","毛巾、衣架、垃圾桶、插座或延長線",""],
+    ["h3","電暖器或暖氣、備用外套","北部冬天大約十幾度，常下雨。"],
+    ["h4","備用鑰匙、悠遊卡、少量台幣",""],
+    ["h5","備一個轉接頭或延長線","不確定她的插頭能不能用的時候備用。"],
+    ["h6","Wi-Fi 資料卡和列印好的緊急卡","在「在家」和「緊急卡」填好後可以列印。"],
+    ["h7","雨傘一把","台北冬天常下雨。"],
+    ["h8","幾種台灣零食","零食盲測用，先問過敏。"]
+  ]},
+  {g:"第一天要做的事", items:[
+    ["d1","帶她看房間、浴室、洗衣機","教熱水怎麼開、洗衣怎麼用。"],
+    ["d2","教她垃圾分類和家裡的規矩","可以用歡迎手冊。"],
+    ["d3","給她 Wi-Fi、緊急卡和家裡地址","讓她拍照存起來。"],
+    ["d4","一起走一次上學的路","公車、捷運或步行，確認她認得路。"],
+    ["d5","請她傳訊息給家人報平安",""],
+    ["d6","晚餐問她今天累不累，不要排太滿","時差和天氣都需要適應。"]
+  ]}
+];
+const DEFAULT_RULES = [
+  "Please tell us before you go out, and tell us where you are going. | 出門前請先告訴我們，也告訴我們要去哪裡。",
+  "Please be home by {curfew}. If you will be late, please send us a message. | 請在 {curfew} 前回家，會晚到請傳訊息給我們。",
+  "Dinner is at {dinner}. If you can't make it, please let us know. | 晚餐是 {dinner}，不能回來吃請告訴我們。",
+  "Showers are about ten minutes. The hot water takes a moment. | 洗澡大約十分鐘，熱水要等一下。",
+  "We separate our rubbish into general waste and recycling. Ask us if you're not sure. | 我們會垃圾分類，不確定就問我們。",
+  "Please keep your room tidy. Tell us if you need anything. | 請保持房間整齊，需要什麼就告訴我們。",
+  "Please don't open the door for strangers. | 請不要替陌生人開門。"
+].join("\n");
+const TIPS = [
+  ["Shoes: many Taiwanese homes ask you to take off your shoes at the door.","很多台灣家庭會在門口脫鞋。"],
+  ["Tap water: please don't drink it straight from the tap. We have boiled or filtered water.","自來水請不要直接喝，我們有煮開或過濾的水。"],
+  ["Toilet paper: in some older buildings, used toilet paper goes in the bin. Please ask us first.","有些老房子的用過衛生紙要丟垃圾桶，請先問我們。"],
+  ["Cash: many small shops and night markets only take cash. An EasyCard works on buses, MRT and in convenience stores.","很多小店和夜市只收現金。悠遊卡可以搭公車、捷運和在便利商店付款。"],
+  ["Traffic: scooters are everywhere. Please look both ways, and be careful on the footpath.","路上很多機車，請左右看，走路要小心。"],
+  ["Weather: December is cool and wet in northern Taiwan. Bring a jacket and an umbrella.","12 月北部又濕又冷，請帶外套和雨傘。"],
+  ["Tipping is not expected in Taiwan.","在台灣通常不用給小費。"],
+  ["Temples: be quiet, and don't take photos of people who are praying.","進廟裡要安靜，不要拍正在祈禱的人。"]
+];
+const WORDS = [["Hello","你好","nǐ hǎo"],["Thank you","謝謝","xiè xie"],["Sorry","對不起","duì bu qǐ"],["How much?","多少錢？","duō shǎo qián"],["Where is the toilet?","廁所在哪裡？","cè suǒ zài nǎ lǐ"],["Delicious!","好吃！","hǎo chī"]];
 const PLANS = {
   A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
     "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
@@ -736,6 +805,53 @@ function playView(){
     <div class="qzh" style="margin-top:10px">${reveal ? "" : au ? "你猜猜是什麼意思？" : "Can you guess what this means?"}</div>${ans}
     <div class="ctl"><button class="btn ghost sm" data-pspeak="w">${au ? "念出來" : "念中文"}</button>${reveal ? "" : '<button class="btn" data-preveal="1">揭曉</button>'}${reveal ? '<button class="btn ghost sm" data-pspeak="ex">念例句</button>' : ""}</div>${nav}</div>`;
 }
+function prepView(){
+  const total = PREP.reduce((n, g) => n + g.items.length, 0), done = PREP.reduce((n, g) => n + g.items.filter(it => S.prep[it[0]]).length, 0);
+  return `<div class="note">打勾記在這支手機上。已完成 ${done} / ${total}。她還沒確定是誰，請先看「先問她」那組，越早問越好。</div>` +
+    PREP.map(g => `<div class="card"><div class="group">${esc(g.g)}</div>${g.items.map(it => `<label class="chkrow ${S.prep[it[0]] ? "done" : ""}"><input type="checkbox" data-prep="${it[0]}" ${S.prep[it[0]] ? "checked" : ""}><span>${esc(it[1])}${it[2] ? `<small>${esc(it[2])}</small>` : ""}</span></label>`).join("")}</div>`).join("");
+}
+const WD = ["日", "一", "二", "三", "四", "五", "六"];
+function dayInfo(i){
+  let kind = "", we = false, date = "";
+  if(S.arrive){
+    const m = S.arrive.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m){ const d = new Date(+m[1], +m[2] - 1, +m[3] + i); const w = d.getDay(); date = `${d.getMonth() + 1}/${d.getDate()}（${WD[w]}）`; we = w === 0 || w === 6; kind = we ? "週末" : "上學日"; }
+  }
+  if(i === 0) kind = "抵達日"; else if(i === 9) kind = "離開日";
+  return {kind, we, date};
+}
+function daysView(){
+  const bingo = BINGO.filter((_, i) => S.bingo[i]).length, goList = SPOTS.filter(x => S.go[x.zh]);
+  return `<div class="note noprint">輸入她到的那天，每天會自動標出上學日和週末。平日晚上留給晚餐和「一起玩」，週末再安排景點。賓果完成 ${bingo} / ${BINGO.length}。</div>
+    <div class="card noprint"><div class="row"><label>她抵達的日期<input id="arrive" type="date" value="${esc(S.arrive)}"></label><button class="btn ghost sm" id="daysFill">帶入我決定去的景點（${goList.length}）</button></div></div>` +
+    Array.from({length: 10}, (_, i) => { const {kind, we, date} = dayInfo(i); const ph = i === 0 ? "接機、休息、早點吃晚餐" : i === 9 ? "整理行李、收伴手禮、送機" : we ? "去哪裡玩？" : "上學，晚上晚餐聊天、玩一個遊戲"; return `<div class="day ${we ? "we" : ""}"><div class="hd"><span>Day ${i + 1}</span>${date ? `<span class="muted">${esc(date)}</span>` : ""}${kind ? `<span class="pill">${esc(kind)}</span>` : ""}<label class="chk dn noprint"><input type="checkbox" data-daydone="${i}" ${S.daysDone[i] ? "checked" : ""}> 完成</label></div><textarea data-day="${i}" rows="2" placeholder="${esc(ph)}">${esc(S.days[i] || "")}</textarea></div>`; }).join("");
+}
+function parseRules(){
+  return (S.rules || DEFAULT_RULES).split("\n").map(l => l.trim()).filter(Boolean).map(l => { const k = l.indexOf("|"); return k < 0 ? [l, ""] : [l.slice(0, k).trim(), l.slice(k + 1).trim()]; });
+}
+function bookInner(){
+  const name = S.sos.name ? esc(S.sos.name) : "";
+  const ln = (en, zh) => `<div class="ln"><b>${esc(fill(en))}</b><span>${esc(fill(zh))}</span></div>`;
+  return `<h2 style="font-size:22px">Welcome${name ? ", " + name : ""}! 歡迎你！</h2>
+    ${ln("Welcome to our home. We are happy to have you for ten days.", "歡迎來到我們家，很高興你來住十天。")}
+    ${ln("Please feel at home. If you need anything, tell us.", "請當作自己家，有需要什麼就告訴我們。")}
+    <h3>At a glance 重點一覽</h3>
+    <div class="glance"><div><small>Dinner 晚餐</small>${esc(S.dinner || "___")}</div><div><small>Home by 回家時間</small>${esc(S.curfew || "___")}</div><div><small>Wi-Fi 名稱</small>${esc(S.wifiName || "___")}</div><div><small>Wi-Fi password 密碼</small>${esc(S.wifiPass || "___")}</div></div>
+    <h3>House rules 家規</h3>${parseRules().map(r => ln(r[0], r[1])).join("")}
+    <h3>Taiwan tips 台灣小提醒</h3>${TIPS.map(t => ln(t[0], t[1])).join("")}
+    <h3>Useful words 常用字</h3>${WORDS.map(w => `<div class="ln"><b>${esc(w[0])} → ${esc(w[1])}</b><span>${esc(w[2])}</span></div>`).join("")}
+    <h3>Emergency 緊急聯絡</h3>
+    ${ln("Police 110. Ambulance and fire 119.", "報警 110，救護車和火警 119。")}
+    ${S.sos.host || S.sos.phone ? ln("Host: " + (S.sos.host || "") + "  " + (S.sos.phone || ""), "接待家庭聯絡人") : ""}
+    ${S.sos.addr ? ln("Home address: " + S.sos.addr, "家裡地址") : ""}
+    ${S.sos.school ? ln("School contact: " + S.sos.school, "學校聯絡人") : ""}`;
+}
+function bookView(){
+  return `<div class="note noprint">這一頁是給她看的中英對照手冊。先到「在家」填好晚餐、門禁、Wi-Fi，「緊急卡」填好聯絡人，再按下面列印或存成 PDF。家規可以在下面自己改。</div>
+    <div class="card book" id="bookCard">${bookInner()}</div>
+    <div class="card noprint"><h2>家規（每行一條，格式：English | 中文）</h2><p class="hint">可以用 {curfew}、{dinner}，會自動換成你填的時間。清空會恢復預設。</p><textarea id="rules" rows="8">${esc(S.rules || DEFAULT_RULES)}</textarea>
+    <div class="bar" style="margin-top:12px"><button class="btn" id="bookPrint">列印或存成 PDF</button></div></div>`;
+}
 function planView(){
   const cur = PLANS[S.plan];
   return `<div class="note">這是「夜市加輕鬆逛」的三個選項，營業時間、票價和班次我沒有即時資料，<b>出發前請用 Google 地圖和官方網站再確認一次</b>。也記得先問學校有沒有規定交換學生週末能去哪裡。</div>
@@ -758,6 +874,9 @@ function render(){
   else if(tab === "play") v.innerHTML = playView();
   else if(tab === "plan") v.innerHTML = planView();
   else if(tab === "sos") v.innerHTML = sosView();
+  else if(tab === "prep") v.innerHTML = prepView();
+  else if(tab === "days") v.innerHTML = daysView();
+  else if(tab === "book") v.innerHTML = bookView();
   else v.innerHTML = `<div class="bar"><label class="chk"><input type="checkbox" id="slow" ${S.slow ? "checked" : ""}> 念慢一點</label><span class="sp"></span></div>` + cardsView(tab);
 }
 function cardAt(g, i){
@@ -832,7 +951,15 @@ $("#view").addEventListener("click", e => {
     const t = SOS_FIELDS.map(([k, l]) => `${l}: ${S.sos[k] || ""}`).join("\n");
     navigator.clipboard.writeText(t).then(() => toast("已複製"), () => prompt("複製下面的文字：", t)); return;
   }
-  if(e.target.id === "sosPrint") window.print();
+  if(e.target.id === "sosPrint" || e.target.id === "bookPrint") window.print();
+  if(e.target.id === "daysFill"){
+    const list = SPOTS.filter(x => S.go[x.zh]).map(x => x.zh);
+    if(!list.length){ toast("還沒有決定要去的景點，先去「一起玩」的景點盲翻"); return; }
+    const slots = []; for(let i = 1; i < 9; i++) if(dayInfo(i).we) slots.push(i);
+    if(!slots.length) slots.push(...[1, 2, 3, 4, 5, 6, 7, 8]);
+    let n = 0; for(const i of slots){ if(n >= list.length) break; if(!S.days[i]) S.days[i] = list[n++]; }
+    save(); render(); toast(n ? "已帶入 " + n + " 個景點" : "週末都已經有安排了"); return;
+  }
 });
 $("#view").addEventListener("input", e => {
   const t = e.target;
@@ -840,12 +967,20 @@ $("#view").addEventListener("input", e => {
   const map = {sDinner:"dinner", sCurfew:"curfew", sWifiName:"wifiName", sWifiPass:"wifiPass"};
   if(map[t.id]){ S[map[t.id]] = t.value.trim().slice(0, 40); save(); return; }
   if(t.id === "planNotes"){ S.notes = t.value.slice(0, 2000); save(); return; }
+  if(t.id === "rules"){ S.rules = t.value.slice(0, 2000); save(); const bc = $("#bookCard"); if(bc) bc.innerHTML = bookInner(); return; }
+  if(t.dataset && t.dataset.day != null){ S.days[t.dataset.day] = t.value.slice(0, 300); save(); return; }
   if(t.dataset && t.dataset.sos){ S.sos[t.dataset.sos] = t.value.slice(0, 200); save(); }
 });
 // 設定欄位改完離開時才重畫句卡，避免輸入到一半被打斷
 $("#view").addEventListener("focusout", e => { if(/^s(Dinner|Curfew|WifiName|WifiPass)$/.test(e.target.id)) setTimeout(() => { if(!document.activeElement || !/^s(Dinner|Curfew|WifiName|WifiPass)$/.test(document.activeElement.id)) render(); }, 80); });
 $("#showClose").addEventListener("click", () => { $("#show").classList.remove("on"); if(window.speechSynthesis) speechSynthesis.cancel(); });
 $("#showSay").addEventListener("click", () => { if(lastShow) say(lastShow.text, lastShow.lang); });
+$("#view").addEventListener("change", e => {
+  const t = e.target;
+  if(t.dataset && t.dataset.prep){ S.prep[t.dataset.prep] = t.checked; save(); render(); return; }
+  if(t.dataset && t.dataset.daydone != null){ S.daysDone[t.dataset.daydone] = t.checked; save(); return; }
+  if(t.id === "arrive"){ S.arrive = t.value; save(); render(); }
+});
 document.addEventListener("keydown", e => { if(e.key === "Escape") $("#showClose").click(); });
 render();
 </script>
