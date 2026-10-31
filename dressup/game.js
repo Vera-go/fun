@@ -73,7 +73,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#5A3A2A", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"",
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
@@ -81,6 +81,7 @@ const DEFAULT_LOOK = {skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes
 let S = {look:clone(DEFAULT_LOOK), cat:"hair", theme:"", best:{}, wardrobe:[]};
 try{ const v = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if(v) S = Object.assign(S, v); }catch(e){}
 S.look = Object.assign(clone(DEFAULT_LOOK), S.look);
+if(EYE_OLD[S.look.eyeC]) S.look.eyeC = EYE_OLD[S.look.eyeC];   // 舊版的眼睛顏色換成柔和的
 const save = () => { try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} };
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 const unlocked = themeId => (S.best[themeId] || 0) >= 4;

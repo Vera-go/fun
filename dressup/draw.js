@@ -26,6 +26,12 @@ function shade(hex, amt){
   const f = v => Math.round(v + (t - v) * k);
   return "#" + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, "0")).join("");
 }
+// 兩個顏色混合（t = 0 是 a，1 是 b）
+function mix(a, b, t){
+  const p = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const x = p(a), y = p(b);
+  return "#" + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, "0")).join("");
+}
 const lum = hex => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * .299 + (n >> 8 & 255) * .587 + (n & 255) * .114) / 255; };
 function star(cx, cy, r, fill, sw = 2){
   let d = "";
@@ -37,7 +43,10 @@ const heartD = (cx, cy, s) => `M${cx} ${cy + s * .9} C${cx - s * 1.6} ${cy - s *
 // ---------- 調色盤 ----------
 const PAL = ["#FFFFFF", "#F6E7C8", "#D9B99B", "#8A5A3C", "#2E2B2B", "#9EA3AD", "#2C3E70", "#4C8FE0", "#9BD0F5", "#9ADBC0", "#4FA36B", "#F6D65A", "#F59A4A", "#D9414E", "#F7A8C4", "#E8679A", "#B9A3E8", "#7E5BC2"];
 const HAIR_PAL = ["#2B2523", "#5A3A2A", "#8A5A3C", "#C98A4B", "#E8C26A", "#D9DCE3", "#F2A7C3", "#7DB4E8", "#A889DD", "#C2473F", "#7CC9A0"];
-const EYE_PAL = ["#5A3A2A", "#2B2523", "#4C8FE0", "#4FA36B", "#7E5BC2", "#D9414E", "#C99A3A", "#E8679A"];
+// 眼睛顏色：柔和、偏自然的色調（不用太飽和的紅色和桃紅）
+// 舊版的眼睛顏色（比較飽和）：畫的時候換成最接近的柔和顏色（衣櫥、穿搭牆、分享連結裡的舊穿搭都適用）
+const EYE_OLD = {"#5A3A2A":"#6B4530", "#2B2523":"#3A2C28", "#4C8FE0":"#5E7FA8", "#4FA36B":"#6E8B4E", "#7E5BC2":"#8E78B8", "#D9414E":"#B87D8B", "#C99A3A":"#C9A24A", "#E8679A":"#B87D8B"};
+const EYE_PAL = ["#6B4530", "#3A2C28", "#A8743A", "#6E8B4E", "#5E7FA8", "#6FA8D6", "#8E78B8", "#B87D8B", "#C9A24A"];
 const SKIN = ["#FFE6D6", "#F8D2B8", "#EBBB97", "#C98E68", "#9A6646"];
 const BLUSH = ["#FF9AAE", "#FFB38A", "#F27BA0", "#E8A0D6"];
 const LIPS = ["#E8667A", "#D9414E", "#F59A8A", "#C2475E", "#E8679A"];
@@ -208,7 +217,12 @@ function drawEye(type, cx, ec, right){
   if(type === "cat") return P(`M${cx - 12} ${cy} Q${cx} ${cy - 14} ${cx + 12} ${cy - 2} Q${cx} ${cy + 12} ${cx - 12} ${cy} Z`, ec, 2.4) + E(cx, cy - 1, 2.4, 7.5, INK, 0) + C(cx + 4, cy - 4, 2, "#fff", 0);
   const big = type === "sparkle";
   const ry = big ? 13.5 : 12, rx = big ? 10.5 : 9.5;
-  return E(cx, cy, rx, ry, ec, 2.4) + E(cx, cy + 2, rx * .52, ry * .6, shade(ec, -.55), 0) + C(cx + 3.5, cy - 5, big ? 3.6 : 3, "#fff", 0) + C(cx - 3.5, cy + 5, 1.6, "#fff", 0) +
+  // 虹膜有層次：上方偏深（眼皮的陰影）、下方有一點亮色反光；瞳孔用深咖啡
+  const dark = mix(ec, "#2B1D16", .6), light = shade(ec, .4);
+  return E(cx, cy, rx, ry, ec, 2.4) +
+    `<path d="M${cx - rx + 1} ${cy - 1} A${rx - 1} ${ry - 1} 0 0 1 ${cx + rx - 1} ${cy - 1} Q${cx} ${cy - ry * .35} ${cx - rx + 1} ${cy - 1} Z" fill="${dark}" opacity=".5"/>` +
+    E(cx, cy + ry * .5, rx * .62, ry * .3, light, 0, `opacity=".7"`) +
+    E(cx, cy + 1.5, rx * .45, ry * .55, dark, 0) + C(cx + 3.5, cy - 5, big ? 3.6 : 3, "#fff", 0) + C(cx - 3.5, cy + 5, 1.6, "#fff", 0) +
     (big ? LN(`M${cx - 12} ${cy - 8} Q${cx} ${cy - 19} ${cx + 12} ${cy - 8}`, 3.2) + LN(`M${right ? cx + 11 : cx - 11} ${cy - 9} L${right ? cx + 16 : cx - 16} ${cy - 13}`, 2.4) + star(cx - 4, cy - 4, 2.6, "#fff", 0) : "");
 }
 const BROWS = {
@@ -451,7 +465,7 @@ function drawLook(L, opt = {}){
   if(L.blush) s += E(116, 160, 12, 7, L.blush, 0, `opacity=".55"`) + E(184, 160, 12, 7, L.blush, 0, `opacity=".55"`);
   if(L.freckles) s += [[112, 154], [118, 158], [114, 162], [186, 154], [182, 158], [188, 162]].map(([x, y]) => C(x, y, 1.4, shade(skin, -.4), 0)).join("");
   if(L.shadow) s += E(128, 128, 14, 7, L.shadow, 0, `opacity=".6"`) + E(172, 128, 14, 7, L.shadow, 0, `opacity=".6"`);
-  s += EYE_X.map((x, i) => drawEye(L.eyes, x, L.eyeC, i === 1)).join("");
+  s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1)).join("");
   s += EYE_X.map((x, i) => LN((BROWS[L.brows] || BROWS.soft).d(x, i === 1), 2.8, shade(L.hairC, -.25))).join("");
   s += LN("M148 153 Q150 155 152 153", 2, shade(skin, -.35));
   s += drawMouth(L.mouth, L.lip);
