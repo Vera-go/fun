@@ -257,13 +257,14 @@ const STICKERS = {heart:{name:"愛心"}, star:{name:"星星"}, tear:{name:"淚�
 // ---------- 配件 ----------
 const HATS = {
   beret:    {name:"貝雷帽", tags:["neat", "casual"], color:"#D9414E",
-    draw:(f, c) => `<ellipse cx="158" cy="72" rx="62" ry="22" transform="rotate(-10 158 72)" fill="${f}" stroke="${INK}" stroke-width="2.6"/>` + LN("M150 50 L152 42", 3.4)},
+    draw:(f, c) => P("M92 104 C84 70 108 42 152 38 C200 34 230 52 224 74 C220 88 208 94 202 94 Q150 84 92 104 Z", f) + LN("M96 100 Q150 82 202 94", 2, shade(c, -.25)) + LN("M152 38 L155 28", 3.4) + LN("M120 56 Q140 46 166 46", 3, "rgba(255,255,255,.35)")},
   straw:    {name:"草帽", tags:["summer", "beach"], color:"#E8679A",
     draw:(f, c) => E(150, 90, 98, 22, "#F2D48A", 2.6) + P("M108 90 Q108 44 150 42 Q192 44 192 90 Z", "#F2D48A") + P("M109 78 Q150 86 191 78 L192 88 Q150 96 108 88 Z", f, 2.2)},
   beanie:   {name:"毛帽", tags:["winter", "warm"], color:"#7E5BC2",
     draw:(f, c) => P("M88 110 Q86 44 150 42 Q214 44 212 110 Z", f) + P("M86 96 Q150 84 214 96 L214 116 Q150 104 86 116 Z", shade(c, -.15)) + C(150, 38, 12, shade(c, .5))},
   cap:      {name:"棒球帽", tags:["sport", "casual"], color:"#4C8FE0",
-    draw:(f, c) => P("M92 100 Q92 46 150 44 Q208 46 208 100 Z", f) + P("M92 100 Q62 102 50 116 Q96 118 140 104 Z", shade(c, -.2)) + C(150, 46, 4, shade(c, -.2), 1.6)},
+    draw:(f, c) => P("M90 104 Q86 44 150 40 Q214 44 210 104 Z", f) + LN("M150 41 L150 98 M120 48 Q112 70 112 100 M180 48 Q188 70 188 100", 1.6, shade(c, -.25)) + C(150, 41, 4.5, shade(c, -.2), 1.8) +
+      P("M84 100 Q150 86 216 100 Q222 114 208 120 Q150 106 92 120 Q78 114 84 100 Z", shade(c, -.15))},
   crown:    {name:"皇冠", tags:["party"], color:"#F6D65A", lock:"party",
     draw:(f, c) => P("M112 72 L116 40 L134 58 L150 32 L166 58 L184 40 L188 72 Z", f) + C(150, 62, 4.5, "#D9414E", 1.6) + C(128, 66, 3.2, "#4C8FE0", 1.4) + C(172, 66, 3.2, "#4FA36B", 1.4)},
   catears:  {name:"貓耳髮箍", tags:["snack", "casual", "party"], color:"#2E2B2B", lock:"market",
