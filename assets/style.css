@@ -73,6 +73,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--acc-soft);border
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 18px;border-radius:99px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:calc(100vw - 32px)}
 .toast.show{opacity:1}
 footer{margin-top:48px;text-align:center;color:var(--muted);font-size:13px}
+footer a{display:inline-block;padding:12px 4px}
 details.admin{margin-top:10px}
 .admin-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .admin-bar input{width:auto;flex:1;min-width:140px;padding:5px 8px;font-size:13px}

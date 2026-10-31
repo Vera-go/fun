@@ -99,6 +99,7 @@ h2 [data-icon]{margin-right:2px}
 .done-item .badge{border-color:var(--ink);color:#111}
 
 footer{margin-top:48px;text-align:center;color:var(--muted);font-size:14px}
+footer a{display:inline-block;padding:12px 4px}
 
 /* 進場動畫：只用在標題與卡片，使用者關掉動畫就不播 */
 @media(prefers-reduced-motion:no-preference){
