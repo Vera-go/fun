@@ -314,8 +314,10 @@ const BAGS = {
     draw:(f, c) => LN("M178 212 L122 294", 4.5) + LN("M178 212 L122 294", 2.6, shade(c, -.2)) + P("M100 288 L136 288 L136 316 Q136 320 132 320 L104 320 Q100 320 100 316 Z", f) + P("M100 288 L136 288 L134 302 L102 302 Z", shade(c, -.12), 2.2) + C(118, 302, 2.6, "#F6D65A", 1.4)},
   handbag:  {name:"手提包", tags:["party", "formal"], color:"#E8679A",
     draw:(f, c) => LN("M90 330 Q100 304 110 330", 2.8) + P("M82 328 L118 328 L114 358 L86 358 Z", f) + LN("M86 338 L114 338", 1.6)},
+  // 書包：袋子在背後（back，畫在身體後面、只露出兩側和上面），前面只看得到順著肩膀彎下去的背帶
   backpack: {name:"書包", tags:["school"], color:"#4C8FE0",
-    draw:(f, c) => LN("M128 210 L128 290", 7) + LN("M172 210 L172 290", 7) + LN("M128 210 L128 290", 4.5, f) + LN("M172 210 L172 290", 4.5, f)},
+    back:(f, c) => LN("M136 204 Q150 184 164 204", 5) + LN("M136 204 Q150 184 164 204", 2.6, shade(c, -.25)) + P("M102 216 Q102 200 116 200 L184 200 Q198 200 198 216 L200 300 Q198 310 188 310 L112 310 Q102 310 102 300 Z", f),
+    draw:(f, c) => ["M126 212 C122 230 119 248 117 268", "M174 212 C178 230 181 248 183 268"].map(d => LN(d, 8.5) + LN(d, 5, shade(c, -.1))).join("") + P("M117 244 L125 244 L124 251 L116 251 Z", "#C9CED6", 1.4) + P("M175 244 L183 244 L184 251 L176 251 Z", "#C9CED6", 1.4)},
 };
 const HANDS = {
   umbrella: {name:"雨傘", tags:["rain"], grip:true, color:"#4C8FE0",
@@ -462,6 +464,8 @@ function drawLook(L, opt = {}){
   // 戴了整個包住頭頂的帽子，丸子頭的髮髻就藏在帽子裡
   const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa"].includes(L.hat.id);
   s += shaded((HAIRB[L.hairB] || HAIRB.long).draw(L.hairC, fullHat), "hv");
+  // 背在背上的東西（書包的袋子）：在頭髮前面、身體後面
+  if(L.bag && BAGS[L.bag.id] && BAGS[L.bag.id].back) s += shaded(BAGS[L.bag.id].back(fill("bagback", L.bag), L.bag.color));
   // 身體：全部合成一塊描邊（先畫粗的墨線，再蓋上膚色），接縫不會有線
   const parts = [BODY, ARM_SHAPE, MX(ARM_SHAPE), LEG_SHAPE, MX(LEG_SHAPE)];
   s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
