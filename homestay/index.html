@@ -145,6 +145,19 @@ textarea{resize:vertical;line-height:1.6}
 .tfbtns .t{background:var(--acc);color:#fff;box-shadow:0 4px 0 #147A5E}.tfbtns .f{background:#FFE6DA;color:#C5602F;box-shadow:0 4px 0 #F2CDB9}
 .tfres{margin-top:14px;border-radius:14px;padding:12px;font-size:14.5px;line-height:1.7;text-align:left}
 .tfres.good{background:#DDF3EA}.tfres.bad{background:#FFE6DA}
+.rp .bub{background:#F2FAF5;border-radius:16px;padding:14px;text-align:left;margin:10px 0}
+.rp .bub .z{font-size:clamp(22px,6.5vw,28px);font-weight:900;line-height:1.5}
+.rp .bub .e{font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.6}
+.rp .who{font-size:12px;font-weight:900;color:var(--acc);margin-bottom:4px}
+.ropt{display:block;width:100%;text-align:left;border:2px solid var(--line);border-radius:14px;background:#FBFEFC;padding:10px 12px;margin-bottom:8px;font:inherit;color:inherit;cursor:pointer}
+.ropt:active{background:#F0F9F4}.ropt .z{font-size:17px;font-weight:900}.ropt .p{font-size:12.5px;color:var(--acc);font-weight:700;margin-top:2px}.ropt .e{font-size:12.5px;color:var(--muted);margin-top:2px}
+.ropt.ok{border-color:var(--acc);background:#DDF3EA}.ropt.no{border-color:#E8A58C;background:#FFE6DA}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:8px}.dots i{width:9px;height:9px;border-radius:50%;background:#D7E6DD}.dots i.on{background:var(--acc)}
+.ttpick{display:flex;gap:8px;align-items:flex-start;padding:7px 2px;border-bottom:1px dashed var(--line);font-size:14px;line-height:1.5;cursor:pointer}
+.ttpick input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--acc)}.ttpick small{display:block;color:var(--muted);font-size:12px}
+.ttcard{border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;background:#FBFEFC;text-align:left}
+.ttcard.lie{border-color:#E8A58C;background:#FFE6DA}
+.ttcard b{font-size:16px;display:block;line-height:1.5}.ttcard span{font-size:13px;color:var(--muted)}
 @media print{
   header,.tabs,.bar,.portal-foot,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}
@@ -646,6 +659,70 @@ const TF = [
   {who:"au", en:"The Great Barrier Reef is off the coast of Queensland.", zh:"大堡礁在昆士蘭外海。", a:true, why:"對。它是世界最大的珊瑚礁群，在澳洲東北方。"},
   {who:"au", en:"Many Australians eat Vegemite on toast.", zh:"很多澳洲人會在吐司上抹 Vegemite。", a:true, why:"對。Vegemite 是鹹鹹的酵母醬，澳洲人很熟悉，外國人常覺得味道很特別。"}
 ];
+/* 夜市和便利商店角色扮演：她練習真的會說的中文。ok 是對的選擇，info 是答錯但有提醒 */
+const ROLE = [
+  {name:"夜市點雞排", intro:"你在夜市的雞排攤前。老闆會用中文問你，你選一個要說的話。", steps:[
+    {npc:["歡迎光臨！要吃什麼？","Welcome! What would you like?"], opts:[
+      {zh:"我要一個雞排。", py:"wǒ yào yí ge jī pái", en:"I'd like a chicken cutlet.", ok:true},
+      {zh:"我要一個洗手間。", py:"wǒ yào yí ge xǐ shǒu jiān", en:"I'd like a bathroom.", fb:"老闆愣住了：這裡賣雞排，沒有賣洗手間。"},
+      {zh:"再見！", py:"zài jiàn", en:"Goodbye!", fb:"你還沒點餐就走了，肚子還是餓的。"}]},
+    {npc:["要辣嗎？","Do you want it spicy?"], opts:[
+      {zh:"不要辣。", py:"bú yào là", en:"Not spicy.", ok:true},
+      {zh:"要一點辣。", py:"yào yì diǎn là", en:"A little spicy.", ok:true},
+      {zh:"我很貴。", py:"wǒ hěn guì", en:"I'm expensive.", fb:"老闆笑了：「貴」是價錢，不是形容人的喔。"}]},
+    {npc:["要不要加梅子粉？","Do you want plum powder? (sweet and sour)"], opts:[
+      {zh:"好，謝謝。", py:"hǎo, xiè xie", en:"Yes, please.", ok:true},
+      {zh:"不用，謝謝。", py:"bú yòng, xiè xie", en:"No, thanks.", ok:true},
+      {zh:"明天見。", py:"míng tiān jiàn", en:"See you tomorrow.", fb:"老闆還在等你回答要不要梅子粉。"}]},
+    {npc:["八十元。","Eighty dollars."], opts:[
+      {zh:"好，給你。謝謝！", py:"hǎo, gěi nǐ. xiè xie", en:"OK, here you go. Thank you!", ok:true},
+      {zh:"可以刷卡嗎？", py:"kě yǐ shuā kǎ ma", en:"Can I pay by card?", fb:"老闆說：夜市多半只收現金。出門前要先準備好零錢喔。"},
+      {zh:"太貴了，我不要。", py:"tài guì le, wǒ bú yào", en:"Too expensive, I don't want it.", fb:"夜市的小吃通常不殺價，價錢差不多都是固定的。"}]},
+    {npc:["好了，小心燙！","Here you go. Careful, it's hot!"], opts:[
+      {zh:"謝謝！", py:"xiè xie", en:"Thank you!", ok:true},
+      {zh:"謝謝！再見！", py:"xiè xie! zài jiàn", en:"Thank you! Goodbye!", ok:true}]}
+  ], learn:["我要一個…","不要辣","好，謝謝","可以刷卡嗎？（夜市多半只收現金）","謝謝"]},
+  {name:"便利商店買東西", intro:"你在便利商店，想買東西。店員會問你幾句，你選一個要說的話。", steps:[
+    {npc:["歡迎光臨！","Welcome!"], opts:[
+      {zh:"請問有熱的茶葉蛋嗎？", py:"qǐng wèn yǒu rè de chá yè dàn ma", en:"Excuse me, do you have hot tea eggs?", ok:true},
+      {zh:"請問廁所在哪裡？", py:"qǐng wèn cè suǒ zài nǎ lǐ", en:"Excuse me, where is the toilet?", ok:true},
+      {zh:"我要買飛機。", py:"wǒ yào mǎi fēi jī", en:"I want to buy a plane.", fb:"便利商店什麼都賣，但真的沒有賣飛機。"}]},
+    {npc:["需要袋子嗎？","Do you need a bag?"], opts:[
+      {zh:"不用，謝謝。", py:"bú yòng, xiè xie", en:"No, thanks.", ok:true},
+      {zh:"要，謝謝。", py:"yào, xiè xie", en:"Yes, please.", ok:true},
+      {zh:"我是學生。", py:"wǒ shì xué shēng", en:"I'm a student.", fb:"店員點點頭，但還是在等你回答要不要袋子。"}]},
+    {npc:["要加熱嗎？","Would you like it heated?"], opts:[
+      {zh:"要，謝謝。", py:"yào, xiè xie", en:"Yes, please.", ok:true},
+      {zh:"不用，謝謝。", py:"bú yòng, xiè xie", en:"No, thanks.", ok:true},
+      {zh:"我很熱。", py:"wǒ hěn rè", en:"I'm hot.", fb:"店員在問食物要不要加熱，不是問你熱不熱。"}]},
+    {npc:["一共六十五元。","That's sixty-five dollars."], opts:[
+      {zh:"可以用悠遊卡嗎？", py:"kě yǐ yòng yōu yóu kǎ ma", en:"Can I use an EasyCard?", ok:true},
+      {zh:"好，給你。", py:"hǎo, gěi nǐ", en:"OK, here you go.", ok:true},
+      {zh:"謝謝！再見！", py:"xiè xie! zài jiàn", en:"Thank you! Goodbye!", fb:"你還沒付錢就要走了，店員叫住你：「小姐，還沒付錢喔！」"}]},
+    {npc:["謝謝光臨！","Thanks for coming!"], opts:[
+      {zh:"謝謝！再見！", py:"xiè xie! zài jiàn", en:"Thank you! Goodbye!", ok:true}]}
+  ], learn:["請問有…嗎？","不用，謝謝／要，謝謝","可以用悠遊卡嗎？","給你","謝謝！再見！"]}
+];
+/* 兩真一假：說三件關於自己的事，其中一件是假的，讓對方猜 */
+const TT_START = [
+  ["I have never ...", "我從來沒有 ...（例如：我從來沒吃過臭豆腐）"],
+  ["I can ...", "我會 ...（例如：游泳、騎腳踏車）"],
+  ["I have been to ...", "我去過 ..."],
+  ["My favourite ... is ...", "我最喜歡的 ... 是 ..."],
+  ["I once ...", "我曾經 ..."],
+  ["At home I have ...", "我家有 ...（例如：一隻狗）"],
+  ["I am afraid of ...", "我怕 ..."],
+  ["I know someone who ...", "我認識一個人，他 ..."]
+];
+const TT_BANK = [
+  ["I have a pet dog.","我養了一隻狗。"],["I have a pet cat.","我養了一隻貓。"],["I have a younger brother.","我有一個弟弟。"],["I have a younger sister.","我有一個妹妹。"],
+  ["I have been to Japan.","我去過日本。"],["I have been to Australia.","我去過澳洲。"],["I have climbed a mountain.","我爬過山。"],["I once got lost in a night market.","我曾經在夜市迷路。"],
+  ["I have never eaten stinky tofu.","我從來沒吃過臭豆腐。"],["I like spicy food.","我喜歡吃辣。"],["I like bubble tea.","我喜歡珍珠奶茶。"],["I can cook rice.","我會煮飯。"],
+  ["I can ride a scooter.","我會騎機車。"],["I can swim.","我會游泳。"],["I can play the guitar.","我會彈吉他。"],["I can sing a Chinese song.","我會唱一首中文歌。"],
+  ["I can speak a little English.","我會說一點英文。"],["I get up before six every morning.","我每天早上六點前起床。"],["I was born in Taipei.","我在台北出生。"],["I live in Linkou.","我住在林口。"],
+  ["I am afraid of cockroaches.","我怕蟑螂。"],["I once met a famous person.","我曾經遇過名人。"],["I once saw a typhoon.","我曾經遇過颱風。"],["My favourite colour is blue.","我最喜歡的顏色是藍色。"],
+  ["I have never been on a plane.","我從來沒搭過飛機。"],["I can drive a car.","我會開車。"],["I have two jobs.","我有兩份工作。"],["I can speak three languages.","我會說三種語言。"]
+];
 const PLANS = {
   A:{name:"晴天・淡水老街和夕陽", when:"約半天～一天", steps:[
     "從林口搭機場捷運到台北車站，轉捷運淡水信義線到淡水站（轉乘一次，路上大約一個多小時，出發前用 Google 地圖看即時路線）。",
@@ -863,6 +940,49 @@ function tfView(){
     ${ans ? "" : `<div class="tfbtns"><button class="t" data-tf="1">對 True</button><button class="f" data-tf="0">錯 False</button></div>`}${res}
     <div class="ctl"><button class="btn ghost sm" data-pspeak="q">念英文</button><button class="btn sm" data-pnext="1">${PLAY.i < n - 1 ? "下一題" : "再來一輪"}</button></div></div>`;
 }
+function roleView(){
+  const sc = ROLE[PLAY.sc], st = sc.steps[PLAY.rs], n = sc.steps.length;
+  const back = '<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button></div>';
+  if(PLAY.rs >= n){
+    return back + `<div class="card deck rp"><div class="qzh">過關了！</div><div class="big">${esc(sc.name)}</div><p class="hint">這次學到的：</p><ul class="words ok">${sc.learn.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      <div class="ctl"><button class="btn" data-rrestart="1">再演一次</button><button class="btn ghost" data-pback="1">換一個情境</button></div></div>`;
+  }
+  const picked = PLAY.rp != null ? st.opts[PLAY.rp] : null;
+  const fb = picked ? (picked.ok ? '<div class="tfres good"><b>對了！</b> 老闆聽懂了。</div>' : `<div class="tfres bad"><b>換個說法吧。</b> ${esc(picked.fb)}</div>`) : "";
+  return back + `<div class="card deck rp"><div class="dots">${sc.steps.map((_, i) => `<i class="${i <= PLAY.rs ? "on" : ""}"></i>`).join("")}</div><div class="muted small">${esc(sc.name)}・第 ${PLAY.rs + 1} / ${n} 步</div>
+    ${PLAY.rs === 0 && PLAY.rp == null ? `<p class="hint" style="margin:6px 0 0">${esc(sc.intro)}</p>` : ""}
+    <div class="bub"><div class="who">老闆說 Staff says</div><div class="z">${esc(st.npc[0])}</div><div class="e">${esc(st.npc[1])}</div></div>
+    <div class="ctl" style="margin:0 0 10px"><button class="btn ghost sm" data-rspeak="npc">念給我聽</button></div>
+    <div style="text-align:left"><div class="who" style="font-size:12px;font-weight:900;color:var(--acc);margin-bottom:6px">你要說什麼？ What do you say?</div>
+    ${st.opts.map((o, i) => `<button class="ropt ${PLAY.rp === i ? (o.ok ? "ok" : "no") : ""}" data-rpick="${i}"><div class="z">${esc(o.zh)}</div><div class="p">${esc(o.py)}</div><div class="e">${esc(o.en)}</div></button>`).join("")}</div>
+    ${fb}${picked && picked.ok ? `<div class="ctl"><button class="btn" data-rnext="1">下一步</button></div>` : picked ? `<div class="ctl"><button class="btn ghost" data-rretry="1">再選一次</button></div>` : ""}</div>`;
+}
+function ttView(){
+  const back = '<div class="bar"><button class="btn ghost sm" data-pback="1">← 回遊戲選單</button><span class="sp"></span><span class="muted small">你猜對 ' + PLAY.ttMe + '・她猜對 ' + PLAY.ttHer + '</span></div>';
+  if(PLAY.tt === "menu"){
+    return back + `<div class="note">一個人說三件關於自己的事，其中一件是假的，另一個人猜哪一句是假的。猜對的人得一分，不計較輸贏。</div>
+      <div class="card"><h2>她說，你猜</h2><p class="hint">她用英文說三句。我給你一些開頭句型，讓她比較好想。</p><button class="btn" data-ttmode="her">開始</button></div>
+      <div class="card"><h2>你說，她猜</h2><p class="hint">你不用自己想英文：從我準備的句子裡挑三句，指定哪一句是假的，再念給她聽。</p><button class="btn" data-ttmode="me">開始</button></div>`;
+  }
+  if(PLAY.tt === "her"){
+    const c = TT_START[PLAY.ttI % TT_START.length];
+    return back + `<div class="card deck"><div class="qzh">請她說三句，其中一句是假的</div><div class="ctl" style="margin:10px 0"><button class="btn ghost sm" data-ttrule="1">念規則給她聽</button></div>
+      <div class="tfq" style="margin-top:6px">${esc(c[0])}</div><div class="qzh">${esc(c[1])}</div>
+      <div class="ctl"><button class="btn ghost sm" data-pspeak="q">念句型</button><button class="btn ghost sm" data-ttnext="1">換一個句型</button></div>
+      <div class="ctl"><button class="btn sm" data-ttscore="me">我猜對了</button><button class="btn ghost sm" data-ttscore="her">被她騙了</button></div></div>`;
+  }
+  if(PLAY.tt === "pick"){
+    const sel = PLAY.ttSel;
+    return back + `<div class="card"><h2>挑三句，指定一句是假的</h2><p class="hint">已選 ${sel.length} / 3。先打勾三句，再選哪一句是假的（紅框那一句）。</p>
+      ${TT_BANK.map((b, i) => `<label class="ttpick"><input type="checkbox" data-ttsel="${i}" ${sel.includes(i) ? "checked" : ""}><span>${esc(b[0])}<small>${esc(b[1])}</small></span></label>`).join("")}
+      ${sel.length === 3 ? `<div class="group" style="margin-top:14px">哪一句是假的？</div>${sel.map(i => `<label class="ttpick"><input type="radio" name="lie" data-ttlie="${i}" ${PLAY.ttLie === i ? "checked" : ""}><span>${esc(TT_BANK[i][0])}</span></label>`).join("")}<div class="bar" style="margin-top:12px"><button class="btn" data-ttgo="1" ${PLAY.ttLie == null ? "disabled" : ""}>開始說給她聽</button></div>` : ""}</div>`;
+  }
+  // 說給她聽
+  return back + `<div class="note">一句一句念給她聽。三句都說完，問她「Which one is the lie?」，再按揭曉。</div>` +
+    PLAY.ttSel.map((i, k) => `<div class="ttcard ${PLAY.ttReveal && i === PLAY.ttLie ? "lie" : ""}"><b>${k + 1}. ${esc(TT_BANK[i][0])}</b><span>${esc(TT_BANK[i][1])}${PLAY.ttReveal && i === PLAY.ttLie ? "（這句是假的！）" : ""}</span><div class="ctl" style="justify-content:flex-start;margin-top:8px"><button class="btn ghost sm" data-ttsay="${i}">念出來</button></div></div>`).join("") +
+    `<div class="ctl">${PLAY.ttReveal ? `<button class="btn sm" data-ttscore2="her">她猜對了</button><button class="btn ghost sm" data-ttscore2="me">她被騙了</button>` : '<button class="btn ghost sm" data-ttask="1">念「哪一句是假的？」</button><button class="btn" data-ttreveal="1">揭曉</button>'}</div>
+    ${PLAY.ttReveal ? '<div class="ctl"><button class="btn ghost" data-ttmode="me">再來一輪</button></div>' : ""}`;
+}
 function playView(){
   if(!PLAY.mode){
     return `<div class="note">一起玩，不計分，目的是聊天。用同一支手機，念出來給她聽，也讓她看英文。她不想回答的題目可以直接跳過。</div>
@@ -870,12 +990,16 @@ function playView(){
       <div class="card"><h2>俚語配對</h2><p class="hint">她教你幾句澳洲人常說的話，你再教她幾句台灣人常說的。先猜，再揭曉。</p><div class="row"><button class="btn" data-pmode="slang-au">她教我（澳洲）</button><button class="btn ghost" data-pmode="slang-tw">我教她（台灣）</button></div></div>
       <div class="card"><h2>台灣體驗賓果</h2><p class="hint">10 天裡完成 16 件台灣的事，做完就打勾，連成一線有亮框。進度記在這支手機上。</p><button class="btn" data-pmode="bingo">開始</button></div>
       <div class="card"><h2>景點盲翻</h2><p class="hint">16 個外國人來台灣常去的北部景點，每張都蓋著，隨便翻開一張，看看運氣把你們帶去哪裡。</p><button class="btn" data-pmode="spots">開始翻</button></div>
+      <div class="card"><h2>夜市和便利商店角色扮演</h2><p class="hint">她當客人，一步一步用中文點餐、付錢。選對老闆就聽得懂，選錯會有搞笑的後果。去夜市前先練一遍。</p><div class="row"><button class="btn" data-pmode="role-0">夜市點雞排</button><button class="btn ghost" data-pmode="role-1">便利商店</button></div></div>
+      <div class="card"><h2>兩真一假</h2><p class="hint">說三件關於自己的事，其中一件是假的，讓對方猜。你不會英文也沒關係，我準備了句子可以挑。</p><button class="btn" data-pmode="tt">開始</button></div>
       <div class="card"><h2>繞口令對決</h2><p class="hint">她念中文繞口令，你念英文繞口令，念三次都沒念錯就過關。每句有拼音和意思，可以念標準版給對方聽。</p><div class="row"><button class="btn" data-pmode="twist-zh">她念中文</button><button class="btn ghost" data-pmode="twist-en">你念英文</button></div></div>
       <div class="card"><h2>台灣和澳洲是非題</h2><p class="hint">猜猜看對還是錯。台灣的題目她來猜，澳洲的題目你來猜，她可以糾正我寫的答案。</p><div class="row"><button class="btn" data-pmode="tf-tw">她猜台灣</button><button class="btn ghost" data-pmode="tf-au">你猜澳洲</button><button class="btn ghost" data-pmode="tf-all">混合</button></div></div>
       <div class="card"><h2>猜猜我是誰</h2><p class="hint">手機放額頭，對方用動作和簡單的字提示，在時間內猜越多越好。有台灣食物、澳洲、動物、日常物品等 7 個主題。</p><button class="btn" data-pmode="heads">開始</button></div>
       <div class="card"><h2>零食盲測</h2><p class="hint">準備幾種台灣零食，她邊吃邊打星星，最後出現「她最喜歡的台灣味」排行榜。</p><button class="btn" data-pmode="snack">開始</button></div>
       <div class="card"><h2>學中文小挑戰</h2><p class="hint">數字、顏色、家人、問候、點餐，每個詞有拼音，點一下念出來。</p><button class="btn" data-pmode="learn">開始</button></div>`;
   }
+  if(PLAY.mode === "role") return roleView();
+  if(PLAY.mode === "tt") return ttView();
   if(PLAY.mode === "twist") return twistView();
   if(PLAY.mode === "tf") return tfView();
   if(PLAY.mode === "heads") return headsView();
@@ -991,6 +1115,20 @@ $("#view").addEventListener("click", e => {
     else say(fill(c.en), "en");
     return;
   }
+  const rp = e.target.closest("[data-rpick]"); if(rp){ if(PLAY.rp != null && ROLE[PLAY.sc].steps[PLAY.rs].opts[PLAY.rp].ok) return; PLAY.rp = +rp.dataset.rpick; const o = ROLE[PLAY.sc].steps[PLAY.rs].opts[PLAY.rp]; render(); if(o.ok) say(o.zh, "zh"); return; }
+  if(e.target.closest("[data-rnext]")){ PLAY.rs++; PLAY.rp = null; render(); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-rretry]")){ PLAY.rp = null; render(); return; }
+  if(e.target.closest("[data-rrestart]")){ PLAY.rs = 0; PLAY.rp = null; render(); return; }
+  if(e.target.closest("[data-rspeak]")){ say(ROLE[PLAY.sc].steps[PLAY.rs].npc[0], "zh"); return; }
+  const tm = e.target.closest("[data-ttmode]"); if(tm){ PLAY.tt = tm.dataset.ttmode === "me" ? "pick" : "her"; PLAY.ttSel = []; PLAY.ttLie = null; PLAY.ttReveal = false; render(); return; }
+  if(e.target.closest("[data-ttnext]")){ PLAY.ttI++; render(); return; }
+  if(e.target.closest("[data-ttrule]")){ say("Tell me three things about yourself. Two are true, and one is a lie. I will guess which one is the lie.", "en"); return; }
+  const tsc = e.target.closest("[data-ttscore]"); if(tsc){ if(tsc.dataset.ttscore === "me") PLAY.ttMe++; else PLAY.ttHer++; PLAY.ttI++; render(); toast(tsc.dataset.ttscore === "me" ? "你猜對了！" : "被她騙了"); return; }
+  if(e.target.closest("[data-ttgo]")){ if(PLAY.ttLie == null) return; PLAY.tt = "say"; render(); window.scrollTo(0, 0); return; }
+  const tsy = e.target.closest("[data-ttsay]"); if(tsy){ say(TT_BANK[+tsy.dataset.ttsay][0], "en"); return; }
+  if(e.target.closest("[data-ttask]")){ say("Which one is the lie?", "en"); return; }
+  if(e.target.closest("[data-ttreveal]")){ PLAY.ttReveal = true; render(); return; }
+  const ts2 = e.target.closest("[data-ttscore2]"); if(ts2){ if(ts2.dataset.ttscore2 === "her") PLAY.ttHer++; else PLAY.ttMe++; PLAY.tt = "menu"; PLAY.ttSel = []; PLAY.ttLie = null; PLAY.ttReveal = false; render(); return; }
   if(e.target.closest("[data-tgood]")){ if(PLAY.step < 3){ PLAY.step++; if(PLAY.step >= 3){ S.twist[PLAY.deck[PLAY.i].id] = true; save(); if(navigator.vibrate) try{ navigator.vibrate(120); }catch(err){} } render(); } return; }
   if(e.target.closest("[data-pslow]")){ const c = PLAY.deck[PLAY.i]; say(c.w, PLAY.side === "au" ? "en" : "zh", .6); return; }
   const tf = e.target.closest("[data-tf]"); if(tf){ if(PLAY.step) return; const c = PLAY.deck[PLAY.i], picked = tf.dataset.tf === "1"; PLAY.step = picked ? 1 : 2; PLAY.tfN++; if(picked === c.a) PLAY.tfOK++; render(); return; }
@@ -1015,7 +1153,9 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-plearned]")){ const c = PLAY.deck[PLAY.i]; S.learned[c.w] = !S.learned[c.w]; save(); render(); return; }
   const pm = e.target.closest("[data-pmode]"); if(pm){
     const m = pm.dataset.pmode;
-    if(m === "twist-zh" || m === "twist-en"){ const l = m.endsWith("zh") ? "zh" : "en"; PLAY = {mode:"twist", deck:shuffle(TWIST[l]), i:0, step:0, side:l === "zh" ? "tw" : "au", tLang:l}; }
+    if(m.startsWith("role-")){ PLAY = {mode:"role", deck:[], i:0, step:0, side:"tw", sc:+m.slice(5), rs:0, rp:null}; }
+    else if(m === "tt"){ PLAY = {mode:"tt", deck:[], i:0, step:0, side:"au", tt:"menu", ttMe:0, ttHer:0, ttI:Math.floor(Math.random() * TT_START.length), ttSel:[], ttLie:null, ttReveal:false}; }
+    else if(m === "twist-zh" || m === "twist-en"){ const l = m.endsWith("zh") ? "zh" : "en"; PLAY = {mode:"twist", deck:shuffle(TWIST[l]), i:0, step:0, side:l === "zh" ? "tw" : "au", tLang:l}; }
     else if(m.startsWith("tf-")){ const w = m.slice(3); PLAY = {mode:"tf", deck:shuffle(TF.filter(x => w === "all" || x.who === w)), i:0, step:0, side:"au", tfOK:0, tfN:0}; }
     else if(m === "heads"){ PLAY = {mode:"heads", deck:[], i:0, step:0, side:"au", hStage:"menu", hDur:60}; }
     else if(m === "spots"){ PLAY = {mode:"spots", deck:shuffle(SPOTS), i:0, step:0, side:"au", flip:{}, cur:null}; }
@@ -1032,6 +1172,7 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-pwhy]")){ say("Why did you choose that?", "en"); return; }
   const ps = e.target.closest("[data-pspeak]"); if(ps){
     const c = PLAY.deck[PLAY.i], k = ps.dataset.pspeak;
+    if(k === "q" && PLAY.mode === "tt"){ say(TT_START[PLAY.ttI % TT_START.length][0].replace(/\.\.\./g, "something"), "en"); return; }
     if(k === "q" && PLAY.mode === "tf") say(c.en, "en");
     else if(k === "q") say(c.en + ". " + c.o.map(o => o[0]).join(". "), "en");
     else if(k === "ex") say(c.ex, PLAY.side === "au" ? "en" : "zh");
@@ -1078,6 +1219,13 @@ $("#showClose").addEventListener("click", () => { $("#show").classList.remove("o
 $("#showSay").addEventListener("click", () => { if(lastShow) say(lastShow.text, lastShow.lang); });
 $("#view").addEventListener("change", e => {
   const t = e.target;
+  if(t.dataset && t.dataset.ttsel != null){
+    const i = +t.dataset.ttsel;
+    if(t.checked){ if(PLAY.ttSel.length >= 3){ t.checked = false; toast("最多挑三句"); return; } PLAY.ttSel.push(i); }
+    else { PLAY.ttSel = PLAY.ttSel.filter(x => x !== i); if(PLAY.ttLie === i) PLAY.ttLie = null; }
+    const y = window.scrollY; render(); window.scrollTo(0, y); return;
+  }
+  if(t.dataset && t.dataset.ttlie != null){ PLAY.ttLie = +t.dataset.ttlie; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
   if(t.dataset && t.dataset.prep){ S.prep[t.dataset.prep] = t.checked; save(); render(); return; }
   if(t.dataset && t.dataset.daydone != null){ S.daysDone[t.dataset.daydone] = t.checked; save(); return; }
   if(t.id === "arrive"){ S.arrive = t.value; save(); render(); }
