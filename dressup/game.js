@@ -156,7 +156,7 @@ function renderGroups(){
     }
     return h + `</div>`;
   }).join("") + (cat.id === "dress" ? `<p class="muted small">「吊帶裙」會露出裡面的上衣，其他洋裝會蓋過上衣和下身。</p>` : "") +
-    (cat.id === "pose" ? `<p class="muted small">雙手背在後面時，手上拿的東西和手提包會先收起來；揮手時，另一隻手還可以拿東西，手提包會先收起來。換回「自然站立」就會再出現。</p>` : "");
+    (cat.id === "pose" ? `<p class="muted small">雙手背在後面時，手上拿的東西和手提包會先收起來；揮手和比 YA 時，另一隻手還可以拿東西，手提包會先收起來。換回「自然站立」就會再出現。</p>` : "");
 }
 function toast(msg){
   const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
@@ -197,7 +197,7 @@ function randomLook(){
   const scheme = pick([["#FFFFFF", "#2C3E70", "#D9414E"], ["#F7A8C4", "#FFFFFF", "#B9A3E8"], ["#F6E7C8", "#8A5A3C", "#4FA36B"], ["#9BD0F5", "#FFFFFF", "#F6D65A"], ["#2E2B2B", "#FFFFFF", "#E8679A"], ["#9ADBC0", "#F6E7C8", "#F59A4A"], ["#B9A3E8", "#7E5BC2", "#F7A8C4"]]);
   const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list)); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
   look.hairB = pick(Object.keys(HAIRB)); look.hairF = pick(Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
-  look.pose = pick(["down", "down", "behind", "wave"]);
+  look.pose = pick(["down", "down", "behind", "wave", "peace"]);
   look.faceShape = pick(Object.keys(FACES)); look.nose = pick(Object.keys(NOSES)); look.hairTip = Math.random() < .2 ? pick(TIP_PAL) : "";
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.mouth = pick(Object.keys(MOUTHS)); look.brows = pick(["soft", "soft", "straight", "worried"]);
   look.blush = Math.random() < .7 ? pick(BLUSH) : ""; look.lip = Math.random() < .4 ? pick(LIPS) : ""; look.shadow = Math.random() < .3 ? pick(SHADOW) : "";
@@ -242,7 +242,7 @@ function worn(look){
   if(!dress) slots.unshift("top", "bottom");
   else if(dress.overTop) slots.unshift("top");
   // 手背在後面時，手上拿的東西和手提包看不到，不算分
-  return slots.filter(k => !(look.pose === "behind" && k === "hand") && !((look.pose === "behind" || look.pose === "wave") && k === "bag" && look[k] && look[k].id === "handbag"))
+  return slots.filter(k => !(look.pose === "behind" && k === "hand") && !((look.pose === "behind" || look.pose === "wave" || look.pose === "peace") && k === "bag" && look[k] && look[k].id === "handbag"))
     .filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
 }
 function scoreLook(look, t){

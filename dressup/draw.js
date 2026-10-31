@@ -117,7 +117,23 @@ const LEG_SHAPE = "M122 314 C123 350 127 392 128 431 L142 431 C142 394 146 352 1
 const HAND = "M94 304 C91 314 92 323 99 327 C105 330 110 326 110 320 C113 319 115 315 113 312 C111 310 109 311 109 307 L108.4 302";
 // 袖子：跟著手臂的形狀，上寬下窄（w 越大越寬鬆）；長袖有袖口線
 // 動作：down 自然站立、behind 雙手背在後面（手臂往下再轉到身體後面，手藏起來）
-const POSES = {down:{name:"自然站立"}, behind:{name:"雙手背在後面"}, wave:{name:"揮手"}};
+const POSES = {down:{name:"自然站立"}, behind:{name:"雙手背在後面"}, wave:{name:"揮手"}, peace:{name:"比 YA"}};
+// 沿著骨架（幾個點）的粗線轉成一個形狀：手肘轉彎的地方用斜接、兩頭圓圓的（彎起來的手臂和袖子用）
+function tube(pts, w){
+  const h = w / 2, L = [], R = [], nrm = (x, y) => { const l = Math.hypot(x, y) || 1; return [x / l, y / l]; };
+  pts.forEach((p, i) => {
+    const d1 = i ? nrm(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : null, d2 = i < pts.length - 1 ? nrm(pts[i + 1][0] - p[0], pts[i + 1][1] - p[1]) : null;
+    const t = d1 && d2 ? nrm(d1[0] + d2[0], d1[1] + d2[1]) : (d1 || d2);
+    const nx = -t[1], ny = t[0], m = d1 && d2 ? Math.min(2.2, 1 / Math.max(.25, nx * -d1[1] + ny * d1[0])) : 1;
+    L.push([p[0] + nx * h * m, p[1] + ny * h * m]); R.push([p[0] - nx * h * m, p[1] - ny * h * m]);
+  });
+  const q = a => `${a[0].toFixed(1)} ${a[1].toFixed(1)}`;
+  return `M${q(L[0])} ${L.slice(1).map(a => "L" + q(a)).join(" ")} A${h} ${h} 0 0 0 ${q(R[R.length - 1])} ${R.slice(0, -1).reverse().map(a => "L" + q(a)).join(" ")} A${h} ${h} 0 0 0 ${q(L[0])} Z`;
+}
+// 比 YA：畫面左邊那隻手，手肘往下彎、前臂往上，手停在臉頰旁邊
+const PEACE_ARM = [[117, 226], [76, 252], [99, 198]];
+// 彎起來的手：上臂和前臂各是一段圓頭的粗線，合在一起手肘就是圓的
+const bent = (pts, w) => [tube([pts[0], pts[1]], w), tube([pts[1], pts[2]], w)];
 let POSE = "down";   // 畫的時候的動作（袖子跟著手臂的位置）
 const ARM_BEHIND = "M114 220 C104 244 101 270 109 296 L123 293 C118 270 120 246 126 234 Z";
 // 揮手：畫面左邊那隻手往外、往上舉，手掌張開在臉的斜上方（拿東西的是另一隻手）
@@ -126,6 +142,7 @@ const HAND_WAVE = "M80 160 C84 156 88 152 87 148 C85 145 81 147 80 149 L80 140 Q
 // 袖子的形狀（回傳路徑清單，衣服把袖子和衣身合成一塊描邊，中間不會有一條線）；長袖的袖口線另外畫
 const sleevesL = (w = 26) => { const k = (w - 24) / 2;
   const down = `M${113 - k} 218 C${101 - k} 242 ${93 - k} 272 ${91 - k} 305 L${111 + k * .4} 305 C${113 + k * .4} 282 119 258 129 234 Z`;
+  if(POSE === "peace") return [...bent([[117, 223], [76, 252], [98, 206]], 19 + 2 * k), MX(down)];
   if(POSE === "wave") return [`M111 ${244 + k} C104 ${232 + k} 98 ${224 + k} 96 ${220 + k} C${86 - k} ${212 + k} ${78 - k} ${203 + k} ${72 - k} 193 C${66 - k} 183 ${63 - k} 171 ${62 - k} 160 L${84 + k} 160 C${84 + k} 168 ${87 + k} 175 ${92 + k} ${182 - k} C97 ${189 - k} 104 ${195 - k} 114 ${200 - k} C120 ${203 - k} 125 ${206 - k} 131 ${208 - k} Z`, MX(down)];
   if(POSE === "behind") { const d = `M${113 - k} 218 C${101 - k} 244 ${98 - k} 270 ${106 - k} 298 L${125 + k * .4} 295 C119 270 121 248 129 234 Z`; return [d, MX(d)]; }
   return [down, MX(down)];
@@ -133,10 +150,12 @@ const sleevesL = (w = 26) => { const k = (w - 24) / 2;
 const cuffs = (w = 26) => { const k = (w - 24) / 2;
   if(POSE === "behind") return "";
   const down = `M${91.5 - k} 298 L${111 + k * .4} 298`;
+  if(POSE === "peace") return LN(`M${86 - k} ${207 - k * .4} L${107 + k} ${215 + k * .4}`, 1.6) + LN(MX(down), 1.6);
   return POSE === "wave" ? LN(`M${62.5 - k} 166 L${84 + k} 166`, 1.6) + LN(MX(down), 1.6) : LN(down, 1.6) + LN(MX(down), 1.6);
 };
 const sleevesS = (w = 26) => { const k = (w - 26) / 2;
   const down = `M${113 - k} 216 C${105 - k} 228 ${99 - k} 242 ${98 - k} 254 L121 258 C122 248 125 238 130 230 Z`;
+  if(POSE === "peace") return [tube([[118, 223], [97, 237]], 22 + 2 * k), MX(down)];
   if(POSE === "wave") return [`M111 ${246 + k} C105 ${236 + k} 99 ${228 + k} 94 ${224 + k} L${103 + k} ${196 - k} C110 200 118 205 132 ${208 - k} Z`, MX(down)];
   return [down, MX(down)];
 };
@@ -191,7 +210,8 @@ const DRESSES = {
   gown:     {name:"舞會禮服", tags:["party", "formal", "fancy"], color:"#B9A3E8",
     draw:(f, c) => C(116, 222, 13, f) + C(184, 222, 13, f) + P("M113 230 Q150 240 187 230 L187.5 288 Q230 380 240 440 Q215 452 195 444 Q172 456 150 446 Q128 456 105 444 Q85 452 60 440 Q70 380 112.5 288 Z", f) + LN("M113 288 Q150 296 187 288", 2.4) + [[150, 320], [124, 380], [176, 380], [100, 420], [200, 420]].map(([x, y]) => star(x, y, 5, "#fff", 1.2)).join("")},
   yukata:   {name:"浴衣", tags:["festival", "summer"], color:"#9BD0F5",
-    draw:(f, c) => (POSE === "wave" ? P("M74 176 Q66 200 68 232 L96 234 Q98 206 92 182 Z", f) + P("M110 250 C95 237 80 218 72 200 C65 186 61 172 61 160 L86 160 C86 168 90 175 96 182 C104 192 116 200 132 206 Z", f) + P(MX("M120 218 L98 230 L86 302 L112 302 L124 240 Z"), f)
+    draw:(f, c) => (POSE === "peace" ? P("M68 244 Q60 268 64 292 L92 292 Q94 266 86 250 Z", f) + U(bent([[117, 222], [76, 252], [97, 208]], 22), f) + P(MX("M120 218 L98 230 L86 302 L112 302 L124 240 Z"), f) :
+      POSE === "wave" ? P("M74 176 Q66 200 68 232 L96 234 Q98 206 92 182 Z", f) + P("M110 250 C95 237 80 218 72 200 C65 186 61 172 61 160 L86 160 C86 168 90 175 96 182 C104 192 116 200 132 206 Z", f) + P(MX("M120 218 L98 230 L86 302 L112 302 L124 240 Z"), f)
       : PB(POSE === "behind" ? "M120 218 L100 232 L96 298 L120 298 L124 240 Z" : "M120 218 L98 230 L86 302 L112 302 L124 240 Z", f)) + P("M114 222 Q150 206 186 222 L190 422 L110 422 Z", f) + P("M140 208 L160 268", "none", 2.4) + P("M160 208 L150 232", "none", 2.4) + P("M114 268 L186 268 L186 296 L114 296 Z", "#F2C14E") + P("M150 282 L136 302 L150 296 L164 302 Z", "#E8679A", 2)},
   qipao:    {name:"旗袍", tags:["party", "formal", "fancy"], color:"#D9414E",
     draw:(f, c) => U([...sleevesS(25), "M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 Q150 210 160 203 C161 209 169 210 177 212 C187 215 190 221 189 231 L187 300 Q192 360 188 404 L162 404 L160 370 L156 404 L112 404 Q108 360 113 300 Z"], f) + P("M138 208 L138 200 L162 200 L162 208", f, 2.2) + LN("M150 212 Q170 222 182 238", 2, "#F6D65A") + [226, 244].map(y => LN(`M172 ${y} L182 ${y}`, 2.4, "#F6D65A")).join("")},
@@ -504,7 +524,7 @@ Object.assign(BOTTOMS, {
 });
 Object.assign(OUTERS, {
   track: {name:"運動外套", tags:["sport", "casual"], color:"#D9414E",
-    draw:(f, c) => U([...sleevesL(29), "M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 L148 304 L114 304 Z", MX("M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 L148 304 L114 304 Z")], f) + cuffs(29) + (POSE === "wave" ? TUBE("M116 226 C100 216 86 204 78 191 C71 180 67 171 67 165", 2.5, "#fff") + TUBE(MX("M116 226 C106 248 101 280 99.5 302"), 2.5, "#fff") : TUBES(POSE === "behind" ? "M116 226 C107 250 104 272 109 292" : "M116 226 C106 248 101 280 99.5 302", 2.5, "#fff")) + LN("M150 214 L150 304", 2.2, "#fff") + LN("M150 214 L150 304", .8) + PB("M138 208 L134 222 L148 222", "none", 2)},
+    draw:(f, c) => U([...sleevesL(29), "M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 L148 304 L114 304 Z", MX("M111 231 C110 221 113 215 123 212 C131 210 139 209 140 203 L148 304 L114 304 Z")], f) + cuffs(29) + (POSE === "peace" ? TUBE("M113 230 L78 253 L95 216", 2.5, "#fff") + TUBE(MX("M116 226 C106 248 101 280 99.5 302"), 2.5, "#fff") : POSE === "wave" ? TUBE("M116 226 C100 216 86 204 78 191 C71 180 67 171 67 165", 2.5, "#fff") + TUBE(MX("M116 226 C106 248 101 280 99.5 302"), 2.5, "#fff") : TUBES(POSE === "behind" ? "M116 226 C107 250 104 272 109 292" : "M116 226 C106 248 101 280 99.5 302", 2.5, "#fff")) + LN("M150 214 L150 304", 2.2, "#fff") + LN("M150 214 L150 304", .8) + PB("M138 208 L134 222 L148 222", "none", 2)},
   cape:  {name:"斗篷", tags:["halloween", "party"], color:"#2E2B2B",
     draw:(f, c) => PB("M124 210 Q102 270 82 392 Q100 400 116 392 Q120 300 140 214 Z", f) + PB("M128 208 Q150 222 172 208 L176 214 Q150 230 124 214 Z", "#D9414E", 2.2) + C(150, 218, 4, "#F6D65A", 1.6)},
 });
@@ -589,7 +609,8 @@ function drawLook(L, opt = {}){
   if(L.bag && BAGS[L.bag.id] && BAGS[L.bag.id].back) s += shaded(BAGS[L.bag.id].back(fill("bagback", L.bag), L.bag.color));
   // 身體：全部合成一塊描邊（先畫粗的墨線，再蓋上膚色），接縫不會有線
   const arm = POSE === "behind" ? ARM_BEHIND : ARM_SHAPE;
-  const parts = [BODY, POSE === "wave" ? ARM_WAVE : arm, MX(arm), LEG_SHAPE, MX(LEG_SHAPE)];
+  const leftArm = POSE === "wave" ? [ARM_WAVE] : POSE === "peace" ? bent(PEACE_ARM, 13) : [arm];
+  const parts = [BODY, ...leftArm, MX(arm), LEG_SHAPE, MX(LEG_SHAPE)];
   s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${INK}" stroke-width="5.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
   const bodyClip = clip(parts.map(d => `<path d="${d}"/>`).join(""));
   s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${bodyClip})"/>` + `<ellipse cx="150" cy="197" rx="20" ry="9" fill="#2B1D16" opacity=".1" clip-path="url(#${bodyClip})"/>`;
@@ -613,7 +634,8 @@ function drawLook(L, opt = {}){
   // 手（跟手臂一樣有明暗）；手提包先畫，手再握在提把上
   if(POSE === "down" && L.bag && L.bag.id === "handbag") s += itemS(BAGS, "bag");
   const hand = d => `<path d="${d} Z" fill="${skin}"/>` + overlay(`<path d="${d} Z"/>`, "sk") + LN(d, 2.6);
-  if(POSE === "wave") s += hand(HAND_WAVE) + LN("M50 138 Q46 146 50 154 M56 124 Q52 128 52 134", 1.8, INK, `opacity=".6"`) + hand(MX(HAND));
+  if(POSE === "peace") s += hand(MX(HAND));
+  else if(POSE === "wave") s += hand(HAND_WAVE) + LN("M50 138 Q46 146 50 154 M56 124 Q52 128 52 134", 1.8, INK, `opacity=".6"`) + hand(MX(HAND));
   else if(handsFree) s += hand(HAND) + hand(MX(HAND));
   // 頭
   s += C(93, 142, 10, skin) + C(207, 142, 10, skin);
@@ -621,7 +643,7 @@ function drawLook(L, opt = {}){
   s += P(face.d, skin, 2.8);
   const hb = HAIRB[L.hairB] || HAIRB.long;
   const hf = HAIRF[L.hairF] || HAIRF.blunt, // 揮手時，揮手那一側臉旁的髮絲改短，舉起來的手臂才不會被頭髮蓋住
-  front = [CROWN + hf.d, ...(hb.side ? [POSE === "wave" ? shortLock(hf.cl) : sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
+  front = [CROWN + hf.d, ...(hb.side ? [POSE === "wave" || POSE === "peace" ? shortLock(hf.cl) : sideLock(hf.cl), MX(sideLock(hf.cr))] : [shortLock(hf.cl), MX(shortLock(hf.cr))])];
   const faceClip = clip(`<path d="${face.d}"/>`);
   s += `<rect width="${W}" height="${H}" fill="url(#${uid}-sk)" clip-path="url(#${faceClip})"/>`;
   s += `<g clip-path="url(#${faceClip})"><path d="${front[0]}" transform="translate(0 6)" fill="#2B1D16" opacity=".13"/></g>`;
@@ -678,6 +700,12 @@ function drawLook(L, opt = {}){
   s += front.map(d => `<path d="${d}" fill="${L.hairC}"/>`).join("");
   if(hf.lines) s += LN(hf.lines, 1.8, strand(L.hairC), `opacity=".8"`);
   if(hb.front) s += hb.front(L.hairC);
+  // 比 YA 的手：畫在頭髮前面（食指和中指比 V，其他手指收在手心）
+  if(POSE === "peace"){
+    const fingers = [[[96, 183], [88, 164]], [[102, 182], [106, 162]]].map(pts => tube(pts, 6.4));
+    const palm = "M93 184 Q91 197 99 201 Q108 202 110 192 Q111 183 104 181 L97 181 Q93 181 93 184 Z";
+    s += fingers.map(d => P(d, skin, 2.4)).join("") + P(palm, skin, 2.4) + LN("M95 189 Q101 186 108 190", 1.6) + LN("M110 186 Q114 184 113 189", 1.6);
+  }
   // 漫畫符號：浮在頭髮上面
   if(fun.includes("anger")) s += `<g transform="translate(196 96)">${["M-7 -3 Q-3 -3 -3 -7", "M3 -7 Q3 -3 7 -3", "M7 3 Q3 3 3 7", "M-3 7 Q-3 3 -7 3"].map(d => LN(d, 5.5, "#fff") + LN(d, 3, "#E0303E")).join("")}</g>`;
   if(fun.includes("sweat")) s += P("M206 98 Q214 112 208 118 Q200 120 200 112 Q201 106 206 98 Z", "#9BD0F5", 2) + E(204, 110, 1.5, 2.5, "#fff", 0);
