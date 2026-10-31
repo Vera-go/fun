@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>電玩廳</title>
-<meta name="description" content="30 秒就能玩完的小遊戲：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒。破自己的紀錄，複製成績傳給朋友比一比。">
+<meta name="description" content="30 秒小遊戲和復古經典：反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒，還有打磚塊、星際防衛、落磚方塊、拍翅小鳥、數字合併 2048。破自己的紀錄、上排行榜。">
 <meta property="og:title" content="電玩廳｜30 秒小遊戲">
 <meta property="og:description" content="反應速度、打貓、記憶挑戰、數字衝刺、狂點 10 秒。破自己的紀錄，傳給朋友比一比。">
 <meta name="theme-color" content="#14142F">
@@ -19,6 +19,7 @@ header h1{margin:0;font-size:28px;font-weight:900;letter-spacing:2px;text-shadow
 header .sub{font-size:13px;color:var(--muted);font-weight:700}
 .snd{margin-left:auto;border:2px solid var(--card2);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
 .menu{display:grid;gap:12px}
+.sec{font-size:13px;font-weight:900;letter-spacing:2px;color:var(--cyan);margin:6px 2px 10px}.sec:not(:first-child){margin-top:20px}
 .game{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--card2);border-radius:18px;padding:14px;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;touch-action:manipulation}
 .game:active{transform:scale(.985)}
 .game .ic{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center}
@@ -107,9 +108,11 @@ paintSnd();
 
 /* ---------- 共用 ---------- */
 const timers = new Set();
+const hooks = [];
+const onCleanup = fn => { hooks.push(fn); };
 const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
 let loop = null;
-function cleanup(){ timers.forEach(clearTimeout); timers.clear(); if(loop){ clearInterval(loop); loop = null; } }
+function cleanup(){ timers.forEach(clearTimeout); timers.clear(); if(loop){ clearInterval(loop); loop = null; } while(hooks.length){ try{ hooks.pop()(); }catch(e){} } }
 function toast(msg){
   document.querySelectorAll(".toast").forEach(t => t.remove());
   const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2200);
@@ -183,7 +186,9 @@ async function lbView(id){
 /* ---------- 選單 ---------- */
 function menu(){
   cleanup();
-  view(`<div class="row" style="margin:0 0 12px;justify-content:flex-end"><button class="btn ghost sm" data-lbgame="react">排行榜</button></div><div class="menu">${Object.entries(GAMES).map(([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`).join("")}</div>`);
+  const card = ([id, g]) => `<button class="game" data-play="${id}"><span class="ic" style="background:${g.col}22"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">${g.ic}</svg></span><span><b>${esc(g.name)}</b><small>${esc(g.tag)}</small></span><span class="best">最佳<br><b>${D.best[id] != null ? esc(g.fmt(D.best[id])) : "—"}</b></span></button>`;
+  const all = Object.entries(GAMES), quick = all.filter(([, g]) => !g.group), retro = all.filter(([, g]) => g.group === "retro");
+  view(`<div class="row" style="margin:0 0 12px;justify-content:flex-end"><button class="btn ghost sm" data-lbgame="react">排行榜</button></div><div class="sec">30 秒小遊戲</div><div class="menu">${quick.map(card).join("")}</div>${retro.length ? `<div class="sec">復古經典</div><div class="menu">${retro.map(card).join("")}</div>` : ""}`);
 }
 
 /* ---------- 1. 反應速度 ---------- */
@@ -299,6 +304,7 @@ function gTap(){
   });
 }
 
+window.Arcade = {GAMES, RUN:null, view, later, cleanup, onCleanup, beep, buzz, record, resultView, down, esc, $, D, save, menu, toast, audio};
 const RUN = {react:gReact, whack:gWhack, simon:gSimon, nums:gNums, tap:gTap};
 $("#view").addEventListener("click", e => {
   const p = e.target.closest("[data-play]"); if(p){ audio(); RUN[p.dataset.play](); window.scrollTo(0, 0); return; }
@@ -315,7 +321,9 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-copy]")){ const t = $("#view").dataset.copy || ""; navigator.clipboard.writeText(t).then(() => toast("已複製，傳給朋友比一比"), () => prompt("複製下面的文字：", t)); }
 });
 document.addEventListener("visibilitychange", () => { if(document.hidden && loop){ /* 切到別的畫面就回選單，避免偷跑 */ menu(); } });
+window.Arcade.RUN = RUN;
 menu();
 </script>
+<script src="retro.js?v=1"></script>
 </body>
 </html>
