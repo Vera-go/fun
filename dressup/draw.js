@@ -1469,6 +1469,122 @@ function drawCake(L){
   return s;
 }
 
+// ---------- 靜物角色：禮物盒 ----------
+ROLES.gift = {name:"禮物盒"};
+const GIFT_BASES = {square:{name:"方形盒"}, tall:{name:"高高的盒子"}, wide:{name:"扁扁的盒子"}, round:{name:"圓形帽盒"}, heart:{name:"愛心盒"}, bag:{name:"禮物袋"}};
+const GIFT_PATS = {none:{name:"素色"}, dots:{name:"點點"}, stripes:{name:"條紋"}, stars:{name:"星星"}, hearts:{name:"愛心"}};
+const GIFT_BOWS = {bow:{name:"大蝴蝶結"}, flower:{name:"花朵結"}, curly:{name:"捲捲緞帶"}, none:{name:"不綁"}};
+const GIFT_DECO = {
+  tag:     {name:"小卡片吊牌", tags:["party", "neat"]},
+  balloon: {name:"綁氣球", tags:["party", "funny"]},
+  flower:  {name:"插一朵花", tags:["fancy", "summer"]},
+  sticker: {name:"貼紙", tags:["funny", "casual"]},
+  sparkle: {name:"亮晶晶", tags:["party", "fancy"]},
+  candy:   {name:"棒棒糖", tags:["snack", "funny"]},
+  teddy:   {name:"小熊探頭", tags:["animal", "funny"]},
+  confetti:{name:"彩帶紙花", tags:["party"]},
+};
+// 盒子的樣子：front 正面（包裝紙、花紋畫在這裡）、lid 蓋子、top 蝴蝶結綁的位置
+function giftShape(L){
+  const b = L.giftBase;
+  if(b === "tall") return {front:[96, 204, 204, 420], lid:[86, 176, 214, 210], top:[150, 176]};
+  if(b === "wide") return {front:[50, 314, 250, 420], lid:[40, 286, 260, 320], top:[150, 286]};
+  if(b === "round") return {round:true, front:[54, 300, 246, 420], lid:[48, 270, 252, 304], top:[150, 252]};
+  if(b === "heart") return {heart:true, front:[56, 236, 244, 424], top:[150, 268]};
+  if(b === "bag") return {bag:true, front:[74, 230, 226, 420], top:[150, 222]};
+  return {front:[70, 268, 230, 420], lid:[60, 240, 240, 276], top:[150, 240]};
+}
+const giftPattern = (pat, [l, t, r, b], col, inside = () => true) => {
+  if(!pat || pat === "none") return "";
+  if(pat === "stripes") return Array.from({length:Math.ceil((r - l) / 26)}, (_, i) => { const x = l + 8 + i * 26; return inside(x, (t + b) / 2) ? `<rect x="${x}" y="${t + 2}" width="9" height="${b - t - 4}" fill="${col}" opacity=".55"/>` : ""; }).join("");
+  const pts = []; for(let y = t + 18, j = 0; y < b - 8; y += 30, j++) for(let x = l + 16 + (j % 2) * 15; x < r - 8; x += 30) if(inside(x, y)) pts.push([x, y]);
+  return pts.map(([x, y]) => pat === "dots" ? C(x, y, 5, col, 0) : pat === "stars" ? star(x, y, 7, col, 0) : P(heartD(x, y, 6), col, 0)).join("");
+};
+function drawGift(L){
+  const g = giftShape(L), bc = L.boxC || "#E8679A", rc = L.ribC || "#F6D65A", deco = L.giftDeco || [], has = k => deco.includes(k);
+  const pc = lum(bc) > .6 ? shade(bc, -.25) : mix(bc, "#FFFFFF", .55), [l, t, r, b] = g.front;
+  let s = E(150, 428, 120, 16, "rgba(0,0,0,.12)", 0);
+  if(has("balloon")) s += [[-34, 60, "#E8679A"], [8, 30, "#4C8FE0"], [44, 70, "#F6D65A"]].map(([dx, y, c]) => LN(`M${150 + dx * .3} ${g.top[1]} Q${150 + dx} ${y + 110} ${150 + dx} ${y + 36}`, 1.4) + E(150 + dx, y, 26, 31, c, 2.6) + E(144 + dx, y - 10, 5, 9, "rgba(255,255,255,.6)", 0)).join("");
+  if(has("teddy")){ const x = (l + r) / 2 + 30, y = (g.lid ? g.lid[1] : t) + 4; s += C(x - 18, y - 46, 9, "#C98A4B", 2.4) + C(x + 18, y - 46, 9, "#C98A4B", 2.4) + C(x, y - 26, 26, "#C98A4B", 2.6) + E(x, y - 18, 10, 7, "#F3D9B8", 0) + C(x - 9, y - 30, 2.4, INK, 0) + C(x + 9, y - 30, 2.4, INK, 0) + E(x, y - 20, 3, 2, INK, 0); }
+  if(has("flower")) s += LN(`M${l + 30} ${(g.lid ? g.lid[1] : t) + 10} L${l + 18} ${(g.lid ? g.lid[1] : t) - 60}`, 3, "#4F8F45") + [0, 72, 144, 216, 288].map(a => C(l + 18 + Math.cos(a * Math.PI / 180) * 11, (g.lid ? g.lid[1] : t) - 70 + Math.sin(a * Math.PI / 180) * 11, 10, "#F7A8C4", 2)).join("") + C(l + 18, (g.lid ? g.lid[1] : t) - 70, 7, "#F6D65A", 1.8);
+  if(has("candy")) s += LN(`M${r - 34} ${(g.lid ? g.lid[1] : t) + 10} L${r - 20} ${(g.lid ? g.lid[1] : t) - 56}`, 4, "#fff") + C(r - 18, (g.lid ? g.lid[1] : t) - 68, 16, "#E8679A", 2.4) + `<path d="M${r - 18} ${(g.lid ? g.lid[1] : t) - 68} m-10 0 a10 10 0 0 1 10 -10 a7 7 0 0 1 7 7 a4 4 0 0 1 -4 4" fill="none" stroke="#fff" stroke-width="2.6"/>`;
+  // 盒子本體、包裝紙花紋、緞帶
+  if(g.round){
+    const body = `M${l} ${t} L${l} ${b} A${(r - l) / 2} 22 0 0 0 ${r} ${b} L${r} ${t} Z`;
+    s += P(body, bc, 3) + giftPattern(L.giftPat, g.front, pc) + `<rect x="${(l + r) / 2 - 11}" y="${t}" width="22" height="${b - t + 20}" fill="${rc}"/>` + P(body, "none", 3);
+    s += P(`M${g.lid[0]} ${g.lid[1] + 12} L${g.lid[0]} ${g.lid[3]} A${(g.lid[2] - g.lid[0]) / 2} 22 0 0 0 ${g.lid[2]} ${g.lid[3]} L${g.lid[2]} ${g.lid[1] + 12} Z`, shade(bc, -.08), 3) + `<rect x="139" y="${g.lid[1] + 12}" width="22" height="${g.lid[3] - g.lid[1] + 10}" fill="${rc}"/>` + E(150, g.lid[1] + 12, (g.lid[2] - g.lid[0]) / 2, 22, shade(bc, -.04), 3) + P(`M139 ${g.lid[1] - 9} L161 ${g.lid[1] - 9} L161 ${g.lid[1] + 34} L139 ${g.lid[1] + 34} Z`, rc, 0);
+  }else if(g.heart){
+    const hd = heartD(150, 312, 88), inside = (x, y) => { const u = (x - 150) / 88, v = -(y - 330) / 88; return (u * u + v * v - 1) ** 3 - u * u * v * v * v < 0; };
+    s += P(hd, bc, 3) + giftPattern(L.giftPat, [l, t, r, b], pc, inside) + `<rect x="139" y="248" width="22" height="168" fill="${rc}"/><rect x="80" y="296" width="140" height="20" fill="${rc}"/>` + P(hd, "none", 3);
+  }else if(g.bag){
+    s += P(`M${l + 30} ${t} Q${l + 30} ${t - 60} 150 ${t - 60} Q${r - 30} ${t - 60} ${r - 30} ${t}`, "none", 7) + P(`M${l + 30} ${t} Q${l + 30} ${t - 60} 150 ${t - 60} Q${r - 30} ${t - 60} ${r - 30} ${t}`, "none", 3.6, `stroke="${rc}"`);
+    s += P(`M${l + 20} ${t + 6} L${l + 40} ${t - 34} L${l + 70} ${t + 2} L${l + 100} ${t - 40} L${r - 30} ${t + 4} L${r - 10} ${t - 26} L${r - 8} ${t + 8} Z`, "#FFF4E0", 2.4);
+    s += P(`M${l} ${t} L${r} ${t} L${r + 8} ${b} L${l - 8} ${b} Z`, bc, 3) + giftPattern(L.giftPat, g.front, pc) + P(`M${l} ${t} L${r} ${t} L${r + 8} ${b} L${l - 8} ${b} Z`, "none", 3) + LN(`M${l} ${t + 14} L${r} ${t + 14}`, 2, shade(bc, -.2));
+  }else{
+    s += P(`M${l} ${t} L${r} ${t} L${r} ${b} L${l} ${b} Z`, bc, 3) + giftPattern(L.giftPat, g.front, pc) + `<rect x="139" y="${t}" width="22" height="${b - t}" fill="${rc}"/>` + P(`M${l} ${t} L${r} ${t} L${r} ${b} L${l} ${b} Z`, "none", 3);
+    s += P(`M${g.lid[0]} ${g.lid[1]} L${g.lid[2]} ${g.lid[1]} L${g.lid[2]} ${g.lid[3]} L${g.lid[0]} ${g.lid[3]} Z`, shade(bc, -.06), 3) + `<rect x="139" y="${g.lid[1]}" width="22" height="${g.lid[3] - g.lid[1]}" fill="${rc}"/>` + P(`M${g.lid[0]} ${g.lid[1]} L${g.lid[2]} ${g.lid[1]} L${g.lid[2]} ${g.lid[3]} L${g.lid[0]} ${g.lid[3]} Z`, "none", 3);
+  }
+  // 蝴蝶結
+  const [bx, by] = g.top, bow = L.giftBow || "bow";
+  if(bow === "bow") s += P(`M${bx} ${by} Q${bx - 50} ${by - 52} ${bx - 58} ${by - 14} Q${bx - 50} ${by + 10} ${bx} ${by} Z M${bx} ${by} Q${bx + 50} ${by - 52} ${bx + 58} ${by - 14} Q${bx + 50} ${by + 10} ${bx} ${by} Z`, rc, 3) +
+    P(`M${bx - 6} ${by + 2} L${bx - 22} ${by + 40} L${bx - 10} ${by + 36} L${bx - 4} ${by + 46} Z M${bx + 6} ${by + 2} L${bx + 22} ${by + 40} L${bx + 10} ${by + 36} L${bx + 4} ${by + 46} Z`, rc, 2.6) + E(bx, by - 2, 11, 9, shade(rc, -.12), 2.6);
+  else if(bow === "flower") s += Array.from({length:8}, (_, i) => { const a = i * Math.PI / 4; return E(bx + Math.cos(a) * 20, by - 18 + Math.sin(a) * 14, 16, 9, rc, 2.4, `transform="rotate(${i * 45} ${bx + Math.cos(a) * 20} ${by - 18 + Math.sin(a) * 14})"`); }).join("") + C(bx, by - 18, 10, shade(rc, -.12), 2.4);
+  else if(bow === "curly") s += [-1, 1].map(o => LN(`M${bx} ${by} q${o * 20} -30 ${o * 6} -40 q${o * -14} -8 ${o * -4} 8 q${o * 16} 22 ${o * 34} 4 q${o * 12} -14 ${o * 2} -18`, 6) + LN(`M${bx} ${by} q${o * 20} -30 ${o * 6} -40 q${o * -14} -8 ${o * -4} 8 q${o * 16} 22 ${o * 34} 4 q${o * 12} -14 ${o * 2} -18`, 3.4, rc)).join("") + C(bx, by, 7, shade(rc, -.12), 2.2);
+  if(has("tag")){ const t2 = L.giftText || "送給你", w = Math.max(70, textW(t2, 14)), x = r - 6, y = (g.lid ? g.lid[3] : t) + 34;
+    s += LN(`M${bx + 4} ${by + 4} Q${x - 10} ${y - 30} ${x - w / 2 + 10} ${y - 2}`, 1.6) + P(`M${x - w / 2} ${y} L${x + w / 2} ${y} L${x + w / 2} ${y + 34} L${x - w / 2} ${y + 34} L${x - w / 2 - 12} ${y + 17} Z`, "#FFF8E6", 2.4) + C(x - w / 2 + 2, y + 17, 3, "none", 1.6) + TXTB(x + 4, y + 17, t2, 14, "#C2386F"); }
+  if(has("sticker")) s += P(heartD(l + 30, b - 40, 12), "#fff", 2.4) + P(heartD(l + 30, b - 40, 8), "#E8679A", 0) + star(r - 30, b - 36, 12, "#FFE98A", 2.2);
+  if(has("sparkle")) s += [[l - 14, t + 10, 14], [r + 16, t + 40, 10], [r + 6, b - 20, 12]].map(([x, y, rr]) => P(`M${x} ${y - rr} Q${x + rr * .18} ${y - rr * .18} ${x + rr} ${y} Q${x + rr * .18} ${y + rr * .18} ${x} ${y + rr} Q${x - rr * .18} ${y + rr * .18} ${x - rr} ${y} Q${x - rr * .18} ${y - rr * .18} ${x} ${y - rr} Z`, "#FFE98A", 2)).join("");
+  if(has("confetti")) s += Array.from({length:22}, (_, i) => { const x = 30 + (i * 67) % 240, y = 120 + (i * 43) % 300, c = ["#E8679A", "#4C8FE0", "#F6D65A", "#5FB36B", "#F59A4A"][i % 5];
+    return i % 3 ? `<rect x="${x}" y="${y}" width="9" height="4" rx="2" fill="${c}" transform="rotate(${(i * 53) % 180} ${x} ${y})"/>` : C(x, y, 3.4, c, 0); }).join("");
+  return s;
+}
+
+// ---------- 靜物角色：卡片 ----------
+ROLES.card = {name:"卡片"};
+const CARD_SHAPES = {rect:{name:"直式卡片"}, round:{name:"圓角卡片"}, heart:{name:"愛心卡片"}, scallop:{name:"花邊卡片"}};
+const CARD_DECO = {
+  hearts:  {name:"愛心", tags:["party", "fancy"]},
+  stars:   {name:"星星", tags:["party", "funny"]},
+  flowers: {name:"小花", tags:["summer", "fancy"]},
+  balloons:{name:"氣球", tags:["party"]},
+  cake:    {name:"小蛋糕", tags:["party", "snack"]},
+  bear:    {name:"小熊", tags:["animal", "funny"]},
+  rainbow: {name:"彩虹", tags:["summer", "funny"]},
+  confetti:{name:"彩色紙花", tags:["party"]},
+  ribbon:  {name:"角落緞帶", tags:["fancy", "formal"]},
+  stamp:   {name:"郵票", tags:["neat"]},
+};
+// 長的祝福文字照寬度自動換行（最多四行）
+const wrapText = (t, n) => { const out = []; let cur = "", w = 0; for(const ch of [...t]){ const cw = ch.charCodeAt(0) > 255 ? 1 : .55; if(w + cw > n){ out.push(cur); cur = ""; w = 0; } cur += ch; w += cw; } if(cur) out.push(cur); return out.slice(0, 4); };
+function drawCard(L){
+  const pc = L.cardC || "#FFF4E6", ic = L.inkC || "#C2386F", deco = L.cardDeco || [], has = k => deco.includes(k), sh = L.cardShape || "rect";
+  const l = 48, t = 130, r = 252, b = 418;
+  const outline = sh === "heart" ? heartD(150, 270, 132) : sh === "round" ? `M${l + 30} ${t} L${r - 30} ${t} Q${r} ${t} ${r} ${t + 30} L${r} ${b - 30} Q${r} ${b} ${r - 30} ${b} L${l + 30} ${b} Q${l} ${b} ${l} ${b - 30} L${l} ${t + 30} Q${l} ${t} ${l + 30} ${t} Z`
+    : sh === "scallop" ? `M${l} ${t}` + Array.from({length:8}, (_, i) => ` q12.75 -12 25.5 0`).join("") + Array.from({length:11}, () => ` q12 12.6 0 26.2`).join("") + Array.from({length:8}, () => ` q-12.75 12 -25.5 0`).join("") + Array.from({length:11}, () => ` q-12 -12.6 0 -26.2`).join("") + " Z"
+    : `M${l} ${t} L${r} ${t} L${r} ${b} L${l} ${b} Z`;
+  // 立起來的卡片：後面有一片打開的內頁，下面一個淡淡的影子
+  let s = E(150, 430, 130, 12, "rgba(0,0,0,.12)", 0) + `<g transform="translate(18 -10) skewY(-4)">${P(outline, shade(pc, -.08), 3)}</g>` + P(outline, pc, 3.2);
+  const inHeart = sh === "heart";
+  s += inHeart ? P(heartD(150, 270, 114), "none", 2, `stroke="${ic}" stroke-dasharray="6 5" opacity=".7"`) : P(`M${l + 14} ${t + 14} L${r - 14} ${t + 14} L${r - 14} ${b - 14} L${l + 14} ${b - 14} Z`, "none", 2, `stroke="${ic}" stroke-dasharray="6 5" opacity=".7"`);
+  if(has("rainbow")) s += ["#D9414E", "#F59A4A", "#F6D65A", "#5FB36B", "#4C8FE0"].map((c, i) => `<path d="M${96 + i * 8} ${inHeart ? 232 : 216} A${54 - i * 8} ${54 - i * 8} 0 0 1 ${204 - i * 8} ${inHeart ? 232 : 216}" fill="none" stroke="${c}" stroke-width="7"/>`).join("");
+  if(has("ribbon") && !inHeart) s += [[l, t, 1, 1], [r, t, -1, 1]].map(([x, y, sx, sy]) => P(`M${x} ${y + 44 * sy} L${x + 44 * sx} ${y} L${x + 60 * sx} ${y} L${x} ${y + 60 * sy} Z`, "#E8679A", 2.4)).join("");
+  if(has("stamp") && !inHeart) s += P(`M${r - 58} ${t + 22} L${r - 22} ${t + 22} L${r - 22} ${t + 64} L${r - 58} ${t + 64} Z`, "#fff", 2, `stroke-dasharray="3 2"`) + P(heartD(r - 40, t + 44, 8), "#E8679A", 0);
+  // 標題和祝福文字
+  const title = L.cardText || "生日快樂", msg = wrapText(L.cardMsg || "祝你天天開心！", inHeart ? 8 : 10);
+  const ty = inHeart ? 268 : 250;
+  s += TXTB(150, ty, title, title.length > 6 ? 22 : 30, ic) + msg.map((ln, i) => TXTB(150, ty + 40 + i * 24, ln, 17, shade(ic, -.2))).join("");
+  if(has("hearts")) s += [[l + 34, b - 34], [r - 34, b - 40], [l + 40, inHeart ? 220 : t + 60]].map(([x, y], i) => P(heartD(x, y, 9 + i * 2), ["#E8679A", "#F7A8C4", "#D9414E"][i], 2)).join("");
+  if(has("stars")) s += [[l + 30, t + 40, 9], [r - 30, t + 100, 7], [150, b - 26, 8], [r - 50, b - 70, 6]].map(([x, y, rr]) => star(x, y, rr, "#FFD447", 1.8)).join("");
+  if(has("flowers")) s += [70, 110, 190, 230].filter(x => !inHeart || (x > 90 && x < 210)).map((x, i) => { const y = inHeart ? 360 : b - 30, c = ["#F7A8C4", "#C9B3E8", "#FFE98A", "#9BD0F5"][i];
+    return LN(`M${x} ${y} L${x} ${y + 14}`, 2, "#4F8F45") + [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 6, y + Math.sin(a * Math.PI / 180) * 6, 5.5, c, 1.4)).join("") + C(x, y, 3.4, "#F59A4A", 1); }).join("");
+  if(has("balloons")) s += [[l + 22, t + 70, "#E8679A"], [l + 46, t + 50, "#4C8FE0"]].map(([x, y, c]) => LN(`M${x} ${y + 20} Q${x + 6} ${y + 50} ${x} ${y + 76}`, 1.2) + E(x, y, 14, 17, c, 2)).join("");
+  if(has("cake")){ const x = inHeart ? 150 : r - 52, y = inHeart ? 196 : b - 30; s += P(`M${x - 22} ${y} L${x + 22} ${y} L${x + 22} ${y - 22} L${x - 22} ${y - 22} Z`, "#F7A8C4", 2) + P(`M${x - 22} ${y - 22} Q${x - 11} ${y - 14} ${x} ${y - 22} Q${x + 11} ${y - 14} ${x + 22} ${y - 22}`, "none", 2, `stroke="#fff"`) + `<rect x="${x - 2}" y="${y - 36}" width="4" height="14" fill="#9BD0F5" stroke="${INK}" stroke-width="1.2"/>` + P(`M${x} ${y - 44} Q${x + 4} ${y - 39} ${x} ${y - 36} Q${x - 4} ${y - 39} ${x} ${y - 44} Z`, "#F59A4A", 0); }
+  if(has("bear")){ const x = inHeart ? 150 : l + 50, y = inHeart ? 352 : b - 46; s += C(x - 12, y - 18, 6, "#C98A4B", 1.8) + C(x + 12, y - 18, 6, "#C98A4B", 1.8) + C(x, y, 17, "#C98A4B", 2) + E(x, y + 5, 7, 5, "#F3D9B8", 0) + C(x - 6, y - 3, 1.8, INK, 0) + C(x + 6, y - 3, 1.8, INK, 0) + E(x, y + 3, 2, 1.4, INK, 0); }
+  if(has("confetti")) s += Array.from({length:18}, (_, i) => { const x = l + 16 + (i * 61) % (r - l - 32), y = t + 16 + (i * 37) % 70, c = ["#E8679A", "#4C8FE0", "#F6D65A", "#5FB36B", "#F59A4A"][i % 5];
+    return `<rect x="${x}" y="${y}" width="8" height="3.4" rx="1.7" fill="${c}" transform="rotate(${(i * 53) % 180} ${x} ${y})"/>`; }).join("");
+  return s;
+}
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
@@ -1502,7 +1618,9 @@ function drawLook(L, opt = {}){
   const vb = opt.vb || `0 0 ${W} ${H}`;
   const out = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${opt.size ? ` width="${opt.size[0]}" height="${opt.size[1]}"` : ""}><defs>${defs.join("")}</defs>${s}</svg>`;
   // 寵物角色：身體和臉另外畫，脖子以上的配件和人共用
-  if(L.role === "cake"){ s += drawCake(L); if(L.pet && PETS[L.pet]) s += drawPet(L.pet); return out(); }
+  // 靜物角色：蛋糕、禮物盒、卡片
+  const STILL = {cake:drawCake, gift:drawGift, card:drawCard};
+  if(STILL[L.role]){ s += STILL[L.role](L); if(L.pet && PETS[L.pet]) s += drawPet(L.pet); return out(); }
   if(L.role === "pet"){
     const wear = L.petwear && PETWEAR[L.petwear.id], wf = wear ? fill("petwear", L.petwear) : "";
     const shp = petShape(L), fit = svg => `<g transform="${petWearFit(shp)}">${svg}</g>`;
