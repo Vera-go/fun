@@ -775,6 +775,52 @@ Object.assign(HANDS, {
       P("M196 322 L196 330 M192 326 L200 326", "none", 2) + C(226, 324, 2.6, "#D9414E", 1.2) + C(220, 329, 2.6, "#F6D65A", 1.2)},
 });
 
+// ---------- 男生第三批：上衣、褲子、鞋子、包包、小配件 ----------
+Object.assign(TOPS, {
+  bball: {name:"籃球背心", tags:["sport", "summer"], color:"#D9414E",
+    draw:(f, c) => P("M126 206 Q150 230 174 206 L182 222 Q190 236 187 302 Q150 308 113 302 Q110 236 118 222 Z", f) + LN("M126 208 Q150 232 174 208", 3, "#fff") + PB("M119 224 Q114 260 114 300", "none", 3, `stroke="#fff"`) +
+      `<text x="150" y="276" text-anchor="middle" font-size="28" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.2" font-family="system-ui,sans-serif">7</text>`},
+});
+Object.assign(OUTERS, {
+  vest: {name:"鋪棉背心", tags:["warm", "winter", "casual"], color:"#4FA36B",
+    draw:(f, c) => P("M124 206 Q150 198 176 206 L176 216 Q150 210 124 216 Z", f, 2.2) + U(["M114 231 C113 220 116 214 124 211 L148 207 L148 306 L114 306 Z", MX("M114 231 C113 220 116 214 124 211 L148 207 L148 306 L114 306 Z")], f) +
+      [232, 256, 280].map(y => LN(`M115 ${y} Q131 ${y + 4} 147 ${y} M153 ${y} Q169 ${y + 4} 185 ${y}`, 1.6, shade(c, -.3))).join("") + LN("M150 210 L150 306", 2)},
+});
+Object.assign(BOTTOMS, {
+  joggers: {name:"縮口褲", long:true, tags:["sport", "casual", "snack"], color:"#9AA0A8",
+    draw:(f, c) => PANTS(f) + PB("M120 414 L149.5 414 L149.5 426 Q135 431 120 426 Z", shade(c, -.15), 2) + LN("M113 297 L187 297", 1.6) + LN("M146 298 Q144 308 140 312 M154 298 Q156 308 160 312", 1.4, "#fff")},
+  ripped:  {name:"破洞牛仔褲", long:true, tags:["casual", "snack"], color:"#7FA7D6",
+    draw:(f, c) => PANTS(f) + LN("M150 300 L150 332", 1.6) + PB("M126 358 Q134 354 142 358 Q134 364 126 358 Z", "#F3E3D6", 1.4) + PB("M126 356 L142 356 M127 361 L141 361", "none", 1.2, `stroke="#fff"`) + LN("M125 298 Q132 306 140 300", 1.4, shade(c, -.35))},
+});
+Object.assign(SHOES, {
+  slipon:   {name:"格紋懶人鞋", tags:["casual", "snack", "school"], color:"#FFFFFF",
+    draw:(f, c) => PB(SHOE, f) + PB("M120 440 Q134 446 148 440 L148 438 Q148 447 134 447 Q120 447 120 438 Z", "#fff", 2) +
+      [[124, 428], [132, 428], [128, 432], [136, 432], [124, 436], [132, 436], [140, 436]].map(([x, y]) => PB(`M${x} ${y} L${x + 4} ${y} L${x + 4} ${y + 4} L${x} ${y + 4} Z`, INK, 0)).join("")},
+  workboots:{name:"短靴", tags:["winter", "casual", "warm"], color:"#C98A4B",
+    draw:(f, c) => PB("M122 410 L146 410 L148 438 Q148 447 134 447 Q120 447 120 438 Z", f) + PB("M120 440 Q134 446 148 440 L148 440 Q148 447 134 447 Q120 447 120 440 Z", shade(c, -.45), 2) +
+      PB("M128 416 L140 418 M128 422 L140 424 M128 428 L140 430", "none", 1.6) + PB("M122 410 L146 410 L146 415 L122 415 Z", shade(c, -.2), 1.8)},
+  slides:   {name:"運動拖鞋", tags:["summer", "sport", "casual", "beach"], color:"#2E2B2B", bare:true,
+    draw:(f, c) => PB("M118 444 Q134 452 150 444 L150 449 Q134 456 118 449 Z", "#fff", 2) + PB("M120 428 Q134 420 148 428 L148 438 Q134 432 120 438 Z", f, 2) + PB("M126 430 L142 430", "none", 2, `stroke="#fff"`)},
+});
+Object.assign(BAGS, {
+  sling:  {name:"胸前小包", tags:["casual", "snack", "sport"], color:"#2E2B2B",
+    draw:(f, c) => LN("M126 210 L186 290", 4.5) + LN("M126 210 L186 290", 2.6, shade(c, .3)) + P("M140 232 Q140 222 150 222 L178 222 Q188 222 188 232 L188 248 Q188 258 178 258 L150 258 Q140 258 140 248 Z", f) + LN("M142 236 L186 236", 1.6, "#F6D65A")},
+  duffel: {name:"運動包", tags:["sport", "casual"], color:"#4C8FE0",
+    draw:(f, c) => LN("M90 312 Q100 290 112 312", 4.5) + LN("M90 312 Q100 290 112 312", 2.6, shade(c, -.2)) + P("M74 318 Q74 310 82 310 L120 310 Q128 310 128 318 L128 342 Q128 348 122 348 L80 348 Q74 348 74 342 Z", f) +
+      LN("M74 322 L128 322", 2) + LN("M82 335 L120 335", 3, "#fff")},
+});
+Object.assign(NECKS, {
+  dogtag: {name:"軍牌項鍊", tags:["casual", "sport"], color:"#C9CED6", draw:(f) => LN("M138 206 Q150 238 162 206", 1.4, "#9AA0A8") + P("M145 236 Q145 232 149 232 L151 232 Q155 232 155 236 L155 246 Q155 250 151 250 L149 250 Q145 250 145 246 Z", f, 1.6)},
+});
+Object.assign(GLASSES, {
+  square: {name:"方框眼鏡", tags:["school", "neat"], color:"#2E2B2B",
+    draw:(f, c) => ["M110 128 Q110 124 114 124 L142 124 Q146 124 146 128 L146 146 Q146 150 142 150 L114 150 Q110 150 110 146 Z"].map(d => P(d, "rgba(255,255,255,.18)", 3.4, `stroke="${c}"`) + P(MX(d), "rgba(255,255,255,.18)", 3.4, `stroke="${c}"`)).join("") + LN("M146 134 Q150 131 154 134", 3, c)},
+});
+Object.assign(HATS, {
+  sweatband: {name:"運動頭帶", tags:["sport", "casual"], color:"#FFFFFF",
+    draw:(f, c) => LN("M89 112 Q150 94 211 112", 13) + LN("M89 112 Q150 94 211 112", 9.5, f) + LN("M91 110 Q150 92 209 110", 2, "#D9414E") + LN("M91 116 Q150 98 209 116", 2, "#4C8FE0")},
+});
+
 // ---------- 寵物角色：頭的位置和人一樣，帽子、眼鏡、項鍊都能直接戴 ----------
 ROLES.pet = {name:"寵物"};
 const SPECIES = {

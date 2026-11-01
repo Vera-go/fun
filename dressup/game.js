@@ -109,7 +109,7 @@ const ROLE_PRESET = {
 const BOY_HAIR = ["boycut", "mushroom", "wolf", "curlyboy", "buzz", "short"], BOY_FRINGE = ["boyfringe", "sweep", "bowl", "spiky", "quiff", "side"];
 // 男生隨機搭配時不抽這些（自己選還是可以穿）
 const BOY_SKIP = ["cami", "crop", "blouse", "sailor", "maryjane", "heels", "lace", "tights", "knee", "striped", "pearl", "heart", "choker", "handbag", "catbag", "bunny", "bouquet"];
-const BOY_BOTTOM = ["khaki", "bshorts", "jeans", "shorts", "slacks", "wide", "cargo", "track"];
+const BOY_BOTTOM = ["khaki", "bshorts", "jeans", "shorts", "slacks", "wide", "cargo", "track", "joggers", "ripped"];
 const applyRole = (look, r) => Object.assign(look, clone(ROLE_PRESET[r] || ROLE_PRESET.girl), {role:r});
 let S = {look:clone(DEFAULT_LOOK), cat:"hair", theme:"", best:{}, wardrobe:[]};
 try{ const v = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if(v) S = Object.assign(S, v); }catch(e){}
