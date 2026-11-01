@@ -382,12 +382,17 @@ $("bWardrobe").onclick = showWardrobe;
 
 // ---------- 合照：從衣櫥挑幾個角色（不帶自己的背景），一起放到同一個背景前面 ----------
 const GROUP_MAX = 4;
-const groupLooks = () => S.group.picks.map(id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look).filter(Boolean);
+const groupLook = id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look;
+// 每個角色的位置（腳踩的那一點）：拖過的照拖的位置，沒拖過的照點選順序從左排到右
+const groupPos = (id, i, n) => (S.group.pos || {})[id] || {x:300 * (i + .5) / n, y:452};
+const groupScale = (l, n) => ([1, .8, .66, .56][n - 1] || .56) * (l.role === "pet" ? .78 : 1);
+const groupTf = (p, k) => `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${k.toFixed(3)}) translate(-150 -452)`;
 function groupSVG(size){
-  const looks = groupLooks(), n = looks.length, k = [1, .8, .66, .56][n - 1] || .56;
+  const ids = S.group.picks.filter(groupLook), n = ids.length;
   const b = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? BGS[S.group.bg] : BGS.park;
-  // 每個角色照順序從左排到右，腳踩在同一條地面上（人比較前面、寵物比較小也沒關係）
-  const chars = looks.map((l, i) => `<g transform="translate(${(300 * (i + .5) / n).toFixed(1)} 452) scale(${(l.role === "pet" ? k * .78 : k).toFixed(3)}) translate(-150 -452)">${drawLook(Object.assign(clone(DEFAULT_LOOK), l), {bg:false})}</g>`).join("");
+  // 站得比較後面（腳比較高）的先畫，前面的人會擋住後面的人；寵物小一號
+  const chars = ids.map((id, i) => ({id, l:groupLook(id), p:groupPos(id, i, n)})).sort((a, b) => a.p.y - b.p.y)
+    .map(c => `<g class="gch" data-gid="${c.id}" transform="${groupTf(c.p, groupScale(c.l, n))}">${drawLook(Object.assign(clone(DEFAULT_LOOK), c.l), {bg:false})}</g>`).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${b.draw("#F7D3E0")}${chars}</svg>`;
 }
 function renderGroup(){
@@ -395,7 +400,7 @@ function renderGroup(){
   const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`}))];
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
   $("panel").innerHTML = `<h2>合照</h2>
-    <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色，點的順序就是從左到右的位置，再幫大家選一個背景。</p>
+    <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色、選一個背景；在上面的畫面裡可以直接拖拉角色換位置（往上拖會站到後面）。</p>
     <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先在下面點選角色吧！</div>`}</div>
     <h3>選角色</h3>
     <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
@@ -403,20 +408,41 @@ function renderGroup(){
     ${S.wardrobe.length ? "" : `<p class="muted" style="text-align:center">衣櫥還是空的：搭好一套按「存進衣櫥」，就能在這裡一起合照。</p>`}
     <h3>選背景</h3>
     <div class="items">${Object.entries(BGS).filter(([k, it]) => !lockedItem(it)).map(([k, it]) => `<button class="it ${S.group.bg === k ? "on" : ""}" data-gbg="${k}"><svg viewBox="0 60 300 300">${it.draw("#F7D3E0")}</svg>${esc(it.name)}</button>`).join("")}</div>
-    <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>`;
+    <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>`;
+  groupDrag();
+}
+// 拖拉角色：按住角色拖到想要的位置，放開時記下來
+function groupDrag(){
+  const svg = document.querySelector(".gstage svg"); if(!svg) return;
+  let drag = null;
+  const pt = e => { const m = svg.getScreenCTM().inverse(); return {x:e.clientX * m.a + e.clientY * m.c + m.e, y:e.clientX * m.b + e.clientY * m.d + m.f}; };
+  svg.addEventListener("pointerdown", e => {
+    const g = e.target.closest(".gch"); if(!g) return;
+    const ids = S.group.picks.filter(groupLook), i = ids.indexOf(g.dataset.gid), n = ids.length, p = groupPos(g.dataset.gid, i, n), q = pt(e);
+    drag = {g, id:g.dataset.gid, k:groupScale(groupLook(g.dataset.gid), n), p:{...p}, dx:p.x - q.x, dy:p.y - q.y, moved:false};
+    svg.appendChild(g); svg.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  svg.addEventListener("pointermove", e => {
+    if(!drag) return; const q = pt(e);
+    drag.p = {x:Math.max(10, Math.min(290, q.x + drag.dx)), y:Math.max(320, Math.min(462, q.y + drag.dy))}; drag.moved = true;
+    drag.g.setAttribute("transform", groupTf(drag.p, drag.k));
+  });
+  const end = () => { if(!drag) return; if(drag.moved){ S.group.pos = Object.assign({}, S.group.pos, {[drag.id]:drag.p}); save(); } drag = null; renderGroup(); };
+  svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
 }
 function showGroup(){ openPanel(""); renderGroup(); }
 $("bGroup").onclick = showGroup;
 $("ov").addEventListener("click", e => {
   const p = e.target.closest("[data-gp]");
   if(p){ const id = p.dataset.gp, a = S.group.picks;
-    if(a.includes(id)) S.group.picks = a.filter(x => x !== id);
+    if(a.includes(id)){ S.group.picks = a.filter(x => x !== id); if(S.group.pos) delete S.group.pos[id]; }
     else if(a.length >= GROUP_MAX) return toast(`最多放 ${GROUP_MAX} 個角色`);
     else a.push(id);
     save(); return renderGroup(); }
   const g = e.target.closest("[data-gbg]");
   if(g){ S.group.bg = g.dataset.gbg; save(); return renderGroup(); }
-  if(e.target.closest("[data-gclear]")){ S.group.picks = []; save(); return renderGroup(); }
+  if(e.target.closest("[data-gclear]")){ S.group.picks = []; S.group.pos = {}; save(); return renderGroup(); }
+  if(e.target.closest("[data-greset]")){ S.group.pos = {}; save(); return renderGroup(); }
   if(e.target.closest("[data-gdl]")) saveImage(groupSVG([600, 940]), "我們的合照");
 });
 
