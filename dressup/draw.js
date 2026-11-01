@@ -1404,7 +1404,15 @@ const CAKE_DECO = {
   startop:   {name:"星星插牌", tags:["party", "funny"]},
   hearttop:  {name:"愛心插牌", tags:["party", "fancy"]},
   bear:      {name:"小熊公仔", tags:["party", "funny", "animal"]},
+  pearls:    {name:"金色糖珠", tags:["fancy", "formal"]},
+  fruits:    {name:"水果切片", tags:["summer", "snack"]},
+  cookies:   {name:"餅乾", tags:["snack", "casual"]},
+  choco:     {name:"巧克力片", tags:["snack", "fancy"]},
+  unicorn:   {name:"獨角獸", tags:["party", "funny", "fancy"]},
 };
+const CANDLE_KINDS = {thin:{name:"細蠟燭"}, number:{name:"數字蠟燭"}, sparkler:{name:"仙女棒"}, tall:{name:"螺旋長蠟燭"}};
+const RIBBON_AT = {bottom:{name:"只綁最下層"}, all:{name:"每一層都綁"}};
+const flame = (x, y) => P(`M${x} ${y - 20} Q${x + 8} ${y - 8} ${x} ${y} Q${x - 8} ${y - 8} ${x} ${y - 20} Z`, "#F59A4A", 1.6) + P(`M${x} ${y - 14} Q${x + 3} ${y - 7} ${x} ${y - 3} Q${x - 3} ${y - 7} ${x} ${y - 14} Z`, "#FFE98A", 0);
 // 圓蛋糕側面上緣的弧線：從左到右，y 照著前面那半圈橢圓
 const arcPts = (t, dy = 0, n = 16) => Array.from({length:n + 1}, (_, i) => { const x = -t.rx + 2 * t.rx * i / n; return [150 + x, t.top + dy + t.rx * .24 * Math.sqrt(Math.max(0, 1 - (x / t.rx) ** 2))]; });
 function cakeShape(L){
@@ -1440,9 +1448,16 @@ function drawCake(L){
   const sideRows = sh.sq ? [{l:48, r:252, y:340}] : sh.cup ? [] : sh.tiers.map(t => ({l:150 - t.rx, r:150 + t.rx, y:(t.top + t.bot) / 2 + 12, t}));
   if(has("drip")) s += sh.sq ? Array.from({length:9}, (_, i) => { const x = 58 + i * 23, h = 18 + (i * 7) % 20; return P(`M${x - 8} 300 L${x - 8} ${300 + h} Q${x} ${310 + h} ${x + 8} ${300 + h} L${x + 8} 300 Z`, "#6B4530", 0); }).join("") + LN("M48 300 L252 300", 3)
     : sh.tiers.map(t => arcPts(t, 0, 10).slice(1, -1).map(([x, y], i) => { const h = 14 + (i * 9) % 18; return P(`M${x - 7} ${y - 2} L${x - 7} ${y + h} Q${x} ${y + h + 9} ${x + 7} ${y + h} L${x + 7} ${y - 2} Z`, "#6B4530", 0); }).join("")).join("");
-  if(has("ribbon")){ const r = sideRows[0]; if(r) s += P(`M${r.l} ${r.y + 10} L${r.r} ${r.y + 10} L${r.r} ${r.y + 26} L${r.l} ${r.y + 26} Z`, "#E8679A", 2.4) + P(`M150 ${r.y + 18} Q128 ${r.y} 124 ${r.y + 18} Q128 ${r.y + 36} 150 ${r.y + 18} Q172 ${r.y} 176 ${r.y + 18} Q172 ${r.y + 36} 150 ${r.y + 18} Z`, "#E8679A", 2.4) + C(150, r.y + 18, 6, "#C2386F", 2); }
+  if(has("ribbon")){ const rc = L.ribbonC || "#E8679A", rd = shade(rc, -.2);
+    (L.ribbonAt === "all" ? sideRows : sideRows.slice(0, 1)).forEach((r, i) => { s += P(`M${r.l} ${r.y + 10} L${r.r} ${r.y + 10} L${r.r} ${r.y + 26} L${r.l} ${r.y + 26} Z`, rc, 2.4) + LN(`M${r.l} ${r.y + 14} L${r.r} ${r.y + 14}`, 1, shade(rc, .35));
+      if(!i) s += P(`M150 ${r.y + 18} Q128 ${r.y} 124 ${r.y + 18} Q128 ${r.y + 36} 150 ${r.y + 18} Q172 ${r.y} 176 ${r.y + 18} Q172 ${r.y + 36} 150 ${r.y + 18} Z`, rc, 2.4) + P(`M146 ${r.y + 22} L136 ${r.y + 50} L146 ${r.y + 44} Z M154 ${r.y + 22} L164 ${r.y + 50} L154 ${r.y + 44} Z`, rc, 2) + C(150, r.y + 18, 6, rd, 2); });
+    if(sh.cup) s += P("M92 330 L208 330 L206 344 L94 344 Z", rc, 2.4);
+  }
   if(has("flowers")) s += sideRows.map((r, j) => [.2, .5, .8].map((f, i) => { const x = r.l + (r.r - r.l) * f, y = r.y - 4 + (i % 2) * 6, c = ["#F7A8C4", "#FFE98A", "#C9B3E8"][(i + j) % 3];
     return [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 5.5, y + Math.sin(a * Math.PI / 180) * 5.5, 5, c, 1.4)).join("") + C(x, y, 3, "#F59A4A", 1); }).join("")).join("");
+  if(has("pearls")) s += sideRows.map(r => Array.from({length:Math.round((r.r - r.l) / 14)}, (_, i) => C(r.l + 7 + i * 14, r.y - 14 + Math.sin(i * 1.3) * 1.5, 3.4, "#F2C14E", 1.2) + C(r.l + 6 + i * 14, r.y - 15.5, 1, "#fff", 0)).join("")).join("");
+  if(has("unicorn") && !sh.sq){ const t0 = sh.cup ? {l:92, r:208, y:300} : sideRows[sideRows.length - 1], ey = sh.cup ? 300 : t0.y - 8;
+    s += [-1, 1].map(o => LN(`M${150 + o * 26} ${ey} Q${150 + o * 18} ${ey + 8} ${150 + o * 10} ${ey}`, 2.6) + [0, 1, 2].map(k => LN(`M${150 + o * (12 + k * 7)} ${ey + 3} L${150 + o * (10 + k * 9)} ${ey + 10}`, 1.8)).join("")).join("") + E(122, ey + 14, 8, 5, "#F7A8C4", 0, `opacity=".7"`) + E(178, ey + 14, 8, 5, "#F7A8C4", 0, `opacity=".7"`); }
   if(has("sprinkles")) s += [...sideRows.map(r => [r.l + 10, r.r - 10, r.y - 16, r.y + 18]), [T.cx - T.rx * .7, T.cx + T.rx * .7, T.cy - T.ry * .6, T.cy + T.ry * .6]].map(([l, r, t, b], j) =>
     Array.from({length:16}, (_, i) => { const x = l + ((i * 37 + j * 11) % 100) / 100 * (r - l), y = t + ((i * 53 + j * 7) % 100) / 100 * (b - t), a = (i * 47) % 180;
       return `<rect x="${(x - 4).toFixed(1)}" y="${(y - 1.5).toFixed(1)}" width="8" height="3" rx="1.5" fill="${["#E8679A", "#4C8FE0", "#F6D65A", "#5FB36B", "#F59A4A"][i % 5]}" transform="rotate(${a} ${x.toFixed(1)} ${y.toFixed(1)})"/>`; }).join("")).join("");
@@ -1456,9 +1471,23 @@ function drawCake(L){
   if(has("macaron")) [[-.5, -.3], [.5, -.3], [0, .45]].forEach(([fx, fy], i) => { const x = T.cx + fx * T.rx * .7, y = T.cy + fy * T.ry, c = ["#F7A8C4", "#9ADBC0", "#C9B3E8"][i];
     onTop.push([y + .3, P(`M${x - 14} ${y - 6} Q${x} ${y - 20} ${x + 14} ${y - 6} Z`, c, 2) + P(`M${x - 14} ${y - 4} L${x + 14} ${y - 4}`, "none", 3, `stroke="#fff"`) + P(`M${x - 14} ${y - 2} Q${x} ${y + 8} ${x + 14} ${y - 2} Z`, c, 2)]); });
   // 有文字牌時，蠟燭移到兩邊，不要擋住字
-  if(has("candles")) (has("plaque") ? [-T.rx * .62, T.rx * .62] : [-26, 0, 26]).forEach((dx, i) => { const x = T.cx + dx, y = T.cy - 2 + (has("plaque") ? 4 : i === 1 ? -4 : 2), c = ["#9BD0F5", "#F7A8C4", "#FFE98A"][i];
+  const ck = L.candleKind || "thin", busy = has("plaque") || has("unicorn");   // 中間有文字牌或獨角獸：蠟燭放兩邊
+  if(has("candles") && ck === "number"){ const num = (L.cakeNum || "").replace(/[^0-9]/g, "").slice(0, 3) || "1", ds = [...num], gap = 32, x0 = busy ? T.cx + Math.max(40, T.rx * .45) : T.cx - (ds.length - 1) * gap / 2, y = T.cy - (busy ? 0 : 2);
+    ds.forEach((ch, i) => { const x = x0 + i * gap; onTop.push([y + .42, `<text x="${x}" y="${y - 6}" text-anchor="middle" font-size="46" font-weight="900" fill="${["#F7A8C4", "#9BD0F5", "#FFE98A"][i % 3]}" stroke="${INK}" stroke-width="2.6" paint-order="stroke" font-family="system-ui,sans-serif">${ch}</text>` + LN(`M${x} ${y - 40} L${x} ${y - 46}`, 1.6) + flame(x, y - 46)]); }); }
+  else if(has("candles") && ck === "sparkler") (busy ? [-T.rx * .62, T.rx * .62] : [-20, 22]).forEach(dx => { const x = T.cx + dx, y = T.cy;
+    onTop.push([y + .4, LN(`M${x} ${y} L${x} ${y - 60}`, 2.4, "#9AA0A8") + Array.from({length:10}, (_, i) => { const a = i * Math.PI / 5 + .3, r1 = 6, r2 = 18 + (i % 3) * 5; return LN(`M${(x + Math.cos(a) * r1).toFixed(1)} ${(y - 66 + Math.sin(a) * r1).toFixed(1)} L${(x + Math.cos(a) * r2).toFixed(1)} ${(y - 66 + Math.sin(a) * r2).toFixed(1)}`, 2, i % 2 ? "#F6D65A" : "#F59A4A"); }).join("") + star(x, y - 66, 7, "#FFF4C2", 1.4)]); });
+  else if(has("candles") && ck === "tall") (busy ? [-T.rx * .62, T.rx * .62] : [-26, 0, 26]).forEach((dx, i) => { const x = T.cx + dx, y = T.cy - 2 + (i === 1 ? -4 : 2), c = ["#B9A3E8", "#F7A8C4", "#9ADBC0"][i % 3];
+    onTop.push([y + .4, `<rect x="${x - 4}" y="${y - 84}" width="8" height="84" rx="2" fill="${c}" stroke="${INK}" stroke-width="2"/>` + Array.from({length:7}, (_, k) => LN(`M${x - 4} ${y - 8 - k * 11} L${x + 4} ${y - 14 - k * 11}`, 1.6, "#fff")).join("") + LN(`M${x} ${y - 84} L${x} ${y - 90}`, 1.6) + flame(x, y - 90)]); });
+  else if(has("candles")) (busy ? [-T.rx * .62, T.rx * .62] : [-26, 0, 26]).forEach((dx, i) => { const x = T.cx + dx, y = T.cy - 2 + (busy ? 4 : i === 1 ? -4 : 2), c = ["#9BD0F5", "#F7A8C4", "#FFE98A"][i];
     onTop.push([y + .4, `<rect x="${x - 5}" y="${y - 52}" width="10" height="52" rx="2" fill="${c}" stroke="${INK}" stroke-width="2"/>` + [-40, -26, -12].map(d => LN(`M${x - 5} ${y + d} L${x + 5} ${y + d - 6}`, 1.6, "#fff")).join("") +
       LN(`M${x} ${y - 52} L${x} ${y - 58}`, 1.6) + P(`M${x} ${y - 78} Q${x + 8} ${y - 66} ${x} ${y - 58} Q${x - 8} ${y - 66} ${x} ${y - 78} Z`, "#F59A4A", 1.6) + P(`M${x} ${y - 72} Q${x + 3} ${y - 65} ${x} ${y - 61} Q${x - 3} ${y - 65} ${x} ${y - 72} Z`, "#FFE98A", 0)]); });
+  if(has("fruits")) ring(6, .7, .2).forEach(([x, y], i) => onTop.push([y + .15, i % 2
+    ? P(`M${x - 13} ${y} A13 13 0 0 1 ${x + 13} ${y} Z`, "#F59A4A", 2.2) + P(`M${x - 9} ${y} A9 9 0 0 1 ${x + 9} ${y} Z`, "#FFC266", 0) + [-60, -90, -120].map(a => LN(`M${x} ${y} L${x + Math.cos(a * Math.PI / 180) * 9} ${y + Math.sin(a * Math.PI / 180) * 9}`, 1.2, "#F59A4A")).join("")
+    : P(`M${x - 13} ${y} A13 13 0 0 1 ${x + 13} ${y} Z`, "#7DBA4A", 2.2) + P(`M${x - 9} ${y} A9 9 0 0 1 ${x + 9} ${y} Z`, "#C8E59A", 0) + [-50, -90, -130].map(a => C(x + Math.cos(a * Math.PI / 180) * 5, y + Math.sin(a * Math.PI / 180) * 5, 1.2, INK, 0)).join("")]));
+  if(has("cookies")) ring(5, .55, 1.1).forEach(([x, y]) => onTop.push([y + .25, `<g transform="rotate(-12 ${x} ${y})">${C(x, y - 12, 13, "#3A2A20", 2.2) + E(x, y - 12, 8, 2.6, "#fff", 0)}</g>`]));
+  if(has("choco")) ring(5, .45, .5).forEach(([x, y], i) => onTop.push([y + .05, P(`M${x - 9} ${y} L${x - 4 + (i % 2) * 4} ${y - 30 - (i % 3) * 6} L${x + 10} ${y - 4} Z`, i % 2 ? "#6B4530" : "#3A2A20", 2)]));
+  if(has("unicorn")) onTop.push([T.cy + .8, [-1, 1].map(o => P(`M${T.cx + o * 26} ${T.cy - 4} L${T.cx + o * 34} ${T.cy - 34} L${T.cx + o * 14} ${T.cy - 12} Z`, "#fff", 2.2) + P(`M${T.cx + o * 26} ${T.cy - 8} L${T.cx + o * 31} ${T.cy - 26} L${T.cx + o * 19} ${T.cy - 12} Z`, "#F7A8C4", 0)).join("") +
+    P(`M${T.cx - 10} ${T.cy - 6} L${T.cx} ${T.cy - 64} L${T.cx + 10} ${T.cy - 6} Z`, "#F6D65A", 2.4) + LN(`M${T.cx - 7} ${T.cy - 18} L${T.cx + 7} ${T.cy - 26} M${T.cx - 5} ${T.cy - 32} L${T.cx + 5} ${T.cy - 40} M${T.cx - 3} ${T.cy - 46} L${T.cx + 3} ${T.cy - 52}`, 1.6, "#C99A3A")]);
   if(has("cherry")) onTop.push([T.cy + .5, LN(`M${T.cx} ${T.cy - 20} Q${T.cx + 4} ${T.cy - 40} ${T.cx + 14} ${T.cy - 44}`, 2.4, "#4F8F45") + C(T.cx, T.cy - 12, 11, "#D9414E", 2.4) + C(T.cx - 4, T.cy - 16, 3, "rgba(255,255,255,.7)", 0)]);
   if(has("bear")){ const x = T.cx + T.rx * .3, y = T.cy + 2; onTop.push([y + .6, C(x - 12, y - 46, 6, "#C98A4B", 2) + C(x + 12, y - 46, 6, "#C98A4B", 2) + E(x, y - 12, 16, 14, "#C98A4B", 2.4) + C(x, y - 36, 15, "#C98A4B", 2.4) + E(x, y - 32, 6, 4.5, "#F3D9B8", 0) + C(x - 5, y - 39, 1.8, INK, 0) + C(x + 5, y - 39, 1.8, INK, 0) + E(x, y - 33, 2, 1.4, INK, 0)]); }
   if(has("plaque")){ const t = L.cakeText || "生日快樂", w = Math.max(80, textW(t, 15) + 6), x = T.cx - (has("bear") ? 16 : 0), y = T.cy - T.ry * .3;

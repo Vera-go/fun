@@ -53,6 +53,10 @@ const CATS = [
     {type:"color", key:"frost", label:"糖霜顏色", pal:FROST_PAL},
     {type:"multi", key:"deco", label:"裝飾（可以選好幾個）", list:CAKE_DECO, vb:"30 130 240 260"},
     {type:"text", key:"cakeText", label:"文字牌上的字（加了「文字牌」裝飾才看得到）", max:12},
+    {type:"pick", key:"candleKind", label:"蠟燭樣式（加了「蠟燭」才看得到）", list:CANDLE_KINDS, vb:"60 150 180 170", only:L => (L.deco || []).includes("candles")},
+    {type:"text", key:"cakeNum", label:"數字蠟燭的數字（例如 10）", max:3, only:L => (L.deco || []).includes("candles") && L.candleKind === "number"},
+    {type:"color", key:"ribbonC", label:"緞帶顏色", pal:PAL, only:L => (L.deco || []).includes("ribbon")},
+    {type:"pick", key:"ribbonAt", label:"緞帶綁在哪裡", list:RIBBON_AT, vb:"20 200 260 250", only:L => (L.deco || []).includes("ribbon") && ["round2", "round3"].includes(L.cakeBase)},
     {type:"color", key:"plate", label:"盤子顏色", pal:PLATE_PAL}]},
   {id:"giftbody", roles:["gift"], name:"禮物盒", groups:[
     {type:"pick", key:"giftBase", label:"盒子的樣子", list:GIFT_BASES, vb:"20 130 260 320"},
@@ -125,7 +129,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, petMouth:"w", cakeBase:"round2", sponge:"#F6E7C8", frost:"#F7A8C4", plate:"#FFFFFF", deco:[], cakeText:"生日快樂", giftBase:"square", boxC:"#E8679A", ribC:"#F6D65A", giftPat:"dots", giftBow:"bow", giftDeco:[], giftText:"送給你", cardShape:"rect", cardC:"#FFF4E6", inkC:"#C2386F", cardText:"生日快樂", cardMsg:"祝你天天開心！", cardDeco:[], wrap:"cone", wrapC:"#F7A8C4", ribC2:"#FFFFFF", bloomC:"#D9414E", blooms:[], bouquetText:"", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, petMouth:"w", cakeBase:"round2", sponge:"#F6E7C8", frost:"#F7A8C4", plate:"#FFFFFF", deco:[], cakeText:"生日快樂", candleKind:"thin", cakeNum:"10", ribbonC:"#E8679A", ribbonAt:"bottom", giftBase:"square", boxC:"#E8679A", ribC:"#F6D65A", giftPat:"dots", giftBow:"bow", giftDeco:[], giftText:"送給你", cardShape:"rect", cardC:"#FFF4E6", inkC:"#C2386F", cardText:"生日快樂", cardMsg:"祝你天天開心！", cardDeco:[], wrap:"cone", wrapC:"#F7A8C4", ribC2:"#FFFFFF", bloomC:"#D9414E", blooms:[], bouquetText:"", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
@@ -802,8 +806,8 @@ function sanitizeLook(raw){
   if(!raw || typeof raw !== "object") return o;
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
-  ["hairC", "eyeC", "bgC", "fur", "sponge", "frost", "plate", "boxC", "ribC", "cardC", "inkC", "wrapC", "ribC2", "bloomC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
-  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS], ["petMouth", PET_MOUTHS], ["cakeBase", CAKE_BASES], ["giftBase", GIFT_BASES], ["giftPat", GIFT_PATS], ["giftBow", GIFT_BOWS], ["cardShape", CARD_SHAPES], ["wrap", WRAPS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  ["hairC", "eyeC", "bgC", "fur", "sponge", "frost", "plate", "boxC", "ribC", "cardC", "inkC", "wrapC", "ribC2", "bloomC", "ribbonC"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS], ["petMouth", PET_MOUTHS], ["cakeBase", CAKE_BASES], ["giftBase", GIFT_BASES], ["giftPat", GIFT_PATS], ["giftBow", GIFT_BOWS], ["cardShape", CARD_SHAPES], ["wrap", WRAPS], ["candleKind", CANDLE_KINDS], ["ribbonAt", RIBBON_AT]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
@@ -815,6 +819,7 @@ function sanitizeLook(raw){
   o.giftDeco = Array.isArray(raw.giftDeco) ? raw.giftDeco.filter(x => GIFT_DECO[x]).slice(0, 20) : [];
   o.cardDeco = Array.isArray(raw.cardDeco) ? raw.cardDeco.filter(x => CARD_DECO[x]).slice(0, 20) : [];
   o.blooms = Array.isArray(raw.blooms) ? raw.blooms.filter(x => BLOOMS[x]).slice(0, 12) : [];
+  if(typeof raw.cakeNum === "string") o.cakeNum = raw.cakeNum.replace(/[^0-9]/g, "").slice(0, 3);
   [["giftText", 10], ["cardText", 10], ["cardMsg", 40], ["bouquetText", 10]].forEach(([k, n]) => { if(typeof raw[k] === "string") o[k] = raw[k].slice(0, n); });
   Object.keys(SLOT_LISTS).forEach(k => {
     const v = raw[k];
