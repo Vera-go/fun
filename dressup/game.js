@@ -460,7 +460,7 @@ function groupSVG(size){
   const items = [...gIds(), ...(S.group.props || []).map(p => p.id)].map(gItem);
   // 河、地毯、天上的東西畫在最後面；其他照前後：站得比較後面（腳比較高）的先畫
   items.sort((a, b) => gDepth(a) - gDepth(b));
-  const body = items.map(it => `<g class="gch${!size && it.key === groupSel ? " sel" : ""}" data-gid="${it.key}" transform="${gTf(it, it.p, it.base * it.m, it.a)}">${it.prop ? it.it.draw() : drawLook(Object.assign(clone(DEFAULT_LOOK), it.l), {bg:false, size:[300, 470]})}</g>`).join("");
+  const body = items.map(it => `<g class="gch${!size && it.key === groupSel ? " sel" : ""}" data-gid="${it.key}" transform="${gTf(it, it.p, it.base * it.m, it.a)}">${it.prop ? it.it.draw(propOf(it.key)) : drawLook(Object.assign(clone(DEFAULT_LOOK), it.l), {bg:false, size:[300, 470]})}</g>`).join("");
   const k = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? S.group.bg : "park", back = S.group.wide ? bgWide(k, "#F7D3E0", GW()) : BGS[k].draw("#F7D3E0");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GW()} 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${back}${body}</svg>`;
 }
@@ -495,7 +495,7 @@ function renderGroup(){
     <h2>合照</h2>
     <p class="muted ghint">挑最多 ${GROUP_MAX} 個角色、加上小物、選一個背景，在合照裡直接拖拉換位置（往上拖會站到後面）。</p>
     <div class="gsize">${sel ? `<span>選到的${esc(selName)}：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button><span class="gbr"></span>
-      <button class="btn sm" data-grot="-15">↺ 左轉</button><button class="btn sm" data-grot="15">↻ 右轉</button>${isProp(sel) ? "" : `<button class="btn sm" data-grot="lie">躺下</button>`}<button class="btn sm" data-grot="0">擺正</button><button class="btn sm" data-gflip>左右翻轉</button><span class="gbr"></span>
+      <button class="btn sm" data-grot="-15">↺ 左轉</button><button class="btn sm" data-grot="15">↻ 右轉</button>${isProp(sel) ? "" : `<button class="btn sm" data-grot="lie">躺下</button>`}<button class="btn sm" data-grot="0">擺正</button><button class="btn sm" data-gflip>左右翻轉</button>${isProp(sel) && PROPS[propOf(sel).t].text ? `<span class="gbr"></span><label class="gtextl">文字：<input class="gtext" data-gtext maxlength="20" value="${esc(propOf(sel).text || PROPS[propOf(sel).t].text)}"></label>` : ""}<span class="gbr"></span>
       <button class="btn sm" data-glayer="up">往前一層</button><button class="btn sm" data-glayer="down">往後一層</button><button class="btn sm" data-glayer="top">移到最前面</button><button class="btn sm" data-glayer="bottom">移到最後面</button>
       ${isProp(sel) ? `<button class="btn sm" data-gdup>複製</button><button class="btn sm" data-gdel>刪除</button>` : ""}`
       : `<span class="muted">點一下合照裡的角色或小物，就能放大縮小、轉角度（也可以用滑鼠滾輪；手機用兩根手指捏合、轉動）</span>`}</div>
@@ -604,6 +604,12 @@ function groupResize(f){
   gMap("size")[groupSel] = Math.max(.3, Math.min(3, (gMap("size")[groupSel] || 1) * f)); save(); renderGroup();
 }
 // 合照開著的時候重新整理網頁，回來還是在合照
+// 對話框、標題的文字：一邊打字一邊更新合照（只重畫合照，輸入框不會跳掉）
+$("ov").addEventListener("input", e => {
+  const t = e.target.closest("[data-gtext]"); if(!t || !isProp(groupSel)) return;
+  propOf(groupSel).text = t.value; save();
+  const st = document.querySelector(".gstage"); if(st){ st.innerHTML = groupSVG(); groupDrag(); }
+});
 function showGroup(){ openPanel(""); $("panel").classList.add("wide"); S.groupOpen = true; save(); renderGroup(); }
 // 視窗大小變了：合照也跟著重新撐滿
 let groupRT = 0;

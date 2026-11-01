@@ -1351,6 +1351,31 @@ const PROP_CATS = [
   {name:"天上、小動物", keys:["sun", "moon", "cloud", "rainbow", "stars", "bird", "butterfly"]},
 ];
 
+// ---------- 合照小物第三批：可以自己打字的對話框、標題，還有表情貼圖 ----------
+// text:true 的小物，選到時右邊會出現輸入框；字數多的時候框會跟著變寬
+const textW = (t, size) => Math.max(size * 2.6, [...t].reduce((n, ch) => n + (ch.charCodeAt(0) > 255 ? 1 : .58), 0) * size + size * 1.4);
+const TXTB = (x, y, t, size, col) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${size}" font-weight="900" fill="${col}" font-family="system-ui,'Noto Sans TC',sans-serif">${String(t).replace(/[&<>"]/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"})[c])}</text>`;
+Object.assign(PROPS, {
+  speech:   {name:"對話框", w:240, h:150, text:"你好呀！", draw:pr => { const t = (pr && pr.text) || "你好呀！", w = textW(t, 30);
+    return P(`M${-w / 2} -150 Q${-w / 2} -164 ${-w / 2 + 16} -164 L${w / 2 - 16} -164 Q${w / 2} -164 ${w / 2} -150 L${w / 2} -66 Q${w / 2} -52 ${w / 2 - 16} -52 L24 -52 L0 0 L-6 -52 L${-w / 2 + 16} -52 Q${-w / 2} -52 ${-w / 2} -66 Z`, "#fff", 3.4) + TXTB(0, -108, t, 30, INK); }},
+  think:    {name:"想法泡泡", w:260, h:200, text:"好想吃蛋糕…", draw:pr => { const t = (pr && pr.text) || "好想吃蛋糕…", w = textW(t, 28) + 20;
+    // 雲朵：先畫一層有外框的，再蓋一層沒外框的，裡面的接縫線就不見了
+    const parts = sw => E(0, -130, w / 2, 62, "#fff", sw) + [-1, 1].map(o => C(o * w * .34, -172, 28, "#fff", sw) + C(o * w * .44, -100, 24, "#fff", sw)).join("") + C(0, -184, 30, "#fff", sw);
+    return C(-6, -14, 8, "#fff", 3) + C(14, -40, 13, "#fff", 3) + parts(3.4) + parts(0) + TXTB(0, -130, t, 28, INK); }},
+  banner:   {name:"標題布條", w:420, h:120, text:"我們的合照", draw:pr => { const t = (pr && pr.text) || "我們的合照", w = textW(t, 36) + 30;
+    return P(`M${-w / 2 - 50} -40 L${-w / 2 + 10} -40 L${-w / 2 + 10} -100 L${-w / 2 - 50} -100 L${-w / 2 - 30} -70 Z M${w / 2 + 50} -40 L${w / 2 - 10} -40 L${w / 2 - 10} -100 L${w / 2 + 50} -100 L${w / 2 + 30} -70 Z`, "#C2386F", 3) +
+      P(`M${-w / 2} -30 L${w / 2} -30 L${w / 2} -110 L${-w / 2} -110 Z`, "#E8679A", 3.4) + TXTB(0, -70, t, 36, "#fff"); }},
+  heart:    {name:"愛心", w:110, h:100, draw:() => P(heartD(0, -50, 38), "#E8679A", 3) + E(-22, -66, 7, 11, "rgba(255,255,255,.6)", 0, `transform="rotate(-30 -22 -66)"`)},
+  sparkle:  {name:"亮晶晶", w:140, h:130, draw:() => [[0, -64, 40], [-48, -96, 18], [46, -30, 16]].map(([x, y, r]) => P(`M${x} ${y - r} Q${x + r * .18} ${y - r * .18} ${x + r} ${y} Q${x + r * .18} ${y + r * .18} ${x} ${y + r} Q${x - r * .18} ${y + r * .18} ${x - r} ${y} Q${x - r * .18} ${y - r * .18} ${x} ${y - r} Z`, "#FFE98A", 2.6)).join("")},
+  notes:    {name:"音符", w:140, h:140, draw:() => E(-34, -30, 17, 12, INK, 0, `transform="rotate(-20 -34 -30)"`) + E(24, -46, 17, 12, INK, 0, `transform="rotate(-20 24 -46)"`) + LN("M-19 -34 L-19 -112 L39 -126 L39 -50", 6) + LN("M-19 -100 L39 -114", 10)},
+  zzz:      {name:"ZZZ", w:140, h:150, draw:() => TXTB(-34, -30, "Z", 40, "#6FB7E8") + TXTB(4, -76, "Z", 52, "#6FB7E8") + TXTB(44, -128, "Z", 64, "#6FB7E8")},
+  exclaim:  {name:"驚嘆號", w:70, h:140, draw:() => P("M-14 -134 L14 -134 L8 -46 L-8 -46 Z", "#D9414E", 3) + C(0, -16, 12, "#D9414E", 3)},
+  question: {name:"問號", w:100, h:140, draw:() => P("M-34 -96 Q-34 -140 0 -140 Q36 -140 36 -104 Q36 -80 12 -70 Q4 -66 4 -50 L-12 -50 Q-14 -76 6 -88 Q18 -96 16 -106 Q14 -120 0 -120 Q-14 -120 -16 -100 Z", "#4C8FE0", 3) + C(-4, -18, 12, "#4C8FE0", 3)},
+  sweat:    {name:"汗滴", w:70, h:100, draw:() => P("M0 -96 Q32 -50 26 -24 Q20 0 0 0 Q-20 0 -26 -24 Q-32 -50 0 -96 Z", "#9BD0F5", 3) + E(-8, -30, 5, 9, "#fff", 0)},
+  angry:    {name:"生氣符號", w:100, h:100, draw:() => ["M-12 -60 Q-12 -84 -36 -84", "M12 -60 Q12 -84 36 -84", "M-12 -40 Q-12 -16 -36 -16", "M12 -40 Q12 -16 36 -16"].map(d => LN(d, 13, "#fff") + LN(d, 8, "#E0303E")).join("")},
+});
+PROP_CATS.push({name:"文字和貼圖（文字可以自己改）", keys:["speech", "think", "banner", "heart", "sparkle", "notes", "zzz", "exclaim", "question", "sweat", "angry"]});
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
