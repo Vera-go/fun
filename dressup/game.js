@@ -557,7 +557,8 @@ function groupResize(f){
   if(!groupSel) return toast("先點一下要調整的角色或小物");
   gMap("size")[groupSel] = Math.max(.3, Math.min(3, (gMap("size")[groupSel] || 1) * f)); save(); renderGroup();
 }
-function showGroup(){ openPanel(""); $("panel").classList.add("wide"); renderGroup(); }
+// 合照開著的時候重新整理網頁，回來還是在合照
+function showGroup(){ openPanel(""); $("panel").classList.add("wide"); S.groupOpen = true; save(); renderGroup(); }
 // 視窗大小變了：合照也跟著重新撐滿
 let groupRT = 0;
 addEventListener("resize", () => { clearTimeout(groupRT); groupRT = setTimeout(() => { if(!$("ov").hidden && $("panel").classList.contains("wide")) renderGroup(); }, 200); });
@@ -610,8 +611,8 @@ function saveImage(svg, name, w = 600){
 }
 
 // ---------- 彈出視窗 ----------
-function openPanel(html){ $("panel").className = "panel"; $("panel").innerHTML = html; $("ov").hidden = false; $("ov").scrollTop = 0; }
-function closePanel(){ $("ov").hidden = true; }
+function openPanel(html){ S.groupOpen = false; $("panel").className = "panel"; $("panel").innerHTML = html; $("ov").hidden = false; $("ov").scrollTop = 0; }
+function closePanel(){ $("ov").hidden = true; if(S.groupOpen){ S.groupOpen = false; save(); } }
 $("ov").addEventListener("click", e => {
   if(e.target === $("ov") || e.target.closest("[data-close]")) return closePanel();
   const th = e.target.closest("[data-theme]");
@@ -839,3 +840,5 @@ if("IntersectionObserver" in window){
 $("mini").onclick = () => $("stage").scrollIntoView({behavior:"smooth", block:"center"});
 
 render();
+// 上次重新整理前正在合照：直接回到合照
+if(S.groupOpen) showGroup();
