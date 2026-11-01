@@ -1585,6 +1585,72 @@ function drawCard(L){
   return s;
 }
 
+// ---------- 靜物角色：花束 ----------
+ROLES.bouquet = {name:"花束"};
+const WRAPS = {cone:{name:"包裝紙花束"}, kraft:{name:"牛皮紙花束"}, basket:{name:"花籃"}, vase:{name:"花瓶"}};
+const BLOOMS = {
+  rose:      {name:"玫瑰", tags:["fancy", "formal"]},
+  tulip:     {name:"鬱金香", tags:["fancy", "summer"]},
+  sunflower: {name:"向日葵", tags:["summer", "casual"]},
+  daisy:     {name:"雛菊", tags:["casual", "summer"]},
+  lily:      {name:"百合", tags:["formal", "fancy"]},
+  carnation: {name:"康乃馨", tags:["formal", "neat"]},
+  hydrangea: {name:"繡球花", tags:["rain", "fancy"]},
+  lavender:  {name:"薰衣草", tags:["summer", "fancy"]},
+  babys:     {name:"滿天星", tags:["fancy", "party"]},
+  leaves:    {name:"綠葉", tags:["casual", "summer"]},
+};
+const BLOOM_PAL = ["#D9414E", "#F7A8C4", "#FFFFFF", "#F6D65A", "#F59A4A", "#B9A3E8", "#E8679A", "#9BD0F5"];
+// 一朵花：在 (x, y) 畫一朵大小 r 的花；c 是可以換的花色（玫瑰、鬱金香、康乃馨、百合用）
+function bloom(type, x, y, r, c){
+  const d = shade(c, lum(c) > .8 ? -.15 : -.28);
+  if(type === "rose") return C(x, y, r, c, 2.6) + `<path d="M${x - r * .15} ${y - r * .1} a${r * .3} ${r * .3} 0 1 1 ${r * .35} ${r * .25} M${x - r * .55} ${y} a${r * .6} ${r * .55} 0 0 1 ${r * .7} ${-r * .55} M${x + r * .6} ${y - r * .1} a${r * .6} ${r * .6} 0 0 1 ${-r * .5} ${r * .62}" fill="none" stroke="${d}" stroke-width="2.2" stroke-linecap="round"/>`;
+  if(type === "tulip") return P(`M${x - r * .75} ${y - r * .55} Q${x - r * .8} ${y + r * .9} ${x} ${y + r * .9} Q${x + r * .8} ${y + r * .9} ${x + r * .75} ${y - r * .55} L${x + r * .35} ${y - r * .15} L${x} ${y - r * .8} L${x - r * .35} ${y - r * .15} Z`, c, 2.6) + LN(`M${x} ${y - r * .3} L${x} ${y + r * .6}`, 1.6, d);
+  if(type === "sunflower") return Array.from({length:12}, (_, i) => { const a = i * Math.PI / 6; return E(x + Math.cos(a) * r * .7, y + Math.sin(a) * r * .7, r * .38, r * .17, "#F6D65A", 1.8, `transform="rotate(${i * 30} ${x + Math.cos(a) * r * .7} ${y + Math.sin(a) * r * .7})"`); }).join("") + C(x, y, r * .45, "#7A4A2A", 2.2) + C(x - r * .12, y - r * .12, r * .12, "#9A6A4A", 0);
+  if(type === "daisy") return Array.from({length:10}, (_, i) => { const a = i * Math.PI / 5; return E(x + Math.cos(a) * r * .6, y + Math.sin(a) * r * .6, r * .4, r * .16, "#FFFFFF", 1.6, `transform="rotate(${i * 36} ${x + Math.cos(a) * r * .6} ${y + Math.sin(a) * r * .6})"`); }).join("") + C(x, y, r * .3, "#F6D65A", 2);
+  if(type === "lily") return Array.from({length:6}, (_, i) => { const a = i * Math.PI / 3 - Math.PI / 2; return P(`M${x} ${y} Q${x + Math.cos(a - .5) * r} ${y + Math.sin(a - .5) * r} ${x + Math.cos(a) * r * 1.1} ${y + Math.sin(a) * r * 1.1} Q${x + Math.cos(a + .5) * r} ${y + Math.sin(a + .5) * r} ${x} ${y} Z`, c, 2.2); }).join("") + [0, 1, 2].map(i => C(x + Math.cos(i * 2.1) * r * .25, y + Math.sin(i * 2.1) * r * .25, 2.4, "#C9733A", 0)).join("");
+  if(type === "carnation") return C(x, y, r, c, 2.4) + Array.from({length:3}, (_, k) => `<path d="${Array.from({length:12}, (_, i) => { const a = i * Math.PI / 6, rr = r * (.85 - k * .25) * (i % 2 ? .82 : 1); return `${i ? "L" : "M"}${(x + Math.cos(a) * rr).toFixed(1)} ${(y + Math.sin(a) * rr).toFixed(1)}`; }).join(" ")} Z" fill="none" stroke="${d}" stroke-width="1.6"/>`).join("");
+  if(type === "hydrangea") return C(x, y, r, "#B9CCF0", 2.4) + Array.from({length:9}, (_, i) => { const a = i * 2.4, rr = r * .55 * Math.sqrt((i + 1) / 9), px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr;
+    return [0, 1, 2, 3].map(k => C(px + Math.cos(k * Math.PI / 2) * 3.4, py + Math.sin(k * Math.PI / 2) * 3.4, 3.2, ["#9BB4EA", "#C9B3E8"][i % 2], 0)).join("") + C(px, py, 1.2, "#fff", 0); }).join("");
+  if(type === "lavender") return LN(`M${x} ${y + r} L${x} ${y - r * 1.4}`, 2.4, "#4F8F45") + Array.from({length:6}, (_, i) => E(x + (i % 2 ? 4 : -4), y + r * .6 - i * r * .36, 5, 7, "#9B7FD4", 1.4)).join("");
+  if(type === "babys") return Array.from({length:9}, (_, i) => { const a = i * 2.39, rr = r * Math.sqrt((i + 1) / 9); return LN(`M${x} ${y + r * .8} L${(x + Math.cos(a) * rr).toFixed(1)} ${(y + Math.sin(a) * rr).toFixed(1)}`, 1, "#6E9B5A") + C(x + Math.cos(a) * rr, y + Math.sin(a) * rr, 3.2, "#FFFFFF", 1.2); }).join("");
+  if(type === "leaves") return [-1, 1].map(o => P(`M${x} ${y + r * .6} Q${x + o * r * 1.1} ${y - r * .1} ${x + o * r * .5} ${y - r * 1.1} Q${x + o * r * .1} ${y - r * .2} ${x} ${y + r * .6} Z`, "#5FB36B", 2.2) + LN(`M${x} ${y + r * .5} Q${x + o * r * .4} ${y - r * .2} ${x + o * r * .5} ${y - r * 1}`, 1.4, "#3E8A5A")).join("");
+  return "";
+}
+function drawBouquet(L){
+  const w = L.wrap || "cone", wc = L.wrapC || "#F7A8C4", rc = L.ribC2 || "#FFFFFF", fc = L.bloomC || "#D9414E";
+  const picks = (L.blooms && L.blooms.length ? L.blooms : ["rose", "babys", "leaves"]).filter(k => BLOOMS[k]);
+  const main = picks.filter(k => !["babys", "leaves", "lavender"].includes(k)), filler = picks.filter(k => ["babys", "lavender"].includes(k));
+  const low = w === "basket" || w === "vase", dy = low ? 40 : 0;
+  // 花的位置：圓頂狀排列，後面（上面）的先畫
+  const slots = [[150, 176, 26], [112, 190, 25], [188, 190, 25], [80, 222, 24], [220, 222, 24], [130, 218, 27], [170, 218, 27], [150, 246, 28], [104, 252, 25], [196, 252, 25], [74, 262, 22], [226, 262, 22], [150, 284, 24]];
+  let s = E(150, 432, 110, 14, "rgba(0,0,0,.12)", 0), back = "", front = "";
+  // 包裝的後片、花籃的提把（在花後面）
+  if(w === "cone") back += P("M48 214 Q150 150 252 214 L150 440 Z", shade(wc, -.12), 3);
+  else if(w === "kraft") back += P("M40 200 Q90 150 150 160 Q210 150 260 200 L176 420 L124 420 Z", "#D9B98C", 3) + LN("M70 196 L134 410 M230 196 L166 410", 1.4, "#B8956A");
+  else if(w === "basket") back += P("M66 330 Q66 170 150 170 Q234 170 234 330", "none", 9) + P("M66 330 Q66 170 150 170 Q234 170 234 330", "none", 5, `stroke="${wc}"`);
+  // 綠葉墊底、滿天星和薰衣草插在縫隙
+  const ls = slots.map(([x, y, r]) => [x, y + dy, r]);
+  if(picks.includes("leaves")) [[60, 236], [240, 236], [96, 170], [204, 170], [150, 150]].forEach(([x, y]) => back += bloom("leaves", x, y + dy, 26, "#5FB36B"));
+  if(w === "vase") back += [100, 130, 150, 170, 200].map(x => LN(`M${x} 270 L${150 + (x - 150) * .3} 360`, 3, "#4F8F45")).join("");
+  let flowers = "";
+  const fillers = [[94, 200], [206, 200], [150, 206], [112, 236], [188, 236], [64, 244], [236, 244], [150, 270]];
+  filler.forEach((t, k) => fillers.forEach(([x, y], i) => { if((i + k) % filler.length === 0) flowers += bloom(t, x, y + dy, t === "lavender" ? 16 : 18, fc); }));
+  ls.slice(0, Math.max(5, Math.min(13, main.length * 4 + 3))).map((p, i) => [...p, main[i % Math.max(1, main.length)]]).sort((a, b) => a[1] - b[1]).forEach(([x, y, r, t]) => { if(t) flowers += bloom(t, x, y, r, fc); });
+  // 前面的包裝
+  if(w === "cone") front += P("M58 262 Q150 312 242 262 L150 440 Z", wc, 3) + LN("M150 300 L150 436", 1.4, shade(wc, -.2)) + LN("M70 268 L146 432 M230 268 L154 432", 1.2, shade(wc, .25));
+  else if(w === "kraft") front += P("M60 272 Q150 300 240 272 L174 420 L126 420 Z", "#E3C89C", 3) + P("M84 276 Q150 296 216 276 L164 360 L136 360 Z", wc, 2.4, `opacity=".9"`);
+  else if(w === "basket") front += P("M58 320 L242 320 L222 426 L78 426 Z", "#C99A5A", 3) + [340, 362, 384, 406].map(y => LN(`M${66 + (y - 320) * .2} ${y} L${234 - (y - 320) * .2} ${y}`, 2, "#9A7040")).join("") + Array.from({length:8}, (_, i) => LN(`M${80 + i * 20} 322 L${86 + i * 18} 424`, 1.6, "#9A7040")).join("") + P("M52 312 L248 312 L248 330 L52 330 Z", wc, 2.6);
+  else front += P("M104 300 Q96 330 104 380 Q112 432 150 432 Q188 432 196 380 Q204 330 196 300 Z", "rgba(190,230,255,.55)", 3) + P("M108 340 Q150 350 192 340 Q196 380 186 404 Q150 424 114 404 Q104 380 108 340 Z", "rgba(111,183,232,.45)", 0) + LN("M120 312 Q114 350 120 400", 3, "rgba(255,255,255,.8)") + E(150, 300, 46, 8, wc, 2.4);
+  // 緞帶
+  const ry = w === "cone" ? 368 : w === "kraft" ? 360 : 0;
+  if(ry) front += P(`M150 ${ry} Q118 ${ry - 26} 112 ${ry - 4} Q118 ${ry + 16} 150 ${ry} Q182 ${ry - 26} 188 ${ry - 4} Q182 ${ry + 16} 150 ${ry} Z`, rc, 2.6) + P(`M146 ${ry + 2} L132 ${ry + 44} L142 ${ry + 40} L148 ${ry + 50} Z M154 ${ry + 2} L168 ${ry + 44} L158 ${ry + 40} L152 ${ry + 50} Z`, rc, 2.2) + C(150, ry, 7, shade(rc, -.12), 2.2);
+  // 吊牌
+  if(L.bouquetText){ const t = L.bouquetText, tw = Math.max(70, textW(t, 14)), x = 220, y = low ? 330 : 380;
+    front += LN(`M${ry ? 160 : 196} ${ry || 320} Q${x - 30} ${y - 20} ${x - tw / 2 + 10} ${y + 2}`, 1.4) + P(`M${x - tw / 2} ${y} L${x + tw / 2} ${y} L${x + tw / 2} ${y + 32} L${x - tw / 2} ${y + 32} L${x - tw / 2 - 12} ${y + 16} Z`, "#FFF8E6", 2.4) + TXTB(x + 4, y + 16, t, 14, "#C2386F"); }
+  return s + back + flowers + front;
+}
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
@@ -1619,7 +1685,7 @@ function drawLook(L, opt = {}){
   const out = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${opt.size ? ` width="${opt.size[0]}" height="${opt.size[1]}"` : ""}><defs>${defs.join("")}</defs>${s}</svg>`;
   // 寵物角色：身體和臉另外畫，脖子以上的配件和人共用
   // 靜物角色：蛋糕、禮物盒、卡片
-  const STILL = {cake:drawCake, gift:drawGift, card:drawCard};
+  const STILL = {cake:drawCake, gift:drawGift, card:drawCard, bouquet:drawBouquet};
   if(STILL[L.role]){ s += STILL[L.role](L); if(L.pet && PETS[L.pet]) s += drawPet(L.pet); return out(); }
   if(L.role === "pet"){
     const wear = L.petwear && PETWEAR[L.petwear.id], wf = wear ? fill("petwear", L.petwear) : "";
