@@ -39,6 +39,7 @@ const CATS = [
   {id:"petbody", roles:["pet"], name:"寵物", groups:[
     {type:"pick", key:"species", label:"種類", list:SPECIES, vb:"40 0 220 460"},
     {type:"color", key:"fur", label:"毛色", pal:FUR_PAL},
+    {type:"pick", key:"petMouth", label:"嘴巴", list:PET_MOUTHS, vb:"126 236 48 44", only:L => !["hamster", "pig", "penguin", "duck", "koala"].includes(L.species)},
     {type:"pick", key:"furPat", label:"花色", list:FUR_PATS, only:L => petPats(L).length > 1, keys:petPats, vb:"60 60 180 300"},
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
     {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"},
@@ -92,7 +93,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, petMouth:"w", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
@@ -248,7 +249,7 @@ function randomLook(){
 }
 function randomPet(look){
   const col = () => pick(PAL);
-  look.species = pick(Object.keys(SPECIES)); look.fur = Math.random() < .5 ? SPECIES[look.species].fur : pick(FUR_PAL); look.furPat = pick(petPats(look));
+  look.species = pick(Object.keys(SPECIES)); look.fur = Math.random() < .5 ? SPECIES[look.species].fur : pick(FUR_PAL); look.furPat = pick(petPats(look)); look.petMouth = Math.random() < .5 ? "w" : pick(Object.keys(PET_MOUTHS));
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.blush = Math.random() < .6 ? pick(BLUSH) : "";
   look.petwear = Math.random() < .75 ? {id:pick(avail(PETWEAR)), color:col(), pat:Math.random() < .2 ? pick(["dots", "stripes", "check", "flower"]) : "none"} : null;
   if(Math.random() < .4){ const id = pick(avail(PETTOYS)); look.pettoy = {id, color:PETTOYS[id].color, pat:"none"}; } else look.pettoy = null;
@@ -424,7 +425,7 @@ function sanitizeLook(raw){
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
   ["hairC", "eyeC", "bgC", "fur"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
-  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS], ["petMouth", PET_MOUTHS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
