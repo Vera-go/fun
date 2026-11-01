@@ -382,40 +382,51 @@ function scoreLook(look, t){
   const good = items.filter(x => has(x.it, t.like)), bad = items.filter(x => !hidden(x) && !has(x.it, t.like) && has(x.it, t.dislike));
   const gp = Math.min(45, good.length * 9);
   if(good.length) lines.push([`符合主題：${good.map(x => x.it.name).join("、")}`, gp]);
-  else lines.push(["還沒有符合主題的單品", 0]);
+  else lines.push([STILL_DECO[look.role] ? (look.role === "bouquet" ? "還沒有符合主題的花" : "還沒有符合主題的裝飾") : "還沒有符合主題的單品", 0]);
   // 不適合的單品扣分；日常百搭的單品（casual）只扣一半
-  const penalty = x => x.it.tags.includes("casual") || ["hairpin", "neck", "glasses", "socks"].includes(x.slot) ? 6 : 12, bp = bad.reduce((a, x) => a + penalty(x), 0);
+  const penalty = x => x.it.tags.includes("casual") || ["hairpin", "neck", "glasses", "socks", "deco"].includes(x.slot) ? 6 : 12, bp = bad.reduce((a, x) => a + penalty(x), 0);
   if(bad.length) lines.push([`不太適合這個主題：${bad.map(x => x.it.name).join("、")}`, -bp]);
   pts += gp - bp;
   // 背景
   const bg = BGS[look.bg];
   const bgp = look.bg === t.bg ? 10 : bg && bg.tags.some(x => t.like.includes(x)) ? 5 : 0;
-  lines.push([bgp ? `背景「${bg.name}」很搭` : `背景可以換成「${BGS[t.bg].name}」`, bgp]); pts += bgp;
+  lines.push([bgp === 10 ? `背景「${bg.name}」最搭` : bgp ? `背景「${bg.name}」還算搭（最搭的是「${BGS[t.bg].name}」）` : `背景可以換成「${BGS[t.bg].name}」`, bgp]); pts += bgp;
   // 有沒有穿好
   const dress = look.dress && DRESSES[look.dress.id];
   const pet = look.role === "pet";
   const still = !!STILL_DECO[look.role];
   const dressed = pet || still || (dress && !dress.overTop) || ((look.top || dress) && (look.bottom || dress));
   if(!dressed){ lines.push(["還沒穿好（要有上衣和下身，或是一件洋裝）", -15]); pts -= 15; }
-  if(still){ const n = (look[STILL_DECO[look.role][0]] || []).length; lines.push([n >= 3 ? "裝飾得很用心" : n ? "再多加一點裝飾會更漂亮" : "還沒有裝飾", n >= 3 ? 5 : 0]); pts += n >= 3 ? 5 : 0; }
+  if(still){
+    // 靜物：裝飾的份量（3～7 個最剛好，太少看起來空、太多會亂）
+    const n = (look[STILL_DECO[look.role][0]] || []).length, dp = !n ? -10 : n <= 2 ? 4 : n <= 7 ? 12 : n <= 9 ? 8 : 3;
+    const what = look.role === "bouquet" ? `花 ${n} 種` : `裝飾 ${n} 個`;
+    lines.push([!n ? (look.role === "bouquet" ? "還沒有選花" : "還沒有裝飾") : n <= 2 ? `${what}，可以再多一點` : n <= 7 ? `${what}，份量剛剛好` : n <= 9 ? `${what}，有點多了` : `${what}，太滿了`, dp]); pts += dp;
+    // 有沒有寫上祝福的話（卡片的字、蛋糕的文字牌、禮物和花束的吊牌）
+    const r = look.role, txt = r === "card" ? (look.cardText || look.cardMsg || "").trim() : r === "cake" ? ((look.deco || []).includes("plaque") ? (look.cakeText || "").trim() : "") : r === "gift" ? ((look.giftDeco || []).includes("tag") ? (look.giftText || "").trim() : "") : (look.bouquetText || "").trim();
+    lines.push([txt ? `寫了祝福的話「${txt.slice(0, 10)}」` : r === "card" ? "卡片上還沒有寫字" : "可以加上寫著祝福的話的牌子", txt ? 3 : 0]); pts += txt ? 3 : 0;
+  }
   else if(pet){ lines.push([look.petwear ? "穿了可愛的衣服" : "寵物不穿衣服也很可愛", 5]); pts += 5; }
   else if(look.shoes){ lines.push(["有穿鞋子", 5]); pts += 5; } else { lines.push(["忘了穿鞋子", -5]); pts -= 5; }
   // 配色：衣服的顏色有幾個色系（黑白灰米色不算）
-  const fams = new Set(items.filter(x => !ACC_SLOTS.includes(x.slot) || x.slot === "hat" || x.slot === "scarf").map(x => hueFamily(x.v.color)).filter(f => f !== "neutral"));
+  const stillCols = !still ? [] : look.role === "cake" ? [look.sponge, look.frost] : look.role === "gift" ? [look.boxC, look.ribC] : look.role === "card" ? [look.cardC, look.inkC]
+    : [look.wrapC, look.ribC2, ...((look.blooms || []).some(k => ["rose", "tulip", "carnation", "lily"].includes(k)) ? [look.bloomC] : [])];
+  const fams = new Set((still ? stillCols : items.filter(x => !ACC_SLOTS.includes(x.slot) || x.slot === "hat" || x.slot === "scarf").map(x => x.v.color)).filter(Boolean).map(hueFamily).filter(f => f !== "neutral"));
   const cp = fams.size <= 2 ? 8 : fams.size === 3 ? 4 : -4;
   lines.push([fams.size <= 2 ? `配色很協調（${fams.size ? fams.size + " 個色系" : "以黑白灰米色為主"}）` : fams.size === 3 ? "配色還不錯（3 個色系）" : `顏色有點太多（${fams.size} 個色系）`, cp]); pts += cp;
-  const pats = items.filter(x => x.v.pat && x.v.pat !== "none").length;
-  const pp = pats <= 1 ? 2 : pats === 2 ? 0 : -5;
-  if(pats >= 2) lines.push([pats >= 3 ? `花紋有點多（${pats} 件）` : "兩件有花紋，剛好", pp]); else lines.push([pats ? "一件有花紋，很亮眼" : "素色很清爽", pp]);
+  const pats = still ? 0 : items.filter(x => x.v.pat && x.v.pat !== "none").length;
+  const pp = still ? 0 : pats <= 1 ? 2 : pats === 2 ? 0 : -5;
+  if(still){}
+  else if(pats >= 2) lines.push([pats >= 3 ? `花紋有點多（${pats} 件）` : "兩件有花紋，剛好", pp]); else lines.push([pats ? "一件有花紋，很亮眼" : "素色很清爽", pp]);
   pts += pp;
   // 配件
   const acc = ACC_SLOTS.filter(k => look[k]).length;
   const ap = acc >= 1 && acc <= 3 ? 5 : acc >= 5 ? -3 : 0;
   // 靜物（蛋糕、禮物、卡片、花束）沒有配件和表情：改看裝飾的數量剛不剛好
-  if(still){ const n = (look[STILL_DECO[look.role][0]] || []).length, sp2 = n >= 3 && n <= 7 ? 7 : n > 9 ? -3 : n ? 3 : 0; lines.push([n > 9 ? "裝飾有點太滿了" : n >= 3 ? "裝飾的份量剛剛好" : "裝飾可以再多一點", sp2]); pts += sp2; }
-  else{
+  if(!still){
   lines.push([acc === 0 ? "加一兩件配件會更亮眼" : acc <= 3 ? `配件 ${acc} 件，剛剛好` : acc === 4 ? "配件 4 件，有點多了" : `配件 ${acc} 件，太多了`, ap]); pts += ap;
-  if(["smile", "grin", "cat", "tongue"].includes(look.mouth)){ lines.push(["笑容滿分", 2]); pts += 2; }
+  const smiling = pet ? !["oh", "pout"].includes(look.petMouth) : ["smile", "grin", "cat", "tongue"].includes(look.mouth);
+  if(smiling){ lines.push(["笑容滿分", 2]); pts += 2; }
   }
   const total = Math.max(0, Math.min(100, Math.round(pts)));
   const stars = total >= 90 ? 5 : total >= 78 ? 4 : total >= 62 ? 3 : total >= 45 ? 2 : 1;

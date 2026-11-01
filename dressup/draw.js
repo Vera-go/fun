@@ -1619,7 +1619,7 @@ function bloom(type, x, y, r, c){
 }
 function drawBouquet(L){
   const w = L.wrap || "cone", wc = L.wrapC || "#F7A8C4", rc = L.ribC2 || "#FFFFFF", fc = L.bloomC || "#D9414E";
-  const picks = (L.blooms && L.blooms.length ? L.blooms : ["rose", "babys", "leaves"]).filter(k => BLOOMS[k]);
+  const picks = (L.blooms && L.blooms.length ? L.blooms : ["leaves"]).filter(k => BLOOMS[k]);   // 沒選花：只有綠葉（評分也會說還沒選花）
   const main = picks.filter(k => !["babys", "leaves", "lavender"].includes(k)), filler = picks.filter(k => ["babys", "lavender"].includes(k));
   const low = w === "basket" || w === "vase", dy = low ? 40 : 0;
   // 花的位置：圓頂狀排列，後面（上面）的先畫
