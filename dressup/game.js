@@ -23,6 +23,9 @@ const THEMES = [
   {id:"market",   name:"逛夜市",     desc:"吃雞排、喝珍奶、撈金魚，穿得輕鬆自在。", bg:"market", like:["snack", "casual"], dislike:["fancy"], reward:["hat", "catears"]},
   {id:"festival", name:"夏日祭典",   desc:"看煙火、逛攤位，來一套祭典風。", bg:"festival", like:["festival", "summer"], dislike:["winter", "warm"], reward:["hat", "foxmask"]},
   {id:"halloween", name:"萬聖節派對", desc:"不給糖就搗蛋！來一套有點神祕的萬聖節造型。", bg:"halloween", like:["halloween", "party"], dislike:["sport", "beach"], reward:["hand", "wand"]},
+  {id:"birthday",  name:"幫好朋友慶生", desc:"好朋友生日到了！做一個蛋糕、禮物或卡片，或是穿得熱熱鬧鬧去參加派對。", bg:"birthday", like:["party", "snack", "funny"], dislike:["rain", "winter"], reward:["hat", "partyhat"]},
+  {id:"mothersday", name:"母親節送給媽媽", desc:"準備一束花、一張卡片，或穿得端莊又溫柔，跟媽媽說聲謝謝。", bg:"room", like:["fancy", "formal", "neat"], dislike:["funny", "sport"], reward:["neck", "corsage"]},
+  {id:"picnic",    name:"春天野餐",   desc:"帶著野餐籃去公園，穿得輕鬆、帶點好吃的。", bg:"park", like:["summer", "casual", "snack"], dislike:["formal", "winter"], reward:["hand", "sandwich"]},
   {id:"christmas", name:"聖誕節交換禮物", desc:"聖誕夜和朋友交換禮物，穿得溫暖又有節日感。", bg:"xmas", like:["xmas", "winter", "warm"], dislike:["summer", "beach"], reward:["hat", "antlers"]},
 ];
 const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
@@ -408,8 +411,12 @@ function scoreLook(look, t){
   // 配件
   const acc = ACC_SLOTS.filter(k => look[k]).length;
   const ap = acc >= 1 && acc <= 3 ? 5 : acc >= 5 ? -3 : 0;
+  // 靜物（蛋糕、禮物、卡片、花束）沒有配件和表情：改看裝飾的數量剛不剛好
+  if(still){ const n = (look[STILL_DECO[look.role][0]] || []).length, sp2 = n >= 3 && n <= 7 ? 7 : n > 9 ? -3 : n ? 3 : 0; lines.push([n > 9 ? "裝飾有點太滿了" : n >= 3 ? "裝飾的份量剛剛好" : "裝飾可以再多一點", sp2]); pts += sp2; }
+  else{
   lines.push([acc === 0 ? "加一兩件配件會更亮眼" : acc <= 3 ? `配件 ${acc} 件，剛剛好` : acc === 4 ? "配件 4 件，有點多了" : `配件 ${acc} 件，太多了`, ap]); pts += ap;
   if(["smile", "grin", "cat", "tongue"].includes(look.mouth)){ lines.push(["笑容滿分", 2]); pts += 2; }
+  }
   const total = Math.max(0, Math.min(100, Math.round(pts)));
   const stars = total >= 90 ? 5 : total >= 78 ? 4 : total >= 62 ? 3 : total >= 45 ? 2 : 1;
   return {total, stars, lines, good, bad, fams:fams.size, pats, acc, dressed, bgOk:look.bg === t.bg};

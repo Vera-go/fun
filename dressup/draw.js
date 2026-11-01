@@ -1651,6 +1651,20 @@ function drawBouquet(L){
   return s + back + flowers + front;
 }
 
+// ---------- 新主題的限定單品（挑戰拿到 4 顆星解鎖） ----------
+Object.assign(HATS, {
+  partyhat: {name:"派對帽", tags:["party", "funny"], color:"#4C8FE0", lock:"birthday",
+    draw:(f, c) => P("M118 92 L150 14 L182 92 Q150 102 118 92 Z", f) + [[134, 52, 166, 58], [126, 72, 174, 80]].map(([a, b, x, y]) => LN(`M${a} ${b} Q150 ${b + 8} ${x} ${y - 6}`, 4, "#F6D65A")).join("") + C(150, 14, 9, "#E8679A", 2.4) + [[136, 40], [160, 66], [140, 84]].map(([x, y]) => C(x, y, 2.6, "#fff", 0)).join("") + LN("M122 94 Q150 108 178 94", 1.6)},
+});
+Object.assign(NECKS, {
+  corsage: {name:"康乃馨胸花", tags:["formal", "fancy", "neat"], color:"#D9414E", lock:"mothersday",
+    draw:(f) => [[-1, 1], [1, 1]].map(([o]) => P(`M124 236 Q${124 + o * 14} 244 ${124 + o * 10} 256 Q${124 + o * 2} 246 124 236 Z`, "#5FB36B", 1.8)).join("") + C(124, 234, 11, f, 2.2) + `<path d="${Array.from({length:12}, (_, i) => { const a = i * Math.PI / 6, rr = i % 2 ? 6 : 8; return `${i ? "L" : "M"}${(124 + Math.cos(a) * rr).toFixed(1)} ${(234 + Math.sin(a) * rr).toFixed(1)}`; }).join(" ")} Z" fill="none" stroke="${shade("#D9414E", -.3)}" stroke-width="1.4"/>` + LN("M118 246 L130 246", 2.4, "#F6D65A")},
+});
+Object.assign(HANDS, {
+  sandwich: {name:"三明治", tags:["snack", "summer", "casual"], grip:true, color:"#F6E7C8", lock:"picnic",
+    draw:(f, c) => P("M190 330 L226 330 L208 292 Z", f) + P("M192 324 L224 324 L222 320 L194 320 Z", "#5FB36B", 0) + P("M194 316 L222 316 L220 312 L196 312 Z", "#E0303E", 0) + P("M190 330 L226 330 L208 292 Z", "none", 2.4) + LN("M199 312 L217 312", 1.2, "#F6D65A")},
+});
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
