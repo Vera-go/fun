@@ -405,7 +405,7 @@ function renderGroup(){
     <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色、選一個背景；在合照畫面裡可以直接拖拉角色換位置（往上拖會站到後面）。</p>
     <div class="gwrap"><div class="gleft">
     <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先點選角色吧！</div>`}</div>
-    <div class="gsize">${groupSel && S.group.picks.includes(groupSel) ? `<span>選到的角色：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button>` : `<span class="muted">點一下合照裡的角色，就能放大縮小（也可以用滑鼠滾輪）</span>`}</div>
+    <div class="gsize">${groupSel && S.group.picks.includes(groupSel) ? `<span>選到的角色：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button>` : `<span class="muted">點一下合照裡的角色，就能放大縮小（也可以用滑鼠滾輪，手機用兩根手指捏合）</span>`}</div>
     <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>
     </div><div class="gright">
     <h3>選角色</h3>
@@ -420,21 +420,43 @@ function renderGroup(){
 // 拖拉角色：按住角色拖到想要的位置，放開時記下來
 function groupDrag(){
   const svg = document.querySelector(".gstage svg"); if(!svg) return;
-  let drag = null;
+  let drag = null, pinch = null;
+  const ptrs = new Map();   // 現在按在畫面上的手指（兩根手指就是捏合縮放）
   const pt = e => { const m = svg.getScreenCTM().inverse(); return {x:e.clientX * m.a + e.clientY * m.c + m.e, y:e.clientX * m.b + e.clientY * m.d + m.f}; };
+  const dist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
   svg.addEventListener("pointerdown", e => {
-    const g = e.target.closest(".gch"); if(!g) return;
+    ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY}); try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    // 第二根手指放下：捏合縮放剛剛按住（或選到）的角色
+    if(ptrs.size === 2){
+      const id = drag ? drag.id : groupSel, g = id && svg.querySelector(`[data-gid="${id}"]`);
+      if(g){ const ids = S.group.picks.filter(groupLook), n = ids.length, m = ((S.group.size || {})[id]) || 1;
+        pinch = {g, id, d0:dist(), m0:m, m, base:groupScale(groupLook(id), n, id) / m, p:drag ? drag.p : groupPos(id, ids.indexOf(id), n)}; groupSel = id; }
+      e.preventDefault(); return;
+    }
+    const g = e.target.closest(".gch"); if(!g || ptrs.size > 1) return;
     const ids = S.group.picks.filter(groupLook), i = ids.indexOf(g.dataset.gid), n = ids.length, p = groupPos(g.dataset.gid, i, n), q = pt(e);
     groupSel = g.dataset.gid;
     drag = {g, id:g.dataset.gid, k:groupScale(groupLook(g.dataset.gid), n, g.dataset.gid), p:{...p}, dx:p.x - q.x, dy:p.y - q.y, moved:false};
-    svg.appendChild(g); svg.setPointerCapture(e.pointerId); e.preventDefault();
+    svg.appendChild(g); e.preventDefault();
   });
   svg.addEventListener("pointermove", e => {
-    if(!drag) return; const q = pt(e);
+    if(!ptrs.has(e.pointerId)) return;
+    ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pinch && ptrs.size >= 2){
+      pinch.m = Math.max(.5, Math.min(2, pinch.m0 * dist() / pinch.d0));
+      pinch.g.setAttribute("transform", groupTf(pinch.p, pinch.base * pinch.m)); return;
+    }
+    if(!drag || pinch) return; const q = pt(e);
     drag.p = {x:Math.max(10, Math.min(290, q.x + drag.dx)), y:Math.max(320, Math.min(462, q.y + drag.dy))}; drag.moved = true;
     drag.g.setAttribute("transform", groupTf(drag.p, drag.k));
   });
-  const end = () => { if(!drag) return; if(drag.moved){ S.group.pos = Object.assign({}, S.group.pos, {[drag.id]:drag.p}); save(); } drag = null; renderGroup(); };
+  const end = e => {
+    ptrs.delete(e.pointerId);
+    if(pinch && ptrs.size < 2){ S.group.size = Object.assign({}, S.group.size, {[pinch.id]:pinch.m}); save(); pinch = null; }
+    if(ptrs.size) return;   // 還有手指按著：等全部放開再整理畫面
+    if(drag && drag.moved){ S.group.pos = Object.assign({}, S.group.pos, {[drag.id]:drag.p}); save(); }
+    drag = null; renderGroup();
+  };
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
   // 滑鼠滾輪：在角色上滾動就能放大縮小
   svg.addEventListener("wheel", e => { const g = e.target.closest(".gch"); if(!g) return; e.preventDefault(); groupSel = g.dataset.gid; groupResize(e.deltaY < 0 ? 1.08 : 1 / 1.08); }, {passive:false});
