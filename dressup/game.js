@@ -385,14 +385,16 @@ const GROUP_MAX = 4;
 const groupLook = id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look;
 // 每個角色的位置（腳踩的那一點）：拖過的照拖的位置，沒拖過的照點選順序從左排到右
 const groupPos = (id, i, n) => (S.group.pos || {})[id] || {x:300 * (i + .5) / n, y:452};
-const groupScale = (l, n) => ([1, .8, .66, .56][n - 1] || .56) * (l.role === "pet" ? .78 : 1);
+// 大小：人數越多每個人縮小一點、寵物小一號，再乘上自己調的倍數
+const groupScale = (l, n, id) => ([1, .8, .66, .56][n - 1] || .56) * (l.role === "pet" ? .78 : 1) * (((S.group.size || {})[id]) || 1);
+let groupSel = "";   // 現在選到的角色（可以放大縮小）
 const groupTf = (p, k) => `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${k.toFixed(3)}) translate(-150 -452)`;
 function groupSVG(size){
   const ids = S.group.picks.filter(groupLook), n = ids.length;
   const b = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? BGS[S.group.bg] : BGS.park;
   // 站得比較後面（腳比較高）的先畫，前面的人會擋住後面的人；寵物小一號
   const chars = ids.map((id, i) => ({id, l:groupLook(id), p:groupPos(id, i, n)})).sort((a, b) => a.p.y - b.p.y)
-    .map(c => `<g class="gch" data-gid="${c.id}" transform="${groupTf(c.p, groupScale(c.l, n))}">${drawLook(Object.assign(clone(DEFAULT_LOOK), c.l), {bg:false})}</g>`).join("");
+    .map(c => `<g class="gch${!size && c.id === groupSel ? " sel" : ""}" data-gid="${c.id}" transform="${groupTf(c.p, groupScale(c.l, n, c.id))}">${drawLook(Object.assign(clone(DEFAULT_LOOK), c.l), {bg:false})}</g>`).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${b.draw("#F7D3E0")}${chars}</svg>`;
 }
 function renderGroup(){
@@ -403,6 +405,7 @@ function renderGroup(){
     <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色、選一個背景；在合照畫面裡可以直接拖拉角色換位置（往上拖會站到後面）。</p>
     <div class="gwrap"><div class="gleft">
     <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先點選角色吧！</div>`}</div>
+    <div class="gsize">${groupSel && S.group.picks.includes(groupSel) ? `<span>選到的角色：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button>` : `<span class="muted">點一下合照裡的角色，就能放大縮小（也可以用滑鼠滾輪）</span>`}</div>
     <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>
     </div><div class="gright">
     <h3>選角色</h3>
@@ -422,7 +425,8 @@ function groupDrag(){
   svg.addEventListener("pointerdown", e => {
     const g = e.target.closest(".gch"); if(!g) return;
     const ids = S.group.picks.filter(groupLook), i = ids.indexOf(g.dataset.gid), n = ids.length, p = groupPos(g.dataset.gid, i, n), q = pt(e);
-    drag = {g, id:g.dataset.gid, k:groupScale(groupLook(g.dataset.gid), n), p:{...p}, dx:p.x - q.x, dy:p.y - q.y, moved:false};
+    groupSel = g.dataset.gid;
+    drag = {g, id:g.dataset.gid, k:groupScale(groupLook(g.dataset.gid), n, g.dataset.gid), p:{...p}, dx:p.x - q.x, dy:p.y - q.y, moved:false};
     svg.appendChild(g); svg.setPointerCapture(e.pointerId); e.preventDefault();
   });
   svg.addEventListener("pointermove", e => {
@@ -432,20 +436,29 @@ function groupDrag(){
   });
   const end = () => { if(!drag) return; if(drag.moved){ S.group.pos = Object.assign({}, S.group.pos, {[drag.id]:drag.p}); save(); } drag = null; renderGroup(); };
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  // 滑鼠滾輪：在角色上滾動就能放大縮小
+  svg.addEventListener("wheel", e => { const g = e.target.closest(".gch"); if(!g) return; e.preventDefault(); groupSel = g.dataset.gid; groupResize(e.deltaY < 0 ? 1.08 : 1 / 1.08); }, {passive:false});
+}
+function groupResize(f){
+  if(!groupSel || !S.group.picks.includes(groupSel)) return toast("先點一下要調整的角色");
+  const m = ((S.group.size || {})[groupSel] || 1) * f;
+  S.group.size = Object.assign({}, S.group.size, {[groupSel]:Math.max(.5, Math.min(2, m))}); save(); renderGroup();
 }
 function showGroup(){ openPanel(""); $("panel").classList.add("wide"); renderGroup(); }
 $("bGroup").onclick = showGroup;
 $("ov").addEventListener("click", e => {
   const p = e.target.closest("[data-gp]");
   if(p){ const id = p.dataset.gp, a = S.group.picks;
-    if(a.includes(id)){ S.group.picks = a.filter(x => x !== id); if(S.group.pos) delete S.group.pos[id]; }
+    if(a.includes(id)){ S.group.picks = a.filter(x => x !== id); if(S.group.pos) delete S.group.pos[id]; if(S.group.size) delete S.group.size[id]; }
     else if(a.length >= GROUP_MAX) return toast(`最多放 ${GROUP_MAX} 個角色`);
     else a.push(id);
     save(); return renderGroup(); }
   const g = e.target.closest("[data-gbg]");
   if(g){ S.group.bg = g.dataset.gbg; save(); return renderGroup(); }
-  if(e.target.closest("[data-gclear]")){ S.group.picks = []; S.group.pos = {}; save(); return renderGroup(); }
-  if(e.target.closest("[data-greset]")){ S.group.pos = {}; save(); return renderGroup(); }
+  if(e.target.closest("[data-gclear]")){ S.group.picks = []; S.group.pos = {}; S.group.size = {}; save(); return renderGroup(); }
+  if(e.target.closest("[data-greset]")){ S.group.pos = {}; S.group.size = {}; save(); return renderGroup(); }
+  const z = e.target.closest("[data-gz]");
+  if(z){ if(+z.dataset.gz) return groupResize(+z.dataset.gz); if(S.group.size) delete S.group.size[groupSel]; save(); return renderGroup(); }
   if(e.target.closest("[data-gdl]")) saveImage(groupSVG([600, 940]), "我們的合照");
 });
 
