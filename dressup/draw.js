@@ -863,17 +863,18 @@ function drawPetStar(L, it){
   if(pat === "tabby") pt += [232, 256, 280].map(y => LN(`M88 ${y} Q100 ${y + 4} 110 ${y} M212 ${y} Q200 ${y + 4} 190 ${y}`, 3, dark)).join("");
   if(pat === "spots") pt += [[118, 236, 11], [182, 262, 9], [122, 292, 8], [176, 300, 7]].map(([x, y, r]) => E(x, y, r, r * .8, dark, 0)).join("");
   if(pat === "calico") pt += E(114, 250, 18, 22, "#F6A64A", 0) + E(186, 286, 16, 18, "#2E2B2B", 0);
+  // 前腳：跟胸口連在一起（上面不畫外框，只有腳兩邊的線慢慢浮出來），一起上明暗；衣服蓋住上半段，腳掌再畫在衣服前面
+  const legC = sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
+  if(sp !== "penguin") pt += [134, 166].map(x => `<path d="${tube([[x, 262], [x, 310]], 26)}" fill="${legC}"/>` +
+    LN(`M${x - 13} 282 Q${x - 14} 298 ${x - 13} 312`, 2.4, INK) + LN(`M${x + 13} 286 Q${x + 13.5} 300 ${x + 13} 312`, 2.2, INK)).join("");
   s += it.inBody(pt) + it.bodyShade();
   // 後腳的大腿弧線、腳掌（坐著時從身體兩邊伸出來）
   if(sp !== "penguin") s += LN("M96 304 Q94 280 110 268", 2, edge) + LN(MX("M96 304 Q94 280 110 268"), 2, edge);
   s += E(104, 316, 22, 11, feetC, 2.6) + E(196, 316, 22, 11, feetC, 2.6);
   s += it.wear();
-  // 前腳：短短的，從衣服下面伸出來；企鵝是兩邊的翅膀
   if(sp === "penguin") s += PB("M108 202 Q80 236 78 282 Q94 286 108 256 Z", body);
-  else {
-    const legC = sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
-    s += [134, 166].map(x => P(tube([[x, 270], [x, 312]], 26), legC, 2.6) + LN(`M${x - 5} 312 L${x - 5} 318 M${x + 5} 312 L${x + 5} 318`, 1.6, sp === "panda" ? "#888" : INK)).join("");
-  }
+  else s += [134, 166].map(x => `<path d="M${x - 13} 308 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 308 Z" fill="${legC}"/>` + LN(`M${x - 13} 306 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 306`, 2.4, INK) +
+    LN(`M${x - 4.5} 316 L${x - 4.5} 321 M${x + 4.5} 316 L${x + 4.5} 321`, 1.6, sp === "panda" ? "#888" : INK)).join("");
   // 頭
   s += P(PET_HEAD, headC, 2.8);
   if(pat === "tuxedo") s += `<path d="M150 120 Q120 150 116 186 Q150 200 184 186 Q180 150 150 120 Z" fill="#fff"/>`;
