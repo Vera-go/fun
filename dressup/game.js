@@ -26,7 +26,7 @@ const THEMES = [
   {id:"christmas", name:"聖誕節交換禮物", desc:"聖誕夜和朋友交換禮物，穿得溫暖又有節日感。", bg:"xmas", like:["xmas", "winter", "warm"], dislike:["summer", "beach"], reward:["hat", "antlers"]},
 ];
 const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
-const SLOT_LISTS = {top:TOPS, bottom:BOTTOMS, dress:DRESSES, outer:OUTERS, socks:SOCKS, shoes:SHOES, hat:HATS, glasses:GLASSES, hairpin:HAIRPINS, neck:NECKS, scarf:SCARVES, bag:BAGS, hand:HANDS, petwear:PETWEAR};
+const SLOT_LISTS = {top:TOPS, bottom:BOTTOMS, dress:DRESSES, outer:OUTERS, socks:SOCKS, shoes:SHOES, hat:HATS, glasses:GLASSES, hairpin:HAIRPINS, neck:NECKS, scarf:SCARVES, bag:BAGS, hand:HANDS, petwear:PETWEAR, pettoy:PETTOYS};
 const KEY_LISTS = {...SLOT_LISTS, eyes:EYES};
 const PET_ACC = ["hat", "glasses", "hairpin", "neck", "scarf"];   // 寵物可以戴的配件
 const human = L => L.role !== "pet";
@@ -41,7 +41,8 @@ const CATS = [
     {type:"color", key:"fur", label:"毛色", pal:FUR_PAL},
     {type:"pick", key:"furPat", label:"花色", list:FUR_PATS, only:L => petPats(L).length > 1, keys:petPats, vb:"60 60 180 300"},
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
-    {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"}]},
+    {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"},
+    {type:"slot", key:"pettoy", label:"抱著的玩具", list:PETTOYS, vb:"95 360 110 90"}]},
   {id:"hair", roles:["girl", "boy"], name:"髮型", groups:[
     {type:"pick", key:"hairB", label:"髮型", list:HAIRB, vb:"60 26 180 290"},
     {type:"pick", key:"hairF", label:"瀏海", list:HAIRF, vb:"84 44 132 132"},
@@ -91,7 +92,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
@@ -250,6 +251,7 @@ function randomPet(look){
   look.species = pick(Object.keys(SPECIES)); look.fur = Math.random() < .5 ? SPECIES[look.species].fur : pick(FUR_PAL); look.furPat = pick(petPats(look));
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.blush = Math.random() < .6 ? pick(BLUSH) : "";
   look.petwear = Math.random() < .75 ? {id:pick(avail(PETWEAR)), color:col(), pat:Math.random() < .2 ? pick(["dots", "stripes", "check", "flower"]) : "none"} : null;
+  if(Math.random() < .4){ const id = pick(avail(PETTOYS)); look.pettoy = {id, color:PETTOYS[id].color, pat:"none"}; } else look.pettoy = null;
   ACC_SLOTS.forEach(k => look[k] = null);
   for(let n = Math.floor(Math.random() * 3), tries = 0; n > 0 && tries < 20; tries++){ const k = pick(PET_ACC); if(look[k]) continue; look[k] = {id:pick(avail(SLOT_LISTS[k])), color:col(), pat:"none"}; n--; }
   look.bg = pick(Object.keys(BGS)); look.pet = "";
@@ -280,7 +282,7 @@ function hueFamily(hex){
   return String(Math.round(h / 45) % 8);
 }
 function worn(look){
-  if(look.role === "pet") return ["petwear", ...PET_ACC].filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
+  if(look.role === "pet") return ["petwear", "pettoy", ...PET_ACC].filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
   const dress = look.dress && DRESSES[look.dress.id];
   const slots = ["dress", "outer", "socks", "shoes", ...ACC_SLOTS];
   if(!dress) slots.unshift("top", "bottom");
@@ -555,7 +557,7 @@ const CONTESTS = [
 const weekTags = () => contestOf(weekOf(Date.now()).key).tags || [];
 function weekItems(){
   const tags = weekTags(); if(!tags.length) return "";
-  const where = {top:"上衣", bottom:"下身", dress:"洋裝", outer:"外套", socks:"鞋襪", shoes:"鞋襪", hat:"配件", glasses:"配件", hairpin:"配件", neck:"配件", scarf:"配件", bag:"配件", hand:"配件"};
+  const where = {top:"上衣", bottom:"下身", dress:"洋裝", outer:"外套", socks:"鞋襪", shoes:"鞋襪", hat:"配件", glasses:"配件", hairpin:"配件", neck:"配件", scarf:"配件", bag:"配件", hand:"配件", petwear:"寵物", pettoy:"寵物"};
   const list = Object.entries(SLOT_LISTS).flatMap(([k, items]) => Object.values(items).filter(it => (it.tags || []).some(t => tags.includes(t))).map(it => `${it.name}（${where[k]}${it.lock && !unlocked(it.lock) ? "，挑戰解鎖" : ""}）`));
   const bgs = Object.values(BGS).filter(b => b.tags.some(t => tags.includes(t))).map(b => `${b.name}（背景）`);
   return [...list, ...bgs].join("、");

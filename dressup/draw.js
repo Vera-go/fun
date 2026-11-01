@@ -801,7 +801,7 @@ const PETWEAR = {
     draw:(f, c) => P("M106 206 C98 246 96 292 98 336 Q150 352 202 336 C204 292 202 246 194 206 Q150 220 106 206 Z", f) + LN("M100 326 Q150 342 200 326", 3, shade(c, -.2)) + LN("M110 214 Q150 228 190 214", 4, shade(c, -.2)) + [250, 280].map(y => LN(`M112 ${y} Q150 ${y + 8} 188 ${y}`, 1.6, shade(c, .35), `stroke-dasharray="4 4"`)).join("")},
   hoodie:   {name:"帽 T", tags:["casual", "warm", "sport"], color:"#B9A3E8",
     draw:(f, c) => P("M104 204 C96 246 94 292 97 340 Q150 356 203 340 C206 292 204 246 196 204 Q150 222 104 204 Z", f) + P("M124 290 L176 290 L180 324 L120 324 Z", shade(c, -.1), 2) + LN("M140 216 L138 250 M160 216 L162 250", 2) + C(138, 252, 2.4, "#fff", 1.4) + C(162, 252, 2.4, "#fff", 1.4)},
-  tutu:     {name:"蓬蓬裙", tags:["party", "fancy"], color:"#F7A8C4",
+  tutu:     {name:"蓬蓬裙", tags:["party", "fancy"], color:"#F7A8C4", free:true,
     draw:(f, c) => P("M86 312 Q84 290 110 280 L190 280 Q216 290 214 312 Q200 324 186 316 Q172 328 158 318 Q150 328 142 318 Q128 328 114 316 Q100 324 86 312 Z", shade(c, .35)) + P("M108 206 C102 240 102 262 108 288 Q150 298 192 288 C198 262 198 240 192 206 Q150 220 108 206 Z", f) + P("M150 228 L138 220 L138 236 Z M150 228 L162 220 L162 236 Z", "#fff", 1.8) + C(150, 228, 3, "#fff", 1.6)},
   raincoat: {name:"雨衣", tags:["rain"], color:"#F6D65A",
     draw:(f, c) => P("M104 202 C94 250 90 310 92 372 Q150 386 208 372 C210 310 206 250 196 202 Q150 218 104 202 Z", f) + LN("M150 214 L150 376", 2) + [244, 284, 324].map(y => C(158, y, 3, shade(c, -.3), 1.4)).join("")},
@@ -821,8 +821,34 @@ const PETWEAR = {
   pajama:   {name:"睡衣", tags:["casual", "warm"], color:"#9BD0F5",
     draw:(f, c) => P("M104 204 C96 246 94 292 97 340 Q150 356 203 340 C206 292 204 246 196 204 Q150 222 104 204 Z", f) + PB("M108 206 Q128 220 150 226 L136 236 Z", "#fff", 1.8) + LN("M150 226 L150 346", 1.8) +
       [250, 282, 314].map(y => C(150, y, 2.6, "#fff", 1.2)).join("") + [[124, 262], [178, 300], [126, 322], [176, 250]].map(([x, y]) => star(x, y, 5, "#FFE98A", 1)).join("")},
+  dino:     {name:"恐龍裝", tags:["funny", "party", "casual"], color:"#5FB36B",
+    back:(f, c) => PB("M120 224 L100 238 L120 252 Z M110 266 L88 281 L110 296 Z M108 308 L88 322 L108 336 Z", f, 2.2),
+    draw:(f, c) => P("M104 204 C96 246 94 292 97 340 Q150 356 203 340 C206 292 204 246 196 204 Q150 222 104 204 Z", f) + E(150, 290, 34, 48, mix(c, "#FFFFFF", .55), 0) +
+      [262, 286, 310].map(y => LN(`M124 ${y} Q150 ${y + 6} 176 ${y}`, 1.6, shade(c, -.25))).join("") + LN("M100 330 Q150 346 200 330", 2.4, shade(c, -.25))},
+  overalls: {name:"吊帶褲", tags:["casual", "school", "snack"], color:"#5B84C4",
+    draw:(f, c) => LN("M126 206 L130 262 M174 206 L170 262", 7) + LN("M126 206 L130 262 M174 206 L170 262", 4.4, f) + P("M120 256 L180 256 L182 284 L118 284 Z", f) +
+      P("M98 280 L202 280 C205 300 205 320 203 340 Q150 356 97 340 C95 320 95 300 98 280 Z", f) + C(130, 262, 3, "#F6D65A", 1.4) + C(170, 262, 3, "#F6D65A", 1.4) + P("M138 262 L162 262 L161 276 L139 276 Z", f, 1.6) +
+      LN("M100 288 L200 288", 1.4, "#F2C14E", `stroke-dasharray="4 3"`)},
+  lei:      {name:"夏威夷花圈", tags:["summer", "beach", "party"], color:"#F7A8C4", free:true,
+    draw:(f, c) => Array.from({length:7}, (_, i) => { const t = i / 6, x = 106 + t * 88, y = 204 + Math.sin(t * Math.PI) * 30, col = ["#F7A8C4", "#F6D65A", "#FFFFFF"][i % 3] === "#F7A8C4" ? c : ["#F7A8C4", "#F6D65A", "#FFFFFF"][i % 3];
+      return [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 8, y + Math.sin(a * Math.PI / 180) * 8, 7, col, 1.8)).join("") + C(x, y, 4, "#F6A64A", 1.4); }).join("")},
   kimono:   {name:"浴衣", tags:["festival", "summer"], color:"#9BD0F5",
     draw:(f, c) => P("M104 204 C96 250 94 300 97 352 Q150 366 203 352 C206 300 204 250 196 204 Q150 220 104 204 Z", f) + LN("M120 210 L160 300 M180 210 L150 260", 2.2) + P("M98 290 L202 290 L202 310 L98 310 Z", "#D9414E", 2.2) + [[124, 250], [176, 330], [130, 340]].map(([x, y]) => C(x, y, 4, "#fff", 0)).join("")},
+};
+// 寵物抱在前腳的小玩具
+const PETTOYS = {
+  fish:   {name:"小魚乾", tags:["snack", "casual"], color:"#6E9BD1",
+    draw:(f, c) => P("M126 300 Q140 286 158 296 L172 286 L170 306 L158 302 Q140 314 126 300 Z", f) + LN("M146 292 L146 308", 1.4, shade(c, -.3)) + C(134, 298, 1.8, INK, 0)},
+  bone:   {name:"骨頭", tags:["snack", "casual"], color:"#F6E7C8",
+    draw:(f, c) => U(["M130 294 L170 294 L170 306 L130 306 Z", CIRC(129, 292, 6.5), CIRC(129, 308, 6.5), CIRC(171, 292, 6.5), CIRC(171, 308, 6.5)], f)},
+  yarn:   {name:"毛線球", tags:["casual", "warm"], color:"#E8679A",
+    draw:(f, c) => LN("M162 306 Q186 314 180 330", 2.2, f) + C(150, 296, 16, f) + LN("M138 286 Q150 300 140 310 M146 282 Q162 296 152 312 M156 282 Q168 292 164 306", 1.4, shade(c, -.3))},
+  carrot: {name:"紅蘿蔔", tags:["snack", "casual"], color:"#F59A4A",
+    draw:(f, c) => P("M146 288 L140 270 L150 280 L156 268 L155 288 Z", "#5FB36B", 1.8) + P("M138 290 Q150 284 162 290 L153 324 Q150 330 147 324 Z", f) + LN("M143 300 L149 300 M152 310 L157 310", 1.4, shade(c, -.3))},
+  seed:   {name:"葵花籽", tags:["snack", "casual"], color:"#2E2B2B",
+    draw:(f, c) => P("M150 278 Q166 292 162 308 Q150 320 138 308 Q134 292 150 278 Z", f) + LN("M150 284 L150 312 M143 290 Q141 300 144 310 M157 290 Q159 300 156 310", 1.6, "#fff")},
+  ball:   {name:"小皮球", tags:["sport", "casual", "summer"], color:"#D9414E",
+    draw:(f, c) => C(150, 296, 16, f) + `<path d="M134.5 292 Q150 300 165.5 292 L165 302 Q150 310 135 302 Z" fill="#fff"/>` + C(150, 296, 16, "none") + C(144, 288, 3, "rgba(255,255,255,.7)", 0)},
 };
 const petTail = (sp, fur) => {
   if(sp === "bunny") return C(206, 306, 13, fur);
@@ -870,7 +896,7 @@ function drawPetStar(L, it){
   if(sp !== "penguin") pt += [137, 163].map(x => `<path d="${tube([[x, 262], [x, 310]], 26)}" fill="${legC}"/>`).join("") +
     it.fade(LN("M124 274 Q122.5 296 124 312 M150 278 L150 312 M176 274 Q177.5 296 176 312", 2.4, INK));
   s += it.inBody(pt) + it.bodyShade();
-  s += it.wear();
+  s += it.wear() + it.toy();
   if(sp === "penguin") s += PB("M108 202 Q80 236 78 282 Q94 286 108 256 Z", body);
   else s += [137, 163].map(x => `<path d="M${x - 13} 308 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 308 Z" fill="${legC}"/>` + LN(`M${x - 13} 306 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 306`, 2.4, INK) +
     LN(`M${x - 4.5} 316 L${x - 4.5} 321 M${x + 4.5} 316 L${x + 4.5} 321`, 1.6, sp === "panda" ? "#888" : INK)).join("");
@@ -939,14 +965,16 @@ function drawLook(L, opt = {}){
   if(L.role === "pet"){
     const wear = L.petwear && PETWEAR[L.petwear.id], wf = wear ? fill("petwear", L.petwear) : "";
     const fit = svg => `<g transform="${PET_WEAR_FIT}">${svg}</g>`, inBody = svg => svg ? `<g clip-path="url(#${clip(`<path d="${PET_BODY}"/>`)})">${svg}</g>` : "";
-    const tutu = wear && L.petwear.id === "tutu";   // 蓬蓬裙要蓬出身體外面，不裁
+    const free = wear && wear.free;   // 蓬蓬裙、花圈要蓬出身體外面，不裁
+    const toy = L.pettoy && PETTOYS[L.pettoy.id];
     s += `<g transform="${PET_FIT}">`;
     defs.push(`<linearGradient id="${uid}-fd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>` +
       `<mask id="${uid}-fm" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><rect x="0" y="270" width="${W}" height="26" fill="url(#${uid}-fd)"/><rect x="0" y="295" width="${W}" height="60" fill="#fff"/></mask>`);
     s += drawPetStar(L, {
       inBody, fade:svg => `<g mask="url(#${uid}-fm)">${svg}</g>`,
       back:() => wear && wear.back ? fit(shaded(wear.back(wf, L.petwear.color))) : "",
-      wear:() => wear ? (tutu ? fit(shaded(wear.draw(wf, L.petwear.color))) : inBody(fit(shaded(wear.draw(wf, L.petwear.color)))) + P(PET_BODY, "none", 2.8)) : "",
+      toy:() => toy ? `<g transform="translate(150 290) scale(1.35) translate(-150 -296)">${shaded(toy.draw(fill("pettoy", L.pettoy), L.pettoy.color))}</g>` : "",   // 玩具放大一點，下半部讓前腳抱著
+      wear:() => wear ? (free ? fit(shaded(wear.draw(wf, L.petwear.color))) : inBody(fit(shaded(wear.draw(wf, L.petwear.color)))) + P(PET_BODY, "none", 2.8)) : "",
       bodyShade:() => overlay(`<path d="${PET_BODY}"/>`, "sk"),
       headShade:() => overlay(`<path d="${PET_HEAD}"/>`, "sk"),
     });
