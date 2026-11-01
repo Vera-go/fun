@@ -386,7 +386,30 @@ $("bWardrobe").onclick = showWardrobe;
 
 // ---------- 合照：從衣櫥挑幾個角色（不帶自己的背景），一起放到同一個背景前面，還能擺上房子、家具、花草樹木等小物 ----------
 const GROUP_MAX = 8, PROP_MAX = 40;
-const groupLook = id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look;
+// 角色的樣子：存過的合照會把當時的樣子一起存起來（looks），衣櫥刪掉了也還在
+const groupLook = id => (S.group.looks || {})[id] || (id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look);
+// ---------- 儲存的合照（最多 12 張，存在這個瀏覽器） ----------
+const SCENE_MAX = 12;
+if(!S.scenes) S.scenes = [];
+function withGroup(g, fn){ const keep = S.group; S.group = g; try{ return fn(); } finally { S.group = keep; } }
+function saveScene(asNew){
+  if(!gHasAny()) return toast("合照裡還沒有東西");
+  const g = clone(S.group), looks = {};
+  // 「現在的穿搭」會一直變：存的時候換成一個固定的代號，把當下的樣子記下來
+  g.picks = g.picks.map(id => { if(id !== "now") return id; const nid = "n" + newId(); ["pos", "size", "rot", "flip", "z"].forEach(k => { if(g[k] && g[k].now !== undefined){ g[k][nid] = g[k].now; delete g[k].now; } }); looks[nid] = clone(L()); return nid; });
+  g.picks.forEach(id => { if(!looks[id]) looks[id] = clone(withGroup(S.group, () => groupLook(id))); });
+  g.looks = looks; delete g.sceneId;
+  const d = new Date(), at = `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const old = !asNew && S.group.sceneId && S.scenes.find(x => x.id === S.group.sceneId);
+  if(old){ old.group = g; old.at = at; toast("合照更新好了！"); }
+  else{
+    if(S.scenes.length >= SCENE_MAX) return toast(`最多存 ${SCENE_MAX} 張合照，先刪掉幾張吧`);
+    const id = newId(); S.scenes.unshift({id, at, group:g}); S.group.sceneId = id; toast("合照存好了！");
+  }
+  // 存好後，現在這張也改用存下來的版本（角色的樣子固定下來）
+  const cur = S.scenes.find(x => x.id === S.group.sceneId); S.group = Object.assign(clone(cur.group), {sceneId:cur.id});
+  save(); renderGroup();
+}
 const GW = () => S.group.wide ? (S.group.ww || 600) : 300;   // 合照寬度：直式 300、橫式照螢幕比例（至少 600，高度都是 470）
 // 橫式的寬度：讓合照剛好撐滿右邊選單以外的空間；寬度變了，大家的左右位置跟著等比例移動
 function groupFit(){
@@ -442,7 +465,8 @@ function groupLayer(how){
 }
 function renderGroup(){
   // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
-  const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`}))];
+  const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`})),
+    ...Object.entries(S.group.looks || {}).filter(([id]) => !S.wardrobe.some(w => w.id === id)).map(([id, look]) => ({id, look, name:`合照裡的${(ROLES[look.role] || ROLES.girl).name}`}))];
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
   S.group.props = (S.group.props || []).filter(p => PROPS[p.t]);
   const keep = document.querySelector(".gright"), top = keep ? keep.scrollTop : 0;   // 右邊選單重畫後停在原本捲到的地方
@@ -461,6 +485,10 @@ function renderGroup(){
       : `<span class="muted">點一下合照裡的角色或小物，就能放大縮小、轉角度（也可以用滑鼠滾輪；手機用兩根手指捏合、轉動）</span>`}</div>
     <div class="gmode"><button class="btn sm ${S.group.wide ? "" : "acc"}" data-gwide="0">直式</button><button class="btn sm ${S.group.wide ? "acc" : ""}" data-gwide="1">橫式</button></div>
     <div class="btns"><button class="btn acc" data-gdl ${gHasAny() ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>角色重新排好</button><button class="btn" data-gclear>全部清掉</button><button class="btn" data-close>關閉</button></div>
+    <div class="btns"><button class="btn vio" data-gsave>${S.group.sceneId ? "儲存（更新這張）" : "儲存合照"}</button>${S.group.sceneId ? `<button class="btn" data-gsavenew>另存一張新的</button>` : ""}<button class="btn" data-gnew>開一張新的</button></div>
+    ${S.scenes.length ? `<h3>我的合照（${S.scenes.length}/${SCENE_MAX}）</h3><div class="gscenes">${S.scenes.map(sc => `<div class="gsc ${sc.id === S.group.sceneId ? "on" : ""}">
+      <button class="gsc-open" data-gopen="${sc.id}" title="打開這張合照">${withGroup(Object.assign({}, sc.group, {wide:sc.group.wide}), () => groupSVG([0, 0]).replace(/ width="0" height="0"/, ""))}</button>
+      <div class="gsc-tx">${esc(sc.at)}<button class="gsc-del" data-gdelsc="${sc.id}" title="刪掉這張">刪除</button></div></div>`).join("")}</div>` : ""}
     <h3>選角色</h3>
     <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
       return `<button class="it ${n >= 0 ? "on" : ""}" data-gp="${o.id}">${n >= 0 ? `<span class="wk">${n + 1}</span>` : ""}${drawLook(Object.assign(clone(DEFAULT_LOOK), o.look), {bg:false, vb:"40 20 220 440"})}${esc(o.name)}</button>`; }).join("")}</div>
@@ -594,6 +622,16 @@ $("ov").addEventListener("click", e => {
   if(wd){ const w = wd.dataset.gwide === "1"; if(!!S.group.wide !== w){ const f = w ? (S.group.ww || 600) / 300 : 300 / GW(); Object.values(gMap("pos")).forEach(p => p.x *= f); S.group.wide = w; save(); } return renderGroup(); }
   const z = e.target.closest("[data-gz]");
   if(z && groupSel){ if(+z.dataset.gz) return groupResize(+z.dataset.gz); delete gMap("size")[groupSel]; save(); return renderGroup(); }
+  if(e.target.closest("[data-gsave]")) return saveScene(false);
+  if(e.target.closest("[data-gsavenew]")) return saveScene(true);
+  if(e.target.closest("[data-gnew]")){ if(gHasAny() && !confirm("要開一張新的合照嗎？還沒儲存的修改會不見喔")) return; S.group = {picks:[], props:[], bg:S.group.bg || "park", wide:S.group.wide, ww:S.group.ww}; groupSel = ""; save(); return renderGroup(); }
+  const op = e.target.closest("[data-gopen]");
+  if(op){ const sc = S.scenes.find(x => x.id === op.dataset.gopen); if(!sc) return;
+    if(sc.id !== S.group.sceneId && gHasAny() && !S.group.sceneId && !confirm("要打開這張合照嗎？現在這張還沒儲存的話會不見喔")) return;
+    const ww = S.group.ww; S.group = Object.assign(clone(sc.group), {sceneId:sc.id}); if(S.group.wide && ww && S.group.ww !== ww){ /* 螢幕寬度不同：groupFit 會照比例調整 */ }
+    groupSel = ""; save(); toast("打開合照了"); return renderGroup(); }
+  const ds = e.target.closest("[data-gdelsc]");
+  if(ds){ if(!confirm("確定要刪掉這張合照嗎？")) return; S.scenes = S.scenes.filter(x => x.id !== ds.dataset.gdelsc); if(S.group.sceneId === ds.dataset.gdelsc) delete S.group.sceneId; save(); return renderGroup(); }
   if(e.target.closest("[data-gdl]")) saveImage(groupSVG([GW() * 2, 940]), "我們的合照", GW() * 2);
 });
 
