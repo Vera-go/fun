@@ -39,7 +39,7 @@ const CATS = [
   {id:"petbody", roles:["pet"], name:"寵物", groups:[
     {type:"pick", key:"species", label:"種類", list:SPECIES, vb:"40 0 220 460"},
     {type:"color", key:"fur", label:"毛色", pal:FUR_PAL},
-    {type:"pick", key:"furPat", label:"花色", list:FUR_PATS, vb:"60 60 180 300"},
+    {type:"pick", key:"furPat", label:"花色", list:FUR_PATS, only:L => petPats(L).length > 1, keys:petPats, vb:"60 60 180 300"},
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
     {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"}]},
   {id:"hair", roles:["girl", "boy"], name:"髮型", groups:[
@@ -163,7 +163,7 @@ function renderGroups(){
       const none = g.type === "slot" || g.none || multi;
       h += `<div class="items">`;
       if(none) h += `<button class="it ${!cur ? "on" : ""}" data-t="${g.type}" data-k="${g.key}" data-v=""><span class="none">✕</span>不要</button>`;
-      h += Object.entries(g.list).map(([id, it]) => {
+      h += Object.entries(g.list).filter(([id]) => !g.keys || g.keys(look).includes(id)).map(([id, it]) => {
         const lk = lockedItem(it);
         const wk = !lk && weekTags().length && (it.tags || []).some(t => weekTags().includes(t));
         return `<button class="it ${(multi ? sel.includes(id) : cur === id) ? "on" : ""} ${lk ? "lock" : ""}" data-t="${g.type}" data-k="${g.key}" data-v="${id}">${thumb(g, id)}${lk ? `<span class="lk">挑戰解鎖</span>` : ""}${wk ? `<span class="wk">本週</span>` : ""}${esc(it.name)}</button>`;
@@ -209,7 +209,7 @@ $("groups").addEventListener("click", e => {
     const it = KEY_LISTS[k] && KEY_LISTS[k][v];
     if(it && lockedItem(it)){ toast(`在「${TH[it.lock].name}」挑戰拿到 4 顆星就能解鎖`); return; }
     if(k === "role"){ if(look.role !== v) applyRole(look, v); }
-    else if(k === "species"){ look.species = v; if(SPECIES[v].fur) look.fur = SPECIES[v].fur; }
+    else if(k === "species"){ look.species = v; if(SPECIES[v].fur) look.fur = SPECIES[v].fur; if(!petPats(look).includes(look.furPat)) look.furPat = "plain"; }
     else look[k] = v;
   }else if(t === "scol"){ look[k].color = v; look[k].custom = true; }
   else if(t === "spat"){ look[k].pat = v; look[k].custom = true; }
@@ -247,7 +247,7 @@ function randomLook(){
 }
 function randomPet(look){
   const col = () => pick(PAL);
-  look.species = pick(Object.keys(SPECIES)); look.fur = Math.random() < .5 ? SPECIES[look.species].fur : pick(FUR_PAL); look.furPat = pick(Object.keys(FUR_PATS));
+  look.species = pick(Object.keys(SPECIES)); look.fur = Math.random() < .5 ? SPECIES[look.species].fur : pick(FUR_PAL); look.furPat = pick(petPats(look));
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.blush = Math.random() < .6 ? pick(BLUSH) : "";
   look.petwear = Math.random() < .75 ? {id:pick(avail(PETWEAR)), color:col(), pat:Math.random() < .2 ? pick(["dots", "stripes", "check", "flower"]) : "none"} : null;
   ACC_SLOTS.forEach(k => look[k] = null);

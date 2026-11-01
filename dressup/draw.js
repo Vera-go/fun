@@ -779,17 +779,18 @@ Object.assign(HANDS, {
 ROLES.pet = {name:"寵物"};
 const SPECIES = {
   cat:     {name:"貓咪", fur:"#F6A64A"},
-  dog:     {name:"狗狗", fur:"#C98A4B"},
-  bunny:   {name:"兔子", fur:"#FFFFFF"},
-  bear:    {name:"小熊", fur:"#C98A4B"},
-  fox:     {name:"狐狸", fur:"#F6A64A"},
-  panda:   {name:"貓熊", fur:"#FFFFFF"},
-  hamster: {name:"倉鼠", fur:"#E8B57A"},
-  pig:     {name:"小豬", fur:"#F7A8C4"},
-  penguin: {name:"企鵝", fur:"#2E2B2B"},
+  dog:     {name:"狗狗", fur:"#C98A4B", pats:["plain", "spots", "tuxedo"]},
+  bunny:   {name:"兔子", fur:"#FFFFFF", pats:["plain", "spots", "tuxedo"]},
+  bear:    {name:"小熊", fur:"#C98A4B", pats:["plain", "tuxedo"]},
+  fox:     {name:"狐狸", fur:"#F6A64A", pats:["plain"]},
+  panda:   {name:"貓熊", fur:"#FFFFFF", pats:["plain"]},
+  hamster: {name:"倉鼠", fur:"#E8B57A", pats:["plain", "spots", "tuxedo"]},
+  pig:     {name:"小豬", fur:"#F7A8C4", pats:["plain", "spots"]},
+  penguin: {name:"企鵝", fur:"#2E2B2B", pats:["plain"]},
 };
 const FUR_PAL = ["#F6A64A", "#FFFFFF", "#2E2B2B", "#C98A4B", "#9AA0A8", "#F6E7C8", "#E8B57A", "#B9A3E8", "#F7A8C4"];
 const FUR_PATS = {plain:{name:"素色"}, tabby:{name:"虎斑"}, spots:{name:"斑點"}, tuxedo:{name:"白肚子"}, calico:{name:"三花"}};
+const petPats = L => (SPECIES[L.species] || SPECIES.cat).pats || Object.keys(FUR_PATS);   // 這個種類會有的花色（虎斑、三花只有貓咪）
 const PET_BODY = "M120 180 C100 204 88 246 90 280 C92 308 118 320 150 320 C182 320 208 308 210 280 C212 246 200 204 180 180 Z";
 const PET_FIT = "translate(150 434) scale(1.1) translate(-150 -322)";   // 整隻寵物（含帽子、眼鏡）往下移到地上、放大一點
 const PET_WEAR_FIT = "translate(150 186) scale(1.3 .8) translate(-150 -204)";   // 衣服原本照長身體畫的，縮到圓身體上
@@ -845,7 +846,7 @@ const petEars = (sp, fur) => {
 };
 // 畫寵物角色（drawLook 裡呼叫；衣服的填色、明暗用 drawLook 傳進來的 it）
 function drawPetStar(L, it){
-  const sp = SPECIES[L.species] ? L.species : "cat", fur = L.fur || "#F6A64A", pat = L.furPat || "plain";
+  const sp = SPECIES[L.species] ? L.species : "cat", fur = L.fur || "#F6A64A", pat = petPats({species:sp}).includes(L.furPat) ? L.furPat : "plain";
   const light = mix(fur, "#FFFFFF", .6), dark = shade(fur, lum(fur) < .25 ? .3 : -.28);
   const body = sp === "panda" ? "#fff" : fur, headC = sp === "panda" ? "#fff" : fur;
   let s = "";
