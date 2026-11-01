@@ -735,15 +735,58 @@ Object.assign(NECKS, {
   necktie: {name:"領帶", tags:["formal", "neat", "school"], color:"#2C3E70", draw:(f) => P("M150 214 L144 222 L147 266 L150 274 L153 266 L156 222 Z", f, 2) + P("M145 212 L155 212 L153 222 L147 222 Z", f, 1.8)},
 });
 
+// ---------- 男生第二批：上衣、外套、帽子、手上拿的 ----------
+Object.assign(TOPS, {
+  dino:       {name:"恐龍 T 恤", tags:["casual", "snack", "funny"], color:"#F6E7C8",
+    draw:(f, c) => U([...sleevesS(26), TORSO], f) + LN("M137 211 Q150 222 163 211") +
+      P("M128 280 Q126 262 140 258 Q150 256 154 248 Q156 240 164 240 Q174 240 174 250 Q174 258 166 260 Q166 270 172 278 L168 282 L162 272 Q158 284 150 286 L150 292 L144 292 L144 286 L136 286 L136 292 L130 292 Z", "#5FB36B", 1.8) +
+      C(166, 247, 1.6, INK, 0) + P("M140 258 L144 250 L148 257 M132 266 L134 258 L140 262", "#F6D65A", 1.4)},
+  turtleneck: {name:"高領毛衣", long:true, tags:["warm", "winter", "neat"], color:"#2E2B2B",
+    draw:(f, c) => U([...sleevesL(27), TORSO, "M136 192 Q150 196 164 192 L165 214 Q150 220 135 214 Z"], f) + cuffs(27) + LN("M136 200 Q150 204 164 200 M136 207 Q150 211 164 207", 1.4, shade(c, lum(c) < .25 ? .3 : -.25))},
+});
+Object.assign(OUTERS, {
+  varsity: {name:"棒球外套", long:true, tags:["casual", "school", "sport"], color:"#2C3E70",
+    draw:(f, c) => U(sleevesL(29), "#F6E7C8") + cuffs(29) + U([OUTER_PANEL, MX(OUTER_PANEL)], f) + PB("M140 208 L132 228 L144 236", "none", 2.2) +
+      PB("M114 292 L143 292 L143 302 L114 302 Z", shade(c, -.2), 1.6) + [232, 252, 272].map(y => C(146, y, 2.2, "#F6E7C8", 1.2)).join("") +
+      `<text x="128" y="262" text-anchor="middle" font-size="20" font-weight="900" fill="#F6E7C8" stroke="${INK}" stroke-width="1.2" font-family="system-ui,sans-serif">B</text>`},
+  denimjk: {name:"牛仔外套", long:true, tags:["casual", "snack"], color:"#5B84C4",
+    draw:(f, c) => U([...sleevesL(29), OUTER_PANEL, MX(OUTER_PANEL)], f) + cuffs(29) + PB("M140 208 L130 226 L143 236", "none", 2.2) +
+      PB("M118 240 L138 240 L138 254 L128 258 L118 254 Z", f, 1.6) + PB("M116 244 L140 244 M115 288 L143 288", "none", 1.2, `stroke="#F2C14E" stroke-dasharray="3 3"`) + [232, 260, 288].map(y => C(144, y, 2, "#C9CED6", 1.2)).join("")},
+  puffer:  {name:"羽絨外套", long:true, tags:["winter", "warm"], color:"#D9414E",
+    draw:(f, c) => P("M124 206 Q150 196 176 206 L176 218 Q150 210 124 218 Z", f, 2.2) + U([...sleevesL(32), "M108 231 C107 219 112 212 123 210 L148 206 L148 312 L110 312 Z", MX("M108 231 C107 219 112 212 123 210 L148 206 L148 312 L110 312 Z")], f) + cuffs(32) +
+      [236, 262, 288].map(y => LN(`M110 ${y} Q129 ${y + 4} 147 ${y} M153 ${y} Q171 ${y + 4} 190 ${y}`, 1.6, shade(c, -.3))).join("") + LN("M150 210 L150 312", 2)},
+});
+Object.assign(HATS, {
+  backcap: {name:"反戴棒球帽", tags:["sport", "casual", "funny"], color:"#D9414E",
+    draw:(f, c) => P("M90 104 Q86 44 150 40 Q214 44 210 104 Z", f) + LN("M120 48 Q112 70 112 100 M180 48 Q188 70 188 100", 1.6, shade(c, -.25)) + C(150, 41, 4.5, shade(c, -.2), 1.8) +
+      P("M132 104 Q132 86 150 86 Q168 86 168 104 Z", shade(c, -.45), 2) + LN("M136 92 L164 92", 3, "#F6E7C8")},
+  fedora:  {name:"紳士帽", tags:["formal", "neat", "party"], color:"#5A4A42",
+    draw:(f, c) => P("M106 96 Q102 52 126 44 Q150 54 174 44 Q198 52 194 96 Z", f) + P("M106 82 Q150 90 194 82 L194 94 Q150 102 106 94 Z", INK, 1.6) +
+      P("M70 100 Q150 80 230 100 Q238 112 224 114 Q150 96 76 114 Q62 112 70 100 Z", f) + LN("M136 52 Q150 60 164 52", 1.6, shade(c, -.35))},
+});
+Object.assign(HANDS, {
+  basketball: {name:"籃球", tags:["sport", "casual"], grip:true, color:"#F08A3C",
+    draw:(f, c) => C(212, 318, 19, f) + LN("M193 318 L231 318 M212 299 L212 337", 1.6) + LN("M199 303 Q208 318 199 333 M225 303 Q216 318 225 333", 1.6)},
+  skateboard: {name:"滑板", tags:["sport", "casual", "summer"], grip:true, color:"#4FA36B",
+    draw:(f, c) => [[220, 262], [220, 372]].map(([x, y]) => LN(`M${x - 6} ${y} L${x + 4} ${y}`, 3) + C(x + 8, y - 6, 4.5, "#F6D65A", 1.6) + C(x + 8, y + 6, 4.5, "#F6D65A", 1.6)).join("") +
+      P("M212 244 Q222 244 222 258 L222 376 Q222 390 212 390 Q202 390 202 376 L202 258 Q202 244 212 244 Z", f) + LN("M207 262 L217 280 M207 290 L217 308 M207 340 L217 358", 1.4, shade(c, .4))},
+  gamepad:    {name:"遊戲機", tags:["casual", "snack", "funny"], grip:true, color:"#B9A3E8",
+    draw:(f, c) => P("M188 306 Q188 296 198 296 L226 296 Q236 296 236 306 L236 324 Q236 334 226 334 L198 334 Q188 334 188 324 Z", f) + P("M204 302 L220 302 L220 318 L204 318 Z", "#9BD0F5", 1.4) +
+      P("M196 322 L196 330 M192 326 L200 326", "none", 2) + C(226, 324, 2.6, "#D9414E", 1.2) + C(220, 329, 2.6, "#F6D65A", 1.2)},
+});
+
 // ---------- 寵物角色：頭的位置和人一樣，帽子、眼鏡、項鍊都能直接戴 ----------
 ROLES.pet = {name:"寵物"};
 const SPECIES = {
-  cat:   {name:"貓咪"},
-  dog:   {name:"狗狗"},
-  bunny: {name:"兔子"},
-  bear:  {name:"小熊"},
-  fox:   {name:"狐狸"},
-  panda: {name:"貓熊"},
+  cat:     {name:"貓咪", fur:"#F6A64A"},
+  dog:     {name:"狗狗", fur:"#C98A4B"},
+  bunny:   {name:"兔子", fur:"#FFFFFF"},
+  bear:    {name:"小熊", fur:"#C98A4B"},
+  fox:     {name:"狐狸", fur:"#F6A64A"},
+  panda:   {name:"貓熊", fur:"#FFFFFF"},
+  hamster: {name:"倉鼠", fur:"#E8B57A"},
+  pig:     {name:"小豬", fur:"#F7A8C4"},
+  penguin: {name:"企鵝", fur:"#2E2B2B"},
 };
 const FUR_PAL = ["#F6A64A", "#FFFFFF", "#2E2B2B", "#C98A4B", "#9AA0A8", "#F6E7C8", "#E8B57A", "#B9A3E8", "#F7A8C4"];
 const FUR_PATS = {plain:{name:"素色"}, tabby:{name:"虎斑"}, spots:{name:"斑點"}, tuxedo:{name:"白肚子"}, calico:{name:"三花"}};
@@ -764,11 +807,25 @@ const PETWEAR = {
   hero:     {name:"超人披風", tags:["party", "sport"], color:"#D9414E",
     back:(f, c) => P("M110 196 Q72 320 70 430 Q150 446 230 430 Q228 320 190 196 Z", f),
     draw:(f, c) => P("M112 198 Q150 214 188 198 L184 210 Q150 226 116 210 Z", f, 2) + C(150, 214, 6, "#F6D65A", 1.8)},
+  bell:     {name:"鈴鐺項圈", tags:["casual", "festival", "party"], color:"#D9414E",
+    draw:(f, c) => LN("M108 200 Q150 218 192 200", 9) + LN("M108 200 Q150 218 192 200", 6, f) + E(150, 222, 7, 8, "#F6D65A", 1.8) + LN("M145 224 L155 224", 1.4) + C(150, 227, 1.4, INK, 0)},
+  bee:      {name:"蜜蜂裝", tags:["party", "funny", "summer"], color:"#F6D65A",
+    back:(f, c) => [[-1, 1], [1, 1]].map(([o]) => `<ellipse cx="${150 + o * 40}" cy="214" rx="26" ry="16" transform="rotate(${o * -30} ${150 + o * 40} 214)" fill="rgba(200,235,255,.85)" stroke="${INK}" stroke-width="2"/>`).join(""),
+    draw:(f, c) => P("M106 206 C98 246 96 292 98 336 Q150 352 202 336 C204 292 202 246 194 206 Q150 220 106 206 Z", f) + [252, 298].map(y => LN(`M106 ${y} Q150 ${y + 12} 194 ${y}`, 14, "#2E2B2B", `stroke-linecap="butt"`)).join("") + LN("M100 326 Q150 342 200 326", 3, shade(c, -.25))},
+  sailor:   {name:"水手服", tags:["school", "neat", "summer"], color:"#FFFFFF",
+    draw:(f, c) => P("M106 206 C98 246 96 292 98 336 Q150 352 202 336 C204 292 202 246 194 206 Q150 220 106 206 Z", f) + P("M108 204 Q150 220 192 204 L196 230 L150 262 L104 230 Z", "#2C3E70") + LN("M110 226 L150 254 L190 226", 1.6, "#fff") +
+      P("M150 260 L136 276 L144 280 L150 268 L156 280 L164 276 Z", "#D9414E", 1.8)},
+  pajama:   {name:"睡衣", tags:["casual", "warm"], color:"#9BD0F5",
+    draw:(f, c) => P("M104 204 C96 246 94 292 97 340 Q150 356 203 340 C206 292 204 246 196 204 Q150 222 104 204 Z", f) + PB("M108 206 Q128 220 150 226 L136 236 Z", "#fff", 1.8) + LN("M150 226 L150 346", 1.8) +
+      [250, 282, 314].map(y => C(150, y, 2.6, "#fff", 1.2)).join("") + [[124, 262], [178, 300], [126, 322], [176, 250]].map(([x, y]) => star(x, y, 5, "#FFE98A", 1)).join("")},
   kimono:   {name:"浴衣", tags:["festival", "summer"], color:"#9BD0F5",
     draw:(f, c) => P("M104 204 C96 250 94 300 97 352 Q150 366 203 352 C206 300 204 250 196 204 Q150 220 104 204 Z", f) + LN("M120 210 L160 300 M180 210 L150 260", 2.2) + P("M98 290 L202 290 L202 310 L98 310 Z", "#D9414E", 2.2) + [[124, 250], [176, 330], [130, 340]].map(([x, y]) => C(x, y, 4, "#fff", 0)).join("")},
 };
 const petTail = (sp, fur) => {
   if(sp === "bunny") return C(204, 404, 14, fur);
+  if(sp === "hamster") return "";
+  if(sp === "penguin") return P("M196 400 L222 418 L196 422 Z", fur);
+  if(sp === "pig") return LN("M200 400 q16 -2 16 -14 q0 -10 -9 -8 q-7 2 -2 9 q7 7 18 -3", 3.4);
   if(sp === "bear" || sp === "panda") return C(202, 410, 10, sp === "panda" ? "#2E2B2B" : fur);
   if(sp === "dog") return LN("M196 396 Q228 384 232 352", 13) + LN("M196 396 Q228 384 232 352", 8, fur);
   if(sp === "fox") return P("M194 404 Q252 404 254 330 Q252 300 236 290 Q240 340 214 362 Q200 372 192 380 Z", fur) + P("M236 290 Q256 300 254 330 Q244 320 236 290 Z", "#fff", 2);
@@ -776,7 +833,9 @@ const petTail = (sp, fur) => {
 };
 const petEars = (sp, fur) => {
   const pink = "#F7B6C8";
-  if(sp === "dog") return "";   // 狗狗的耳朵垂在臉旁邊，畫在頭上面
+  if(sp === "dog" || sp === "penguin") return "";   // 狗狗的耳朵垂在臉旁邊，畫在頭上面；企鵝沒有耳朵
+  if(sp === "hamster") return C(100, 88, 17, fur) + C(200, 88, 17, fur) + C(101, 89, 9, pink, 0) + C(199, 89, 9, pink, 0);
+  if(sp === "pig") return PB("M90 108 Q86 62 100 50 Q124 60 138 84 Z", fur) + PB("M100 50 Q128 58 132 84 Q112 84 100 50 Z", shade(fur, -.12));
   if(sp === "bunny") return PB("M116 86 Q98 8 120 2 Q142 8 138 84 Z", fur) + PB("M120 76 Q110 22 121 14 Q132 22 131 76 Z", pink, 0);
   if(sp === "bear" || sp === "panda") { const e = sp === "panda" ? "#2E2B2B" : fur, inner = sp === "panda" ? "#555" : shade(fur, -.15); return C(98, 84, 20, e) + C(202, 84, 20, e) + C(98, 86, 10, inner, 0) + C(202, 86, 10, inner, 0); }
   if(sp === "fox") return PB("M90 104 L90 34 L140 78 Z", fur) + PB("M98 92 L98 52 L126 78 Z", "#fff", 0) + PB("M90 34 L102 46 L92 58 Z", "#3A2C28", 0);
@@ -794,36 +853,44 @@ function drawPetStar(L, it){
   // 身體、腳
   s += P(PET_BODY, body, 2.8);
   if(sp === "panda") s += `<path d="M106 196 C100 220 98 250 100 280 L200 280 C202 250 200 220 194 196 Z" fill="#2E2B2B"/>`;
-  else if(pat === "tuxedo" || sp === "dog" || sp === "fox") s += E(150, 340, 36, 62, pat === "tuxedo" || sp === "fox" ? "#fff" : light, 0);
+  else if(sp === "penguin") s += E(150, 330, 56, 96, "#fff", 0);
+  else if(pat === "tuxedo" || sp === "dog" || sp === "fox" || sp === "hamster") s += E(150, 340, 36, 62, pat === "tuxedo" || sp === "fox" ? "#fff" : light, 0);
   if(pat === "tabby") s += [250, 284, 318].map(y => LN(`M100 ${y} Q110 ${y + 4} 118 ${y} M200 ${y} Q190 ${y + 4} 182 ${y}`, 3, dark)).join("");
   if(pat === "spots") s += [[120, 260, 12], [182, 300, 10], [128, 372, 9], [176, 380, 8]].map(([x, y, r]) => E(x, y, r, r * .8, dark, 0)).join("");
   if(pat === "calico") s += E(120, 270, 18, 24, "#F6A64A", 0) + E(180, 350, 16, 20, "#2E2B2B", 0);
   s += it.bodyShade();
-  const feetC = sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
+  const feetC = sp === "penguin" ? "#F59A4A" : sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
   s += E(98, 422, 28, 15, feetC) + E(202, 422, 28, 15, feetC);
   // 前腳：從胸口直直放到地上
   const legC = sp === "panda" ? "#2E2B2B" : body;
-  s += [[124, 230, 128, 410], [176, 230, 172, 410]].map(([x1, y1, x2, y2]) => P(tube([[x1, y1], [x2, y2]], 30), legC, 2.6)).join("");
+  if(sp === "penguin") s += PB("M104 214 Q70 262 66 326 Q84 330 102 296 Z", body);
+  else s += [[124, 230, 128, 410], [176, 230, 172, 410]].map(([x1, y1, x2, y2]) => P(tube([[x1, y1], [x2, y2]], 30), legC, 2.6)).join("");
   s += it.wear();
-  s += [128, 172].map(x => E(x, 414, 17, 14, feetC) + LN(`M${x - 5} 420 L${x - 5} 427 M${x + 5} 420 L${x + 5} 427`, 1.6, sp === "panda" ? "#888" : INK)).join("");
+  if(sp !== "penguin") s += [128, 172].map(x => E(x, 414, 17, 14, feetC) + LN(`M${x - 5} 420 L${x - 5} 427 M${x + 5} 420 L${x + 5} 427`, 1.6, sp === "panda" ? "#888" : INK)).join("");
   // 頭
   s += P(PET_HEAD, headC, 2.8);
   if(pat === "tuxedo") s += `<path d="M150 120 Q120 150 116 186 Q150 200 184 186 Q180 150 150 120 Z" fill="#fff"/>`;
   if(pat === "tabby") s += LN("M140 82 L142 100 M150 78 L150 100 M160 82 L158 100", 3, dark) + LN("M86 130 L100 133 M86 144 L100 143 M214 130 L200 133 M214 144 L200 143", 3, dark);
   if(pat === "calico") s += `<path d="M150 74 C120 74 96 86 88 110 Q110 112 128 96 Q140 86 150 74 Z" fill="#F6A64A"/><path d="M150 74 C178 74 204 86 212 112 Q190 110 176 96 Q164 84 150 74 Z" fill="#2E2B2B"/>`;
   if(pat === "spots") s += E(110, 104, 12, 9, dark, 0) + E(194, 166, 8, 6, dark, 0);
+  if(sp === "penguin") s += `<path d="M150 112 C132 92 94 100 96 144 C98 178 122 192 150 192 C178 192 202 178 204 144 C206 100 168 92 150 112 Z" fill="#fff"/>`;
   if(sp === "fox") s += `<path d="M84 146 Q118 138 150 168 Q182 138 216 146 Q206 186 150 195 Q94 186 84 146 Z" fill="#fff"/>`;
   if(sp === "panda") s += [-1, 1].map(o => `<ellipse cx="${150 + o * 22}" cy="140" rx="15" ry="19" transform="rotate(${o * -25} ${150 + o * 22} 140)" fill="#2E2B2B"/>`).join("");
   s += it.headShade();
   if(sp === "dog") s += PB("M90 96 Q62 100 68 164 Q82 176 96 154 Q102 124 108 100 Z", dark);
+  if(sp === "hamster") s += PB("M88 150 Q90 186 128 186 Q140 170 128 154 Q110 146 88 150 Z", mix(fur, "#FFFFFF", .7), 0);
   if(L.blush) s += [114, 186].map(x => E(x, 166, 14, 9, L.blush, 0, `opacity=".5"`)).join("");
   // 眼睛（跟人共用）；貓熊的黑眼圈上眼睛要亮一點
   s += EYE_X.map((x, i) => drawEye(L.eyes, x, EYE_OLD[L.eyeC] || L.eyeC, i === 1, sp === "panda" ? "#2E2B2B" : fur)).join("");
   // 鼻子和嘴巴
   if(sp === "dog" || sp === "bear" || sp === "panda") s += E(150, 164, 22, 16, sp === "bear" ? light : "#fff", sp === "panda" ? 0 : 0);
-  s += sp === "cat" || sp === "bunny" ? P("M145 156 L155 156 L150 162 Z", "#F07F98", 1.4) : E(150, 156, 6.5, 4.5, INK, 0) + E(148, 154.5, 2, 1.2, "#fff", 0);
-  s += LN("M150 161 L150 166 M141 166 Q145.5 171 150 166 Q154.5 171 159 166", 2);
-  if(sp === "cat" || sp === "fox") s += LN("M96 154 L124 158 M96 166 L124 164 M204 154 L176 158 M204 166 L176 164", 1.6, shade(fur, -.45), `opacity=".7"`);
+  if(sp === "pig") s += E(150, 162, 19, 13, shade(fur, -.12), 2.2) + E(144, 162, 2.6, 4, INK, 0) + E(156, 162, 2.6, 4, INK, 0) + LN("M142 180 Q150 186 158 180", 2);
+  else if(sp === "penguin") s += P("M138 152 Q150 145 162 152 L150 170 Z", "#F59A4A", 2) + LN("M141 155 Q150 159 159 155", 1.4);
+  else {
+    s += sp === "cat" || sp === "bunny" || sp === "hamster" ? P("M145 156 L155 156 L150 162 Z", "#F07F98", 1.4) : E(150, 156, 6.5, 4.5, INK, 0) + E(148, 154.5, 2, 1.2, "#fff", 0);
+    s += LN("M150 161 L150 166 M141 166 Q145.5 171 150 166 Q154.5 171 159 166", 2);
+  }
+  if(sp === "cat" || sp === "fox" || sp === "hamster") s += LN("M96 154 L124 158 M96 166 L124 164 M204 154 L176 158 M204 166 L176 164", 1.6, shade(fur, -.45), `opacity=".7"`);
   if(L.sticker === "heart") s += P(heartD(186, 178, 5), "#E8679A", 1.4);
   else if(L.sticker === "star") s += star(186, 178, 6, "#F6D65A", 1.4);
   return s;
@@ -877,7 +944,7 @@ function drawLook(L, opt = {}){
   }
   // 後面的頭髮
   // 戴了整個包住頭頂的帽子，丸子頭的髮髻就藏在帽子裡
-  const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa", "bucket"].includes(L.hat.id);
+  const fullHat = L.hat && ["beret", "straw", "beanie", "cap", "witch", "santa", "bucket", "backcap", "fedora"].includes(L.hat.id);
   const backHair = (HAIRB[L.hairB] || HAIRB.long).draw(L.hairC, fullHat);
   s += shaded(backHair, "hv");
   if(L.hairTip){
@@ -997,7 +1064,8 @@ function drawLook(L, opt = {}){
       tube([[107, 200], [98, 176]], 9), tube([[117, 199], [125, 176]], 9)];
     s += parts.map(d => `<path d="${d}" fill="${skin}" stroke="${line}" stroke-width="4.4" stroke-linejoin="round"/>`).join("") + parts.map(d => `<path d="${d}" fill="${skin}"/>`).join("");
     s += overlay(parts.map(d => `<path d="${d}"/>`).join(""), "sk");
-    s += LN("M102 208 Q110 203 119 207", 2, line) + LN("M114 213 Q118 216 122 212 M112 219 Q116 221 120 218", 1.4, crease) + LN("M112 199 L112 192", 1.2, crease);
+    // 大拇指從靠臉的那一側（右邊）橫過來，收起來的無名指、小指在外側（左邊）
+    s += LN("M123 208 Q115 203 106 207", 2, line) + LN("M111 213 Q107 216 103 212 M113 219 Q109 221 105 218", 1.4, crease) + LN("M112 199 L112 192", 1.2, crease);
   }
   // 漫畫符號：浮在頭髮上面
   if(fun.includes("anger")) s += `<g transform="translate(196 96)">${["M-7 -3 Q-3 -3 -3 -7", "M3 -7 Q3 -3 7 -3", "M7 3 Q3 3 3 7", "M-3 7 Q-3 3 -7 3"].map(d => LN(d, 5.5, "#fff") + LN(d, 3, "#E0303E")).join("")}</g>`;

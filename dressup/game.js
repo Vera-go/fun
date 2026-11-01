@@ -145,6 +145,7 @@ function thumb(g, v){
   if(g.type === "slot") look[g.key] = v ? {id:v, color:(look[g.key] && look[g.key].id === v ? look[g.key].color : g.list[v].color), pat:(look[g.key] && look[g.key].id === v ? look[g.key].pat : "none")} : null;
   else if(g.type === "multi") look[g.key] = v ? [v] : [];
   else if(g.key === "role") applyRole(look, v);
+  else if(g.key === "species") Object.assign(look, {species:v, fur:SPECIES[v].fur || look.fur});
   else look[g.key] = v;
   if(g.type === "slot" && v){
     if(g.key === "top" || g.key === "bottom"){ if(look.dress && !DRESSES[look.dress.id].overTop) look.dress = null; }
@@ -208,6 +209,7 @@ $("groups").addEventListener("click", e => {
     const it = KEY_LISTS[k] && KEY_LISTS[k][v];
     if(it && lockedItem(it)){ toast(`在「${TH[it.lock].name}」挑戰拿到 4 顆星就能解鎖`); return; }
     if(k === "role"){ if(look.role !== v) applyRole(look, v); }
+    else if(k === "species"){ look.species = v; if(SPECIES[v].fur) look.fur = SPECIES[v].fur; }
     else look[k] = v;
   }else if(t === "scol"){ look[k].color = v; look[k].custom = true; }
   else if(t === "spat"){ look[k].pat = v; look[k].custom = true; }
@@ -245,7 +247,7 @@ function randomLook(){
 }
 function randomPet(look){
   const col = () => pick(PAL);
-  look.species = pick(Object.keys(SPECIES)); look.fur = pick(FUR_PAL); look.furPat = pick(Object.keys(FUR_PATS));
+  look.species = pick(Object.keys(SPECIES)); look.fur = Math.random() < .5 ? SPECIES[look.species].fur : pick(FUR_PAL); look.furPat = pick(Object.keys(FUR_PATS));
   look.eyes = pick(avail(EYES)); look.eyeC = pick(EYE_PAL); look.blush = Math.random() < .6 ? pick(BLUSH) : "";
   look.petwear = Math.random() < .75 ? {id:pick(avail(PETWEAR)), color:col(), pat:Math.random() < .2 ? pick(["dots", "stripes", "check", "flower"]) : "none"} : null;
   ACC_SLOTS.forEach(k => look[k] = null);
