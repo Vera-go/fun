@@ -491,9 +491,8 @@ function groupDrag(){
       pinch.g.setAttribute("transform", gTf(pinch.it, pinch.p, pinch.it.base * pinch.m, pinch.r)); return;
     }
     if(!drag || pinch) return; const q = pt(e);
-    // 角色的腳要踩在地上附近；小物（雲、太陽、彩虹）可以放到天上
-    const yMin = drag.it.prop ? 40 : 300;
-    drag.p = {x:Math.max(0, Math.min(GW(), q.x + drag.dx)), y:Math.max(yMin, Math.min(drag.it.prop ? 470 : 462, q.y + drag.dy))}; drag.moved = true;
+    // 上下左右都可以自由拖（躺下來可以拖到床上、也能放到高處），只留一點邊不要整個拖出畫面
+    drag.p = {x:Math.max(-40, Math.min(GW() + 40, q.x + drag.dx)), y:Math.max(20, Math.min(720, q.y + drag.dy))}; drag.moved = true;
     drag.g.setAttribute("transform", gTf(drag.it, drag.p, drag.it.base * drag.it.m, drag.it.a));
   });
   const end = e => {
