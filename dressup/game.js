@@ -494,8 +494,8 @@ function renderGroup(){
       return `<button class="it ${n >= 0 ? "on" : ""}" data-gp="${o.id}">${n >= 0 ? `<span class="wk">${n + 1}</span>` : ""}${drawLook(Object.assign(clone(DEFAULT_LOOK), o.look), {bg:false, vb:"40 20 220 440"})}${esc(o.name)}</button>`; }).join("")}</div>
     ${S.wardrobe.length ? "" : `<p class="muted" style="text-align:center">衣櫥還是空的：搭好一套按「存進衣櫥」，就能在這裡一起合照。</p>`}
     <h3>加小物（點一下就放進合照，可以放很多個）</h3>
-    <div class="items">${Object.entries(PROPS).map(([k, it]) => { const s = Math.max(it.w, it.h) + 30, n = S.group.props.filter(p => p.t === k).length;
-      return `<button class="it" data-gadd="${k}">${n ? `<span class="wk">${n}</span>` : ""}<svg viewBox="${-s / 2} ${-it.h / 2 - s / 2} ${s} ${s}">${it.draw()}</svg>${esc(it.name)}</button>`; }).join("")}</div>
+    ${[...PROP_CATS, {name:"其他", keys:Object.keys(PROPS).filter(k => !PROP_CATS.some(c => c.keys.includes(k)))}].filter(c => c.keys.length).map(c => `<div class="gpcat">${esc(c.name)}</div><div class="items">${c.keys.filter(k => PROPS[k]).map(k => { const it = PROPS[k], s = Math.max(it.w, it.h) + 30, n = S.group.props.filter(p => p.t === k).length;
+      return `<button class="it" data-gadd="${k}">${n ? `<span class="wk">${n}</span>` : ""}<svg viewBox="${-s / 2} ${-it.h / 2 - s / 2} ${s} ${s}">${it.draw()}</svg>${esc(it.name)}</button>`; }).join("")}</div>`).join("")}
     <h3>選背景</h3>
     <div class="items">${Object.entries(BGS).filter(([k, it]) => !lockedItem(it)).map(([k, it]) => `<button class="it ${S.group.bg === k ? "on" : ""}" data-gbg="${k}"><svg viewBox="0 60 300 300">${it.draw("#F7D3E0")}</svg>${esc(it.name)}</button>`).join("")}</div>
     </div></div>`;
