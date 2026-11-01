@@ -1151,7 +1151,7 @@ function drawPetStar(L, it){
 }
 
 // ---------- 橫式背景（合照用，600 寬）：底色、地板拉滿整片，中間放原本的背景，兩邊再補上各自的佈置 ----------
-const W2 = 600;
+let W2 = 600;   // 現在要畫多寬（bgWide 會暫時改掉）
 const wall = (col, floorY, floorCol) => `<rect width="${W2}" height="470" fill="${col}"/>` + (floorY ? `<rect y="${floorY}" width="${W2}" height="${470 - floorY}" fill="${floorCol}"/>` + LN(`M0 ${floorY} L${W2} ${floorY}`, 2.4) : "");
 const vgrad = (id, a, b) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="${W2}" height="470" fill="url(#${id})"/>`;
 const winBox = (x, y, w, h, glass = "#BFE6FA") => P(`M${x} ${y} L${x + w} ${y} L${x + w} ${y + h} L${x} ${y + h} Z`, glass, 2.4) + LN(`M${x + w / 2} ${y} L${x + w / 2} ${y + h} M${x} ${y + h / 2} L${x + w} ${y + h / 2}`, 2.2);
@@ -1168,7 +1168,7 @@ const stall = (x, col, txt, tcol) => P(`M${x + 4} 220 L${x + 96} 220 L${x + 100}
   P(`M${x + 10} 250 L${x + 90} 250 L${x + 90} 330 L${x + 10} 330 Z`, "#F6E7C8", 2) + TXT(x + 50, 296, txt, 20, tcol);
 const dots = (n, w, h, y0, r, col) => Array.from({length:n}, (_, i) => C((i * 73 + 19) % w, (i * 47 + 11) % h + y0, typeof r === "number" ? r : r(i), col, 0)).join("");
 const BG_WIDE = {
-  room:      {base:() => wall("#FDEFE3", 380, "#E9C9A5") + Array.from({length:40}, (_, i) => C(20 + (i % 10) * 64 + (Math.floor(i / 10) % 2) * 32, 30 + Math.floor(i / 10) * 80, 3, "#F7D3C0", 0)).join(""),
+  room:      {base:() => wall("#FDEFE3", 380, "#E9C9A5") + Array.from({length:Math.ceil(W2 / 64) * 4}, (_, i) => C(20 + (i % Math.ceil(W2 / 64)) * 64 + (Math.floor(i / Math.ceil(W2 / 64)) % 2) * 32, 30 + Math.floor(i / Math.ceil(W2 / 64)) * 80, 3, "#F7D3C0", 0)).join(""),
               side:() => P("M486 80 L566 80 L566 150 L486 150 Z", "#fff", 3, `stroke="#C98A4B"`) + P("M496 140 L516 110 L530 126 L542 100 L556 140 Z", "#9ED37A", 0) + C(540, 98, 6, "#F6D65A", 0) +
                 P("M30 300 L120 300 L120 380 L30 380 Z", "#C98A4B", 2.4) + LN("M30 340 L120 340", 2) + C(75, 320, 3, "#F6D65A", 1) + C(75, 360, 3, "#F6D65A", 1) + P("M44 300 L50 270 L66 270 L72 300 Z", "#F7A8C4", 2) + LN("M58 270 L58 252", 2) + P("M46 252 L70 252 L64 236 L52 236 Z", "#FFF4C2", 2)},
   classroom: {base:() => wall("#F3EBD9", 388, "#C99E6E"),
@@ -1210,7 +1210,7 @@ const BG_WIDE = {
                 [[480, 358, "#4C8FE0"], [520, 350, "#F6D65A"], [556, 362, "#4FA36B"]].map(([x, y, col]) => P(`M${x - 14} ${y} L${x + 14} ${y} L${x + 14} 386 L${x - 14} 386 Z`, col, 2) + LN(`M${x} ${y} L${x} 386`, 3, "#D9414E")).join("")},
   library:   {base:() => wall("#F1E4CC", 390, "#9C6B45"),
               side:() => [[30, 40], [30, 140], [30, 240], [482, 40], [482, 140], [482, 240]].map(([x, y], i) => shelf(x, y, i + 2)).join("")},
-  cafe:      {base:() => wall("#F6E2CF", 380, "#7A4E36") + Array.from({length:24}, (_, i) => `<rect x="${i * 25}" y="0" width="12.5" height="380" fill="#EFD3BA"/>`).join(""),
+  cafe:      {base:() => wall("#F6E2CF", 380, "#7A4E36") + Array.from({length:Math.ceil(W2 / 25)}, (_, i) => `<rect x="${i * 25}" y="0" width="12.5" height="380" fill="#EFD3BA"/>`).join(""),
               side:() => winBox(30, 70, 96, 110, "#CDEBFA") + P("M24 180 L132 180 L132 188 L24 188 Z", "#C98A4B", 2) + [50, 80, 110].map((x, i) => P(`M${x - 9} 160 L${x + 9} 160 L${x + 7} 180 L${x - 7} 180 Z`, "#E58B5B", 1.8) + C(x, 152, 10, "#4FAE5E", 1.8)).join("") +
                 [[500, 70], [560, 70]].map(([x, y]) => LN(`M${x} 0 L${x} ${y}`, 1.6) + P(`M${x - 16} ${y + 18} Q${x - 16} ${y} ${x} ${y} Q${x + 16} ${y} ${x + 16} ${y + 18} Z`, "#F6D65A", 2) + C(x, y + 22, 4, "#FFF4C2", 1.4)).join("") +
                 P("M494 310 L570 310 L566 322 L498 322 Z", "#C98A4B", 2) + LN("M532 322 L532 380", 4) + P("M512 292 L530 292 L528 310 L514 310 Z", "#F7A8C4", 2) + C(552, 302, 8, "#D9B99B", 2)},
@@ -1218,8 +1218,8 @@ const BG_WIDE = {
               side:() => [[60, 352], [540, 352]].map(([x, y]) => P(`M${x - 6} ${y} L${x + 6} ${y} Q${x + 4} ${y - 60} ${x + 14} ${y - 110} L${x + 2} ${y - 114} Q${x - 6} ${y - 60} ${x - 6} ${y} Z`, "#8A5A3C", 2.2)).join("") +
                 [[70, 214, 50], [30, 244, 30], [112, 240, 30], [548, 210, 52], [510, 242, 30], [588, 240, 32]].map(([x, y, r]) => C(x, y, r, "#F8C6D8", 2.4)).join("") +
                 Array.from({length:24}, (_, i) => { const x = i % 2 ? (i * 67 + 13) % 150 : 450 + (i * 41) % 150, y = (i * 41 + 30) % 420; return `<g transform="rotate(${i * 37} ${x} ${y})">${E(x, y, 4, 2.6, i % 3 ? "#F7A8C4" : "#FBD3E2", 0)}</g>`; }).join("")},
-  space:     {full:() => `<defs><radialGradient id="nebW" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#5B3E9E"/><stop offset="1" stop-color="#140F2E"/></radialGradient></defs><rect width="${W2}" height="470" fill="url(#nebW)"/>` + dots(90, W2, 470, 0, i => (i % 3) * .6 + .8, "#fff") +
-                [[60, 200], [540, 260], [100, 420], [500, 60], [190, 60], [400, 140], [220, 300], [430, 380]].map(([x, y]) => star(x, y, 5, "#FFE98A", 0)).join("") +
+  space:     {noCenter:true, base:() => `<defs><radialGradient id="nebW" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="#5B3E9E"/><stop offset="1" stop-color="#140F2E"/></radialGradient></defs><rect width="${W2}" height="470" fill="url(#nebW)"/>` + dots(Math.round(W2 * .15), W2, 470, 0, i => (i % 3) * .6 + .8, "#fff"),
+              side:() => [[60, 200], [540, 260], [100, 420], [500, 60], [190, 60], [400, 140], [220, 300], [430, 380]].map(([x, y]) => star(x, y, 5, "#FFE98A", 0)).join("") +
                 C(430, 84, 30, "#F59A4A", 2.4) + E(430, 84, 50, 10, "none", 2.4, `transform="rotate(-18 430 84)"`) + LN("M408 76 Q430 70 452 80 M406 92 Q430 88 452 98", 1.6, "#D9763A") +
                 C(170, 410, 24, "#9BD0F5", 2.4) + C(164, 404, 5, "#7AB8E6", 0) + C(178, 418, 4, "#7AB8E6", 0) + C(70, 90, 22, "#E8679A", 2.4) + C(64, 84, 5, "#C94A7E", 0) + C(78, 98, 4, "#C94A7E", 0) +
                 P("M520 380 Q540 330 560 380 Z", "#D9414E", 2.2) + P("M524 380 L556 380 L556 420 L524 420 Z", "#E6E8EE", 2.2) + C(540, 396, 6, "#9BD0F5", 1.8) + P("M528 420 L552 420 L540 444 Z", "#F59A4A", 0)},
@@ -1235,7 +1235,7 @@ Object.assign(BG_WIDE, {
                 [[80, 60, 5], [86, 40, 3], [520, 120, 6], [528, 96, 3.5]].map(([x, y, r]) => C(x, y, r, "rgba(255,255,255,.35)", 1.4, `stroke="#fff"`)).join("") +
                 P("M488 404 L540 404 L540 440 L488 440 Z", "#B8864E", 2.2) + P("M484 404 Q514 380 544 404 Z", "#C99A3A", 2.2) + C(514, 418, 4, "#F6D65A", 1.4) + P("M90 440 Q100 420 110 440 Q120 420 130 440 Z", "#F7A8C4", 2)},
   garden:    {base:() => wall("#CDEBFA") + `<rect y="330" width="${W2}" height="140" fill="#9ED37A"/>` +
-                Array.from({length:22}, (_, i) => P(`M${i * 28 + 12} 330 L${i * 28 + 12} 268 L${i * 28 + 22} 256 L${i * 28 + 32} 268 L${i * 28 + 32} 330 Z`, "#FFFFFF", 2)).join("") + `<rect x="0" y="282" width="${W2}" height="10" fill="#fff" stroke="${INK}" stroke-width="2"/>` + LN(`M0 330 L${W2} 330`, 2.4),
+                Array.from({length:Math.ceil(W2 / 28)}, (_, i) => P(`M${i * 28 + 12} 330 L${i * 28 + 12} 268 L${i * 28 + 22} 256 L${i * 28 + 32} 268 L${i * 28 + 32} 330 Z`, "#FFFFFF", 2)).join("") + `<rect x="0" y="282" width="${W2}" height="10" fill="#fff" stroke="${INK}" stroke-width="2"/>` + LN(`M0 330 L${W2} 330`, 2.4),
               side:() => [[60, 380, "#F59A4A"], [100, 430, "#E8679A"], [30, 450, "#B9A3E8"], [500, 400, "#F6D65A"], [560, 380, "#E8679A"], [540, 440, "#B9A3E8"]].map(([x, y, c]) =>
                   LN(`M${x} ${y} L${x} ${y + 22}`, 2, "#4F8F45") + [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 6, y + Math.sin(a * Math.PI / 180) * 6, 5, c, 1.4)).join("") + C(x, y, 3.5, "#F6D65A", 1.2)).join("") +
                 P("M520 200 L560 200 L560 236 L520 236 Z", "#C98A4B", 2) + P("M514 202 L540 180 L566 202 Z", "#D9414E", 2) + C(540, 218, 6, "#3A2A20", 0) + LN("M540 236 L540 282", 4) + E(80, 70, 30, 11, "#fff", 0)},
@@ -1248,11 +1248,18 @@ Object.assign(BG_WIDE, {
                 [[520, 150, "#B9A3E8"], [550, 120, "#4FA36B"], [566, 180, "#E8679A"]].map(([x, y, c]) => LN(`M${x} ${y + 26} Q${x - 6} ${y + 80} ${x - 10} ${y + 160}`, 1.4) + E(x, y, 20, 24, c) + E(x - 6, y - 8, 4, 7, "rgba(255,255,255,.6)", 0)).join("") +
                 [[50, 360, "#4C8FE0", 40], [100, 368, "#F6D65A", 32]].map(([x, y, c, w]) => P(`M${x - w / 2} ${y} L${x + w / 2} ${y} L${x + w / 2} 392 L${x - w / 2} 392 Z`, c, 2) + LN(`M${x} ${y} L${x} 392`, 3, "#D9414E") + P(`M${x} ${y} Q${x - 10} ${y - 12} ${x - 4} ${y - 2} M${x} ${y} Q${x + 10} ${y - 12} ${x + 4} ${y - 2}`, "none", 2.4, `stroke="#D9414E"`)).join("")},
 });
-const bgWide = (k, c) => { const w = BG_WIDE[k], b = BGS[k] || BGS.park;
-  if(!w) return `<g transform="translate(150.8 0) scale(-1 1)">${b.draw(c)}</g><g transform="translate(749.2 0) scale(-1 1)">${b.draw(c)}</g><g transform="translate(150 0)">${b.draw(c)}</g>`;
-  const seam = w.hill ? `<rect x="143" y="${w.hill[0] + 1.6}" width="10" height="${470 - w.hill[0]}" fill="${w.hill[1]}"/><rect x="447" y="${w.hill[0] + 1.6}" width="10" height="${470 - w.hill[0]}" fill="${w.hill[1]}"/>` + LN(`M0 ${w.hill[0]} L150 ${w.hill[0]} M450 ${w.hill[0]} L600 ${w.hill[0]}`, 2.4) : "";
-  return w.full ? w.full(c) : w.base(c) + `<g transform="translate(150 0)">${b.draw(c)}</g>` + seam + (w.side ? w.side(c) : ""); };
-
+function bgWide(k, c, W = 600){
+  const w = BG_WIDE[k], b = BGS[k] || BGS.park;
+  if(!w) return `<g transform="scale(${(W / 600).toFixed(4)} 1)"><g transform="translate(150.8 0) scale(-1 1)">${b.draw(c)}</g><g transform="translate(749.2 0) scale(-1 1)">${b.draw(c)}</g><g transform="translate(150 0)">${b.draw(c)}</g></g>`;
+  if(w.full) return W > 600.5 ? `<g transform="scale(${(W / 600).toFixed(4)} 1)">${w.full(c)}</g>` : w.full(c);   // 舞台、純色：整張拉寬
+  W2 = W; const base = w.base(c); W2 = 600;
+  const off = (W - 300) / 2, side = w.side ? w.side(c) : "", y = w.hill && w.hill[0];
+  // 原本背景的地面兩頭有直直的外框線，蓋掉再補上兩邊的地面線
+  const seam = w.hill ? `<rect x="${off - 7}" y="${y + 1.6}" width="10" height="${470 - y}" fill="${w.hill[1]}"/><rect x="${off + 297}" y="${y + 1.6}" width="10" height="${470 - y}" fill="${w.hill[1]}"/>` + LN(`M0 ${y} L${off} ${y} M${off + 300} ${y} L${W} ${y}`, 2.4) : "";
+  const center = w.noCenter ? "" : `<g transform="translate(${off} 0)">${b.draw(c)}</g>`;
+  const sides = W > 600.5 ? `<svg x="0" y="0" width="300" height="470" viewBox="0 0 300 470">${side}</svg><svg x="${W - 300}" y="0" width="300" height="470" viewBox="300 0 300 470">${side}</svg>` : side;
+  return base + center + seam + sides;
+}
 // ---------- 合照小物：房子、家具、花草樹木、橋、河……（錨點在底部中間 (0,0)，大小跟角色同一個比例：角色大約 400 高） ----------
 // w、h：大概的寬高（做小圖用）；back：畫在最後面（河、地毯、天上的東西）；sky：一放進來就在天上
 const PROPS = {

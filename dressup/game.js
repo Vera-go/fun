@@ -383,7 +383,17 @@ $("bWardrobe").onclick = showWardrobe;
 // ---------- 合照：從衣櫥挑幾個角色（不帶自己的背景），一起放到同一個背景前面，還能擺上房子、家具、花草樹木等小物 ----------
 const GROUP_MAX = 8, PROP_MAX = 40;
 const groupLook = id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look;
-const GW = () => S.group.wide ? 600 : 300;   // 合照寬度：直式 300、橫式 600（高度都是 470）
+const GW = () => S.group.wide ? (S.group.ww || 600) : 300;   // 合照寬度：直式 300、橫式照螢幕比例（至少 600，高度都是 470）
+// 橫式的寬度：讓合照剛好撐滿右邊選單以外的空間；寬度變了，大家的左右位置跟著等比例移動
+function groupFit(){
+  if(!S.group.wide) return false;
+  const wrap = document.querySelector(".gwrap"), right = document.querySelector(".gright");
+  const narrow = innerWidth <= 760, availW = wrap && right ? wrap.clientWidth - right.offsetWidth - 16 : innerWidth - 420, availH = innerHeight - 46;
+  const W = narrow ? 600 : Math.round(Math.max(600, Math.min(1300, 470 * availW / Math.max(300, availH))));
+  const old = S.group.ww || 600;
+  if(Math.abs(W - old) < 3) return false;
+  Object.values(gMap("pos")).forEach(p => p.x *= W / old); S.group.ww = W; save(); return true;
+}
 // 角色和小物都用同一套位置、大小、角度、翻轉（存在 pos/size/rot/flip 裡，用代號對應；小物的代號是 p 開頭）
 const gMap = k => S.group[k] || (S.group[k] = {});
 const gIds = () => S.group.picks.filter(groupLook);
@@ -407,8 +417,8 @@ function groupSVG(size){
   const items = [...gIds(), ...(S.group.props || []).map(p => p.id)].map(gItem);
   // 河、地毯、天上的東西畫在最後面；其他照前後：站得比較後面（腳比較高）的先畫
   items.sort((a, b) => (a.back ? -1e4 : 0) + a.p.y - ((b.back ? -1e4 : 0) + b.p.y));
-  const body = items.map(it => `<g class="gch${!size && it.key === groupSel ? " sel" : ""}" data-gid="${it.key}" transform="${gTf(it, it.p, it.base * it.m, it.a)}">${it.prop ? it.it.draw() : drawLook(Object.assign(clone(DEFAULT_LOOK), it.l), {bg:false})}</g>`).join("");
-  const k = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? S.group.bg : "park", back = S.group.wide ? bgWide(k, "#F7D3E0") : BGS[k].draw("#F7D3E0");
+  const body = items.map(it => `<g class="gch${!size && it.key === groupSel ? " sel" : ""}" data-gid="${it.key}" transform="${gTf(it, it.p, it.base * it.m, it.a)}">${it.prop ? it.it.draw() : drawLook(Object.assign(clone(DEFAULT_LOOK), it.l), {bg:false, size:[300, 470]})}</g>`).join("");
+  const k = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? S.group.bg : "park", back = S.group.wide ? bgWide(k, "#F7D3E0", GW()) : BGS[k].draw("#F7D3E0");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GW()} 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${back}${body}</svg>`;
 }
 const gHasAny = () => gIds().length || (S.group.props || []).length;
@@ -422,8 +432,9 @@ function renderGroup(){
   const sel = groupSel && (S.group.picks.includes(groupSel) || isProp(groupSel)) ? groupSel : "";
   const selName = !sel ? "" : isProp(sel) ? PROPS[propOf(sel).t].name : "角色";
   $("panel").innerHTML = `<div class="gwrap"><div class="gleft">
-    <div class="gstage${S.group.wide ? " wide" : ""}">${gHasAny() ? groupSVG() : `<div class="gempty">先點選角色或小物吧！</div>`}</div>
+    <div class="gstage${S.group.wide ? " wide" : ""}"${S.group.wide ? ` style="--gw:${GW()}"` : ""}>${gHasAny() ? groupSVG() : `<div class="gempty">先點選角色或小物吧！</div>`}</div>
     </div><div class="gright">
+    <button class="gx" data-close title="關閉" aria-label="關閉">✕</button>
     <h2>合照</h2>
     <p class="muted ghint">挑最多 ${GROUP_MAX} 個角色、加上小物、選一個背景，在合照裡直接拖拉換位置（往上拖會站到後面）。</p>
     <div class="gsize">${sel ? `<span>選到的${esc(selName)}：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button><span class="gbr"></span>
@@ -443,6 +454,7 @@ function renderGroup(){
     <div class="items">${Object.entries(BGS).filter(([k, it]) => !lockedItem(it)).map(([k, it]) => `<button class="it ${S.group.bg === k ? "on" : ""}" data-gbg="${k}"><svg viewBox="0 60 300 300">${it.draw("#F7D3E0")}</svg>${esc(it.name)}</button>`).join("")}</div>
     </div></div>`;
   if(top) document.querySelector(".gright").scrollTop = top;
+  if(groupFit()) return renderGroup();   // 量了實際空間發現寬度不對：用新的寬度再畫一次
   groupDrag();
 }
 // 拖拉：按住角色或小物拖到想要的位置，放開時記下來；兩根手指捏合縮放、轉動
@@ -495,6 +507,9 @@ function groupResize(f){
   gMap("size")[groupSel] = Math.max(.3, Math.min(3, (gMap("size")[groupSel] || 1) * f)); save(); renderGroup();
 }
 function showGroup(){ openPanel(""); $("panel").classList.add("wide"); renderGroup(); }
+// 視窗大小變了：合照也跟著重新撐滿
+let groupRT = 0;
+addEventListener("resize", () => { clearTimeout(groupRT); groupRT = setTimeout(() => { if(!$("ov").hidden && $("panel").classList.contains("wide")) renderGroup(); }, 200); });
 $("bGroup").onclick = showGroup;
 $("ov").addEventListener("click", e => {
   const p = e.target.closest("[data-gp]");
@@ -520,7 +535,7 @@ $("ov").addEventListener("click", e => {
   if(ro && groupSel){ const v = ro.dataset.grot, r = gMap("rot")[groupSel] || 0;
     gMap("rot")[groupSel] = v === "lie" ? (r === 90 ? -90 : 90) : +v ? r + +v : 0; save(); return renderGroup(); }
   const wd = e.target.closest("[data-gwide]");
-  if(wd){ const w = wd.dataset.gwide === "1"; if(!!S.group.wide !== w){ const f = w ? 2 : .5; Object.values(gMap("pos")).forEach(p => p.x *= f); S.group.wide = w; save(); } return renderGroup(); }
+  if(wd){ const w = wd.dataset.gwide === "1"; if(!!S.group.wide !== w){ const f = w ? (S.group.ww || 600) / 300 : 300 / GW(); Object.values(gMap("pos")).forEach(p => p.x *= f); S.group.wide = w; save(); } return renderGroup(); }
   const z = e.target.closest("[data-gz]");
   if(z && groupSel){ if(+z.dataset.gz) return groupResize(+z.dataset.gz); delete gMap("size")[groupSel]; save(); return renderGroup(); }
   if(e.target.closest("[data-gdl]")) saveImage(groupSVG([GW() * 2, 940]), "我們的合照", GW() * 2);
