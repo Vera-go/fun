@@ -881,6 +881,7 @@ const PET_SHAPES = {
   pig:     {body:"M112 182 C80 204 72 266 80 298 C88 322 120 326 150 326 C180 326 212 322 220 298 C228 266 220 204 188 182 Z",
             head:"M80 138 C80 94 112 74 150 74 C188 74 220 94 220 138 C220 178 190 198 150 198 C110 198 80 178 80 138 Z", legs:"hoof", wx:1.5},
 };
+PET_SHAPES.penguin = {legs:"none"};   // 企鵝只有兩邊的翅膀，中間不畫前腳
 const petShape = L => Object.assign({body:PET_BODY, head:PET_HEAD, legs:"std"}, PET_SHAPES[L.species]);
 // 畫寵物角色（drawLook 裡呼叫；衣服的填色、明暗用 drawLook 傳進來的 it）
 function drawPetStar(L, it){
