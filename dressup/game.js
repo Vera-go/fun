@@ -384,18 +384,23 @@ $("bWardrobe").onclick = showWardrobe;
 const GROUP_MAX = 4;
 const groupLook = id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look;
 // 每個角色的位置（腳踩的那一點）：拖過的照拖的位置，沒拖過的照點選順序從左排到右
-const groupPos = (id, i, n) => (S.group.pos || {})[id] || {x:300 * (i + .5) / n, y:452};
+const GW = () => S.group.wide ? 600 : 300;   // 合照寬度：直式 300、橫式 600（高度都是 470）
+const groupPos = (id, i, n) => (S.group.pos || {})[id] || {x:GW() * (i + .5) / n, y:452};
+const groupRot = id => ((S.group.rot || {})[id]) || 0;
 // 大小：人數越多每個人縮小一點、寵物小一號，再乘上自己調的倍數
-const groupScale = (l, n, id) => ([1, .8, .66, .56][n - 1] || .56) * (l.role === "pet" ? .78 : 1) * (((S.group.size || {})[id]) || 1);
+const groupScale = (l, n, id) => ((S.group.wide ? [.9, .82, .74, .66] : [1, .8, .66, .56])[n - 1] || .56) * (l.role === "pet" ? .78 : 1) * (((S.group.size || {})[id]) || 1);
 let groupSel = "";   // 現在選到的角色（可以放大縮小）
-const groupTf = (p, k) => `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${k.toFixed(3)}) translate(-150 -452)`;
+// 角度：繞著身體中間轉（轉 90 度就是躺下來）
+const groupTf = (p, k, a = 0) => `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${k.toFixed(3)}) translate(-150 -452)${a ? ` rotate(${Math.round(a)} 150 330)` : ""}`;
 function groupSVG(size){
   const ids = S.group.picks.filter(groupLook), n = ids.length;
   const b = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? BGS[S.group.bg] : BGS.park;
   // 站得比較後面（腳比較高）的先畫，前面的人會擋住後面的人；寵物小一號
   const chars = ids.map((id, i) => ({id, l:groupLook(id), p:groupPos(id, i, n)})).sort((a, b) => a.p.y - b.p.y)
-    .map(c => `<g class="gch${!size && c.id === groupSel ? " sel" : ""}" data-gid="${c.id}" transform="${groupTf(c.p, groupScale(c.l, n, c.id))}">${drawLook(Object.assign(clone(DEFAULT_LOOK), c.l), {bg:false})}</g>`).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${b.draw("#F7D3E0")}${chars}</svg>`;
+    .map(c => `<g class="gch${!size && c.id === groupSel ? " sel" : ""}" data-gid="${c.id}" transform="${groupTf(c.p, groupScale(c.l, n, c.id), groupRot(c.id))}">${drawLook(Object.assign(clone(DEFAULT_LOOK), c.l), {bg:false})}</g>`).join("");
+  // 橫式：背景照直式畫的，兩邊各接一份左右翻過來的背景，接縫看起來是連著的
+  const bg = b.draw("#F7D3E0"), back = S.group.wide ? `<g transform="translate(150.8 0) scale(-1 1)">${bg}</g><g transform="translate(749.2 0) scale(-1 1)">${bg}</g><g transform="translate(150 0)">${bg}</g>` : bg;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GW()} 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${back}${chars}</svg>`;
 }
 function renderGroup(){
   // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
@@ -403,11 +408,12 @@ function renderGroup(){
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
   const keep = document.querySelector(".gright"), top = keep ? keep.scrollTop : 0;   // 右邊選單重畫後停在原本捲到的地方
   $("panel").innerHTML = `<div class="gwrap"><div class="gleft">
-    <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先點選角色吧！</div>`}</div>
+    <div class="gstage${S.group.wide ? " wide" : ""}">${S.group.picks.length ? groupSVG() : `<div class="gempty">先點選角色吧！</div>`}</div>
     </div><div class="gright">
     <h2>合照</h2>
     <p class="muted ghint">挑最多 ${GROUP_MAX} 個角色、選一個背景，在合照裡直接拖拉角色換位置（往上拖會站到後面）。</p>
-    <div class="gsize">${groupSel && S.group.picks.includes(groupSel) ? `<span>選到的角色：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button>` : `<span class="muted">點一下合照裡的角色，就能放大縮小（也可以用滑鼠滾輪，手機用兩根手指捏合）</span>`}</div>
+    <div class="gsize">${groupSel && S.group.picks.includes(groupSel) ? `<span>選到的角色：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button><span class="gbr"></span><button class="btn sm" data-grot="-15">↺ 左轉</button><button class="btn sm" data-grot="15">↻ 右轉</button><button class="btn sm" data-grot="lie">躺下</button><button class="btn sm" data-grot="0">擺正</button>` : `<span class="muted">點一下合照裡的角色，就能放大縮小、轉角度（也可以用滑鼠滾輪；手機用兩根手指捏合、轉動）</span>`}</div>
+    <div class="gmode"><button class="btn sm ${S.group.wide ? "" : "acc"}" data-gwide="0">直式</button><button class="btn sm ${S.group.wide ? "acc" : ""}" data-gwide="1">橫式</button></div>
     <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>
     <h3>選角色</h3>
     <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
@@ -426,19 +432,20 @@ function groupDrag(){
   const ptrs = new Map();   // 現在按在畫面上的手指（兩根手指就是捏合縮放）
   const pt = e => { const m = svg.getScreenCTM().inverse(); return {x:e.clientX * m.a + e.clientY * m.c + m.e, y:e.clientX * m.b + e.clientY * m.d + m.f}; };
   const dist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
+  const ang = () => { const [a, b] = [...ptrs.values()]; return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; };
   svg.addEventListener("pointerdown", e => {
     ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY}); try{ svg.setPointerCapture(e.pointerId); }catch(err){}
     // 第二根手指放下：捏合縮放剛剛按住（或選到）的角色
     if(ptrs.size === 2){
       const id = drag ? drag.id : groupSel, g = id && svg.querySelector(`[data-gid="${id}"]`);
       if(g){ const ids = S.group.picks.filter(groupLook), n = ids.length, m = ((S.group.size || {})[id]) || 1;
-        pinch = {g, id, d0:dist(), m0:m, m, base:groupScale(groupLook(id), n, id) / m, p:drag ? drag.p : groupPos(id, ids.indexOf(id), n)}; groupSel = id; }
+        pinch = {g, id, d0:dist(), a0:ang(), m0:m, m, r0:groupRot(id), r:groupRot(id), base:groupScale(groupLook(id), n, id) / m, p:drag ? drag.p : groupPos(id, ids.indexOf(id), n)}; groupSel = id; }
       e.preventDefault(); return;
     }
     const g = e.target.closest(".gch"); if(!g || ptrs.size > 1) return;
     const ids = S.group.picks.filter(groupLook), i = ids.indexOf(g.dataset.gid), n = ids.length, p = groupPos(g.dataset.gid, i, n), q = pt(e);
     groupSel = g.dataset.gid;
-    drag = {g, id:g.dataset.gid, k:groupScale(groupLook(g.dataset.gid), n, g.dataset.gid), p:{...p}, dx:p.x - q.x, dy:p.y - q.y, moved:false};
+    drag = {g, id:g.dataset.gid, k:groupScale(groupLook(g.dataset.gid), n, g.dataset.gid), a:groupRot(g.dataset.gid), p:{...p}, dx:p.x - q.x, dy:p.y - q.y, moved:false};
     svg.appendChild(g); e.preventDefault();
   });
   svg.addEventListener("pointermove", e => {
@@ -446,15 +453,16 @@ function groupDrag(){
     ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if(pinch && ptrs.size >= 2){
       pinch.m = Math.max(.5, Math.min(2, pinch.m0 * dist() / pinch.d0));
-      pinch.g.setAttribute("transform", groupTf(pinch.p, pinch.base * pinch.m)); return;
+      let da = ang() - pinch.a0; da = ((da + 540) % 360) - 180; pinch.r = pinch.r0 + da;   // 兩根手指轉動 = 角色跟著轉
+      pinch.g.setAttribute("transform", groupTf(pinch.p, pinch.base * pinch.m, pinch.r)); return;
     }
     if(!drag || pinch) return; const q = pt(e);
-    drag.p = {x:Math.max(10, Math.min(290, q.x + drag.dx)), y:Math.max(320, Math.min(462, q.y + drag.dy))}; drag.moved = true;
-    drag.g.setAttribute("transform", groupTf(drag.p, drag.k));
+    drag.p = {x:Math.max(10, Math.min(GW() - 10, q.x + drag.dx)), y:Math.max(300, Math.min(462, q.y + drag.dy))}; drag.moved = true;
+    drag.g.setAttribute("transform", groupTf(drag.p, drag.k, drag.a));
   });
   const end = e => {
     ptrs.delete(e.pointerId);
-    if(pinch && ptrs.size < 2){ S.group.size = Object.assign({}, S.group.size, {[pinch.id]:pinch.m}); save(); pinch = null; }
+    if(pinch && ptrs.size < 2){ S.group.size = Object.assign({}, S.group.size, {[pinch.id]:pinch.m}); S.group.rot = Object.assign({}, S.group.rot, {[pinch.id]:Math.round(pinch.r) % 360}); save(); pinch = null; }
     if(ptrs.size) return;   // 還有手指按著：等全部放開再整理畫面
     if(drag && drag.moved){ S.group.pos = Object.assign({}, S.group.pos, {[drag.id]:drag.p}); save(); }
     drag = null; renderGroup();
@@ -473,26 +481,31 @@ $("bGroup").onclick = showGroup;
 $("ov").addEventListener("click", e => {
   const p = e.target.closest("[data-gp]");
   if(p){ const id = p.dataset.gp, a = S.group.picks;
-    if(a.includes(id)){ S.group.picks = a.filter(x => x !== id); if(S.group.pos) delete S.group.pos[id]; if(S.group.size) delete S.group.size[id]; }
+    if(a.includes(id)){ S.group.picks = a.filter(x => x !== id); if(S.group.pos) delete S.group.pos[id]; if(S.group.size) delete S.group.size[id]; if(S.group.rot) delete S.group.rot[id]; }
     else if(a.length >= GROUP_MAX) return toast(`最多放 ${GROUP_MAX} 個角色`);
     else a.push(id);
     save(); return renderGroup(); }
   const g = e.target.closest("[data-gbg]");
   if(g){ S.group.bg = g.dataset.gbg; save(); return renderGroup(); }
-  if(e.target.closest("[data-gclear]")){ S.group.picks = []; S.group.pos = {}; S.group.size = {}; save(); return renderGroup(); }
-  if(e.target.closest("[data-greset]")){ S.group.pos = {}; S.group.size = {}; save(); return renderGroup(); }
+  if(e.target.closest("[data-gclear]")){ S.group.picks = []; S.group.pos = {}; S.group.size = {}; S.group.rot = {}; save(); return renderGroup(); }
+  if(e.target.closest("[data-greset]")){ S.group.pos = {}; S.group.size = {}; S.group.rot = {}; save(); return renderGroup(); }
+  const ro = e.target.closest("[data-grot]");
+  if(ro && groupSel){ const v = ro.dataset.grot, r = groupRot(groupSel);
+    S.group.rot = Object.assign({}, S.group.rot, {[groupSel]:v === "lie" ? (r === 90 ? -90 : 90) : +v ? r + +v : 0}); save(); return renderGroup(); }
+  const wd = e.target.closest("[data-gwide]");
+  if(wd){ const w = wd.dataset.gwide === "1"; if(!!S.group.wide !== w){ const f = w ? 2 : .5; Object.values(S.group.pos || {}).forEach(p => p.x *= f); S.group.wide = w; save(); } return renderGroup(); }
   const z = e.target.closest("[data-gz]");
   if(z){ if(+z.dataset.gz) return groupResize(+z.dataset.gz); if(S.group.size) delete S.group.size[groupSel]; save(); return renderGroup(); }
-  if(e.target.closest("[data-gdl]")) saveImage(groupSVG([600, 940]), "我們的合照");
+  if(e.target.closest("[data-gdl]")) saveImage(groupSVG([GW() * 2, 940]), "我們的合照", GW() * 2);
 });
 
 // ---------- 下載圖片 ----------
 $("bDownload").onclick = () => saveImage(drawLook(L(), {size:[600, 940]}), "我的穿搭");
-function saveImage(svg, name){
+function saveImage(svg, name, w = 600){
   const img = new Image();
   img.onload = () => {
-    const cv = document.createElement("canvas"); cv.width = 600; cv.height = 940;
-    cv.getContext("2d").drawImage(img, 0, 0, 600, 940);
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = 940;
+    cv.getContext("2d").drawImage(img, 0, 0, w, 940);
     // 手機（尤其 iPhone、LINE 裡開的網頁）下載檔案常常沒反應：直接顯示圖片，長按就能存到相簿
     if(TOUCH){ const url = cv.toDataURL("image/png"); openPanel(`<h2>存成圖片</h2><p class="muted" style="text-align:center">長按下面的圖片，選「儲存影像」或「加入照片」就能存到相簿。</p><img src="${url}" alt="${name}" style="width:100%;max-width:320px;display:block;margin:0 auto;border-radius:12px;border:2px solid #EAD7DF"><div class="btns"><a class="btn" href="${url}" download="我的穿搭.png">下載檔案</a><button class="btn" data-close>關閉</button></div>`); return; }
     cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${name}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }, "image/png");
