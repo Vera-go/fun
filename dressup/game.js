@@ -483,7 +483,35 @@ function groupDrag(){
   const pt = e => { const m = svg.getScreenCTM().inverse(); return {x:e.clientX * m.a + e.clientY * m.c + m.e, y:e.clientX * m.b + e.clientY * m.d + m.f}; };
   const dist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
   const ang = () => { const [a, b] = [...ptrs.values()]; return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; };
+  // 選到的東西：外面畫一個虛線框，左上角 ✕ 直接刪掉，右下角的圓點拖一拖就能同時放大縮小和旋轉
+  let box = null;
+  const selG = groupSel && svg.querySelector(`[data-gid="${groupSel}"]`);
+  if(selG){
+    // 角色外面包著整張 300×470 的小畫布、明暗是蓋滿整張的方塊：只量真的畫出來的形狀，框才會貼著角色
+    const r = {left:1e9, top:1e9, right:-1e9, bottom:-1e9};
+    selG.querySelectorAll("path,ellipse,circle,polygon,line,text,rect").forEach(el => {
+      if(el.closest("defs,clipPath,mask,pattern,[clip-path],[mask]")) return; const b = el.getBoundingClientRect(); if(!b.width && !b.height) return;
+      r.left = Math.min(r.left, b.left); r.top = Math.min(r.top, b.top); r.right = Math.max(r.right, b.right); r.bottom = Math.max(r.bottom, b.bottom); });
+    const m = svg.getScreenCTM().inverse(), u = 1 / svg.getScreenCTM().a;
+    const tp = (x, y) => ({x:x * m.a + y * m.c + m.e, y:x * m.b + y * m.d + m.f});
+    const a = tp(r.left, r.top), b = tp(r.right, r.bottom), vb = svg.viewBox.baseVal, rad = 13 * u;
+    const cl = (v, lo, hi) => Math.max(lo + rad, Math.min(hi - rad, v));
+    const x0 = cl(a.x, 0, vb.width), y0 = cl(a.y, 0, vb.height), x1 = cl(b.x, 0, vb.width), y1 = cl(b.y, 0, vb.height);
+    box = {cx:(a.x + b.x) / 2, cy:(a.y + b.y) / 2};
+    svg.insertAdjacentHTML("beforeend", `<g class="ghand"><rect x="${a.x}" y="${a.y}" width="${b.x - a.x}" height="${b.y - a.y}" fill="none" stroke="#E8679A" stroke-width="${2 * u}" stroke-dasharray="${6 * u} ${4 * u}" pointer-events="none"/>
+      <g class="gh-del" style="cursor:pointer"><circle cx="${x0}" cy="${y0}" r="${rad}" fill="#fff" stroke="#D9414E" stroke-width="${2.5 * u}"/><path d="M${x0 - 5 * u} ${y0 - 5 * u} L${x0 + 5 * u} ${y0 + 5 * u} M${x0 + 5 * u} ${y0 - 5 * u} L${x0 - 5 * u} ${y0 + 5 * u}" stroke="#D9414E" stroke-width="${2.6 * u}" stroke-linecap="round"/></g>
+      <g class="gh-rs" style="cursor:nwse-resize"><circle cx="${x1}" cy="${y1}" r="${rad}" fill="#E8679A" stroke="#fff" stroke-width="${2.5 * u}"/><path d="M${x1 - 5 * u} ${y1 + 1 * u} A${5 * u} ${5 * u} 0 1 1 ${x1 + 1 * u} ${y1 + 5 * u}" fill="none" stroke="#fff" stroke-width="${2.2 * u}" stroke-linecap="round"/></g></g>`);
+  }
   svg.addEventListener("pointerdown", e => {
+    // ✕：刪掉小物，或把角色從合照拿掉
+    if(e.target.closest(".gh-del")){ e.preventDefault(); e.stopPropagation(); const k = groupSel;
+      if(isProp(k)) S.group.props = S.group.props.filter(x => x.id !== k); else S.group.picks = S.group.picks.filter(x => x !== k);
+      gForget(k); groupSel = ""; save(); return renderGroup(); }
+    // 右下角圓點：以中心為準，拉遠變大、拉近變小，繞圈就轉
+    if(e.target.closest(".gh-rs") && box){ e.preventDefault(); const it = gItem(groupSel), q = pt(e), g = svg.querySelector(`[data-gid="${groupSel}"]`);
+      ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY}); try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+      svg.querySelector(".ghand").style.display = "none";
+      pinch = {g, it, key:it.key, handle:true, c:box, d0:Math.hypot(q.x - box.cx, q.y - box.cy) || 1, a0:Math.atan2(q.y - box.cy, q.x - box.cx) * 180 / Math.PI, m0:it.m, m:it.m, r0:it.a, r:it.a, p:it.p}; return; }
     ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY}); try{ svg.setPointerCapture(e.pointerId); }catch(err){}
     if(ptrs.size === 2){
       const key = drag ? drag.key : groupSel, g = key && svg.querySelector(`[data-gid="${key}"]`);
@@ -499,6 +527,12 @@ function groupDrag(){
   svg.addEventListener("pointermove", e => {
     if(!ptrs.has(e.pointerId)) return;
     ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pinch && pinch.handle){
+      const q = pt(e); pinch.m = Math.max(.3, Math.min(3, pinch.m0 * Math.hypot(q.x - pinch.c.cx, q.y - pinch.c.cy) / pinch.d0));
+      let da = Math.atan2(q.y - pinch.c.cy, q.x - pinch.c.cx) * 180 / Math.PI - pinch.a0; da = ((da + 540) % 360) - 180;
+      pinch.r = pinch.r0 + (Math.abs(da) < 4 ? 0 : da);   // 只是拉大小時角度不要亂跳
+      pinch.g.setAttribute("transform", gTf(pinch.it, pinch.p, pinch.it.base * pinch.m, pinch.r)); return;
+    }
     if(pinch && ptrs.size >= 2){
       pinch.m = Math.max(.3, Math.min(3, pinch.m0 * dist() / pinch.d0));
       let da = ang() - pinch.a0; da = ((da + 540) % 360) - 180; pinch.r = pinch.r0 + da;
@@ -511,7 +545,7 @@ function groupDrag(){
   });
   const end = e => {
     ptrs.delete(e.pointerId);
-    if(pinch && ptrs.size < 2){ gMap("size")[pinch.key] = pinch.m; gMap("rot")[pinch.key] = Math.round(pinch.r) % 360; save(); pinch = null; }
+    if(pinch && (pinch.handle || ptrs.size < 2)){ gMap("size")[pinch.key] = pinch.m; gMap("rot")[pinch.key] = Math.round(pinch.r) % 360; save(); pinch = null; }
     if(ptrs.size) return;
     if(drag && drag.moved){ gMap("pos")[drag.key] = drag.p; save(); }
     drag = null; renderGroup();
