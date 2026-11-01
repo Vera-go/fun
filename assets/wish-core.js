@@ -145,7 +145,7 @@
     return { today: Number(data.today) || 0, total: Number(data.total) || 0 };
   }
 
-  // 搭配小舞台的穿搭牆：被檢舉的、已隱藏的、全部（資料庫只回傳給 admins 名單裡的人）
+  // 搭配小舞台的作品牆：被檢舉的、已隱藏的、全部（資料庫只回傳給 admins 名單裡的人）
   const needV17 = error => error.code === "PGRST202" ? "資料庫還沒更新：請先執行 supabase/schema-v17-dressup-contest.sql" : (error.message || "操作失敗");
   async function dressupAdminList(filter) {
     const { data, error } = await sb.rpc("dressup_admin_list", { p_filter: filter });

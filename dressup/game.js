@@ -38,7 +38,7 @@ const ACC_SLOTS = ["hat", "glasses", "hairpin", "neck", "scarf", "bag", "hand"];
 // ---------- 分類 ----------
 // type：slot 衣服配件（可以換顏色）、pick 選一種、color 顏色、toggle 開關
 const CATS = [
-  {id:"role", name:"角色", groups:[{type:"pick", key:"role", label:"選角色（會換成這個角色的基本造型，之後衣服配件都可以自由搭）", list:ROLES, vb:"40 20 220 440"}]},
+  {id:"role", name:"角色", groups:[{type:"pick", key:"role", label:"選角色（會換成這個角色的基本樣子，之後都可以自由搭配；人、寵物可以換衣服，蛋糕、禮物、卡片、花束可以加裝飾和寫字）", list:ROLES, vb:"40 20 220 440"}]},
   {id:"petbody", roles:["pet"], name:"寵物", groups:[
     {type:"pick", key:"species", label:"種類", list:SPECIES, vb:"40 0 220 460"},
     {type:"color", key:"fur", label:"毛色", pal:FUR_PAL},
@@ -347,7 +347,7 @@ function rewardName(t){ const [slot, id] = t.reward; return KEY_LISTS[slot][id].
 function showThemes(){
   const done = THEMES.filter(t => unlocked(t.id)).length;
   openPanel(`<h2>主題挑戰</h2>
-    <p class="muted" style="text-align:center">選一個主題穿搭，貓咪評審會幫你打分數。拿到 4 顆星可以解鎖限定單品（已解鎖 ${done} / ${THEMES.length}）。</p>
+    <p class="muted" style="text-align:center">選一個主題，打扮角色或做蛋糕、禮物、卡片、花束都可以，貓咪評審會幫你打分數。拿到 4 顆星可以解鎖限定單品（已解鎖 ${done} / ${THEMES.length}）。</p>
     <div class="themes">${THEMES.map(t => `<button class="th" data-theme="${t.id}">${drawLook({...L(), bg:t.bg}, {vb:"0 0 300 200"}).replace(/<svg /, '<svg preserveAspectRatio="xMidYMid slice" ')}<span class="tx"><b>${esc(t.name)}</b><br><span class="small muted">${esc(t.desc)}</span><br><span class="st">${starStr(S.best[t.id] || 0)}</span><span class="rw">${unlocked(t.id) ? `已解鎖：${esc(rewardName(t))}` : `4 顆星解鎖：${esc(rewardName(t))}`}</span></span></button>`).join("")}</div>
     <div class="btns"><button class="btn" data-close>關閉</button></div>`);
 }
@@ -574,7 +574,7 @@ function groupLayer(how){
 }
 function renderGroup(){
   // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
-  const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:wdName(w)})),
+  const opts = [{id:"now", look:L(), name:"現在舞台上的"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:wdName(w)})),
     ...Object.entries(S.group.looks || {}).filter(([id]) => !S.wardrobe.some(w => w.id === id)).map(([id, look]) => ({id, look, name:`合照裡的${(ROLES[look.role] || ROLES.girl).name}`}))];
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
   S.group.props = (S.group.props || []).filter(p => PROPS[p.t]);
@@ -750,7 +750,7 @@ $("ov").addEventListener("click", e => {
 });
 
 // ---------- 下載圖片 ----------
-$("bDownload").onclick = () => saveImage(drawLook(L(), {size:[600, 940]}), "我的穿搭");
+$("bDownload").onclick = () => saveImage(drawLook(L(), {size:[600, 940]}), "我的作品");
 function saveImage(svg, name, w = 600){
   const img = new Image();
   img.onload = () => {
@@ -783,10 +783,10 @@ $("ov").addEventListener("click", e => {
   const w = e.target.closest("[data-wear]");
   if(w){ const it = S.wardrobe[+w.dataset.wear]; snap(); S.look = Object.assign(clone(DEFAULT_LOOK), clone(it.look)); S.editing = it.id; save(); closePanel(); render(); toast(`開始編輯「${wdName(it)}」，改好按「更新」`); return; }
   const rn = e.target.closest("[data-ren]");
-  if(rn){ const w = S.wardrobe[+rn.dataset.ren], v = prompt("幫這套穿搭取個名字（例如：小美、我家的貓）", w.name || wdName(w));
+  if(rn){ const w = S.wardrobe[+rn.dataset.ren], v = prompt("幫這個作品取個名字（例如：小美、我家的貓、生日蛋糕）", w.name || wdName(w));
     if(v !== null){ w.name = v.trim().slice(0, 12) || undefined; if(!w.name) delete w.name; save(); showWardrobe(); } return; }
   const d = e.target.closest("[data-del]");
-  if(d && confirm("確定要刪掉這套穿搭嗎？")){ S.wardrobe.splice(+d.dataset.del, 1); save(); showWardrobe(); }
+  if(d && confirm("確定要刪掉這個作品嗎？")){ S.wardrobe.splice(+d.dataset.del, 1); save(); showWardrobe(); }
 });
 addEventListener("keydown", e => { if(e.key === "Escape" && !$("ov").hidden) closePanel(); });
 
@@ -798,7 +798,7 @@ async function rpc(fn, body){
   return r.json();
 }
 if(!S.client){ S.client = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16)); save(); }
-const wallErr = e => /contest closed/.test(e.message) ? "這週的比賽已經結束，名次已經固定，不能再按讚了。" : /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "穿搭牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
+const wallErr = e => /contest closed/.test(e.message) ? "這週的比賽已經結束，名次已經固定，不能再按讚了。" : /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "作品牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
 // 別人貼的穿搭：每一個欄位都要檢查過才拿來畫（只接受清單裡的單品和 #RRGGBB 顏色），避免被塞奇怪的東西
 const HEX = /^#[0-9a-fA-F]{6}$/;
 function sanitizeLook(raw){
@@ -831,10 +831,10 @@ const W8 = {sort:"new", offset:0, rows:[], more:false, loading:false};
 const HEART = `<svg viewBox="0 0 20 20"><path d="M10 17 C1 11 2 4 6.5 4 C8.5 4 9.6 5.4 10 6.4 C10.4 5.4 11.5 4 13.5 4 C18 4 19 11 10 17 Z" fill="currentColor"/></svg>`;
 function wallCard(r, rank){
   const look = sanitizeLook(r.look), t = TH[r.theme], closed = !!r.contest && r.contest !== weekOf(Date.now()).key;
-  const likeOff = r.mine ? `disabled title="自己的穿搭"` : closed ? `disabled title="比賽已經結束"` : "";
+  const likeOff = r.mine ? `disabled title="自己的作品"` : closed ? `disabled title="比賽已經結束"` : "";
   return `<div class="wp ${r.mine ? "mine" : ""}" data-id="${r.id}">${rank && r.likes > 0 ? `<span class="rank r${rank}">${rank}</span>` : ""}${drawLook(look).replace("<svg ", '<svg class="look" ')}
-    <div class="tx"><b>${esc(r.title || "我的穿搭")}</b>${esc(r.name)}${r.mine ? "（你）" : ""}${t ? ` <span class="tg">${esc(t.name)}</span>` : ""}${r.contest ? ` <span class="tg" style="background:#FFE7B8;color:#8A5300">比賽：${esc(contestOf(r.contest).name)}</span>` : ""}</div>
-    <div class="row"><button class="likeb ${r.liked ? "on" : ""}" data-w="like" ${likeOff}>${HEART}<span>${r.likes}</span></button><button class="btn sm" data-w="try">穿穿看</button><button class="linkb" data-w="share">分享</button>${r.mine ? `<button class="linkb" data-w="del" style="margin-left:0">刪除</button>` : r.rank ? "" : `<button class="linkb" data-w="report" style="margin-left:0">檢舉</button>`}</div></div>`;
+    <div class="tx"><b>${esc(r.title || "我的作品")}</b>${esc(r.name)}${r.mine ? "（你）" : ""}${t ? ` <span class="tg">${esc(t.name)}</span>` : ""}${r.contest ? ` <span class="tg" style="background:#FFE7B8;color:#8A5300">比賽：${esc(contestOf(r.contest).name)}</span>` : ""}</div>
+    <div class="row"><button class="likeb ${r.liked ? "on" : ""}" data-w="like" ${likeOff}>${HEART}<span>${r.likes}</span></button><button class="btn sm" data-w="try">拿來改改看</button><button class="linkb" data-w="share">分享</button>${r.mine ? `<button class="linkb" data-w="del" style="margin-left:0">刪除</button>` : r.rank ? "" : `<button class="linkb" data-w="report" style="margin-left:0">檢舉</button>`}</div></div>`;
 }
 function renderWall(msg){
   const tabs = [["contest", "本週比賽"], ["new", "最新"], ["week", "本週熱門"], ["top", "最多讚"], ["hall", "名人堂"], ["mine", "我貼的"]];
@@ -842,11 +842,11 @@ function renderWall(msg){
   const bar = W8.sort === "contest" ? `<div class="contestbar"><span>本週主題比賽：<b>${esc(ct.name)}</b><br><span class="small">${esc(ct.desc)}${weekItems() ? `<br>相關單品：${esc(weekItems())}` : ""}<br>比賽到 ${sun.getUTCMonth() + 1}/${sun.getUTCDate()}（日）晚上 12 點，讚數最多的前三名會進名人堂。</span></span><button class="btn sm acc" data-w="post" data-c="1" style="margin-left:auto">參加比賽</button></div>`
     : W8.sort === "hall" ? `<div class="contestbar"><span>每週主題比賽讚數最多的前三名。比賽結束後就不能再按讚，名次就固定了。</span></div>` : "";
   const body = W8.sort === "hall" ? hallHtml() : `<div class="wall">${W8.rows.map((r, i) => wallCard(r, W8.sort === "contest" && i < 3 ? i + 1 : 0)).join("")}</div>`;
-  openPanel(`<h2>穿搭牆</h2>
-    <p class="muted small" style="text-align:center">大家貼上來的穿搭。喜歡就按愛心，也可以「穿穿看」換到自己身上。</p>
-    <div class="btns" style="margin-top:6px"><button class="btn acc" data-w="post">貼上我現在的穿搭</button><button class="btn" data-close>關閉</button></div>
+  openPanel(`<h2>作品牆</h2>
+    <p class="muted small" style="text-align:center">大家貼上來的作品。喜歡就按愛心，也可以按「拿來改改看」放到自己的舞台上。</p>
+    <div class="btns" style="margin-top:6px"><button class="btn acc" data-w="post">貼上我現在的作品</button><button class="btn" data-close>關閉</button></div>
     <div class="wtabs">${tabs.map(([k, n]) => `<button class="${W8.sort === k ? "on" : ""}" data-w="sort" data-v="${k}">${n}</button>`).join("")}</div>
-    ${bar}<div id="wallBox">${msg ? `<p style="text-align:center">${esc(msg)}</p>` : W8.rows.length ? body : `<p style="text-align:center" class="muted">${W8.sort === "mine" ? "你還沒有貼過穿搭。" : W8.sort === "hall" ? "還沒有比賽結果，第一屆的冠軍會是你嗎？" : W8.sort === "contest" ? "這週還沒有人參加，按「參加比賽」當第一個！" : "還沒有人貼，當第一個吧！"}</p>`}</div>
+    ${bar}<div id="wallBox">${msg ? `<p style="text-align:center">${esc(msg)}</p>` : W8.rows.length ? body : `<p style="text-align:center" class="muted">${W8.sort === "mine" ? "你還沒有貼過作品。" : W8.sort === "hall" ? "還沒有比賽結果，第一屆的冠軍會是你嗎？" : W8.sort === "contest" ? "這週還沒有人參加，按「參加比賽」當第一個！" : "還沒有人貼，當第一個吧！"}</p>`}</div>
     ${W8.more ? `<div class="btns"><button class="btn" data-w="more">看更多</button></div>` : ""}`);
 }
 async function loadWall(sort, append){
@@ -862,16 +862,16 @@ async function loadWall(sort, append){
 }
 $("bWall").onclick = () => loadWall(W8.sort);
 function showPost(msg, contest){
-  openPanel(`<h2>貼到穿搭牆</h2>
+  openPanel(`<h2>貼到作品牆</h2>
     <div class="postbox">${drawLook(L())}<div>
       <label>你的暱稱<input id="wName" maxlength="12" value="${esc(S.wallName || "")}" placeholder="1～12 個字"></label>
-      <label>幫這套穿搭取個名字（選填）<input id="wTitle" maxlength="20" placeholder="例如：夏天的海風"></label>
+      <label>幫這個作品取個名字（選填）<input id="wTitle" maxlength="20" placeholder="例如：夏天的海風"></label>
       ${TH[S.theme] ? `<p class="small">會標上主題：<b>${esc(TH[S.theme].name)}</b></p>` : ""}
       <label class="chk"><input type="checkbox" id="wContest" ${contest ? "checked" : ""}> 參加本週主題比賽「${esc(contestOf(weekOf(Date.now()).key).name)}」</label>
-      <p class="muted small">穿搭牆大家都看得到，請不要用真實姓名，也不要寫不好的字。被檢舉太多次會自動隱藏。</p>
+      <p class="muted small">作品牆大家都看得到，請不要用真實姓名，也不要寫不好的字。被檢舉太多次會自動隱藏。</p>
       ${msg ? `<p class="small" style="color:#D9414E;font-weight:800">${esc(msg)}</p>` : ""}
     </div></div>
-    <div class="btns"><button class="btn acc" data-w="send">貼上去</button><button class="btn" data-w="back">回穿搭牆</button></div>`);
+    <div class="btns"><button class="btn acc" data-w="send">貼上去</button><button class="btn" data-w="back">回作品牆</button></div>`);
   setTimeout(() => { const el = $(S.wallName ? "wTitle" : "wName"); if(el) el.focus(); }, 0);
 }
 let posting = false;
@@ -900,7 +900,7 @@ $("ov").addEventListener("click", async e => {
   if(act === "share") return shareLook(sanitizeLook(row.look));
   if(act === "try"){
     const stripped = wearLook(row.look);
-    toast(stripped ? "換上了！有些限定單品你還沒解鎖，先拿掉了" : `換上「${row.title || "我的穿搭"}」了！`);
+    toast(stripped ? "放上舞台了！有些限定單品你還沒解鎖，先拿掉了" : `「${row.title || "這個作品"}」放上舞台了！`);
   }else if(act === "like"){
     // 先改畫面，再送出（失敗再改回來）
     row.liked = !row.liked; row.likes += row.liked ? 1 : -1;
@@ -908,10 +908,10 @@ $("ov").addEventListener("click", async e => {
     try{ const r = await rpc("dressup_like", {p_client:S.client, p_id:id}); row.likes = r.likes; row.liked = r.liked; b.classList.toggle("on", r.liked); b.querySelector("span").textContent = r.likes; }
     catch(err){ row.liked = !row.liked; row.likes += row.liked ? 1 : -1; b.classList.toggle("on", row.liked); b.querySelector("span").textContent = row.likes; toast(wallErr(err)); }
   }else if(act === "del"){
-    if(!confirm("確定要從穿搭牆刪掉這套嗎？")) return;
+    if(!confirm("確定要從作品牆刪掉這個作品嗎？")) return;
     try{ await rpc("dressup_delete", {p_client:S.client, p_id:id}); W8.rows = W8.rows.filter(r => r.id !== id); renderWall(); toast("刪掉了"); }catch(err){ toast(wallErr(err)); }
   }else if(act === "report"){
-    if(!confirm("這套穿搭的名字或內容不恰當嗎？被檢舉 3 次會自動隱藏。")) return;
+    if(!confirm("這個作品的名字或內容不恰當嗎？被檢舉 3 次會自動隱藏。")) return;
     try{ await rpc("dressup_report", {p_client:S.client, p_id:id}); toast("已經收到檢舉，謝謝你"); b.disabled = true; b.textContent = "已檢舉"; }catch(err){ toast(wallErr(err)); }
   }
 });
@@ -966,12 +966,12 @@ function undo(){ if(!HIST.length){ toast("沒有可以復原的了"); return; } 
 $("bUndo").onclick = undo;
 // 重新開始：整套換回一開始的樣子（按錯可以按「復原」救回來）
 $("bReset").onclick = () => {
-  if(!confirm("要清除現在的穿搭，從頭開始嗎？（按錯可以按「復原」救回來）")) return;
+  if(!confirm("要清除舞台上現在的樣子，從頭開始嗎？（按錯可以按「復原」救回來）")) return;
   snap(); S.look = clone(DEFAULT_LOOK); delete S.editing; save(); render(); toast("重新開始了！");
 };
 addEventListener("keydown", e => { if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); undo(); } });
 
-// ---------- 換上別人的穿搭（穿搭牆、分享連結）：還沒解鎖的限定單品先拿掉 ----------
+// ---------- 把別人的作品放上舞台（作品牆、分享連結）：還沒解鎖的限定單品先拿掉 ----------
 function wearLook(raw){
   const look = sanitizeLook(raw);
   let stripped = false;
@@ -988,7 +988,7 @@ async function shareLook(look){
   const l = clone(look); Object.keys(SLOT_LISTS).forEach(k => { if(l[k]) delete l[k].custom; });
   const url = location.origin + location.pathname + "?look=" + b64e(JSON.stringify(l));
   if(TOUCH && navigator.share){ try{ await navigator.share({title:"我的作品｜搭配小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
-  try{ await navigator.clipboard.writeText(url); toast("分享連結複製好了，貼給朋友就能看到這套穿搭"); }
+  try{ await navigator.clipboard.writeText(url); toast("分享連結複製好了，貼給朋友就能看到這個作品"); }
   catch(e){ openPanel(`<h2>分享連結</h2><p>複製下面的連結傳給朋友：</p><input readonly value="${esc(url)}" onfocus="this.select()" style="width:100%;font:inherit;padding:8px;border:2px solid #3A2A20;border-radius:10px"><div class="btns"><button class="btn" data-close>關閉</button></div>`); }
 }
 $("bShare").onclick = () => shareLook(L());
@@ -1066,10 +1066,10 @@ let sharedLook = null;
   if(q){
     try{ sharedLook = JSON.parse(b64d(q)); }catch(e){ sharedLook = null; }
     history.replaceState(null, "", location.pathname);
-    if(sharedLook) setTimeout(() => openPanel(`<h2>朋友分享的穿搭</h2><div style="max-width:260px;margin:8px auto;border:2px solid #EAD7DF;border-radius:14px;overflow:hidden;line-height:0">${drawLook(sanitizeLook(sharedLook))}</div><div class="btns"><button class="btn acc" data-w="wearshared">穿上這套</button><button class="btn vio" data-w="thanks">回一張感謝卡</button><button class="btn" data-close>只是看看</button></div>`), 0);
+    if(sharedLook) setTimeout(() => openPanel(`<h2>朋友分享的作品</h2><div style="max-width:260px;margin:8px auto;border:2px solid #EAD7DF;border-radius:14px;overflow:hidden;line-height:0">${drawLook(sanitizeLook(sharedLook))}</div><div class="btns"><button class="btn acc" data-w="wearshared">拿來改改看</button><button class="btn vio" data-w="thanks">回一張感謝卡</button><button class="btn" data-close>只是看看</button></div>`), 0);
   }
 }
-$("ov").addEventListener("click", e => { if(e.target.closest("[data-w=wearshared]") && sharedLook){ const s = wearLook(sharedLook); toast(s ? "換上了！有些限定單品你還沒解鎖，先拿掉了" : "換上了！"); } });
+$("ov").addEventListener("click", e => { if(e.target.closest("[data-w=wearshared]") && sharedLook){ const s = wearLook(sharedLook); toast(s ? "放上舞台了！有些限定單品你還沒解鎖，先拿掉了" : "放上舞台了！"); } });
 
 // ---------- 手機：往下選衣服時，右下角顯示小預覽 ----------
 if("IntersectionObserver" in window){
