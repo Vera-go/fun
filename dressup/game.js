@@ -464,13 +464,17 @@ const groupLook = id => (S.group.looks || {})[id] || (id === "now" ? L() : (S.wa
 const SCENE_MAX = 12;
 if(!S.scenes) S.scenes = [];
 function withGroup(g, fn){ const keep = S.group; S.group = g; try{ return fn(); } finally { S.group = keep; } }
-function saveScene(asNew){
-  if(!gHasAny()) return toast("合照裡還沒有東西");
+function groupSnapshot(){
   const g = clone(S.group), looks = {};
   // 「現在的穿搭」會一直變：存的時候換成一個固定的代號，把當下的樣子記下來
   g.picks = g.picks.map(id => { if(id !== "now") return id; const nid = "n" + newId(); ["pos", "size", "rot", "flip", "z"].forEach(k => { if(g[k] && g[k].now !== undefined){ g[k][nid] = g[k].now; delete g[k].now; } }); looks[nid] = clone(L()); return nid; });
-  g.picks.forEach(id => { if(!looks[id]) looks[id] = clone(withGroup(S.group, () => groupLook(id))); });
+  g.picks.forEach(id => { if(!looks[id]) looks[id] = clone(groupLook(id)); });
   g.looks = looks; delete g.sceneId;
+  return g;
+}
+function saveScene(asNew){
+  if(!gHasAny()) return toast("合照裡還沒有東西");
+  const g = groupSnapshot();
   const d = new Date(), at = `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
   const old = !asNew && S.group.sceneId && S.scenes.find(x => x.id === S.group.sceneId);
   if(old){ old.group = g; old.at = at; toast("合照更新好了！"); }
@@ -556,7 +560,7 @@ function renderGroup(){
       ${isProp(sel) ? `<button class="btn sm" data-gdup>複製</button><button class="btn sm" data-gdel>刪除</button>` : ""}`
       : `<span class="muted">點一下合照裡的角色或小物，就能放大縮小、轉角度（也可以用滑鼠滾輪；手機用兩根手指捏合、轉動）</span>`}</div>
     <div class="gmode"><button class="btn sm ${S.group.wide ? "" : "acc"}" data-gwide="0">直式</button><button class="btn sm ${S.group.wide ? "acc" : ""}" data-gwide="1">橫式</button></div>
-    <div class="btns"><button class="btn acc" data-gdl ${gHasAny() ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>角色重新排好</button><button class="btn" data-gclear>全部清掉</button><button class="btn" data-close>關閉</button></div>
+    <div class="btns"><button class="btn acc" data-gdl ${gHasAny() ? "" : "disabled"}>${TOUCH && navigator.canShare ? "分享圖片（IG、LINE）" : "下載合照"}</button><button class="btn" data-glink ${gHasAny() ? "" : "disabled"}>分享合照連結</button><button class="btn" data-greset>角色重新排好</button><button class="btn" data-gclear>全部清掉</button><button class="btn" data-close>關閉</button></div>
     <div class="btns"><button class="btn vio" data-gsave>${S.group.sceneId ? "儲存（更新這張）" : "儲存合照"}</button>${S.group.sceneId ? `<button class="btn" data-gsavenew>另存一張新的</button>` : ""}<button class="btn" data-gnew>開一張新的</button></div>
     ${S.scenes.length ? `<h3>我的合照（${S.scenes.length}/${SCENE_MAX}）</h3><div class="gscenes">${S.scenes.map(sc => `<div class="gsc ${sc.id === S.group.sceneId ? "on" : ""}">
       <button class="gsc-open" data-gopen="${sc.id}" title="打開這張合照">${withGroup(Object.assign({}, sc.group, {wide:sc.group.wide}), () => groupSVG([0, 0]).replace(/ width="0" height="0"/, ""))}</button>
@@ -700,6 +704,7 @@ $("ov").addEventListener("click", e => {
   if(wd){ const w = wd.dataset.gwide === "1"; if(!!S.group.wide !== w){ const f = w ? (S.group.ww || 600) / 300 : 300 / GW(); Object.values(gMap("pos")).forEach(p => p.x *= f); S.group.wide = w; save(); } return renderGroup(); }
   const z = e.target.closest("[data-gz]");
   if(z && groupSel){ if(+z.dataset.gz) return groupResize(+z.dataset.gz); delete gMap("size")[groupSel]; save(); return renderGroup(); }
+  if(e.target.closest("[data-glink]")) return shareGroupLink();
   if(e.target.closest("[data-gsave]")) return saveScene(false);
   if(e.target.closest("[data-gsavenew]")) return saveScene(true);
   if(e.target.closest("[data-gnew]")){ if(gHasAny() && !confirm("要開一張新的合照嗎？還沒儲存的修改會不見喔")) return; S.group = {picks:[], props:[], bg:S.group.bg || "park", wide:S.group.wide, ww:S.group.ww}; groupSel = ""; save(); return renderGroup(); }
@@ -721,7 +726,13 @@ function saveImage(svg, name, w = 600){
     const cv = document.createElement("canvas"); cv.width = w; cv.height = 940;
     cv.getContext("2d").drawImage(img, 0, 0, w, 940);
     // 手機（尤其 iPhone、LINE 裡開的網頁）下載檔案常常沒反應：直接顯示圖片，長按就能存到相簿
-    if(TOUCH){ const url = cv.toDataURL("image/png"); openPanel(`<h2>存成圖片</h2><p class="muted" style="text-align:center">長按下面的圖片，選「儲存影像」或「加入照片」就能存到相簿。</p><img src="${url}" alt="${name}" style="width:100%;max-width:320px;display:block;margin:0 auto;border-radius:12px;border:2px solid #EAD7DF"><div class="btns"><a class="btn" href="${url}" download="我的穿搭.png">下載檔案</a><button class="btn" data-close>關閉</button></div>`); return; }
+    // 手機：直接叫出系統的分享選單（可以選 IG、LINE…）；不支援的才顯示圖片讓人長按存
+    const imgPanel = url => openPanel(`<h2>存成圖片</h2><p class="muted" style="text-align:center">長按下面的圖片，選「儲存影像」或「加入照片」就能存到相簿。</p><img src="${url}" alt="${name}" style="width:100%;max-width:320px;display:block;margin:0 auto;border-radius:12px;border:2px solid #EAD7DF"><div class="btns"><a class="btn" href="${url}" download="${name}.png">下載檔案</a><button class="btn" data-close>關閉</button></div>`);
+    if(TOUCH){ const url = cv.toDataURL("image/png");
+      cv.toBlob(async bl => { const f = bl && new File([bl], `${name}.png`, {type:"image/png"});
+        if(f && navigator.canShare && navigator.canShare({files:[f]})){ try{ await navigator.share({files:[f], title:name}); return; }catch(e){ if(e.name === "AbortError") return; } }
+        imgPanel(url); }, "image/png");
+      return; }
     cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${name}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }, "image/png");
   };
   img.onerror = () => toast("圖片產生失敗，請再試一次");
@@ -948,13 +959,81 @@ async function shareLook(look){
   catch(e){ openPanel(`<h2>分享連結</h2><p>複製下面的連結傳給朋友：</p><input readonly value="${esc(url)}" onfocus="this.select()" style="width:100%;font:inherit;padding:8px;border:2px solid #3A2A20;border-radius:10px"><div class="btns"><button class="btn" data-close>關閉</button></div>`); }
 }
 $("bShare").onclick = () => shareLook(L());
+// 合照放進網址：先壓縮（瀏覽器支援的話）再轉成網址可以用的文字；z 開頭是壓縮過的，j 開頭是沒壓縮的
+const b64bytes = u8 => { let t = ""; u8.forEach(c => t += String.fromCharCode(c)); return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const bytesB64 = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+async function packGroup(g){
+  const json = JSON.stringify(g);
+  if(window.CompressionStream){ try{ const buf = await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer(); return "z" + b64bytes(new Uint8Array(buf)); }catch(e){} }
+  return "j" + b64e(json);
+}
+async function unpackGroup(code){
+  if(code[0] === "z"){ const buf = await new Response(new Blob([bytesB64(code.slice(1))]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text(); return JSON.parse(buf); }
+  return JSON.parse(b64d(code.slice(1)));
+}
+// 從網址讀進來的合照：只留認得的東西
+function sanitizeGroup(raw){
+  const g = {picks:[], props:[], looks:{}, pos:{}, size:{}, rot:{}, flip:{}, z:{}};
+  if(!raw || typeof raw !== "object") return g;
+  g.bg = BGS[raw.bg] ? raw.bg : "park"; g.wide = raw.wide === true;
+  if(typeof raw.ww === "number" && raw.ww >= 600 && raw.ww <= 1300) g.ww = raw.ww;
+  const okId = id => typeof id === "string" && /^[a-z0-9]{1,12}$/i.test(id);
+  (Array.isArray(raw.picks) ? raw.picks : []).filter(okId).slice(0, GROUP_MAX).forEach(id => { if(raw.looks && raw.looks[id]){ g.picks.push(id); g.looks[id] = sanitizeLook(raw.looks[id]); } });
+  (Array.isArray(raw.props) ? raw.props : []).slice(0, PROP_MAX).forEach(p => { if(p && okId(p.id) && PROPS[p.t]) g.props.push(Object.assign({id:p.id, t:p.t}, typeof p.text === "string" ? {text:p.text.slice(0, 20)} : {})); });
+  const keys = [...g.picks, ...g.props.map(p => p.id)], num = v => typeof v === "number" && isFinite(v);
+  keys.forEach(k => {
+    const p = raw.pos && raw.pos[k]; if(p && num(p.x) && num(p.y)) g.pos[k] = {x:Math.max(-100, Math.min(1400, p.x)), y:Math.max(-100, Math.min(800, p.y))};
+    if(raw.size && num(raw.size[k])) g.size[k] = Math.max(.3, Math.min(3, raw.size[k]));
+    if(raw.rot && num(raw.rot[k])) g.rot[k] = raw.rot[k] % 360;
+    if(raw.flip && raw.flip[k] === true) g.flip[k] = true;
+    if(raw.z && num(raw.z[k])) g.z[k] = Math.max(-1e5, Math.min(1e5, raw.z[k]));
+  });
+  return g;
+}
+async function shareGroupLink(){
+  if(!gHasAny()) return toast("合照裡還沒有東西");
+  const url = location.origin + location.pathname + "?g=" + await packGroup(groupSnapshot());
+  if(TOUCH && navigator.share){ try{ await navigator.share({title:"我們的合照｜換裝小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
+  try{ await navigator.clipboard.writeText(url); toast("合照連結複製好了，貼給朋友就能看到這張合照"); }
+  catch(e){ prompt("複製下面的連結傳給朋友：", url); }
+}
+// 收到朋友的祝福：一鍵開一張寫好「謝謝你」的卡片，改一改再用分享連結或圖片傳回去
+function makeThanks(){
+  snap(); delete S.editing; S.theme = "";
+  S.look = Object.assign(clone(DEFAULT_LOOK), ROLE_PRESET.card, {role:"card", cardShape:"round", cardC:"#FFF4E6", inkC:"#C2386F", cardText:"謝謝你", cardMsg:"謝謝你的祝福，我好開心！", cardDeco:["hearts", "flowers", "bear"], bg:"room"});
+  S.cat = "cardbody"; save(); closePanel(); render();
+  toast("感謝卡做好了！可以改字和裝飾，再按「分享連結」或「下載圖片」傳回去");
+}
+$("ov").addEventListener("click", e => { if(e.target.closest("[data-w=thanks]")){ sharedGroup = null; makeThanks(); } });
+let sharedGroup = null;
+{
+  const q = new URLSearchParams(location.search).get("g");
+  if(q){
+    history.replaceState(null, "", location.pathname);
+    S.groupOpen = false;
+    unpackGroup(q).then(raw => {
+      sharedGroup = sanitizeGroup(raw);
+      if(!sharedGroup.picks.length && !sharedGroup.props.length) return toast("這個合照連結打不開，可能沒有複製完整");
+      openPanel(`<h2>朋友分享的合照</h2><div class="gshare">${withGroup(sharedGroup, () => groupSVG([0, 0]).replace(/ width="0" height="0"/, ""))}</div>
+        <div class="btns"><button class="btn acc" data-w="savegroup">存到我的合照</button><button class="btn" data-w="editgroup">打開來修改</button><button class="btn vio" data-w="thanks">回一張感謝卡</button><button class="btn" data-close>關閉</button></div>`);
+    }).catch(() => toast("這個合照連結打不開，可能沒有複製完整"));
+  }
+}
+$("ov").addEventListener("click", e => {
+  if(!sharedGroup) return;
+  if(e.target.closest("[data-w=savegroup]")){
+    if(S.scenes.length >= SCENE_MAX) return toast(`最多存 ${SCENE_MAX} 張合照，先刪掉幾張吧`);
+    const d = new Date(), id = newId(); S.scenes.unshift({id, at:`${d.getMonth() + 1}/${d.getDate()} 朋友分享`, group:clone(sharedGroup)});
+    S.group = Object.assign(clone(sharedGroup), {sceneId:id}); sharedGroup = null; save(); showGroup(); toast("存到我的合照了！");
+  }else if(e.target.closest("[data-w=editgroup]")){ S.group = clone(sharedGroup); sharedGroup = null; save(); showGroup(); }
+});
 let sharedLook = null;
 {
   const q = new URLSearchParams(location.search).get("look");
   if(q){
     try{ sharedLook = JSON.parse(b64d(q)); }catch(e){ sharedLook = null; }
     history.replaceState(null, "", location.pathname);
-    if(sharedLook) setTimeout(() => openPanel(`<h2>朋友分享的穿搭</h2><div style="max-width:260px;margin:8px auto;border:2px solid #EAD7DF;border-radius:14px;overflow:hidden;line-height:0">${drawLook(sanitizeLook(sharedLook))}</div><div class="btns"><button class="btn acc" data-w="wearshared">穿上這套</button><button class="btn" data-close>只是看看</button></div>`), 0);
+    if(sharedLook) setTimeout(() => openPanel(`<h2>朋友分享的穿搭</h2><div style="max-width:260px;margin:8px auto;border:2px solid #EAD7DF;border-radius:14px;overflow:hidden;line-height:0">${drawLook(sanitizeLook(sharedLook))}</div><div class="btns"><button class="btn acc" data-w="wearshared">穿上這套</button><button class="btn vio" data-w="thanks">回一張感謝卡</button><button class="btn" data-close>只是看看</button></div>`), 0);
   }
 }
 $("ov").addEventListener("click", e => { if(e.target.closest("[data-w=wearshared]") && sharedLook){ const s = wearLook(sharedLook); toast(s ? "換上了！有些限定單品你還沒解鎖，先拿掉了" : "換上了！"); } });
