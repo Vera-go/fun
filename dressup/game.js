@@ -1,5 +1,5 @@
 /* =========================================================
-   換裝小舞台：介面、主題挑戰評分、衣櫥（畫圖在 draw.js）
+   搭配小舞台（原名換裝小舞台）：介面、主題挑戰評分、收藏、合照（畫圖在 draw.js）
    - 自由搭配：左邊是舞台，右邊選分類、單品、顏色和花紋
    - 主題挑戰：選一個主題穿搭，三位貓咪評審照「符合主題、配色、整體」打分數（1～5 顆星）
      拿到 4 顆星以上可以解鎖那個主題的限定單品（不用抽卡、不用課金）
@@ -987,7 +987,7 @@ const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_
 async function shareLook(look){
   const l = clone(look); Object.keys(SLOT_LISTS).forEach(k => { if(l[k]) delete l[k].custom; });
   const url = location.origin + location.pathname + "?look=" + b64e(JSON.stringify(l));
-  if(TOUCH && navigator.share){ try{ await navigator.share({title:"我的穿搭｜換裝小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
+  if(TOUCH && navigator.share){ try{ await navigator.share({title:"我的作品｜搭配小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
   try{ await navigator.clipboard.writeText(url); toast("分享連結複製好了，貼給朋友就能看到這套穿搭"); }
   catch(e){ openPanel(`<h2>分享連結</h2><p>複製下面的連結傳給朋友：</p><input readonly value="${esc(url)}" onfocus="this.select()" style="width:100%;font:inherit;padding:8px;border:2px solid #3A2A20;border-radius:10px"><div class="btns"><button class="btn" data-close>關閉</button></div>`); }
 }
@@ -1026,7 +1026,7 @@ function sanitizeGroup(raw){
 async function shareGroupLink(){
   if(!gHasAny()) return toast("合照裡還沒有東西");
   const url = location.origin + location.pathname + "?g=" + await packGroup(groupSnapshot());
-  if(TOUCH && navigator.share){ try{ await navigator.share({title:"我們的合照｜換裝小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
+  if(TOUCH && navigator.share){ try{ await navigator.share({title:"我們的合照｜搭配小舞台", url}); return; }catch(e){ if(e.name === "AbortError") return; } }
   try{ await navigator.clipboard.writeText(url); toast("合照連結複製好了，貼給朋友就能看到這張合照"); }
   catch(e){ prompt("複製下面的連結傳給朋友：", url); }
 }

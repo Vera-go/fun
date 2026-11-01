@@ -48,7 +48,7 @@
     seats: () => ring("#FFF1E3") + `<rect x="11" y="9" width="18" height="4.5" rx="1.6" fill="#3E5A4A"/><g fill="#fff" stroke="${K}" stroke-width="1.5"><rect x="10" y="17" width="5.5" height="5" rx="1.4"/><rect x="17.25" y="17" width="5.5" height="5" rx="1.4"/><rect x="24.5" y="17" width="5.5" height="5" rx="1.4"/><rect x="10" y="24.5" width="5.5" height="5" rx="1.4"/><rect x="24.5" y="24.5" width="5.5" height="5" rx="1.4"/></g><rect x="17.25" y="24.5" width="5.5" height="5" rx="1.4" fill="#FF8A5B" stroke="${K}" stroke-width="1.5"/>`,
     // 打字練習：鍵盤，下一個要按的鍵是藍色
     typing: () => ring("#E3ECFF") + `<rect x="7" y="13" width="26" height="15" rx="3.5" fill="#fff" stroke="${K}" stroke-width="1.8"/><g fill="#B8EBC4"><rect x="10" y="16" width="4" height="3.2" rx=".8"/><rect x="15.5" y="16" width="4" height="3.2" rx=".8"/><rect x="21" y="16" width="4" height="3.2" rx=".8"/><rect x="26.5" y="16" width="4" height="3.2" rx=".8"/><rect x="12" y="20.5" width="4" height="3.2" rx=".8"/><rect x="23.5" y="20.5" width="4" height="3.2" rx=".8"/></g><rect x="17.7" y="20.5" width="4" height="3.2" rx=".8" fill="#3B6FE0"/><rect x="13" y="24.8" width="14" height="1.8" rx=".8" fill="#C9D1E0"/>`,
-    // 換裝小舞台：衣架掛著粉紅洋裝
+    // 搭配小舞台：衣架掛著粉紅洋裝
     // 寄宿小幫手：小房子和愛心
     homestay: () => ring("#DDF3EA") + `<path d="M8.5 20 L20 10 L31.5 20" fill="none" stroke="${K}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 19 V30 H28 V19 L20 12 Z" fill="#fff" stroke="${K}" stroke-width="1.8" stroke-linejoin="round"/><path d="M20 27.5 C15.2 24 15.2 20.5 17.8 20.5 C19 20.5 19.7 21.2 20 22 C20.3 21.2 21 20.5 22.2 20.5 C24.8 20.5 24.8 24 20 27.5 Z" fill="#FF8A5B" stroke="${K}" stroke-width="1.3" stroke-linejoin="round"/>`,
     // 電玩廳：遊戲手把

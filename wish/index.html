@@ -52,7 +52,7 @@
       <div id="evList"><div class="empty">載入中⋯⋯</div></div>
     </div>
     <div class="card ac" style="margin-bottom:14px" id="dpBox">
-      <h3>換裝小舞台：穿搭牆</h3>
+      <h3>搭配小舞台：穿搭牆</h3>
       <p class="small muted" style="margin:0">被 3 個人檢舉的穿搭會自動隱藏。「取消隱藏」會清掉檢舉紀錄；刪除後就找不回來了。</p>
       <div class="ac-filter">
         <button class="btn small on" data-dpf="reported">被檢舉的</button><button class="btn small" data-dpf="hidden">已隱藏</button><button class="btn small" data-dpf="all">全部（最新 100 筆）</button>
@@ -332,7 +332,7 @@ function renderEvents() {
     </div>`;
   }).join("") : `<div class="empty">${events.length ? "沒有符合的活動" : "還沒有人建立活動"}</div>`;
 }
-// 換裝小舞台的穿搭牆管理
+// 搭配小舞台的穿搭牆管理
 let dpFilter = "reported", dpRows = [];
 const dpLink = look => "../dressup/?look=" + btoa(unescape(encodeURIComponent(JSON.stringify(look)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 function renderDressup() {
