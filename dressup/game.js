@@ -518,7 +518,9 @@ function groupDrag(){
       if(g){ const it = gItem(key); pinch = {g, it, key, d0:dist(), a0:ang(), m0:it.m, m:it.m, r0:it.a, r:it.a, p:drag ? drag.p : it.p}; groupSel = key; }
       e.preventDefault(); return;
     }
-    const g = e.target.closest(".gch"); if(!g || ptrs.size > 1) return;
+    const g = e.target.closest(".gch");
+    if(!g){ if(ptrs.size === 1) groupSel = ""; return; }   // 點到空白的地方：取消選取，放開後虛線框就消失
+    if(ptrs.size > 1) return;
     const it = gItem(g.dataset.gid), q = pt(e);
     groupSel = it.key;
     drag = {g, it, key:it.key, p:{...it.p}, dx:it.p.x - q.x, dy:it.p.y - q.y, moved:false};
