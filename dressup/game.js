@@ -400,15 +400,18 @@ function renderGroup(){
   const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`}))];
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
   $("panel").innerHTML = `<h2>合照</h2>
-    <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色、選一個背景；在上面的畫面裡可以直接拖拉角色換位置（往上拖會站到後面）。</p>
-    <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先在下面點選角色吧！</div>`}</div>
+    <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色、選一個背景；在合照畫面裡可以直接拖拉角色換位置（往上拖會站到後面）。</p>
+    <div class="gwrap"><div class="gleft">
+    <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先點選角色吧！</div>`}</div>
+    <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>
+    </div><div class="gright">
     <h3>選角色</h3>
     <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
       return `<button class="it ${n >= 0 ? "on" : ""}" data-gp="${o.id}">${n >= 0 ? `<span class="wk">${n + 1}</span>` : ""}${drawLook(Object.assign(clone(DEFAULT_LOOK), o.look), {bg:false, vb:"40 20 220 440"})}${esc(o.name)}</button>`; }).join("")}</div>
     ${S.wardrobe.length ? "" : `<p class="muted" style="text-align:center">衣櫥還是空的：搭好一套按「存進衣櫥」，就能在這裡一起合照。</p>`}
     <h3>選背景</h3>
     <div class="items">${Object.entries(BGS).filter(([k, it]) => !lockedItem(it)).map(([k, it]) => `<button class="it ${S.group.bg === k ? "on" : ""}" data-gbg="${k}"><svg viewBox="0 60 300 300">${it.draw("#F7D3E0")}</svg>${esc(it.name)}</button>`).join("")}</div>
-    <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>`;
+    </div></div>`;
   groupDrag();
 }
 // 拖拉角色：按住角色拖到想要的位置，放開時記下來
@@ -430,7 +433,7 @@ function groupDrag(){
   const end = () => { if(!drag) return; if(drag.moved){ S.group.pos = Object.assign({}, S.group.pos, {[drag.id]:drag.p}); save(); } drag = null; renderGroup(); };
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
 }
-function showGroup(){ openPanel(""); renderGroup(); }
+function showGroup(){ openPanel(""); $("panel").classList.add("wide"); renderGroup(); }
 $("bGroup").onclick = showGroup;
 $("ov").addEventListener("click", e => {
   const p = e.target.closest("[data-gp]");
@@ -462,7 +465,7 @@ function saveImage(svg, name){
 }
 
 // ---------- 彈出視窗 ----------
-function openPanel(html){ $("panel").innerHTML = html; $("ov").hidden = false; $("ov").scrollTop = 0; }
+function openPanel(html){ $("panel").className = "panel"; $("panel").innerHTML = html; $("ov").hidden = false; $("ov").scrollTop = 0; }
 function closePanel(){ $("ov").hidden = true; }
 $("ov").addEventListener("click", e => {
   if(e.target === $("ov") || e.target.closest("[data-close]")) return closePanel();
