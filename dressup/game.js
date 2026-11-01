@@ -135,6 +135,13 @@ function render(){
   $("stageBar").innerHTML = t
     ? `<span class="chip theme">主題挑戰：${esc(t.name)}</span><small class="muted" style="font-weight:700">${esc(t.desc)}</small><span style="flex:1"></span><button class="btn sm" id="bLeave">離開挑戰</button>`
     : `<span class="chip">自由搭配</span><button class="chip contest" id="bContest">本週比賽：${esc(contestOf(weekOf(Date.now()).key).name)}</button>`;
+  const ed = editingItem();
+  if(!ed && S.editing) delete S.editing;
+  $("bSave").textContent = ed ? `更新「${wdName(ed)}」` : "存進衣櫥";
+  $("editBar").hidden = !ed;
+  if(ed) $("editBar").innerHTML = `<span>正在編輯衣櫥裡的「<b>${esc(wdName(ed))}</b>」，改好按「更新」就會存回去</span><button class="btn sm" id="bSaveNew">另存一套新的</button><button class="btn sm" id="bEditEnd">不編輯了</button>`;
+  if($("bSaveNew")) $("bSaveNew").onclick = () => { delete S.editing; saveLook(true); };
+  if($("bEditEnd")) $("bEditEnd").onclick = () => { delete S.editing; save(); render(); toast("之後按「存進衣櫥」會存成新的一套"); };
   if($("bContest")) $("bContest").onclick = () => loadWall("contest");
   $("bScore").hidden = !t;
   if($("bLeave")) $("bLeave").onclick = () => { S.theme = ""; save(); render(); };
@@ -369,13 +376,16 @@ $("bScore").onclick = () => {
 };
 
 // ---------- 衣櫥 ----------
-function saveLook(){
+// 從衣櫥按「編輯」換上的那套：再按「存進衣櫥」就是更新那一套，不會多出一套（S.editing 記著是哪一套）
+const editingItem = () => S.editing && S.wardrobe.find(w => w.id === S.editing);
+function saveLook(asNew){
+  const d = new Date(), at = `${d.getMonth() + 1}/${d.getDate()}`, ed = editingItem();
+  if(ed && !asNew){ ed.look = clone(L()); ed.at = at; ed.theme = S.theme || ed.theme || ""; save(); render(); toast(`「${wdName(ed)}」更新好了！`); return; }
   if(S.wardrobe.length >= 24){ toast("衣櫥滿了（最多 24 套），先刪掉幾套吧"); return; }
-  const d = new Date();
-  S.wardrobe.unshift({id:newId(), look:clone(L()), at:`${d.getMonth() + 1}/${d.getDate()}`, theme:S.theme || ""});
-  save(); toast("存進衣櫥了！");
+  const id = newId(); S.wardrobe.unshift({id, look:clone(L()), at, theme:S.theme || ""});
+  S.editing = id; save(); render(); toast("存進衣櫥了！之後再按「存進衣櫥」會更新這一套");
 }
-$("bSave").onclick = saveLook;
+$("bSave").onclick = () => saveLook(false);
 // 衣櫥每一套的名字：自己取的優先，沒取的就叫「女生 1、女生 2、寵物 1」（照存的先後編號）
 function wdName(w){
   if(w.name) return w.name;
@@ -385,7 +395,7 @@ function wdName(w){
 function showWardrobe(){
   openPanel(`<h2>我的衣櫥</h2>
     <p class="muted" style="text-align:center">存在這個瀏覽器裡，最多 24 套。</p>
-    ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${esc(wdName(w))}</b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}・${esc(w.at)} 存的<div class="row"><button class="btn sm acc" data-wear="${i}">穿上</button><button class="btn sm" data-ren="${i}">取名字</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有存任何穿搭。搭好喜歡的造型後，按「存進衣櫥」。</p>`}
+    ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${esc(wdName(w))}</b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}・${esc(w.at)} 存的<div class="row"><button class="btn sm acc" data-wear="${i}">編輯</button><button class="btn sm" data-ren="${i}">取名字</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有存任何穿搭。搭好喜歡的造型後，按「存進衣櫥」。</p>`}
     <div class="btns"><button class="btn" data-close>關閉</button></div>`);
 }
 $("bWardrobe").onclick = showWardrobe;
@@ -667,7 +677,7 @@ $("ov").addEventListener("click", e => {
   if(a && a.dataset.act === "save") return saveLook();
   if(a && a.dataset.act === "themes") return showThemes();
   const w = e.target.closest("[data-wear]");
-  if(w){ snap(); S.look = Object.assign(clone(DEFAULT_LOOK), clone(S.wardrobe[+w.dataset.wear].look)); save(); closePanel(); render(); toast("換上了！"); return; }
+  if(w){ const it = S.wardrobe[+w.dataset.wear]; snap(); S.look = Object.assign(clone(DEFAULT_LOOK), clone(it.look)); S.editing = it.id; save(); closePanel(); render(); toast(`開始編輯「${wdName(it)}」，改好按「更新」`); return; }
   const rn = e.target.closest("[data-ren]");
   if(rn){ const w = S.wardrobe[+rn.dataset.ren], v = prompt("幫這套穿搭取個名字（例如：小美、我家的貓）", w.name || wdName(w));
     if(v !== null){ w.name = v.trim().slice(0, 12) || undefined; if(!w.name) delete w.name; save(); showWardrobe(); } return; }
@@ -846,7 +856,7 @@ $("bUndo").onclick = undo;
 // 重新開始：整套換回一開始的樣子（按錯可以按「復原」救回來）
 $("bReset").onclick = () => {
   if(!confirm("要清除現在的穿搭，從頭開始嗎？（按錯可以按「復原」救回來）")) return;
-  snap(); S.look = clone(DEFAULT_LOOK); save(); render(); toast("重新開始了！");
+  snap(); S.look = clone(DEFAULT_LOOK); delete S.editing; save(); render(); toast("重新開始了！");
 };
 addEventListener("keydown", e => { if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); undo(); } });
 
@@ -856,7 +866,7 @@ function wearLook(raw){
   let stripped = false;
   Object.keys(SLOT_LISTS).forEach(k => { if(look[k] && lockedItem(SLOT_LISTS[k][look[k].id])){ look[k] = null; stripped = true; } });
   if(lockedItem(EYES[look.eyes])){ look.eyes = "round"; stripped = true; }
-  snap(); S.look = look; save(); closePanel(); render();
+  snap(); S.look = look; delete S.editing; save(); closePanel(); render();
   return stripped;
 }
 
