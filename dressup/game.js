@@ -401,13 +401,14 @@ function renderGroup(){
   // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
   const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`}))];
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
-  $("panel").innerHTML = `<h2>合照</h2>
-    <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色、選一個背景；在合照畫面裡可以直接拖拉角色換位置（往上拖會站到後面）。</p>
-    <div class="gwrap"><div class="gleft">
+  const keep = document.querySelector(".gright"), top = keep ? keep.scrollTop : 0;   // 右邊選單重畫後停在原本捲到的地方
+  $("panel").innerHTML = `<div class="gwrap"><div class="gleft">
     <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先點選角色吧！</div>`}</div>
+    </div><div class="gright">
+    <h2>合照</h2>
+    <p class="muted ghint">挑最多 ${GROUP_MAX} 個角色、選一個背景，在合照裡直接拖拉角色換位置（往上拖會站到後面）。</p>
     <div class="gsize">${groupSel && S.group.picks.includes(groupSel) ? `<span>選到的角色：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button>` : `<span class="muted">點一下合照裡的角色，就能放大縮小（也可以用滑鼠滾輪，手機用兩根手指捏合）</span>`}</div>
     <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-greset>重新排好</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>
-    </div><div class="gright">
     <h3>選角色</h3>
     <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
       return `<button class="it ${n >= 0 ? "on" : ""}" data-gp="${o.id}">${n >= 0 ? `<span class="wk">${n + 1}</span>` : ""}${drawLook(Object.assign(clone(DEFAULT_LOOK), o.look), {bg:false, vb:"40 20 220 440"})}${esc(o.name)}</button>`; }).join("")}</div>
@@ -415,6 +416,7 @@ function renderGroup(){
     <h3>選背景</h3>
     <div class="items">${Object.entries(BGS).filter(([k, it]) => !lockedItem(it)).map(([k, it]) => `<button class="it ${S.group.bg === k ? "on" : ""}" data-gbg="${k}"><svg viewBox="0 60 300 300">${it.draw("#F7D3E0")}</svg>${esc(it.name)}</button>`).join("")}</div>
     </div></div>`;
+  if(top) document.querySelector(".gright").scrollTop = top;
   groupDrag();
 }
 // 拖拉角色：按住角色拖到想要的位置，放開時記下來
