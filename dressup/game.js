@@ -488,7 +488,8 @@ function showWardrobe(){
 $("bWardrobe").onclick = showWardrobe;
 
 // ---------- 合照：從衣櫥挑幾個角色（不帶自己的背景），一起放到同一個背景前面，還能擺上房子、家具、花草樹木等小物 ----------
-const GROUP_MAX = 8, PROP_MAX = 40;
+// 角色和小物都不限數量（分享連結讀進來時才設個很大的上限，避免壞掉的網址卡住瀏覽器）
+const LINK_MAX = 300;
 // 角色的樣子：存過的合照會把當時的樣子一起存起來（looks），衣櫥刪掉了也還在
 const groupLook = id => (S.group.looks || {})[id] || (id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look);
 // ---------- 儲存的合照（最多 12 張，存在這個瀏覽器） ----------
@@ -534,7 +535,8 @@ const gIds = () => S.group.picks.filter(groupLook);
 const isProp = key => key[0] === "p" && (S.group.props || []).some(p => p.id === key);
 const propOf = key => (S.group.props || []).find(p => p.id === key);
 // 人數越多每個人縮小一點；小物跟著同一個比例，看起來大小才一致
-const groupBase = n => (S.group.wide ? [.9, .82, .74, .66, .6, .56, .52, .5] : [1, .8, .66, .56, .5, .46, .43, .4])[Math.max(0, Math.min(7, n - 1))];
+// 人越多每個人縮小一點才排得下（8 個以上照同樣的比例繼續變小，最小到 .25）；之後都可以自己拉大縮小
+const groupBase = n => { const t = S.group.wide ? [.9, .82, .74, .66, .6, .56, .52, .5] : [1, .8, .66, .56, .5, .46, .43, .4]; return n <= 8 ? t[Math.max(0, n - 1)] : Math.max(.25, t[7] * 8 / n); };
 function gItem(key){
   const ids = gIds(), n = Math.max(1, ids.length), m = gMap("size")[key] || 1, a = gMap("rot")[key] || 0, f = !!gMap("flip")[key];
   if(isProp(key)){ const pr = propOf(key), it = PROPS[pr.t] || PROPS.flowers, i = S.group.props.indexOf(pr);
@@ -584,7 +586,7 @@ function renderGroup(){
     </div><div class="gright">
     <button class="gx" data-close title="關閉" aria-label="關閉">✕</button>
     <h2>合照</h2>
-    <p class="muted ghint">挑最多 ${GROUP_MAX} 個角色、加上小物、選一個背景，在合照裡直接拖拉換位置（往上拖會站到後面）。</p>
+    <p class="muted ghint">挑角色、加上小物（想放幾個都可以）、選一個背景，在合照裡直接拖拉換位置（往上拖會站到後面）。</p>
     <div class="gsize">${sel ? `<span>選到的${esc(selName)}：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button><span class="gbr"></span>
       <button class="btn sm" data-grot="-15">↺ 左轉</button><button class="btn sm" data-grot="15">↻ 右轉</button>${isProp(sel) ? "" : `<button class="btn sm" data-grot="lie">躺下</button>`}<button class="btn sm" data-grot="0">擺正</button><button class="btn sm" data-gflip>左右翻轉</button>${isProp(sel) && PROPS[propOf(sel).t].text ? `<span class="gbr"></span><label class="gtextl">文字：<input class="gtext" data-gtext maxlength="20" value="${esc(propOf(sel).text || PROPS[propOf(sel).t].text)}"></label>` : ""}<span class="gbr"></span>
       <button class="btn sm" data-glayer="up">往前一層</button><button class="btn sm" data-glayer="down">往後一層</button><button class="btn sm" data-glayer="top">移到最前面</button><button class="btn sm" data-glayer="bottom">移到最後面</button>
@@ -710,12 +712,10 @@ $("ov").addEventListener("click", e => {
   const p = e.target.closest("[data-gp]");
   if(p){ const id = p.dataset.gp, a = S.group.picks;
     if(a.includes(id)){ S.group.picks = a.filter(x => x !== id); gForget(id); }
-    else if(a.length >= GROUP_MAX) return toast(`最多放 ${GROUP_MAX} 個角色`);
     else a.push(id);
     save(); return renderGroup(); }
   const ad = e.target.closest("[data-gadd]");
   if(ad){ S.group.props = S.group.props || [];
-    if(S.group.props.length >= PROP_MAX) return toast(`小物最多放 ${PROP_MAX} 個`);
     const id = "p" + newId(); S.group.props.push({id, t:ad.dataset.gadd}); groupSel = id; save(); toast(`放了一個${PROPS[ad.dataset.gadd].name}，拖到想放的地方吧`); return renderGroup(); }
   const g = e.target.closest("[data-gbg]");
   if(g){ S.group.bg = g.dataset.gbg; save(); return renderGroup(); }
@@ -1011,8 +1011,8 @@ function sanitizeGroup(raw){
   g.bg = BGS[raw.bg] ? raw.bg : "park"; g.wide = raw.wide === true;
   if(typeof raw.ww === "number" && raw.ww >= 600 && raw.ww <= 1300) g.ww = raw.ww;
   const okId = id => typeof id === "string" && /^[a-z0-9]{1,12}$/i.test(id);
-  (Array.isArray(raw.picks) ? raw.picks : []).filter(okId).slice(0, GROUP_MAX).forEach(id => { if(raw.looks && raw.looks[id]){ g.picks.push(id); g.looks[id] = sanitizeLook(raw.looks[id]); } });
-  (Array.isArray(raw.props) ? raw.props : []).slice(0, PROP_MAX).forEach(p => { if(p && okId(p.id) && PROPS[p.t]) g.props.push(Object.assign({id:p.id, t:p.t}, typeof p.text === "string" ? {text:p.text.slice(0, 20)} : {})); });
+  (Array.isArray(raw.picks) ? raw.picks : []).filter(okId).slice(0, LINK_MAX).forEach(id => { if(raw.looks && raw.looks[id]){ g.picks.push(id); g.looks[id] = sanitizeLook(raw.looks[id]); } });
+  (Array.isArray(raw.props) ? raw.props : []).slice(0, LINK_MAX).forEach(p => { if(p && okId(p.id) && PROPS[p.t]) g.props.push(Object.assign({id:p.id, t:p.t}, typeof p.text === "string" ? {text:p.text.slice(0, 20)} : {})); });
   const keys = [...g.picks, ...g.props.map(p => p.id)], num = v => typeof v === "number" && isFinite(v);
   keys.forEach(k => {
     const p = raw.pos && raw.pos[k]; if(p && num(p.x) && num(p.y)) g.pos[k] = {x:Math.max(-100, Math.min(1400, p.x)), y:Math.max(-100, Math.min(800, p.y))};
