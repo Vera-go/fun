@@ -115,6 +115,10 @@ const applyRole = (look, r) => Object.assign(look, clone(ROLE_PRESET[r] || ROLE_
 let S = {look:clone(DEFAULT_LOOK), cat:"hair", theme:"", best:{}, wardrobe:[]};
 try{ const v = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if(v) S = Object.assign(S, v); }catch(e){}
 S.look = Object.assign(clone(DEFAULT_LOOK), S.look);
+// 衣櫥每一套都有自己的代號（合照用）
+const newId = () => Math.random().toString(36).slice(2, 9);
+(S.wardrobe || []).forEach(w => { if(!w.id) w.id = newId(); });
+if(!S.group) S.group = {picks:[], bg:"park"};
 if(EYE_OLD[S.look.eyeC]) S.look.eyeC = EYE_OLD[S.look.eyeC];   // 舊版的眼睛顏色換成柔和的
 const save = () => { try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} };
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -364,7 +368,7 @@ $("bScore").onclick = () => {
 function saveLook(){
   if(S.wardrobe.length >= 24){ toast("衣櫥滿了（最多 24 套），先刪掉幾套吧"); return; }
   const d = new Date();
-  S.wardrobe.unshift({look:clone(L()), at:`${d.getMonth() + 1}/${d.getDate()}`, theme:S.theme || ""});
+  S.wardrobe.unshift({id:newId(), look:clone(L()), at:`${d.getMonth() + 1}/${d.getDate()}`, theme:S.theme || ""});
   save(); toast("存進衣櫥了！");
 }
 $("bSave").onclick = saveLook;
@@ -376,20 +380,60 @@ function showWardrobe(){
 }
 $("bWardrobe").onclick = showWardrobe;
 
+// ---------- 合照：從衣櫥挑幾個角色（不帶自己的背景），一起放到同一個背景前面 ----------
+const GROUP_MAX = 4;
+const groupLooks = () => S.group.picks.map(id => id === "now" ? L() : (S.wardrobe.find(w => w.id === id) || {}).look).filter(Boolean);
+function groupSVG(size){
+  const looks = groupLooks(), n = looks.length, k = [1, .8, .66, .56][n - 1] || .56;
+  const b = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? BGS[S.group.bg] : BGS.park;
+  // 每個角色照順序從左排到右，腳踩在同一條地面上（人比較前面、寵物比較小也沒關係）
+  const chars = looks.map((l, i) => `<g transform="translate(${(300 * (i + .5) / n).toFixed(1)} 452) scale(${(l.role === "pet" ? k * .78 : k).toFixed(3)}) translate(-150 -452)">${drawLook(Object.assign(clone(DEFAULT_LOOK), l), {bg:false})}</g>`).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${b.draw("#F7D3E0")}${chars}</svg>`;
+}
+function renderGroup(){
+  // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
+  const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`}))];
+  S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
+  $("panel").innerHTML = `<h2>合照</h2>
+    <p class="muted" style="text-align:center">挑最多 ${GROUP_MAX} 個角色，點的順序就是從左到右的位置，再幫大家選一個背景。</p>
+    <div class="gstage">${S.group.picks.length ? groupSVG() : `<div class="gempty">先在下面點選角色吧！</div>`}</div>
+    <h3>選角色</h3>
+    <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
+      return `<button class="it ${n >= 0 ? "on" : ""}" data-gp="${o.id}">${n >= 0 ? `<span class="wk">${n + 1}</span>` : ""}${drawLook(Object.assign(clone(DEFAULT_LOOK), o.look), {bg:false, vb:"40 20 220 440"})}${esc(o.name)}</button>`; }).join("")}</div>
+    ${S.wardrobe.length ? "" : `<p class="muted" style="text-align:center">衣櫥還是空的：搭好一套按「存進衣櫥」，就能在這裡一起合照。</p>`}
+    <h3>選背景</h3>
+    <div class="items">${Object.entries(BGS).filter(([k, it]) => !lockedItem(it)).map(([k, it]) => `<button class="it ${S.group.bg === k ? "on" : ""}" data-gbg="${k}"><svg viewBox="0 60 300 300">${it.draw("#F7D3E0")}</svg>${esc(it.name)}</button>`).join("")}</div>
+    <div class="btns"><button class="btn acc" data-gdl ${S.group.picks.length ? "" : "disabled"}>下載合照</button><button class="btn" data-gclear>全部取消</button><button class="btn" data-close>關閉</button></div>`;
+}
+function showGroup(){ openPanel(""); renderGroup(); }
+$("bGroup").onclick = showGroup;
+$("ov").addEventListener("click", e => {
+  const p = e.target.closest("[data-gp]");
+  if(p){ const id = p.dataset.gp, a = S.group.picks;
+    if(a.includes(id)) S.group.picks = a.filter(x => x !== id);
+    else if(a.length >= GROUP_MAX) return toast(`最多放 ${GROUP_MAX} 個角色`);
+    else a.push(id);
+    save(); return renderGroup(); }
+  const g = e.target.closest("[data-gbg]");
+  if(g){ S.group.bg = g.dataset.gbg; save(); return renderGroup(); }
+  if(e.target.closest("[data-gclear]")){ S.group.picks = []; save(); return renderGroup(); }
+  if(e.target.closest("[data-gdl]")) saveImage(groupSVG([600, 940]), "我們的合照");
+});
+
 // ---------- 下載圖片 ----------
-$("bDownload").onclick = () => {
-  const svg = drawLook(L(), {size:[600, 940]});
+$("bDownload").onclick = () => saveImage(drawLook(L(), {size:[600, 940]}), "我的穿搭");
+function saveImage(svg, name){
   const img = new Image();
   img.onload = () => {
     const cv = document.createElement("canvas"); cv.width = 600; cv.height = 940;
     cv.getContext("2d").drawImage(img, 0, 0, 600, 940);
     // 手機（尤其 iPhone、LINE 裡開的網頁）下載檔案常常沒反應：直接顯示圖片，長按就能存到相簿
-    if(TOUCH){ const url = cv.toDataURL("image/png"); openPanel(`<h2>存成圖片</h2><p class="muted" style="text-align:center">長按下面的圖片，選「儲存影像」或「加入照片」就能存到相簿。</p><img src="${url}" alt="我的穿搭" style="width:100%;max-width:320px;display:block;margin:0 auto;border-radius:12px;border:2px solid #EAD7DF"><div class="btns"><a class="btn" href="${url}" download="我的穿搭.png">下載檔案</a><button class="btn" data-close>關閉</button></div>`); return; }
-    cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "我的穿搭.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }, "image/png");
+    if(TOUCH){ const url = cv.toDataURL("image/png"); openPanel(`<h2>存成圖片</h2><p class="muted" style="text-align:center">長按下面的圖片，選「儲存影像」或「加入照片」就能存到相簿。</p><img src="${url}" alt="${name}" style="width:100%;max-width:320px;display:block;margin:0 auto;border-radius:12px;border:2px solid #EAD7DF"><div class="btns"><a class="btn" href="${url}" download="我的穿搭.png">下載檔案</a><button class="btn" data-close>關閉</button></div>`); return; }
+    cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${name}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }, "image/png");
   };
   img.onerror = () => toast("圖片產生失敗，請再試一次");
   img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-};
+}
 
 // ---------- 彈出視窗 ----------
 function openPanel(html){ $("panel").innerHTML = html; $("ov").hidden = false; $("ov").scrollTop = 0; }
