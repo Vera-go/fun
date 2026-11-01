@@ -1376,6 +1376,99 @@ Object.assign(PROPS, {
 });
 PROP_CATS.push({name:"文字和貼圖（文字可以自己改）", keys:["speech", "think", "banner", "heart", "sparkle", "notes", "zzz", "exclaim", "question", "sweat", "angry"]});
 
+// ---------- 靜物角色：蛋糕（選蛋糕的樣子、顏色，再自由加裝飾；牌子上的字可以自己改） ----------
+ROLES.cake = {name:"蛋糕"};
+const CAKE_BASES = {
+  round1: {name:"一層圓蛋糕", tiers:[{rx:110, top:300, bot:420}]},
+  round2: {name:"兩層圓蛋糕", tiers:[{rx:112, top:336, bot:420}, {rx:76, top:262, bot:336}]},
+  round3: {name:"三層圓蛋糕", tiers:[{rx:112, top:358, bot:420}, {rx:84, top:298, bot:358}, {rx:58, top:242, bot:298}]},
+  square: {name:"方形蛋糕", square:true},
+  cupcake:{name:"杯子蛋糕", cup:true},
+};
+const SPONGE_PAL = ["#F6E7C8", "#E8C48E", "#8A5A3C", "#F7B6C8", "#B9D98C", "#C9B3E8", "#FFFFFF"];
+const FROST_PAL = ["#FFFFFF", "#F7A8C4", "#6B4530", "#9ADBC0", "#FFE98A", "#9BD0F5", "#C9B3E8", "#F59A4A"];
+const PLATE_PAL = ["#FFFFFF", "#F6D65A", "#9BD0F5", "#F7A8C4", "#C9CED6"];
+// 裝飾（可以選好幾個）；tags 給主題挑戰計分用
+const CAKE_DECO = {
+  strawberry:{name:"草莓", tags:["party", "snack", "summer"]},
+  candles:   {name:"蠟燭", tags:["party"]},
+  cream:     {name:"擠花奶油", tags:["party", "fancy"]},
+  cherry:    {name:"櫻桃", tags:["party", "snack"]},
+  blueberry: {name:"藍莓", tags:["snack", "summer"]},
+  macaron:   {name:"馬卡龍", tags:["fancy", "party"]},
+  sprinkles: {name:"彩色糖粒", tags:["party", "funny"]},
+  drip:      {name:"巧克力淋醬", tags:["snack", "fancy"]},
+  flowers:   {name:"糖霜小花", tags:["fancy", "summer"]},
+  ribbon:    {name:"緞帶", tags:["fancy", "formal"]},
+  plaque:    {name:"文字牌", tags:["party"]},
+  startop:   {name:"星星插牌", tags:["party", "funny"]},
+  hearttop:  {name:"愛心插牌", tags:["party", "fancy"]},
+  bear:      {name:"小熊公仔", tags:["party", "funny", "animal"]},
+};
+// 圓蛋糕側面上緣的弧線：從左到右，y 照著前面那半圈橢圓
+const arcPts = (t, dy = 0, n = 16) => Array.from({length:n + 1}, (_, i) => { const x = -t.rx + 2 * t.rx * i / n; return [150 + x, t.top + dy + t.rx * .24 * Math.sqrt(Math.max(0, 1 - (x / t.rx) ** 2))]; });
+function cakeShape(L){
+  const b = CAKE_BASES[L.cakeBase] || CAKE_BASES.round2;
+  if(b.square) return {tiers:[], top:{cx:150, cy:296, rx:96, ry:12}, sq:true};
+  if(b.cup) return {tiers:[], top:{cx:150, cy:244, rx:46, ry:10}, cup:true};
+  const t = b.tiers[b.tiers.length - 1];
+  return {tiers:b.tiers, top:{cx:150, cy:t.top, rx:t.rx, ry:t.rx * .24}};
+}
+function drawCake(L){
+  const sp = L.sponge || "#F6E7C8", fr = L.frost || "#FFFFFF", deco = L.deco || [], has = k => deco.includes(k), sh = cakeShape(L), T = sh.top;
+  const dark = shade(sp, lum(sp) < .3 ? .25 : -.18), frD = shade(fr, lum(fr) < .3 ? .3 : -.12);
+  let s = E(150, 428, 140, 26, L.plate || "#FFFFFF", 3) + E(150, 424, 120, 18, shade(L.plate || "#FFFFFF", -.06), 0);
+  // 蛋糕本體
+  if(sh.sq){
+    s += P("M48 300 L252 300 L252 418 L48 418 Z", sp, 3) + LN("M48 360 L252 360", 3, dark) + P("M48 300 L64 282 L236 282 L252 300 Z", fr, 3) +
+      P("M48 300 L252 300 L252 314 " + Array.from({length:10}, (_, i) => `Q${242 - i * 20.4} 326 ${231.6 - i * 20.4} 314`).join(" ") + " L48 300 Z", fr, 2.6);
+  }else if(sh.cup){
+    s += P("M92 330 L208 330 L194 420 L106 420 Z", sp, 3) + [112, 132, 150, 168, 188].map(x => LN(`M${x} 334 L${x + (150 - x) * .14} 416`, 2, dark)).join("") +
+      P("M82 334 Q80 300 112 296 Q104 262 138 258 Q132 230 150 222 Q168 230 162 258 Q196 262 188 296 Q220 300 218 334 Q150 350 82 334 Z", fr, 3) +
+      LN("M100 316 Q150 330 200 316 M118 280 Q150 290 182 280", 2, frD);
+  }else{
+    sh.tiers.forEach((t, i) => {
+      const ry = t.rx * .24, top = arcPts(t), band = arcPts(t, 14);
+      s += P(`M${150 - t.rx} ${t.top} L${150 - t.rx} ${t.bot} A${t.rx} ${ry} 0 0 0 ${150 + t.rx} ${t.bot} L${150 + t.rx} ${t.top} Z`, sp, 3);
+      s += LN(`M${150 - t.rx + 4} ${(t.top + t.bot) / 2 + 8} A${t.rx} ${ry} 0 0 0 ${150 + t.rx - 4} ${(t.top + t.bot) / 2 + 8}`, 2.4, dark);
+      // 上面的糖霜：頂面＋側面上緣一圈波浪
+      s += P(`M${top.map(p => p.map(n => n.toFixed(1)).join(" ")).join(" L")} L${band.reverse().map((p, k) => `${p[0].toFixed(1)} ${(p[1] + (k % 2 ? 7 : 0)).toFixed(1)}`).join(" L")} Z`, fr, 2.4);
+      s += E(150, t.top, t.rx, ry, fr, 3);
+    });
+  }
+  // 側面的裝飾（每一層）
+  const sideRows = sh.sq ? [{l:48, r:252, y:340}] : sh.cup ? [] : sh.tiers.map(t => ({l:150 - t.rx, r:150 + t.rx, y:(t.top + t.bot) / 2 + 12, t}));
+  if(has("drip")) s += sh.sq ? Array.from({length:9}, (_, i) => { const x = 58 + i * 23, h = 18 + (i * 7) % 20; return P(`M${x - 8} 300 L${x - 8} ${300 + h} Q${x} ${310 + h} ${x + 8} ${300 + h} L${x + 8} 300 Z`, "#6B4530", 0); }).join("") + LN("M48 300 L252 300", 3)
+    : sh.tiers.map(t => arcPts(t, 0, 10).slice(1, -1).map(([x, y], i) => { const h = 14 + (i * 9) % 18; return P(`M${x - 7} ${y - 2} L${x - 7} ${y + h} Q${x} ${y + h + 9} ${x + 7} ${y + h} L${x + 7} ${y - 2} Z`, "#6B4530", 0); }).join("")).join("");
+  if(has("ribbon")){ const r = sideRows[0]; if(r) s += P(`M${r.l} ${r.y + 10} L${r.r} ${r.y + 10} L${r.r} ${r.y + 26} L${r.l} ${r.y + 26} Z`, "#E8679A", 2.4) + P(`M150 ${r.y + 18} Q128 ${r.y} 124 ${r.y + 18} Q128 ${r.y + 36} 150 ${r.y + 18} Q172 ${r.y} 176 ${r.y + 18} Q172 ${r.y + 36} 150 ${r.y + 18} Z`, "#E8679A", 2.4) + C(150, r.y + 18, 6, "#C2386F", 2); }
+  if(has("flowers")) s += sideRows.map((r, j) => [.2, .5, .8].map((f, i) => { const x = r.l + (r.r - r.l) * f, y = r.y - 4 + (i % 2) * 6, c = ["#F7A8C4", "#FFE98A", "#C9B3E8"][(i + j) % 3];
+    return [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 5.5, y + Math.sin(a * Math.PI / 180) * 5.5, 5, c, 1.4)).join("") + C(x, y, 3, "#F59A4A", 1); }).join("")).join("");
+  if(has("sprinkles")) s += [...sideRows.map(r => [r.l + 10, r.r - 10, r.y - 16, r.y + 18]), [T.cx - T.rx * .7, T.cx + T.rx * .7, T.cy - T.ry * .6, T.cy + T.ry * .6]].map(([l, r, t, b], j) =>
+    Array.from({length:16}, (_, i) => { const x = l + ((i * 37 + j * 11) % 100) / 100 * (r - l), y = t + ((i * 53 + j * 7) % 100) / 100 * (b - t), a = (i * 47) % 180;
+      return `<rect x="${(x - 4).toFixed(1)}" y="${(y - 1.5).toFixed(1)}" width="8" height="3" rx="1.5" fill="${["#E8679A", "#4C8FE0", "#F6D65A", "#5FB36B", "#F59A4A"][i % 5]}" transform="rotate(${a} ${x.toFixed(1)} ${y.toFixed(1)})"/>`; }).join("")).join("");
+  // 頂面的裝飾：照前後排（後面的先畫）
+  const onTop = [];
+  const ring = (n, f, a0 = 0) => Array.from({length:n}, (_, i) => { const a = a0 + i * 2 * Math.PI / n; return [T.cx + Math.cos(a) * T.rx * f, T.cy + Math.sin(a) * T.ry * f]; });
+  if(has("cream")) ring(10, .86, .3).forEach(([x, y]) => onTop.push([y, P(`M${x - 9} ${y} Q${x - 10} ${y - 12} ${x} ${y - 18} Q${x + 10} ${y - 12} ${x + 9} ${y} Z`, mix(fr, "#FFFFFF", .5), 2) + LN(`M${x - 4} ${y - 4} Q${x} ${y - 12} ${x + 4} ${y - 4}`, 1.2, frD)]));
+  if(has("strawberry")) ring(5, .6, -.4).forEach(([x, y]) => onTop.push([y + .1, P(`M${x} ${y + 4} Q${x - 13} ${y - 8} ${x - 9} ${y - 18} Q${x} ${y - 22} ${x + 9} ${y - 18} Q${x + 13} ${y - 8} ${x} ${y + 4} Z`, "#E0303E", 2.2) +
+    P(`M${x - 8} ${y - 18} L${x - 3} ${y - 24} L${x} ${y - 19} L${x + 3} ${y - 24} L${x + 8} ${y - 18} Z`, "#4FA36B", 1.6) + [[-4, -10], [4, -10], [0, -4]].map(([dx, dy]) => E(x + dx, y + dy, 1, 1.6, "#FFE98A", 0)).join("")]));
+  if(has("blueberry")) ring(7, .4, .9).forEach(([x, y]) => onTop.push([y + .2, C(x, y - 5, 6.5, "#4A5FA8", 1.8) + C(x - 2, y - 7, 1.6, "rgba(255,255,255,.6)", 0)]));
+  if(has("macaron")) [[-.5, -.3], [.5, -.3], [0, .45]].forEach(([fx, fy], i) => { const x = T.cx + fx * T.rx * .7, y = T.cy + fy * T.ry, c = ["#F7A8C4", "#9ADBC0", "#C9B3E8"][i];
+    onTop.push([y + .3, P(`M${x - 14} ${y - 6} Q${x} ${y - 20} ${x + 14} ${y - 6} Z`, c, 2) + P(`M${x - 14} ${y - 4} L${x + 14} ${y - 4}`, "none", 3, `stroke="#fff"`) + P(`M${x - 14} ${y - 2} Q${x} ${y + 8} ${x + 14} ${y - 2} Z`, c, 2)]); });
+  // 有文字牌時，蠟燭移到兩邊，不要擋住字
+  if(has("candles")) (has("plaque") ? [-T.rx * .62, T.rx * .62] : [-26, 0, 26]).forEach((dx, i) => { const x = T.cx + dx, y = T.cy - 2 + (has("plaque") ? 4 : i === 1 ? -4 : 2), c = ["#9BD0F5", "#F7A8C4", "#FFE98A"][i];
+    onTop.push([y + .4, `<rect x="${x - 5}" y="${y - 52}" width="10" height="52" rx="2" fill="${c}" stroke="${INK}" stroke-width="2"/>` + [-40, -26, -12].map(d => LN(`M${x - 5} ${y + d} L${x + 5} ${y + d - 6}`, 1.6, "#fff")).join("") +
+      LN(`M${x} ${y - 52} L${x} ${y - 58}`, 1.6) + P(`M${x} ${y - 78} Q${x + 8} ${y - 66} ${x} ${y - 58} Q${x - 8} ${y - 66} ${x} ${y - 78} Z`, "#F59A4A", 1.6) + P(`M${x} ${y - 72} Q${x + 3} ${y - 65} ${x} ${y - 61} Q${x - 3} ${y - 65} ${x} ${y - 72} Z`, "#FFE98A", 0)]); });
+  if(has("cherry")) onTop.push([T.cy + .5, LN(`M${T.cx} ${T.cy - 20} Q${T.cx + 4} ${T.cy - 40} ${T.cx + 14} ${T.cy - 44}`, 2.4, "#4F8F45") + C(T.cx, T.cy - 12, 11, "#D9414E", 2.4) + C(T.cx - 4, T.cy - 16, 3, "rgba(255,255,255,.7)", 0)]);
+  if(has("bear")){ const x = T.cx + T.rx * .3, y = T.cy + 2; onTop.push([y + .6, C(x - 12, y - 46, 6, "#C98A4B", 2) + C(x + 12, y - 46, 6, "#C98A4B", 2) + E(x, y - 12, 16, 14, "#C98A4B", 2.4) + C(x, y - 36, 15, "#C98A4B", 2.4) + E(x, y - 32, 6, 4.5, "#F3D9B8", 0) + C(x - 5, y - 39, 1.8, INK, 0) + C(x + 5, y - 39, 1.8, INK, 0) + E(x, y - 33, 2, 1.4, INK, 0)]); }
+  if(has("plaque")){ const t = L.cakeText || "生日快樂", w = Math.max(80, textW(t, 15) + 6), x = T.cx - (has("bear") ? 16 : 0), y = T.cy - T.ry * .3;
+    onTop.push([y - 50, LN(`M${x - w / 4} ${y} L${x - w / 4} ${y - 30} M${x + w / 4} ${y} L${x + w / 4} ${y - 30}`, 3, "#C9A877") + P(`M${x - w / 2} ${y - 58} Q${x - w / 2} ${y - 70} ${x - w / 2 + 12} ${y - 70} L${x + w / 2 - 12} ${y - 70} Q${x + w / 2} ${y - 70} ${x + w / 2} ${y - 58} L${x + w / 2} ${y - 40} Q${x + w / 2} ${y - 28} ${x + w / 2 - 12} ${y - 28} L${x - w / 2 + 12} ${y - 28} Q${x - w / 2} ${y - 28} ${x - w / 2} ${y - 40} Z`, "#FFF8E6", 2.4) + TXTB(x, y - 49, t, 15, "#C2386F")]); }
+  if(has("startop")) onTop.push([T.cy + .7, LN(`M${T.cx - 30} ${T.cy} L${T.cx - 30} ${T.cy - 90}`, 3, "#C9A877") + star(T.cx - 30, T.cy - 100, 18, "#FFD447", 2.4)]);
+  if(has("hearttop")) onTop.push([T.cy + .7, LN(`M${T.cx + 32} ${T.cy} L${T.cx + 32} ${T.cy - 84}`, 3, "#C9A877") + P(heartD(T.cx + 32, T.cy - 96, 16), "#E8679A", 2.4)]);
+  s += onTop.sort((a, b) => a[0] - b[0]).map(x => x[1]).join("");
+  return s;
+}
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
@@ -1409,6 +1502,7 @@ function drawLook(L, opt = {}){
   const vb = opt.vb || `0 0 ${W} ${H}`;
   const out = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${opt.size ? ` width="${opt.size[0]}" height="${opt.size[1]}"` : ""}><defs>${defs.join("")}</defs>${s}</svg>`;
   // 寵物角色：身體和臉另外畫，脖子以上的配件和人共用
+  if(L.role === "cake"){ s += drawCake(L); if(L.pet && PETS[L.pet]) s += drawPet(L.pet); return out(); }
   if(L.role === "pet"){
     const wear = L.petwear && PETWEAR[L.petwear.id], wf = wear ? fill("petwear", L.petwear) : "";
     const shp = petShape(L), fit = svg => `<g transform="${petWearFit(shp)}">${svg}</g>`;

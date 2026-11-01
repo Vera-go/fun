@@ -44,12 +44,19 @@ const CATS = [
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
     {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"},
     {type:"slot", key:"pettoy", label:"抱著的玩具", list:PETTOYS, vb:"95 360 110 90"}]},
+  {id:"cakebody", roles:["cake"], name:"蛋糕", groups:[
+    {type:"pick", key:"cakeBase", label:"蛋糕的樣子", list:CAKE_BASES, vb:"20 150 260 300"},
+    {type:"color", key:"sponge", label:"蛋糕顏色", pal:SPONGE_PAL},
+    {type:"color", key:"frost", label:"糖霜顏色", pal:FROST_PAL},
+    {type:"multi", key:"deco", label:"裝飾（可以選好幾個）", list:CAKE_DECO, vb:"30 130 240 260"},
+    {type:"text", key:"cakeText", label:"文字牌上的字（加了「文字牌」裝飾才看得到）", max:12},
+    {type:"color", key:"plate", label:"盤子顏色", pal:PLATE_PAL}]},
   {id:"hair", roles:["girl", "boy"], name:"髮型", groups:[
     {type:"pick", key:"hairB", label:"髮型", list:HAIRB, vb:"60 26 180 290"},
     {type:"pick", key:"hairF", label:"瀏海", list:HAIRF, vb:"84 44 132 132"},
     {type:"color", key:"hairC", label:"髮色", pal:HAIR_PAL},
     {type:"color", key:"hairTip", label:"挑染（髮尾變色）", pal:TIP_PAL, none:true}]},
-  {id:"face", name:"五官", groups:[
+  {id:"face", roles:["girl", "boy", "pet"], name:"五官", groups:[
     {type:"color", key:"skin", only:human, label:"膚色", pal:SKIN, index:true},
     {type:"pick", key:"faceShape", only:human, label:"臉型", list:FACES, vb:"76 62 148 148"},
     {type:"pick", key:"eyes", label:"眼睛", list:EYES, vb:"100 106 100 64"},
@@ -75,7 +82,7 @@ const CATS = [
   {id:"feet", roles:["girl", "boy"], name:"鞋襪", groups:[
     {type:"slot", key:"socks", label:"襪子", list:SOCKS, vb:"96 336 108 120"},
     {type:"slot", key:"shoes", label:"鞋子", list:SHOES, vb:"100 364 100 92"}]},
-  {id:"acc", name:"配件", groups:[
+  {id:"acc", roles:["girl", "boy", "pet"], name:"配件", groups:[
     {type:"slot", key:"hat", label:"帽子和頭飾", list:HATS, vb:"40 20 220 160"},
     {type:"slot", key:"glasses", label:"眼鏡", list:GLASSES, vb:"96 104 108 72"},
     {type:"slot", key:"hairpin", label:"髮飾", list:HAIRPINS, vb:"156 60 72 64"},
@@ -93,7 +100,7 @@ const NO_PAT = ["hat", "glasses", "hairpin", "neck", "bag", "hand", "shoes"];
 
 // ---------- 存檔 ----------
 const SAVE_KEY = "dressup.v1";
-const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, petMouth:"w", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
+const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain", petwear:null, pettoy:null, petMouth:"w", cakeBase:"round2", sponge:"#F6E7C8", frost:"#F7A8C4", plate:"#FFFFFF", deco:[], cakeText:"生日快樂", skin:0, hairB:"long", hairF:"blunt", hairC:"#5A3A2A", eyes:"round", eyeC:"#6B4530", brows:"soft", mouth:"smile",
   blush:"#FF9AAE", lip:"", shadow:"", freckles:false, sticker:"", bg:"room", bgC:"#F7D3E0", pet:"", faceShape:"round", nose:"small", hairTip:"", pose:"down", eyeliner:"", gloss:false, glitter:false, fun:[],
   top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
   socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"},
@@ -102,6 +109,7 @@ const DEFAULT_LOOK = {role:"girl", species:"cat", fur:"#F6A64A", furPat:"plain",
 const ROLE_PRESET = {
   girl:{hairB:"long", hairF:"blunt", brows:"soft", eyes:"round", blush:"#FF9AAE", top:{id:"tee", color:"#FFFFFF", pat:"none"}, bottom:{id:"pleat", color:"#2C3E70", pat:"none"}, dress:null, outer:null,
     socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"}, hairpin:null, neck:null},
+  cake:{cakeBase:"round2", sponge:"#F6E7C8", frost:"#F7A8C4", plate:"#FFFFFF", deco:["strawberry", "candles", "cream", "plaque"], cakeText:"生日快樂", bg:"birthday", pet:""},
   pet:{species:"cat", fur:"#F6A64A", furPat:"tabby", eyes:"round", blush:"#FF9AAE", petwear:{id:"bandana", color:"#4C8FE0", pat:"none"}, bag:null, hand:null},
   boy:{hairB:"boycut", hairF:"boyfringe", brows:"bold", eyes:"round", blush:"", lip:"", shadow:"", eyeliner:"", gloss:false, glitter:false, hairTip:"",
     top:{id:"hoodboy", color:"#2C3E70", pat:"none"}, bottom:{id:"khaki", color:"#C9A877", pat:"none"}, dress:null, outer:null,
@@ -137,11 +145,11 @@ function render(){
     : `<span class="chip">自由搭配</span><button class="chip contest" id="bContest">本週比賽：${esc(contestOf(weekOf(Date.now()).key).name)}</button>`;
   const ed = editingItem();
   if(!ed && S.editing) delete S.editing;
-  $("bSave").textContent = ed ? `更新「${wdName(ed)}」` : "存進衣櫥";
+  $("bSave").textContent = ed ? `更新「${wdName(ed)}」` : "存進收藏";
   $("editBar").hidden = !ed;
-  if(ed) $("editBar").innerHTML = `<span>正在編輯衣櫥裡的「<b>${esc(wdName(ed))}</b>」，改好按「更新」就會存回去</span><button class="btn sm" id="bSaveNew">另存一套新的</button><button class="btn sm" id="bEditEnd">不編輯了</button>`;
+  if(ed) $("editBar").innerHTML = `<span>正在編輯收藏裡的「<b>${esc(wdName(ed))}</b>」，改好按「更新」就會存回去</span><button class="btn sm" id="bSaveNew">另存一套新的</button><button class="btn sm" id="bEditEnd">不編輯了</button>`;
   if($("bSaveNew")) $("bSaveNew").onclick = () => { delete S.editing; saveLook(true); };
-  if($("bEditEnd")) $("bEditEnd").onclick = () => { delete S.editing; save(); render(); toast("之後按「存進衣櫥」會存成新的一套"); };
+  if($("bEditEnd")) $("bEditEnd").onclick = () => { delete S.editing; save(); render(); toast("之後按「存進收藏」會存成新的一套"); };
   if($("bContest")) $("bContest").onclick = () => loadWall("contest");
   $("bScore").hidden = !t;
   if($("bLeave")) $("bLeave").onclick = () => { S.theme = ""; save(); render(); };
@@ -195,6 +203,8 @@ function renderGroups(){
     }else if(g.type === "color"){
       const cur = look[g.key];
       h += `<div class="sw">${g.none ? `<button class="no ${!cur ? "on" : ""}" data-t="color" data-k="${g.key}" data-v="" aria-label="不要"></button>` : ""}${g.pal.map((c, i) => { const val = g.index ? i : c; return `<button class="${cur === val ? "on" : ""}" style="background:${c}" data-t="color" data-k="${g.key}" data-v="${val}" data-i="${g.index ? 1 : ""}" aria-label="顏色"></button>`; }).join("")}</div>`;
+    }else if(g.type === "text"){
+      h += `<input class="ctext" type="text" data-t="text" data-k="${g.key}" maxlength="${g.max || 12}" value="${esc(look[g.key] || "")}" placeholder="打字…">`;
     }else if(g.type === "toggle"){
       h += `<label class="tog"><input type="checkbox" data-t="toggle" data-k="${g.key}" ${look[g.key] ? "checked" : ""}> 加上${esc(g.label)}</label>`;
     }
@@ -210,7 +220,7 @@ function toast(msg){
 // ---------- 換衣服 ----------
 $("cats").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if(!b) return; S.cat = b.dataset.cat; save(); renderCats(); renderGroups(); });
 $("groups").addEventListener("click", e => {
-  const b = e.target.closest("[data-t]"); if(!b || b.dataset.t === "toggle") return;
+  const b = e.target.closest("[data-t]"); if(!b || b.dataset.t === "toggle" || b.dataset.t === "text") return;
   const look = L(), k = b.dataset.k, v = b.dataset.v, t = b.dataset.t;
   const lockMsg = it => it && lockedItem(it) && `在「${TH[it.lock].name}」挑戰拿到 4 顆星就能解鎖`;
   const m = lockMsg(t === "slot" ? SLOT_LISTS[k][v] : t === "pick" && KEY_LISTS[k] ? KEY_LISTS[k][v] : null);
@@ -234,6 +244,8 @@ $("groups").addEventListener("click", e => {
   else if(t === "color"){ look[k] = b.dataset.i ? +v : v; }
   save(); render();
 });
+// 打字：一邊打一邊更新舞台（只重畫舞台，輸入框不會跳掉）
+$("groups").addEventListener("input", e => { const b = e.target.closest("[data-t=text]"); if(!b) return; L()[b.dataset.k] = b.value; save(); $("stage").innerHTML = drawLook(L()); $("mini").innerHTML = drawLook(L()); });
 $("groups").addEventListener("change", e => { const b = e.target.closest("[data-t=toggle]"); if(!b) return; snap(); L()[b.dataset.k] = b.checked; save(); render(); });
 
 // ---------- 隨機搭配 ----------
@@ -243,6 +255,7 @@ function randomLook(){
   const scheme = pick([["#FFFFFF", "#2C3E70", "#D9414E"], ["#F7A8C4", "#FFFFFF", "#B9A3E8"], ["#F6E7C8", "#8A5A3C", "#4FA36B"], ["#9BD0F5", "#FFFFFF", "#F6D65A"], ["#2E2B2B", "#FFFFFF", "#E8679A"], ["#9ADBC0", "#F6E7C8", "#F59A4A"], ["#B9A3E8", "#7E5BC2", "#F7A8C4"]]);
   const boy = look.role === "boy";
   if(look.role === "pet") return randomPet(look);
+  if(look.role === "cake") return randomCake(look);
   const col = () => pick(scheme), it = (list, pat = .2) => { const id = pick(avail(list).filter(k => !boy || !BOY_SKIP.includes(k))); return {id, color:col(), pat:Math.random() < pat ? pick(["dots", "stripes", "check", "flower"]) : "none"}; };
   look.hairB = pick(boy ? BOY_HAIR : Object.keys(HAIRB).filter(k => !BOY_HAIR.includes(k) || Math.random() < .3)); look.hairF = pick(boy ? BOY_FRINGE : Object.keys(HAIRF)); look.hairC = pick(HAIR_PAL);
   look.pose = pick(["down", "down", "behind", "wave", "peace"]);
@@ -260,6 +273,13 @@ function randomLook(){
   ACC_SLOTS.forEach(k => look[k] = null);
   for(let n = 1 + Math.floor(Math.random() * 3), tries = 0; n > 0 && tries < 20; tries++){ const k = pick(ACC_SLOTS); if(look[k] || (boy && k === "hairpin")) continue; look[k] = it(SLOT_LISTS[k], 0); n--; }
   look.bg = pick(Object.keys(BGS)); look.pet = Math.random() < .4 ? pick(Object.keys(PETS)) : "";
+  return look;
+}
+function randomCake(look){
+  look.cakeBase = pick(Object.keys(CAKE_BASES)); look.sponge = pick(SPONGE_PAL); look.frost = pick(FROST_PAL); look.plate = pick(PLATE_PAL);
+  const ds = Object.keys(CAKE_DECO); look.deco = ds.filter(() => Math.random() < .3);
+  if(!look.deco.length) look.deco = [pick(ds)];
+  look.bg = pick(Object.keys(BGS).filter(k => !lockedItem(BGS[k]))); look.pet = "";
   return look;
 }
 function randomPet(look){
@@ -298,6 +318,7 @@ function hueFamily(hex){
   return String(Math.round(h / 45) % 8);
 }
 function worn(look){
+  if(look.role === "cake") return (look.deco || []).filter(id => CAKE_DECO[id]).map(id => ({slot:"deco", v:{color:look.frost, pat:"none"}, it:CAKE_DECO[id]}));
   if(look.role === "pet") return ["petwear", "pettoy", ...PET_ACC].filter(k => look[k] && SLOT_LISTS[k][look[k].id]).map(k => ({slot:k, v:look[k], it:SLOT_LISTS[k][look[k].id]}));
   const dress = look.dress && DRESSES[look.dress.id];
   const slots = ["dress", "outer", "socks", "shoes", ...ACC_SLOTS];
@@ -328,9 +349,11 @@ function scoreLook(look, t){
   // 有沒有穿好
   const dress = look.dress && DRESSES[look.dress.id];
   const pet = look.role === "pet";
-  const dressed = pet || (dress && !dress.overTop) || ((look.top || dress) && (look.bottom || dress));
+  const still = look.role === "cake";
+  const dressed = pet || still || (dress && !dress.overTop) || ((look.top || dress) && (look.bottom || dress));
   if(!dressed){ lines.push(["還沒穿好（要有上衣和下身，或是一件洋裝）", -15]); pts -= 15; }
-  if(pet){ lines.push([look.petwear ? "穿了可愛的衣服" : "寵物不穿衣服也很可愛", 5]); pts += 5; }
+  if(still){ const n = (look.deco || []).length; lines.push([n >= 3 ? "裝飾得很用心" : n ? "再多加一點裝飾會更漂亮" : "還沒有裝飾", n >= 3 ? 5 : 0]); pts += n >= 3 ? 5 : 0; }
+  else if(pet){ lines.push([look.petwear ? "穿了可愛的衣服" : "寵物不穿衣服也很可愛", 5]); pts += 5; }
   else if(look.shoes){ lines.push(["有穿鞋子", 5]); pts += 5; } else { lines.push(["忘了穿鞋子", -5]); pts -= 5; }
   // 配色：衣服的顏色有幾個色系（黑白灰米色不算）
   const fams = new Set(items.filter(x => !ACC_SLOTS.includes(x.slot) || x.slot === "hat" || x.slot === "scarf").map(x => hueFamily(x.v.color)).filter(f => f !== "neutral"));
@@ -371,7 +394,7 @@ $("bScore").onclick = () => {
     <div class="judges">${judgeComments(r, t).map(([role, name, base, patch, txt]) => `<div class="jd">${judgeCat(base, patch)}<div><b>${role}・${name}</b>${esc(txt)}</div></div>`).join("")}</div>
     <ul class="detail">${r.lines.map(([txt, p]) => `<li><span>${esc(txt)}</span><b class="${p > 0 ? "pl" : p < 0 ? "mi" : ""}">${p > 0 ? "+" + p : p}</b></li>`).join("")}</ul>
     ${newUnlock ? `<div class="unlock">解鎖新單品：${esc(KEY_LISTS[slot][id].name)}！到「${slot === "eyes" ? "五官" : "配件"}」就可以穿戴。</div>` : !wasUnlocked ? `<p class="small muted" style="text-align:center">拿到 4 顆星可以解鎖「${esc(rewardName(t))}」。</p>` : ""}
-    <div class="btns"><button class="btn acc" data-close>繼續修改</button><button class="btn" data-act="save">存進衣櫥</button><button class="btn vio" data-act="themes">換一個主題</button></div>`);
+    <div class="btns"><button class="btn acc" data-close>繼續修改</button><button class="btn" data-act="save">存進收藏</button><button class="btn vio" data-act="themes">換一個主題</button></div>`);
   if(newUnlock) render();
 };
 
@@ -381,9 +404,9 @@ const editingItem = () => S.editing && S.wardrobe.find(w => w.id === S.editing);
 function saveLook(asNew){
   const d = new Date(), at = `${d.getMonth() + 1}/${d.getDate()}`, ed = editingItem();
   if(ed && !asNew){ ed.look = clone(L()); ed.at = at; ed.theme = S.theme || ed.theme || ""; save(); render(); toast(`「${wdName(ed)}」更新好了！`); return; }
-  if(S.wardrobe.length >= 24){ toast("衣櫥滿了（最多 24 套），先刪掉幾套吧"); return; }
+  if(S.wardrobe.length >= 24){ toast("收藏滿了（最多 24 個），先刪掉幾個吧"); return; }
   const id = newId(); S.wardrobe.unshift({id, look:clone(L()), at, theme:S.theme || ""});
-  S.editing = id; save(); render(); toast("存進衣櫥了！之後再按「存進衣櫥」會更新這一套");
+  S.editing = id; save(); render(); toast("存進收藏了！之後再按「存進收藏」會更新這一個");
 }
 $("bSave").onclick = () => saveLook(false);
 // 衣櫥每一套的名字：自己取的優先，沒取的就叫「女生 1、女生 2、寵物 1」（照存的先後編號）
@@ -393,9 +416,9 @@ function wdName(w){
   return `${(ROLES[role] || ROLES.girl).name} ${same.length - same.indexOf(w)}`;
 }
 function showWardrobe(){
-  openPanel(`<h2>我的衣櫥</h2>
-    <p class="muted" style="text-align:center">存在這個瀏覽器裡，最多 24 套。</p>
-    ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${esc(wdName(w))}</b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}・${esc(w.at)} 存的<div class="row"><button class="btn sm acc" data-wear="${i}">編輯</button><button class="btn sm" data-ren="${i}">取名字</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有存任何穿搭。搭好喜歡的造型後，按「存進衣櫥」。</p>`}
+  openPanel(`<h2>我的收藏</h2>
+    <p class="muted" style="text-align:center">存在這個瀏覽器裡，最多 24 個（人、寵物、蛋糕都可以存）。</p>
+    ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${esc(wdName(w))}</b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}・${esc(w.at)} 存的<div class="row"><button class="btn sm acc" data-wear="${i}">編輯</button><button class="btn sm" data-ren="${i}">取名字</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有收藏。做好喜歡的角色（人、寵物、蛋糕都可以）後，按「存進收藏」。</p>`}
     <div class="btns"><button class="btn" data-close>關閉</button></div>`);
 }
 $("bWardrobe").onclick = showWardrobe;
@@ -449,7 +472,7 @@ function gItem(key){
   if(isProp(key)){ const pr = propOf(key), it = PROPS[pr.t] || PROPS.flowers, i = S.group.props.indexOf(pr);
     return {key, prop:true, it, base:groupBase(n), m, a, f, back:!!it.back, p:gMap("pos")[key] || {x:GW() / 2 + (i % 5 - 2) * 24, y:it.sky ? 160 : it.back ? 400 : 440}}; }
   const i = ids.indexOf(key), l = groupLook(key);
-  return {key, l, base:groupBase(n) * (l.role === "pet" ? .78 : 1), m, a, f, p:gMap("pos")[key] || {x:GW() * (i + .5) / ids.length, y:452}};
+  return {key, l, base:groupBase(n) * (l.role === "pet" ? .78 : l.role === "cake" ? .7 : 1), m, a, f, p:gMap("pos")[key] || {x:GW() * (i + .5) / ids.length, y:452}};
 }
 // 角色：腳踩的點對齊位置、繞著身體中間轉；小物：底部中間對齊位置、繞著自己的中間轉
 const gTf = (it, p, k, a) => it.prop
@@ -508,7 +531,7 @@ function renderGroup(){
     <h3>選角色</h3>
     <div class="items">${opts.map(o => { const n = S.group.picks.indexOf(o.id);
       return `<button class="it ${n >= 0 ? "on" : ""}" data-gp="${o.id}">${n >= 0 ? `<span class="wk">${n + 1}</span>` : ""}${drawLook(Object.assign(clone(DEFAULT_LOOK), o.look), {bg:false, vb:"40 20 220 440"})}${esc(o.name)}</button>`; }).join("")}</div>
-    ${S.wardrobe.length ? "" : `<p class="muted" style="text-align:center">衣櫥還是空的：搭好一套按「存進衣櫥」，就能在這裡一起合照。</p>`}
+    ${S.wardrobe.length ? "" : `<p class="muted" style="text-align:center">收藏還是空的：做好一個角色按「存進收藏」，就能在這裡一起合照。</p>`}
     <h3>加小物（點一下就放進合照，可以放很多個）</h3>
     ${[...PROP_CATS, {name:"其他", keys:Object.keys(PROPS).filter(k => !PROP_CATS.some(c => c.keys.includes(k)))}].filter(c => c.keys.length).map(c => `<div class="gpcat">${esc(c.name)}</div><div class="items">${c.keys.filter(k => PROPS[k]).map(k => { const it = PROPS[k], s = Math.max(it.w, it.h) + 30, n = S.group.props.filter(p => p.t === k).length;
       return `<button class="it" data-gadd="${k}">${n ? `<span class="wk">${n}</span>` : ""}<svg viewBox="${-s / 2} ${-it.h / 2 - s / 2} ${s} ${s}">${it.draw()}</svg>${esc(it.name)}</button>`; }).join("")}</div>`).join("")}
@@ -708,14 +731,16 @@ function sanitizeLook(raw){
   if(!raw || typeof raw !== "object") return o;
   [["hairB", HAIRB], ["hairF", HAIRF], ["eyes", EYES], ["brows", BROWS], ["mouth", MOUTHS], ["bg", BGS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   [["pet", PETS], ["sticker", STICKERS]].forEach(([k, list]) => { if(raw[k] === "" || (typeof raw[k] === "string" && list[raw[k]])) o[k] = raw[k]; });
-  ["hairC", "eyeC", "bgC", "fur"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
-  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS], ["petMouth", PET_MOUTHS]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
+  ["hairC", "eyeC", "bgC", "fur", "sponge", "frost", "plate"].forEach(k => { if(HEX.test(raw[k])) o[k] = raw[k]; });
+  [["faceShape", FACES], ["nose", NOSES], ["pose", POSES], ["role", ROLES], ["species", SPECIES], ["furPat", FUR_PATS], ["petMouth", PET_MOUTHS], ["cakeBase", CAKE_BASES]].forEach(([k, list]) => { if(typeof raw[k] === "string" && list[raw[k]]) o[k] = raw[k]; });
   if(raw.hairTip === "" || HEX.test(raw.hairTip)) o.hairTip = raw.hairTip;
   ["blush", "lip", "shadow"].forEach(k => { if(raw[k] === "" || HEX.test(raw[k])) o[k] = raw[k]; });
   if(Number.isInteger(raw.skin) && raw.skin >= 0 && raw.skin < SKIN.length) o.skin = raw.skin;
   o.freckles = raw.freckles === true; o.gloss = raw.gloss === true; o.glitter = raw.glitter === true;
   if(raw.eyeliner === "" || LINERS[raw.eyeliner]) o.eyeliner = raw.eyeliner;
   o.fun = Array.isArray(raw.fun) ? raw.fun.filter(x => FUN[x]).slice(0, 9) : [];
+  o.deco = Array.isArray(raw.deco) ? raw.deco.filter(x => CAKE_DECO[x]).slice(0, 20) : [];
+  if(typeof raw.cakeText === "string") o.cakeText = raw.cakeText.slice(0, 12);
   Object.keys(SLOT_LISTS).forEach(k => {
     const v = raw[k];
     o[k] = v && typeof v === "object" && typeof v.id === "string" && SLOT_LISTS[k][v.id] && HEX.test(v.color) ? {id:v.id, color:v.color, pat:PATS[v.pat] ? v.pat : "none"} : null;
