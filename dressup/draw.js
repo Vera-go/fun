@@ -860,6 +860,31 @@ Object.assign(BOTTOMS, {
     draw:(f, c) => P("M112.5 290 L187.5 290 L182 384 Q200 408 212 432 Q150 444 88 432 Q100 408 118 384 Z", f) + LN("M118 384 Q150 392 182 384", 1.6, shade(c, .3)) + LN("M113 297 L187 297", 1.6)},
 });
 
+// ---------- 背景第三批 ----------
+Object.assign(BGS, {
+  aquarium: {name:"水族館", tags:["summer", "casual", "animal"], draw:() => `<rect width="300" height="470" fill="#2B5C96"/><rect width="300" height="200" fill="#3B78B8"/><rect y="400" width="300" height="70" fill="#E8D3A2"/>` + LN("M0 400 L300 400", 2.4) +
+    [[24, 400], [40, 400], [262, 400], [278, 400]].map(([x, y], i) => LN(`M${x} ${y} Q${x - 10} ${y - 40} ${x} ${y - 80} Q${x + 10} ${y - 120} ${x} ${y - 150 + i * 10}`, 7, "#4FA36B")).join("") +
+    [[46, 110, "#F59A4A"], [252, 190, "#F6D65A"], [60, 290, "#F7A8C4"], [244, 70, "#9BD0F5"]].map(([x, y, c], i) => { const d = i % 2 ? -1 : 1;
+      return P(`M${x - 16 * d} ${y} Q${x} ${y - 12} ${x + 14 * d} ${y} Q${x} ${y + 12} ${x - 16 * d} ${y} Z M${x + 14 * d} ${y} L${x + 26 * d} ${y - 9} L${x + 26 * d} ${y + 9} Z`, c, 2) + C(x - 8 * d, y - 2, 1.8, INK, 0); }).join("") +
+    [[30, 60, 5], [36, 40, 3], [270, 140, 6], [262, 116, 3.5], [276, 250, 4]].map(([x, y, r]) => C(x, y, r, "rgba(255,255,255,.35)", 1.4, `stroke="#fff"`)).join("")},
+  garden:   {name:"花園", tags:["casual", "summer", "animal"], draw:() => `<rect width="300" height="470" fill="#CDEBFA"/><rect y="330" width="300" height="140" fill="#9ED37A"/>` + LN("M0 330 L300 330", 2.4) +
+    Array.from({length:11}, (_, i) => P(`M${i * 28 + 2} 330 L${i * 28 + 2} 268 L${i * 28 + 12} 256 L${i * 28 + 22} 268 L${i * 28 + 22} 330 Z`, "#FFFFFF", 2)).join("") + `<rect x="0" y="282" width="300" height="10" fill="#fff" stroke="${INK}" stroke-width="2"/>` +
+    [[22, 360, "#E8679A"], [58, 400, "#F6D65A"], [36, 440, "#B9A3E8"], [262, 370, "#F59A4A"], [240, 420, "#E8679A"], [278, 446, "#F6D65A"]].map(([x, y, c]) =>
+      LN(`M${x} ${y} L${x} ${y + 22}`, 2, "#4F8F45") + [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 6, y + Math.sin(a * Math.PI / 180) * 6, 5, c, 1.4)).join("") + C(x, y, 3.5, "#F6D65A", 1.2)).join("") +
+    C(254, 56, 22, "#FFE98A", 2.4)},
+  camping:  {name:"星空露營", tags:["winter", "casual", "warm"], draw:() => `<rect width="300" height="470" fill="#23305A"/><rect y="350" width="300" height="120" fill="#3E6B4A"/>` + LN("M0 350 L300 350", 2.4) +
+    [[30, 40], [80, 90], [120, 30], [200, 60], [270, 30], [250, 120], [40, 170], [280, 200], [160, 20]].map(([x, y], i) => star(x, y, i % 3 ? 3 : 5, "#FFE98A", 0)).join("") +
+    `<path d="M248 70 a24 24 0 1 0 22 30 a19 19 0 1 1 -22 -30 Z" fill="#FFE98A"/>` +
+    P("M196 350 L248 262 L300 350 Z", "#F59A4A", 2.4) + P("M248 262 L236 350 L260 350 Z", "#B8643A", 2) +
+    P("M20 350 L44 350 L32 330 Z", "#C98A4B", 2) + P("M26 340 Q32 316 38 340 Z", "#F6D65A", 1.6) + P("M28 340 Q32 326 36 340 Z", "#F59A4A", 0)},
+  birthday: {name:"生日派對", tags:["party", "fancy"], draw:() => `<rect width="300" height="470" fill="#FBE3EC"/><rect y="390" width="300" height="80" fill="#E7C9A8"/>` + LN("M0 390 L300 390", 2.4) +
+    LN("M0 30 Q75 70 150 40 Q225 70 300 30", 1.6) + [[16, 40], [44, 52], [72, 58], [100, 56], [128, 48], [172, 48], [200, 56], [228, 58], [256, 52], [284, 40]].map(([x, y], i) => P(`M${x - 10} ${y - 4} L${x + 10} ${y - 4} L${x} ${y + 16} Z`, ["#E8679A", "#F6D65A", "#4C8FE0", "#4FA36B", "#B9A3E8"][i % 5], 1.6)).join("") +
+    P("M216 330 L290 330 L290 390 L216 390 Z", "#fff", 2.4) + P("M226 300 L280 300 L280 330 L226 330 Z", "#F7A8C4", 2.4) + LN("M226 312 Q240 318 253 312 Q266 318 280 312", 2, "#fff") +
+    [238, 253, 268].map(x => `<rect x="${x - 2}" y="284" width="4" height="16" fill="#9BD0F5" stroke="${INK}" stroke-width="1.2"/>` + P(`M${x} 274 Q${x + 4} 280 ${x} 284 Q${x - 4} 280 ${x} 274 Z`, "#F59A4A", 0)).join("") +
+    [[30, 150, "#E8679A"], [56, 120, "#F6D65A"], [40, 196, "#4C8FE0"]].map(([x, y, c]) => LN(`M${x} ${y + 26} Q${x + 6} ${y + 80} ${x + 10} ${y + 160}`, 1.4) + E(x, y, 20, 24, c) + E(x - 6, y - 8, 4, 7, "rgba(255,255,255,.6)", 0)).join("") +
+    TXT(150, 108, "HAPPY BIRTHDAY", 18, "#E8679A")},
+});
+
 // ---------- 寵物角色：頭的位置和人一樣，帽子、眼鏡、項鍊都能直接戴 ----------
 ROLES.pet = {name:"寵物"};
 const SPECIES = {
@@ -872,6 +897,8 @@ const SPECIES = {
   hamster: {name:"倉鼠", fur:"#E8B57A", pats:["plain", "spots", "tuxedo"]},
   pig:     {name:"小豬", fur:"#F7A8C4", pats:["plain", "spots"]},
   penguin: {name:"企鵝", fur:"#2E2B2B", pats:["plain"]},
+  koala:   {name:"無尾熊", fur:"#9AA0A8", pats:["plain"]},
+  duck:    {name:"小鴨", fur:"#F6D65A", pats:["plain"]},
 };
 const FUR_PAL = ["#F6A64A", "#FFFFFF", "#2E2B2B", "#C98A4B", "#9AA0A8", "#F6E7C8", "#E8B57A", "#B9A3E8", "#F7A8C4"];
 const FUR_PATS = {plain:{name:"素色"}, tabby:{name:"虎斑"}, spots:{name:"斑點"}, tuxedo:{name:"白肚子"}, calico:{name:"三花"}};
@@ -939,7 +966,8 @@ const PETTOYS = {
 };
 const petTail = (sp, fur) => {
   if(sp === "bunny" || sp === "bear" || sp === "panda") return "";
-  if(sp === "hamster") return "";
+  if(sp === "hamster" || sp === "koala") return "";
+  if(sp === "duck") return P("M200 290 L226 270 L212 302 Z", fur);
   if(sp === "penguin") return P("M198 304 L224 318 L196 320 Z", fur);
   if(sp === "pig") return LN("M214 258 q16 -2 16 -14 q0 -10 -9 -8 q-7 2 -2 9 q7 7 18 -3", 3.4);
   if(sp === "bear" || sp === "panda") return C(214, 306, 10, sp === "panda" ? "#2E2B2B" : fur);
@@ -949,7 +977,8 @@ const petTail = (sp, fur) => {
 };
 const petEars = (sp, fur) => {
   const pink = "#F7B6C8";
-  if(sp === "dog" || sp === "penguin") return "";   // 狗狗的耳朵垂在臉旁邊，畫在頭上面；企鵝沒有耳朵
+  if(sp === "dog" || sp === "penguin" || sp === "duck") return "";
+  if(sp === "koala") return C(88, 100, 28, fur) + C(212, 100, 28, fur) + C(90, 102, 16, "#F3EDEA", 0) + C(210, 102, 16, "#F3EDEA", 0) + LN("M70 92 L78 96 M72 108 L80 108 M228 92 L222 96 M228 108 L220 108", 1.6, "#F3EDEA");   // 狗狗的耳朵垂在臉旁邊，畫在頭上面；企鵝沒有耳朵
   if(sp === "hamster") return C(100, 88, 17, fur) + C(200, 88, 17, fur) + C(101, 89, 9, pink, 0) + C(199, 89, 9, pink, 0);
   if(sp === "pig") return "";   // 小豬的耳朵往前垂，畫在頭上面
   if(sp === "bunny") return PB("M116 86 Q98 8 120 2 Q142 8 138 84 Z", fur) + PB("M120 76 Q110 22 121 14 Q132 22 131 76 Z", pink, 0);
@@ -969,6 +998,8 @@ const PET_SHAPES = {
             head:"M80 138 C80 94 112 74 150 74 C188 74 220 94 220 138 C220 178 190 198 150 198 C110 198 80 178 80 138 Z", legs:"hoof", wx:1.5},
 };
 PET_SHAPES.penguin = {legs:"none"};   // 企鵝只有兩邊的翅膀，中間不畫前腳
+PET_SHAPES.duck = {legs:"none", head:"M84 132 C84 92 114 74 150 74 C186 74 216 92 216 132 C216 172 188 194 150 194 C112 194 84 172 84 132 Z"};
+PET_SHAPES.koala = Object.assign({}, PET_SHAPES.bear);
 const petShape = L => Object.assign({body:PET_BODY, head:PET_HEAD, legs:"std"}, PET_SHAPES[L.species]);
 // 畫寵物角色（drawLook 裡呼叫；衣服的填色、明暗用 drawLook 傳進來的 it）
 function drawPetStar(L, it){
@@ -981,7 +1012,7 @@ function drawPetStar(L, it){
   s += petTail(sp, body);
   s += petEars(sp, fur);
   // 身體：圓圓的坐姿，花紋都裁在身體裡面
-  const feetC = sp === "penguin" ? "#F59A4A" : sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
+  const feetC = sp === "penguin" || sp === "duck" ? "#F59A4A" : sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
   const legC = sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
   // 後腳掌：坐著時從身體後面兩邊露出來（兔子的大腳、倉鼠的小粉紅腳另外畫在前面）
   if(legs !== "tiny") s += sp === "bunny" ? E(102, 316, 30, 11, feetC, 2.6) + E(198, 316, 30, 11, feetC, 2.6) : E(106, 316, 24, 11, feetC, 2.6) + E(194, 316, 24, 11, feetC, 2.6);
@@ -990,6 +1021,7 @@ function drawPetStar(L, it){
   if(sp === "panda") pt += `<path d="M60 170 L240 170 L240 232 Q150 246 60 232 Z" fill="#2E2B2B"/>`;
   else if(sp === "penguin") pt += E(150, 266, 46, 62, "#fff", 0);
   else if(sp === "hamster") pt += E(150, 272, 46, 56, mix(fur, "#FFFFFF", .75), 0);
+  else if(sp === "koala") pt += E(150, 266, 36, 50, "#F3EDEA", 0);
   else if(pat === "tuxedo" || sp === "dog" || sp === "fox") pt += E(150, 262, 32, 50, pat === "tuxedo" || sp === "fox" ? "#fff" : light, 0);
   if(pat === "tabby") pt += [232, 256, 280].map(y => LN(`M88 ${y} Q100 ${y + 4} 110 ${y} M212 ${y} Q200 ${y + 4} 190 ${y}`, 3, dark)).join("");
   if(pat === "spots") pt += [[118, 236, 11], [182, 262, 9], [122, 292, 8], [176, 300, 7]].map(([x, y, r]) => E(x, y, r, r * .8, dark, 0)).join("");
@@ -1003,6 +1035,7 @@ function drawPetStar(L, it){
   s += it.inBody(pt) + it.bodyShade();
   s += it.wear() + it.toy(legs === "tiny" ? 238 : 290, legs === "tiny" ? .9 : 1.35);
   if(sp === "penguin") s += PB("M108 202 Q80 236 78 282 Q94 286 108 256 Z", body);
+  else if(sp === "duck") s += PB("M110 224 Q78 240 82 280 Q96 290 112 268 Q106 254 110 224 Z", body) + PB("M88 262 Q94 270 100 266 M90 272 Q96 278 104 272", "none", 1.6, `stroke="${shade(fur, -.3)}"`);
   else if(legs === "tiny"){
     // 倉鼠：小小的粉紅手手捧在胸前，小腳丫露在前面
     s += [136, 164].map(x => E(x, 240, 9, 7, pink, 2) + LN(`M${x - 3} 235 L${x - 3} 239 M${x + 3} 235 L${x + 3} 239`, 1.2, INK)).join("");
@@ -1028,6 +1061,7 @@ function drawPetStar(L, it){
   if(sp === "panda") s += [-1, 1].map(o => `<ellipse cx="${150 + o * 22}" cy="140" rx="15" ry="19" transform="rotate(${o * -25} ${150 + o * 22} 140)" fill="#2E2B2B"/>`).join("");
   s += it.headShade();
   if(sp === "dog") s += PB("M90 96 Q62 100 68 164 Q82 176 96 154 Q102 124 108 100 Z", dark);
+  if(sp === "duck") s += P("M146 78 Q140 58 150 52 Q148 64 152 76 Q158 60 168 58 Q160 68 156 80 Z", fur, 2.2);
   // 小豬：耳朵尖尖往前垂下來，蓋在額頭兩邊
   if(sp === "pig") s += PB("M100 66 Q124 62 134 84 Q122 106 98 112 Q90 90 100 66 Z", fur, 2.4) + PB("M106 76 Q122 76 126 88 Q116 100 104 102 Q100 88 106 76 Z", shade(fur, -.12), 0);
   if(L.blush) s += (sp === "hamster" ? [106, 194] : [114, 186]).map(x => E(x, 168, 14, 9, L.blush, 0, `opacity=".5"`)).join("");
@@ -1037,6 +1071,8 @@ function drawPetStar(L, it){
   if(sp === "dog" || sp === "bear" || sp === "panda") s += E(150, 164, 22, 16, sp === "bear" ? light : "#fff", 0);
   if(sp === "pig") s += E(150, 162, 19, 13, shade(fur, -.12), 2.2) + E(144, 162, 2.6, 4, INK, 0) + E(156, 162, 2.6, 4, INK, 0) + LN("M142 180 Q150 186 158 180", 2);
   else if(sp === "penguin") s += P("M138 152 Q150 145 162 152 L150 170 Z", "#F59A4A", 2) + LN("M141 155 Q150 159 159 155", 1.4);
+  else if(sp === "duck") s += P("M128 160 Q128 150 150 150 Q172 150 172 160 Q172 172 150 172 Q128 172 128 160 Z", "#F59A4A", 2.2) + LN("M130 161 Q150 166 170 161", 1.6) + E(142, 155, 1.6, 1.2, INK, 0) + E(158, 155, 1.6, 1.2, INK, 0);
+  else if(sp === "koala") s += P("M140 146 Q140 138 150 138 Q160 138 160 146 L160 164 Q160 174 150 174 Q140 174 140 164 Z", "#3A2C28", 2) + E(146, 146, 3, 5, "rgba(255,255,255,.35)", 0) + LN("M142 182 Q150 187 158 182", 2);
   else if(sp === "hamster") s += E(150, 157, 4, 3, "#F07F98", 1.2) + LN("M150 160 L150 164 M143 163 Q146.5 168 150 164 Q153.5 168 157 163", 1.8) + P("M147 166 L153 166 L153 172 L147 172 Z", "#fff", 1.4) + LN("M150 166 L150 172", 1);
   else {
     s += sp === "cat" || sp === "bunny" ? P("M145 156 L155 156 L150 162 Z", "#F07F98", 1.4) : E(150, 156, 6.5, 4.5, INK, 0) + E(148, 154.5, 2, 1.2, "#fff", 0);

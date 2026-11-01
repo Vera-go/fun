@@ -106,7 +106,7 @@ const ROLE_PRESET = {
     top:{id:"hoodboy", color:"#2C3E70", pat:"none"}, bottom:{id:"khaki", color:"#C9A877", pat:"none"}, dress:null, outer:null,
     socks:{id:"short", color:"#FFFFFF", pat:"none"}, shoes:{id:"sneaker", color:"#FFFFFF", pat:"none"}, hairpin:null, neck:null},
 };
-const BOY_HAIR = ["boycut", "mushroom", "wolf", "curlyboy", "buzz", "short", "twoblock", "longboy"], BOY_FRINGE = ["boyfringe", "sweep", "bowl", "spiky", "quiff", "side", "messy", "comma"];
+const BOY_HAIR = ["boycut", "mushroom", "wolf", "curlyboy", "buzz", "short", "twoblock", "longboy", "afro"], BOY_FRINGE = ["boyfringe", "sweep", "bowl", "spiky", "quiff", "side", "messy", "comma"];
 // 男生隨機搭配時不抽這些（自己選還是可以穿）
 const BOY_SKIP = ["cami", "crop", "blouse", "offshoulder", "ruffle", "culottes", "mermaid", "sailor", "maryjane", "heels", "lace", "tights", "knee", "striped", "pearl", "heart", "choker", "handbag", "catbag", "bunny", "bouquet"];
 const BOY_BOTTOM = ["khaki", "bshorts", "jeans", "shorts", "slacks", "wide", "cargo", "track", "joggers", "ripped"];
