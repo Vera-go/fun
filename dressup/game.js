@@ -398,8 +398,8 @@ function groupSVG(size){
   // 站得比較後面（腳比較高）的先畫，前面的人會擋住後面的人；寵物小一號
   const chars = ids.map((id, i) => ({id, l:groupLook(id), p:groupPos(id, i, n)})).sort((a, b) => a.p.y - b.p.y)
     .map(c => `<g class="gch${!size && c.id === groupSel ? " sel" : ""}" data-gid="${c.id}" transform="${groupTf(c.p, groupScale(c.l, n, c.id), groupRot(c.id))}">${drawLook(Object.assign(clone(DEFAULT_LOOK), c.l), {bg:false})}</g>`).join("");
-  // 橫式：背景照直式畫的，兩邊各接一份左右翻過來的背景，接縫看起來是連著的
-  const bg = b.draw("#F7D3E0"), back = S.group.wide ? `<g transform="translate(150.8 0) scale(-1 1)">${bg}</g><g transform="translate(749.2 0) scale(-1 1)">${bg}</g><g transform="translate(150 0)">${bg}</g>` : bg;
+  // 橫式：用另外畫的寬版背景（BG_WIDE）
+  const k = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? S.group.bg : "park", back = S.group.wide ? bgWide(k, "#F7D3E0") : b.draw("#F7D3E0");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GW()} 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${back}${chars}</svg>`;
 }
 function renderGroup(){

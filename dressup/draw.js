@@ -1150,6 +1150,109 @@ function drawPetStar(L, it){
   return s;
 }
 
+// ---------- 橫式背景（合照用，600 寬）：底色、地板拉滿整片，中間放原本的背景，兩邊再補上各自的佈置 ----------
+const W2 = 600;
+const wall = (col, floorY, floorCol) => `<rect width="${W2}" height="470" fill="${col}"/>` + (floorY ? `<rect y="${floorY}" width="${W2}" height="${470 - floorY}" fill="${floorCol}"/>` + LN(`M0 ${floorY} L${W2} ${floorY}`, 2.4) : "");
+const vgrad = (id, a, b) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="${W2}" height="470" fill="url(#${id})"/>`;
+const winBox = (x, y, w, h, glass = "#BFE6FA") => P(`M${x} ${y} L${x + w} ${y} L${x + w} ${y + h} L${x} ${y + h} Z`, glass, 2.4) + LN(`M${x + w / 2} ${y} L${x + w / 2} ${y + h} M${x} ${y + h / 2} L${x + w} ${y + h / 2}`, 2.2);
+const tree = (x, y, r, col = "#4FAE5E") => P(`M${x - 5} ${y + r * 2.2} L${x + 5} ${y + r * 2.2} L${x + 5} ${y + r * .6} L${x - 5} ${y + r * .6} Z`, "#8A5A3C", 2.2) + C(x, y, r, col, 2.4) + C(x - r * .6, y + r * .45, r * .55, col, 2.4) + C(x + r * .6, y + r * .45, r * .55, col, 2.4);
+const pine = (x, y, h, col = "#3E7A5A", snow = true) => P(`M${x} ${y - h} L${x + h / 3} ${y} L${x - h / 3} ${y} Z`, col, 2.4) + (snow ? P(`M${x} ${y - h} L${x + h * .13} ${y - h * .62} L${x - h * .13} ${y - h * .62} Z`, "#fff", 2) : "");
+const flower = (x, y, col) => LN(`M${x} ${y} L${x} ${y + 14}`, 2, "#4F8F45") + C(x, y, 5, col, 1.6);
+const lantern = (x, y) => P(`M${x - 10} ${y + 4} Q${x - 14} ${y + 20} ${x - 8} ${y + 34} L${x + 8} ${y + 34} Q${x + 14} ${y + 20} ${x + 10} ${y + 4} Z`, "#F6E7C8", 2) + LN(`M${x - 11} ${y + 19} L${x + 11} ${y + 19}`, 4, "#D9414E");
+const shelf = (x, y, i) => P(`M${x} ${y} L${x + 88} ${y} L${x + 88} ${y + 96} L${x} ${y + 96} Z`, "#B9835A", 2.4) +
+  Array.from({length:7}, (_, k) => { const w = 9 + (k * 7 + i * 3) % 5, h = 62 + (k * 13 + i * 5) % 22, bx = x + 6 + k * 11.4;
+    return `<rect x="${bx.toFixed(1)}" y="${y + 92 - h}" width="${w}" height="${h}" fill="${["#D9414E", "#4C8FE0", "#F6D65A", "#4FA36B", "#B9A3E8", "#F59A4A", "#F7A8C4"][(k + i) % 7]}" stroke="${INK}" stroke-width="1.4"/>`; }).join("");
+const building = (x, y, w) => `<rect x="${x}" y="${y}" width="${w}" height="${380 - y}" fill="#7A879C" stroke="${INK}" stroke-width="2"/>` + [0, 1, 2].map(k => `<rect x="${x + 10 + k * (w - 20) / 3}" y="${y + 16}" width="${(w - 20) / 3 - 6}" height="14" fill="#FFE9A8" opacity=".75"/>`).join("") +
+  `<rect x="${x + 10}" y="${y + 46}" width="${w - 20}" height="14" fill="#FFE9A8" opacity=".45"/>`;
+const stall = (x, col, txt, tcol) => P(`M${x + 4} 220 L${x + 96} 220 L${x + 100} 250 L${x} 250 Z`, col, 2.2) + [0, 1, 2, 3, 4].map(k => `<rect x="${x + 4 + k * 19}" y="221" width="9" height="28" fill="#fff" opacity=".55"/>`).join("") +
+  P(`M${x + 10} 250 L${x + 90} 250 L${x + 90} 330 L${x + 10} 330 Z`, "#F6E7C8", 2) + TXT(x + 50, 296, txt, 20, tcol);
+const dots = (n, w, h, y0, r, col) => Array.from({length:n}, (_, i) => C((i * 73 + 19) % w, (i * 47 + 11) % h + y0, typeof r === "number" ? r : r(i), col, 0)).join("");
+const BG_WIDE = {
+  room:      {base:() => wall("#FDEFE3", 380, "#E9C9A5") + Array.from({length:40}, (_, i) => C(20 + (i % 10) * 64 + (Math.floor(i / 10) % 2) * 32, 30 + Math.floor(i / 10) * 80, 3, "#F7D3C0", 0)).join(""),
+              side:() => P("M486 80 L566 80 L566 150 L486 150 Z", "#fff", 3, `stroke="#C98A4B"`) + P("M496 140 L516 110 L530 126 L542 100 L556 140 Z", "#9ED37A", 0) + C(540, 98, 6, "#F6D65A", 0) +
+                P("M30 300 L120 300 L120 380 L30 380 Z", "#C98A4B", 2.4) + LN("M30 340 L120 340", 2) + C(75, 320, 3, "#F6D65A", 1) + C(75, 360, 3, "#F6D65A", 1) + P("M44 300 L50 270 L66 270 L72 300 Z", "#F7A8C4", 2) + LN("M58 270 L58 252", 2) + P("M46 252 L70 252 L64 236 L52 236 Z", "#FFF4C2", 2)},
+  classroom: {base:() => wall("#F3EBD9", 388, "#C99E6E"),
+              side:() => winBox(26, 60, 96, 120) + winBox(478, 60, 96, 120) +
+                [[40, 300], [500, 300]].map(([x, y]) => P(`M${x} ${y} L${x + 70} ${y} L${x + 70} ${y + 10} L${x} ${y + 10} Z`, "#C98A4B", 2) + LN(`M${x + 8} ${y + 10} L${x + 8} 388 M${x + 62} ${y + 10} L${x + 62} 388`, 3)).join("")},
+  beach:     {hill:[360, "#F5DDA8"], base:() => vgrad("skyBW", "#7FD0F5", "#DFF5FF") + `<rect y="290" width="${W2}" height="80" fill="#3FA8DD"/>` + LN("M0 300" + Array.from({length:15}, () => " q20 -6 40 0").join(""), 2, "#fff") + `<rect y="360" width="${W2}" height="110" fill="#F5DDA8"/>`,
+              side:() => E(520, 70, 30, 10, "#fff", 0) + E(546, 62, 20, 10, "#fff", 0) +
+                P("M62 360 Q56 300 70 230 L80 232 Q68 300 74 360 Z", "#B8864E", 2.2) + [[-50, 10], [-40, -20], [0, -30], [40, -20], [50, 10]].map(([dx, dy]) => P(`M74 228 Q${74 + dx / 2} ${228 + dy - 14} ${74 + dx} ${232 + dy} Q${74 + dx / 2} ${228 + dy / 2} 74 232 Z`, "#4FAE5E", 2)).join("") +
+                P("M500 300 Q540 260 580 300 Z", "#D9414E", 2.4) + P("M520 300 Q540 270 560 300 Z", "#fff", 0) + LN("M540 300 L540 380", 3) + P("M500 420 L560 420 L556 436 L504 436 Z", "#F6D65A", 2) + C(110, 420, 10, "#fff", 2) + LN("M102 414 L118 426", 2, "#D9414E")},
+  snow:      {hill:[370, "#F4F8FF"], base:() => vgrad("skySW", "#2B3C6E", "#7E8FC4") + `<rect y="370" width="${W2}" height="100" fill="#F4F8FF"/>` + dots(52, W2, 330, 10, i => i % 3 + 1.6, "#fff"),
+              side:() => pine(60, 340, 100) + pine(110, 360, 80) + pine(500, 345, 95) + pine(560, 365, 75) +
+                C(80, 420, 18, "#fff", 2.4) + C(80, 392, 13, "#fff", 2.4) + C(76, 389, 1.6, INK, 0) + C(84, 389, 1.6, INK, 0) + P("M80 393 L90 396 L80 397 Z", "#F59A4A", 0)},
+  market:    {base:() => wall("#2A2142", 400, "#5A4A5E") + dots(28, W2, 120, 10, 1.4, "#FFF4C2") + `<rect y="230" width="${W2}" height="170" fill="#4A3A5E"/>`,
+              side:() => stall(46, "#B9A3E8", "香腸", "#8A5A3C") + stall(454, "#4FA36B", "棉花糖", "#E8679A") +
+                LN("M0 70 Q75 92 150 70 M450 70 Q525 92 600 70", 1.6, "#FFF4C2") + [[40, 0], [100, 1], [490, 0], [560, 1]].map(([x, i]) => E(x, 70 + Math.sin(((x % 150) / 150) * Math.PI) * 18 + 12, 9, 12, i ? "#FFD447" : "#FF7A5C", 2)).join("")},
+  park:      {hill:[330, "#9BD77E"], base:() => wall("#CDEFFF") + `<rect y="330" width="${W2}" height="140" fill="#9BD77E"/>`,
+              side:() => E(80, 60, 30, 11, "#fff", 0) + E(520, 70, 34, 12, "#fff", 0) + tree(70, 240, 36) +
+                P("M480 360 L570 360 L570 370 L480 370 Z", "#C98A4B", 2) + P("M480 340 L570 340 L570 350 L480 350 Z", "#C98A4B", 2) + LN("M488 370 L488 392 M562 370 L562 392 M488 350 L488 360 M562 350 L562 360", 3) +
+                [[30, 420, "#F7A8C4"], [110, 440, "#B9A3E8"], [470, 430, "#F6D65A"], [580, 410, "#F7A8C4"]].map(([x, y, c]) => flower(x, y, c)).join("")},
+  stage:     {full:() => `<rect width="${W2}" height="470" fill="#2B1A33"/><defs><radialGradient id="spotW" cx=".5" cy=".55" r=".5"><stop offset="0" stop-color="#FFF6D0" stop-opacity=".85"/><stop offset="1" stop-color="#FFF6D0" stop-opacity="0"/></radialGradient></defs><ellipse cx="300" cy="250" rx="280" ry="230" fill="url(#spotW)"/>` +
+                P("M0 0 L80 0 Q56 200 84 470 L0 470 Z", "#B8323F") + P("M600 0 L520 0 Q544 200 516 470 L600 470 Z", "#B8323F") + P(`M0 0 L${W2} 0 L${W2} 36 Q450 58 300 40 Q150 58 0 36 Z`, "#D9414E") +
+                `<rect y="410" width="${W2}" height="60" fill="#8A5A3C"/>` + LN(`M0 410 L${W2} 410`, 2.4) + [[150, 80], [300, 64], [450, 80], [200, 160], [400, 150], [110, 220], [490, 230]].map(([x, y]) => star(x, y, 6, "#FFE98A", 0)).join("")},
+  rain:      {base:() => wall("#9AA6B8", 380, "#6B7487"),
+              side:() => building(0, 150, 70) + building(74, 196, 72) + building(452, 176, 72) + building(528, 130, 72) + LN(`M0 380 L${W2} 380`, 2.4) +
+                E(90, 440, 30, 7, "#9DB8D6", 0) + E(520, 430, 30, 7, "#9DB8D6", 0) + Array.from({length:30}, (_, i) => { const x = i % 2 ? (i * 53) % 150 : 450 + (i * 37) % 150, y = (i * 89) % 440; return LN(`M${x} ${y} L${x - 5} ${y + 16}`, 1.6, "rgba(255,255,255,.7)"); }).join("")},
+  festival:  {base:() => vgrad("skyFW", "#2E2459", "#E5806B") + `<rect y="380" width="${W2}" height="90" fill="#5A3A3A"/>` + LN(`M0 380 L${W2} 380`, 2.4),
+              side:() => [[60, 90, "#9BD0F5"], [110, 150, "#FFD447"], [500, 100, "#F7A8C4"], [560, 160, "#9BD0F5"]].map(([x, y, col]) => Array.from({length:12}, (_, k) => { const a = k * Math.PI / 6; return LN(`M${(x + Math.cos(a) * 8).toFixed(1)} ${(y + Math.sin(a) * 8).toFixed(1)} L${(x + Math.cos(a) * 22).toFixed(1)} ${(y + Math.sin(a) * 22).toFixed(1)}`, 2.2, col); }).join("")).join("") +
+                LN("M0 200 Q75 222 150 200 M450 200 Q525 222 600 200", 1.6) + [40, 105, 495, 560].map(x => lantern(x, 200 + Math.sin(((x % 150) / 150) * Math.PI) * 18)).join("")},
+  plain:     {full:c => `<rect width="${W2}" height="470" fill="${c}"/>` + Array.from({length:24}, (_, i) => star(25 + (i % 8) * 75 + (Math.floor(i / 8) % 2) * 36, 40 + Math.floor(i / 8) * 150, 5, "#fff", 0).replace("<path", `<path opacity=".5"`)).join("")},
+  halloween: {base:() => wall("#2B1F45", 380, "#3A2E55"),
+              side:() => [[60, 120], [520, 90], [560, 150]].map(([x, y]) => P(`M${x} ${y} Q${x - 8} ${y - 8} ${x - 18} ${y - 4} Q${x - 12} ${y + 2} ${x - 14} ${y + 8} Q${x - 6} ${y + 2} ${x} ${y + 6} Q${x + 6} ${y + 2} ${x + 14} ${y + 8} Q${x + 12} ${y + 2} ${x + 18} ${y - 4} Q${x + 8} ${y - 8} ${x} ${y} Z`, "#1B1430", 1.4)).join("") +
+                P("M70 380 L74 300 Q60 280 40 276 M74 310 Q90 290 108 290 M72 330 Q50 320 36 326", "none", 6, `stroke="#1B1430"`) + LN("M74 380 L74 300", 10, "#1B1430") +
+                [[480, 380], [530, 380]].map(([x, y]) => P(`M${x - 14} ${y} L${x - 14} ${y - 30} Q${x} ${y - 46} ${x + 14} ${y - 30} L${x + 14} ${y} Z`, "#7A7090", 2) + LN(`M${x - 6} ${y - 26} L${x + 6} ${y - 26} M${x} ${y - 32} L${x} ${y - 16}`, 1.6, "#3A2E55")).join("") +
+                [[120, 420], [560, 430]].map(([x, y]) => E(x, y, 18, 14, "#F59A4A") + P(`M${x - 8} ${y - 4} L${x - 3} ${y} L${x - 8} ${y + 2} Z M${x + 8} ${y - 4} L${x + 3} ${y} L${x + 8} ${y + 2} Z`, INK, 0) + LN(`M${x - 7} ${y + 7} Q${x} ${y + 11} ${x + 7} ${y + 7}`, 1.8)).join("")},
+  xmas:      {base:() => wall("#FBE9DA", 384, "#B98A5E"),
+              side:() => P("M20 250 L132 250 L132 384 L20 384 Z", "#C9634A", 2.4) + P("M12 238 L140 238 L140 252 L12 252 Z", "#F6E7C8", 2.2) + P("M46 300 L106 300 L106 384 L46 384 Z", "#3A2A20", 2) + P("M56 384 Q66 344 76 364 Q86 334 96 384 Z", "#F59A4A", 0) +
+                [44, 76, 108].map((x, i) => P(`M${x - 8} 252 L${x + 6} 252 L${x + 6} 276 Q${x + 6} 286 ${x - 4} 286 L${x - 14} 286 Q${x - 18} 278 ${x - 8} 276 Z`, ["#D9414E", "#4FA36B", "#4C8FE0"][i], 1.8)).join("") +
+                P("M490 60 L570 60 L570 170 L490 170 Z", "#2B3C6E") + LN("M530 60 L530 170 M490 115 L570 115", 2.4) + [[500, 76], [522, 100], [548, 72], [512, 140], [556, 132], [536, 156]].map(([x, y]) => C(x, y, 2, "#fff", 0)).join("") +
+                [[480, 358, "#4C8FE0"], [520, 350, "#F6D65A"], [556, 362, "#4FA36B"]].map(([x, y, col]) => P(`M${x - 14} ${y} L${x + 14} ${y} L${x + 14} 386 L${x - 14} 386 Z`, col, 2) + LN(`M${x} ${y} L${x} 386`, 3, "#D9414E")).join("")},
+  library:   {base:() => wall("#F1E4CC", 390, "#9C6B45"),
+              side:() => [[30, 40], [30, 140], [30, 240], [482, 40], [482, 140], [482, 240]].map(([x, y], i) => shelf(x, y, i + 2)).join("")},
+  cafe:      {base:() => wall("#F6E2CF", 380, "#7A4E36") + Array.from({length:24}, (_, i) => `<rect x="${i * 25}" y="0" width="12.5" height="380" fill="#EFD3BA"/>`).join(""),
+              side:() => winBox(30, 70, 96, 110, "#CDEBFA") + P("M24 180 L132 180 L132 188 L24 188 Z", "#C98A4B", 2) + [50, 80, 110].map((x, i) => P(`M${x - 9} 160 L${x + 9} 160 L${x + 7} 180 L${x - 7} 180 Z`, "#E58B5B", 1.8) + C(x, 152, 10, "#4FAE5E", 1.8)).join("") +
+                [[500, 70], [560, 70]].map(([x, y]) => LN(`M${x} 0 L${x} ${y}`, 1.6) + P(`M${x - 16} ${y + 18} Q${x - 16} ${y} ${x} ${y} Q${x + 16} ${y} ${x + 16} ${y + 18} Z`, "#F6D65A", 2) + C(x, y + 22, 4, "#FFF4C2", 1.4)).join("") +
+                P("M494 310 L570 310 L566 322 L498 322 Z", "#C98A4B", 2) + LN("M532 322 L532 380", 4) + P("M512 292 L530 292 L528 310 L514 310 Z", "#F7A8C4", 2) + C(552, 302, 8, "#D9B99B", 2)},
+  sakura:    {hill:[350, "#A9DB8C"], base:() => vgrad("skyKW", "#BFE3FA", "#FCE8F0") + `<rect y="350" width="${W2}" height="120" fill="#A9DB8C"/>`,
+              side:() => [[60, 352], [540, 352]].map(([x, y]) => P(`M${x - 6} ${y} L${x + 6} ${y} Q${x + 4} ${y - 60} ${x + 14} ${y - 110} L${x + 2} ${y - 114} Q${x - 6} ${y - 60} ${x - 6} ${y} Z`, "#8A5A3C", 2.2)).join("") +
+                [[70, 214, 50], [30, 244, 30], [112, 240, 30], [548, 210, 52], [510, 242, 30], [588, 240, 32]].map(([x, y, r]) => C(x, y, r, "#F8C6D8", 2.4)).join("") +
+                Array.from({length:24}, (_, i) => { const x = i % 2 ? (i * 67 + 13) % 150 : 450 + (i * 41) % 150, y = (i * 41 + 30) % 420; return `<g transform="rotate(${i * 37} ${x} ${y})">${E(x, y, 4, 2.6, i % 3 ? "#F7A8C4" : "#FBD3E2", 0)}</g>`; }).join("")},
+  space:     {full:() => `<defs><radialGradient id="nebW" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#5B3E9E"/><stop offset="1" stop-color="#140F2E"/></radialGradient></defs><rect width="${W2}" height="470" fill="url(#nebW)"/>` + dots(90, W2, 470, 0, i => (i % 3) * .6 + .8, "#fff") +
+                [[60, 200], [540, 260], [100, 420], [500, 60], [190, 60], [400, 140], [220, 300], [430, 380]].map(([x, y]) => star(x, y, 5, "#FFE98A", 0)).join("") +
+                C(430, 84, 30, "#F59A4A", 2.4) + E(430, 84, 50, 10, "none", 2.4, `transform="rotate(-18 430 84)"`) + LN("M408 76 Q430 70 452 80 M406 92 Q430 88 452 98", 1.6, "#D9763A") +
+                C(170, 410, 24, "#9BD0F5", 2.4) + C(164, 404, 5, "#7AB8E6", 0) + C(178, 418, 4, "#7AB8E6", 0) + C(70, 90, 22, "#E8679A", 2.4) + C(64, 84, 5, "#C94A7E", 0) + C(78, 98, 4, "#C94A7E", 0) +
+                P("M520 380 Q540 330 560 380 Z", "#D9414E", 2.2) + P("M524 380 L556 380 L556 420 L524 420 Z", "#E6E8EE", 2.2) + C(540, 396, 6, "#9BD0F5", 1.8) + P("M528 420 L552 420 L540 444 Z", "#F59A4A", 0)},
+  amusement: {hill:[370, "#E7D3B4"], base:() => wall("#CDEFFF") + `<rect y="370" width="${W2}" height="100" fill="#E7D3B4"/>` + LN(`M0 370 L${W2} 370`, 2.4),
+              side:() => E(70, 60, 30, 11, "#fff", 0) + E(540, 50, 34, 12, "#fff", 0) +
+                P("M456 300 Q480 220 510 260 Q530 180 560 230 Q580 200 600 220", "none", 5) + P("M456 300 Q480 220 510 260 Q530 180 560 230 Q580 200 600 220", "none", 2.6, `stroke="#D9414E"`) + LN("M480 250 L480 370 M520 230 L520 370 M560 230 L560 370", 2.4) +
+                P("M20 260 L130 260 L120 230 Q75 196 30 230 Z", "#F7A8C4", 2.4) + LN("M75 196 L75 182", 2) + P("M75 182 L90 188 L75 194 Z", "#F6D65A", 1.4) + P("M24 260 L126 260 L126 340 L24 340 Z", "#FFF4E0", 2.2) + LN("M50 260 L50 340 M100 260 L100 340", 2) + TXT(75, 306, "旋轉木馬", 13, "#E8679A")},
+};
+Object.assign(BG_WIDE, {
+  aquarium:  {base:() => wall("#2B5C96") + `<rect width="${W2}" height="200" fill="#3B78B8"/><rect y="400" width="${W2}" height="70" fill="#E8D3A2"/>` + LN(`M0 400 L${W2} 400`, 2.4),
+              side:() => [[34, 400, 0], [56, 400, 1], [548, 400, 2], [572, 400, 0]].map(([x, y, i]) => LN(`M${x} ${y} Q${x - 10} ${y - 40} ${x} ${y - 80} Q${x + 10} ${y - 120} ${x} ${y - 160 + i * 20}`, 7, "#4FA36B")).join("") +
+                [[100, 140, "#F7A8C4", 1], [500, 230, "#F59A4A", -1], [120, 330, "#9BD0F5", -1]].map(([x, y, c, d]) => P(`M${x - 16 * d} ${y} Q${x} ${y - 12} ${x + 14 * d} ${y} Q${x} ${y + 12} ${x - 16 * d} ${y} Z M${x + 14 * d} ${y} L${x + 26 * d} ${y - 9} L${x + 26 * d} ${y + 9} Z`, c, 2) + C(x - 8 * d, y - 2, 1.8, INK, 0)).join("") +
+                [[80, 60, 5], [86, 40, 3], [520, 120, 6], [528, 96, 3.5]].map(([x, y, r]) => C(x, y, r, "rgba(255,255,255,.35)", 1.4, `stroke="#fff"`)).join("") +
+                P("M488 404 L540 404 L540 440 L488 440 Z", "#B8864E", 2.2) + P("M484 404 Q514 380 544 404 Z", "#C99A3A", 2.2) + C(514, 418, 4, "#F6D65A", 1.4) + P("M90 440 Q100 420 110 440 Q120 420 130 440 Z", "#F7A8C4", 2)},
+  garden:    {base:() => wall("#CDEBFA") + `<rect y="330" width="${W2}" height="140" fill="#9ED37A"/>` +
+                Array.from({length:22}, (_, i) => P(`M${i * 28 + 12} 330 L${i * 28 + 12} 268 L${i * 28 + 22} 256 L${i * 28 + 32} 268 L${i * 28 + 32} 330 Z`, "#FFFFFF", 2)).join("") + `<rect x="0" y="282" width="${W2}" height="10" fill="#fff" stroke="${INK}" stroke-width="2"/>` + LN(`M0 330 L${W2} 330`, 2.4),
+              side:() => [[60, 380, "#F59A4A"], [100, 430, "#E8679A"], [30, 450, "#B9A3E8"], [500, 400, "#F6D65A"], [560, 380, "#E8679A"], [540, 440, "#B9A3E8"]].map(([x, y, c]) =>
+                  LN(`M${x} ${y} L${x} ${y + 22}`, 2, "#4F8F45") + [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 6, y + Math.sin(a * Math.PI / 180) * 6, 5, c, 1.4)).join("") + C(x, y, 3.5, "#F6D65A", 1.2)).join("") +
+                P("M520 200 L560 200 L560 236 L520 236 Z", "#C98A4B", 2) + P("M514 202 L540 180 L566 202 Z", "#D9414E", 2) + C(540, 218, 6, "#3A2A20", 0) + LN("M540 236 L540 282", 4) + E(80, 70, 30, 11, "#fff", 0)},
+  camping:   {base:() => wall("#23305A") + `<rect y="350" width="${W2}" height="120" fill="#3E6B4A"/>` + LN(`M0 350 L${W2} 350`, 2.4) +
+                [[30, 40], [90, 120], [130, 30], [470, 50], [520, 140], [580, 30], [40, 220], [560, 230]].map(([x, y], i) => star(x, y, i % 3 ? 3 : 5, "#FFE98A", 0)).join(""),
+              side:() => pine(40, 352, 120, "#264A36", false) + pine(96, 352, 90, "#2E5A40", false) + pine(520, 352, 110, "#264A36", false) + pine(572, 352, 130, "#2E5A40", false) +
+                P("M60 400 L130 400 L130 414 L60 414 Z", "#8A5A3C", 2) + P("M470 410 L486 410 L486 440 L470 440 Z", "#3A2A20", 1.6) + P("M466 410 L490 410 L478 396 Z", "#3A2A20", 1.6) + C(478, 425, 5, "#FFE98A", 0)},
+  birthday:  {base:() => wall("#FBE3EC", 390, "#E7C9A8"),
+              side:() => LN("M0 30 Q75 66 150 30 M450 30 Q525 66 600 30", 1.6) + [[18, 40], [50, 50], [82, 52], [114, 46], [486, 46], [518, 52], [550, 50], [582, 40]].map(([x, y], i) => P(`M${x - 10} ${y - 4} L${x + 10} ${y - 4} L${x} ${y + 16} Z`, ["#4FA36B", "#B9A3E8", "#E8679A", "#F6D65A"][i % 4], 1.6)).join("") +
+                [[520, 150, "#B9A3E8"], [550, 120, "#4FA36B"], [566, 180, "#E8679A"]].map(([x, y, c]) => LN(`M${x} ${y + 26} Q${x - 6} ${y + 80} ${x - 10} ${y + 160}`, 1.4) + E(x, y, 20, 24, c) + E(x - 6, y - 8, 4, 7, "rgba(255,255,255,.6)", 0)).join("") +
+                [[50, 360, "#4C8FE0", 40], [100, 368, "#F6D65A", 32]].map(([x, y, c, w]) => P(`M${x - w / 2} ${y} L${x + w / 2} ${y} L${x + w / 2} 392 L${x - w / 2} 392 Z`, c, 2) + LN(`M${x} ${y} L${x} 392`, 3, "#D9414E") + P(`M${x} ${y} Q${x - 10} ${y - 12} ${x - 4} ${y - 2} M${x} ${y} Q${x + 10} ${y - 12} ${x + 4} ${y - 2}`, "none", 2.4, `stroke="#D9414E"`)).join("")},
+});
+const bgWide = (k, c) => { const w = BG_WIDE[k], b = BGS[k] || BGS.park;
+  if(!w) return `<g transform="translate(150.8 0) scale(-1 1)">${b.draw(c)}</g><g transform="translate(749.2 0) scale(-1 1)">${b.draw(c)}</g><g transform="translate(150 0)">${b.draw(c)}</g>`;
+  const seam = w.hill ? `<rect x="143" y="${w.hill[0] + 1.6}" width="10" height="${470 - w.hill[0]}" fill="${w.hill[1]}"/><rect x="447" y="${w.hill[0] + 1.6}" width="10" height="${470 - w.hill[0]}" fill="${w.hill[1]}"/>` + LN(`M0 ${w.hill[0]} L150 ${w.hill[0]} M450 ${w.hill[0]} L600 ${w.hill[0]}`, 2.4) : "";
+  return w.full ? w.full(c) : w.base(c) + `<g transform="translate(150 0)">${b.draw(c)}</g>` + seam + (w.side ? w.side(c) : ""); };
+
 // ---------- 組合成一個角色 ----------
 let UID = 0;
 // opt：bg 要不要畫背景、vb 只看某一塊（小圖用）
