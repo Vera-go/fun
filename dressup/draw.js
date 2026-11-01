@@ -801,8 +801,10 @@ const PETWEAR = {
     draw:(f, c) => P("M106 206 C98 246 96 292 98 336 Q150 352 202 336 C204 292 202 246 194 206 Q150 220 106 206 Z", f) + LN("M100 326 Q150 342 200 326", 3, shade(c, -.2)) + LN("M110 214 Q150 228 190 214", 4, shade(c, -.2)) + [250, 280].map(y => LN(`M112 ${y} Q150 ${y + 8} 188 ${y}`, 1.6, shade(c, .35), `stroke-dasharray="4 4"`)).join("")},
   hoodie:   {name:"帽 T", tags:["casual", "warm", "sport"], sleeves:true, color:"#B9A3E8",
     draw:(f, c) => P("M104 204 C96 246 94 292 97 340 Q150 356 203 340 C206 292 204 246 196 204 Q150 222 104 204 Z", f) + P("M124 290 L176 290 L180 324 L120 324 Z", shade(c, -.1), 2) + LN("M140 216 L138 250 M160 216 L162 250", 2) + C(138, 252, 2.4, "#fff", 1.4) + C(162, 252, 2.4, "#fff", 1.4)},
-  tutu:     {name:"蓬蓬裙", tags:["party", "fancy"], color:"#F7A8C4", free:true,
-    draw:(f, c) => P("M86 312 Q84 290 110 280 L190 280 Q216 290 214 312 Q200 324 186 316 Q172 328 158 318 Q150 328 142 318 Q128 328 114 316 Q100 324 86 312 Z", shade(c, .35)) + P("M108 206 C102 240 102 262 108 288 Q150 298 192 288 C198 262 198 240 192 206 Q150 220 108 206 Z", f) + P("M150 228 L138 220 L138 236 Z M150 228 L162 220 L162 236 Z", "#fff", 1.8) + C(150, 228, 3, "#fff", 1.6)},
+  tutu:     {name:"蓬蓬裙", tags:["party", "fancy"], color:"#F7A8C4",
+    // 上半身貼著身體；紗裙在腰上蓬出去（over：不裁），前腳從裙子下面伸出來
+    draw:(f, c) => P("M40 200 L260 200 L260 286 Q150 298 40 286 Z", f) + P("M150 228 L138 220 L138 236 Z M150 228 L162 220 L162 236 Z", "#fff", 1.8) + C(150, 228, 3, "#fff", 1.6),
+    over:(f, c) => P("M84 286 Q82 264 108 256 L192 256 Q218 264 216 286 Q202 298 188 290 Q174 302 160 292 Q150 302 140 292 Q126 302 112 290 Q98 298 84 286 Z", shade(c, .35)) + LN("M110 258 Q150 266 190 258", 2.2, shade(c, -.15))},
   raincoat: {name:"雨衣", tags:["rain"], sleeves:true, color:"#F6D65A",
     draw:(f, c) => P("M104 202 C94 250 90 310 92 372 Q150 386 208 372 C210 310 206 250 196 202 Q150 218 104 202 Z", f) + LN("M150 214 L150 376", 2) + [244, 284, 324].map(y => C(158, y, 3, shade(c, -.3), 1.4)).join("")},
   bandana:  {name:"領巾", tags:["casual", "summer", "snack"], color:"#4C8FE0",
@@ -1012,7 +1014,7 @@ function drawLook(L, opt = {}){
       back:() => wear && wear.back ? fit(shaded(wear.back(wf, L.petwear.color))) : "",
       inHead:clipTo(shp.head),
       toy:(y, k) => toy ? `<g transform="translate(150 ${y}) scale(${k}) translate(-150 -296)">${shaded(toy.draw(fill("pettoy", L.pettoy), L.pettoy.color))}</g>` : "",   // 玩具放大一點，下半部讓前腳抱著
-      wear:() => wear ? (free ? fit(shaded(wear.draw(wf, L.petwear.color))) : inBody(fit(shaded(wear.draw(wf, L.petwear.color)))) + P(shp.body, "none", 2.8)) : "",
+      wear:() => wear ? (free ? fit(shaded(wear.draw(wf, L.petwear.color))) : inBody(fit(shaded(wear.draw(wf, L.petwear.color)))) + P(shp.body, "none", 2.8)) + (wear.over ? fit(shaded(wear.over(wf, L.petwear.color))) : "") : "",
       bodyShade:() => overlay(`<path d="${shp.body}"/>`, "sk"),
       headShade:() => overlay(`<path d="${shp.head}"/>`, "sk"),
     });
