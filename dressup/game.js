@@ -157,8 +157,12 @@ function thumb(g, v){
     if(g.key === "top" || g.key === "bottom"){ if(look.dress && !DRESSES[look.dress.id].overTop) look.dress = null; }
     if(g.key === "hat" || g.key === "glasses" || g.key === "hairpin") { /* 頭上的東西：照常 */ }
   }
-  return drawLook(look, {bg:!!g.full, vb:g.full ? undefined : g.vb});
+  // 寵物整隻往下移、放大過（PET_FIT），五官、配件的小圖要照同樣的位置去框，才不會只框到頭頂
+  const vb = g.vb && look.role === "pet" && !PET_VB_OK.includes(g.key) ? petVb(g.vb) : g.vb;
+  return drawLook(look, {bg:!!g.full, vb:g.full ? undefined : vb});
 }
+const PET_VB_OK = ["role", "species", "furPat", "petMouth", "petwear", "pettoy"];   // 這些小圖本來就是照寵物框的
+const petVb = vb => { const [x, y, w, h] = vb.split(" ").map(Number); return [150 + (x - 150) * 1.1, 434 - (322 - y) * 1.1, w * 1.1, h * 1.1].map(n => +n.toFixed(1)).join(" "); };
 function renderGroups(){
   const cat = visCats().find(c => c.id === S.cat) || CATS[0], look = L();
   $("groups").innerHTML = cat.groups.filter(g => !g.only || g.only(look)).map(g => {
