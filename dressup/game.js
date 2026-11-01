@@ -420,13 +420,26 @@ let groupSel = "";   // 現在選到的角色或小物（可以放大縮小、�
 function groupSVG(size){
   const items = [...gIds(), ...(S.group.props || []).map(p => p.id)].map(gItem);
   // 河、地毯、天上的東西畫在最後面；其他照前後：站得比較後面（腳比較高）的先畫
-  items.sort((a, b) => (a.back ? -1e4 : 0) + a.p.y - ((b.back ? -1e4 : 0) + b.p.y));
+  items.sort((a, b) => gDepth(a) - gDepth(b));
   const body = items.map(it => `<g class="gch${!size && it.key === groupSel ? " sel" : ""}" data-gid="${it.key}" transform="${gTf(it, it.p, it.base * it.m, it.a)}">${it.prop ? it.it.draw() : drawLook(Object.assign(clone(DEFAULT_LOOK), it.l), {bg:false, size:[300, 470]})}</g>`).join("");
   const k = BGS[S.group.bg] && !lockedItem(BGS[S.group.bg]) ? S.group.bg : "park", back = S.group.wide ? bgWide(k, "#F7D3E0", GW()) : BGS[k].draw("#F7D3E0");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GW()} 470"${size ? ` width="${size[0]}" height="${size[1]}"` : ""}>${back}${body}</svg>`;
 }
 const gHasAny = () => gIds().length || (S.group.props || []).length;
-const gForget = key => ["pos", "size", "rot", "flip"].forEach(k => delete gMap(k)[key]);
+const gForget = key => ["pos", "size", "rot", "flip", "z"].forEach(k => delete gMap(k)[key]);
+// 前後順序：越大畫在越前面。河、地毯、天上的東西本來在最後面；腳越往下越前面；再加上自己手動調的前後（z）
+const gDepth = it => (it.back ? -1e4 : 0) + it.p.y + (gMap("z")[it.key] || 0);
+function groupLayer(how){
+  const items = [...gIds(), ...(S.group.props || []).map(p => p.id)].map(gItem).sort((a, b) => gDepth(a) - gDepth(b));
+  const i = items.findIndex(it => it.key === groupSel); if(i < 0) return;
+  const me = items[i], d = gDepth(me), others = items.filter(it => it.key !== groupSel);
+  const target = how === "top" ? (others.length ? gDepth(others[others.length - 1]) + 1 : d)
+    : how === "bottom" ? (others.length ? gDepth(others[0]) - 1 : d)
+    : how === "up" ? (items[i + 1] ? gDepth(items[i + 1]) + .5 : d)
+    : (items[i - 1] ? gDepth(items[i - 1]) - .5 : d);
+  if(target === d) return toast(how === "up" || how === "top" ? "已經在最前面了" : "已經在最後面了");
+  gMap("z")[groupSel] = (gMap("z")[groupSel] || 0) + target - d; save(); renderGroup();
+}
 function renderGroup(){
   // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
   const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`}))];
@@ -442,7 +455,8 @@ function renderGroup(){
     <h2>合照</h2>
     <p class="muted ghint">挑最多 ${GROUP_MAX} 個角色、加上小物、選一個背景，在合照裡直接拖拉換位置（往上拖會站到後面）。</p>
     <div class="gsize">${sel ? `<span>選到的${esc(selName)}：</span><button class="btn sm" data-gz="0.85">－ 縮小</button><button class="btn sm" data-gz="1.15">＋ 放大</button><button class="btn sm" data-gz="0">原本大小</button><span class="gbr"></span>
-      <button class="btn sm" data-grot="-15">↺ 左轉</button><button class="btn sm" data-grot="15">↻ 右轉</button>${isProp(sel) ? "" : `<button class="btn sm" data-grot="lie">躺下</button>`}<button class="btn sm" data-grot="0">擺正</button><button class="btn sm" data-gflip>左右翻轉</button>
+      <button class="btn sm" data-grot="-15">↺ 左轉</button><button class="btn sm" data-grot="15">↻ 右轉</button>${isProp(sel) ? "" : `<button class="btn sm" data-grot="lie">躺下</button>`}<button class="btn sm" data-grot="0">擺正</button><button class="btn sm" data-gflip>左右翻轉</button><span class="gbr"></span>
+      <button class="btn sm" data-glayer="up">往前一層</button><button class="btn sm" data-glayer="down">往後一層</button><button class="btn sm" data-glayer="top">移到最前面</button><button class="btn sm" data-glayer="bottom">移到最後面</button>
       ${isProp(sel) ? `<button class="btn sm" data-gdup>複製</button><button class="btn sm" data-gdel>刪除</button>` : ""}`
       : `<span class="muted">點一下合照裡的角色或小物，就能放大縮小、轉角度（也可以用滑鼠滾輪；手機用兩根手指捏合、轉動）</span>`}</div>
     <div class="gmode"><button class="btn sm ${S.group.wide ? "" : "acc"}" data-gwide="0">直式</button><button class="btn sm ${S.group.wide ? "acc" : ""}" data-gwide="1">橫式</button></div>
@@ -527,12 +541,14 @@ $("ov").addEventListener("click", e => {
     const id = "p" + newId(); S.group.props.push({id, t:ad.dataset.gadd}); groupSel = id; save(); toast(`放了一個${PROPS[ad.dataset.gadd].name}，拖到想放的地方吧`); return renderGroup(); }
   const g = e.target.closest("[data-gbg]");
   if(g){ S.group.bg = g.dataset.gbg; save(); return renderGroup(); }
-  if(e.target.closest("[data-gclear]")){ if(!confirm("要把合照裡的角色和小物全部清掉嗎？")) return; S.group.picks = []; S.group.props = []; ["pos", "size", "rot", "flip"].forEach(k => S.group[k] = {}); groupSel = ""; save(); return renderGroup(); }
+  if(e.target.closest("[data-gclear]")){ if(!confirm("要把合照裡的角色和小物全部清掉嗎？")) return; S.group.picks = []; S.group.props = []; ["pos", "size", "rot", "flip", "z"].forEach(k => S.group[k] = {}); groupSel = ""; save(); return renderGroup(); }
   if(e.target.closest("[data-greset]")){ gIds().forEach(gForget); save(); return renderGroup(); }
   if(e.target.closest("[data-gdel]") && isProp(groupSel)){ S.group.props = S.group.props.filter(x => x.id !== groupSel); gForget(groupSel); groupSel = ""; save(); return renderGroup(); }
   if(e.target.closest("[data-gdup]") && isProp(groupSel)){ const src = propOf(groupSel), id = "p" + newId(), it = gItem(groupSel);
-    S.group.props.push({id, t:src.t}); ["size", "rot", "flip"].forEach(k => { if(gMap(k)[groupSel] !== undefined) gMap(k)[id] = gMap(k)[groupSel]; });
+    S.group.props.push({id, t:src.t}); ["size", "rot", "flip", "z"].forEach(k => { if(gMap(k)[groupSel] !== undefined) gMap(k)[id] = gMap(k)[groupSel]; });
     gMap("pos")[id] = {x:Math.min(GW(), it.p.x + 30), y:it.p.y}; groupSel = id; save(); return renderGroup(); }
+  const ly = e.target.closest("[data-glayer]");
+  if(ly && groupSel) return groupLayer(ly.dataset.glayer);
   if(e.target.closest("[data-gflip]") && groupSel){ gMap("flip")[groupSel] = !gMap("flip")[groupSel]; save(); return renderGroup(); }
   const ro = e.target.closest("[data-grot]");
   if(ro && groupSel){ const v = ro.dataset.grot, r = gMap("rot")[groupSel] || 0;
