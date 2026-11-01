@@ -798,7 +798,7 @@ async function rpc(fn, body){
   return r.json();
 }
 if(!S.client){ S.client = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16)); save(); }
-const wallErr = e => /contest closed/.test(e.message) ? "這週的比賽已經結束，名次已經固定，不能再按讚了。" : /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "作品牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
+const wallErr = e => /bad words/.test(e.message) ? "名字或標題有不適合的字詞，請修改後再送出。" : /contest closed/.test(e.message) ? "這週的比賽已經結束，名次已經固定，不能再按讚了。" : /too many/.test(e.message) ? "貼太快了，等 20 秒再試。" : /daily limit/.test(e.message) ? "今天已經貼 10 套了，明天再來！" : /own post/.test(e.message) ? "不能幫自己按讚喔。" : /function|PGRST202/.test(e.message) ? "作品牆還沒開放（資料庫還沒設定好）。" : "連線失敗，請稍後再試。";
 // 別人貼的穿搭：每一個欄位都要檢查過才拿來畫（只接受清單裡的單品和 #RRGGBB 顏色），避免被塞奇怪的東西
 const HEX = /^#[0-9a-fA-F]{6}$/;
 function sanitizeLook(raw){
@@ -912,7 +912,7 @@ $("ov").addEventListener("click", async e => {
     try{ await rpc("dressup_delete", {p_client:S.client, p_id:id}); W8.rows = W8.rows.filter(r => r.id !== id); renderWall(); toast("刪掉了"); }catch(err){ toast(wallErr(err)); }
   }else if(act === "report"){
     if(!confirm("這個作品的名字或內容不恰當嗎？被檢舉 3 次會自動隱藏。")) return;
-    try{ await rpc("dressup_report", {p_client:S.client, p_id:id}); toast("已經收到檢舉，謝謝你"); b.disabled = true; b.textContent = "已檢舉"; }catch(err){ toast(wallErr(err)); }
+    try{ await rpc("dressup_report", {p_client:S.client, p_id:id}); toast("已經收到檢舉，管理員會盡快處理，謝謝你"); b.disabled = true; b.textContent = "已檢舉"; }catch(err){ toast(wallErr(err)); }
   }
 });
 $("ov").addEventListener("keydown", e => { if(e.key === "Enter" && (e.target.id === "wName" || e.target.id === "wTitle")){ e.preventDefault(); sendPost(); } });

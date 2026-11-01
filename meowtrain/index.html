@@ -1058,7 +1058,7 @@ async function submitScore(){
     catch(e){ if(/function|p_adopted|PGRST/i.test(e.message)) res = await rpc("meowtrain_submit", body); else throw e; }
     lbStatus = `已上傳！最高分 ${res.score} 排第 <b>${res.score_rank}</b> 名、最長隊伍 ${res.len} 隻排第 <b>${res.len_rank}</b> 名${res.adopted_rank ? `、送養 ${res.adopted} 隻排第 <b>${res.adopted_rank}</b> 名` : ""}（共 ${res.players} 人）`;
   }catch(e){
-    lbStatus = /invalid score/.test(e.message) ? "這個成績上傳不了。" : /too many/.test(e.message) ? "上傳太快了，等幾秒再試。" : "上傳失敗，可能是網路有問題。";
+    lbStatus = /bad words/.test(e.message) ? "名字有不適合的字詞，換一個名字再上傳。" : /invalid score/.test(e.message) ? "這個成績上傳不了。" : /too many/.test(e.message) ? "上傳太快了，等幾秒再試。" : "上傳失敗，可能是網路有問題。";
   }
   renderLbBox();
 }
