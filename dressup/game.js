@@ -481,7 +481,7 @@ function wdName(w){
 }
 function showWardrobe(){
   openPanel(`<h2>我的收藏</h2>
-    <p class="muted" style="text-align:center">存在這個瀏覽器裡，最多 24 個（人、寵物、蛋糕都可以存）。</p>
+    <p class="muted" style="text-align:center">存在這個瀏覽器裡，最多 24 個（人、寵物、蛋糕都可以存）。換手機或清除瀏覽資料會不見，記得偶爾<a href="#" data-backup="save">下載備份</a>（換裝置時用<a href="#" data-backup="load">匯入備份</a>）。</p>
     ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${esc(wdName(w))}</b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}・${esc(w.at)} 存的<div class="row"><button class="btn sm acc" data-wear="${i}">編輯</button><button class="btn sm" data-ren="${i}">取名字</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有收藏。做好喜歡的角色（人、寵物、蛋糕都可以）後，按「存進收藏」。</p>`}
     <div class="btns"><button class="btn" data-close>關閉</button></div>`);
 }
