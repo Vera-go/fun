@@ -909,6 +909,30 @@ const petMouth = id => {
   return w;
 };
 
+// ---------- 奇幻小物：翅膀（背在背後）、光環、花冠 ----------
+const WING = (cx, cy, rx, ry, a, f, extra = "") => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${a} ${cx} ${cy})" fill="${f}" stroke="${INK}" stroke-width="2.4" ${extra}/>`;
+Object.assign(BAGS, {
+  fairy: {name:"精靈翅膀", tags:["party", "fancy", "summer"], color:"#B9E4F5",
+    back:(f, c) => [1, -1].map(o => WING(150 - o * 44, 214, 40, 22, o * 30, f, `opacity=".85"`) + WING(150 - o * 36, 262, 26, 14, o * -28, f, `opacity=".85"`)).join("") +
+      [1, -1].map(o => LN(`M${150 - o * 20} 230 Q${150 - o * 50} 214 ${150 - o * 74} 200 M${150 - o * 20} 246 Q${150 - o * 38} 258 ${150 - o * 54} 268`, 1.4, "#fff")).join(""),
+    draw:() => ""},
+  angel: {name:"天使翅膀", tags:["party", "fancy", "xmas"], color:"#FFFFFF",
+    back:(f, c) => [1, -1].map(o => { const d = "M134 232 Q100 190 64 196 Q48 200 56 214 Q44 222 56 232 Q46 244 62 250 Q56 262 74 264 Q92 268 132 252 Z";
+      return P(o > 0 ? d : MX(d), f) + LN(o > 0 ? "M62 214 Q90 214 118 228 M62 232 Q92 234 122 240 M74 250 Q98 252 124 248" : MX("M62 214 Q90 214 118 228 M62 232 Q92 234 122 240 M74 250 Q98 252 124 248"), 1.4, shade(c, -.2)); }).join(""),
+    draw:() => ""},
+  batwing: {name:"蝙蝠翅膀", tags:["halloween", "party"], color:"#2E2B2B",
+    back:(f, c) => [1, -1].map(o => { const d = "M132 236 Q96 196 52 206 Q62 216 58 230 Q72 228 76 242 Q90 236 96 252 Q110 242 132 252 Z"; return P(o > 0 ? d : MX(d), f); }).join(""),
+    draw:() => ""},
+});
+Object.assign(HATS, {
+  halo:   {name:"天使光環", tags:["party", "fancy", "xmas"], color:"#F6D65A",
+    draw:(f, c) => `<ellipse cx="150" cy="36" rx="38" ry="10" fill="none" stroke="${INK}" stroke-width="9"/><ellipse cx="150" cy="36" rx="38" ry="10" fill="none" stroke="${c}" stroke-width="5.5"/>` + LN("M124 32 Q134 29 144 28", 1.6, "#fff")},
+  flowers:{name:"花冠", tags:["summer", "fancy", "party", "festival"], color:"#F7A8C4",
+    draw:(f, c) => LN("M92 100 Q150 64 208 100", 4, "#4F8F45") + [[96, 96], [112, 84], [130, 76], [150, 73], [170, 76], [188, 84], [204, 96]].map(([x, y], i) => { const col = i % 2 ? "#FFFFFF" : c;
+      return [0, 72, 144, 216, 288].map(a => C(x + Math.cos(a * Math.PI / 180) * 5.5, y + Math.sin(a * Math.PI / 180) * 5.5, 5, col, 1.6)).join("") + C(x, y, 3, "#F6D65A", 1.2); }).join("") +
+      [[104, 92], [178, 80]].map(([x, y]) => E(x, y, 6, 3, "#5FB36B", 1.4, `transform="rotate(-30 ${x} ${y})"`)).join("")},
+});
+
 // ---------- 寵物角色：頭的位置和人一樣，帽子、眼鏡、項鍊都能直接戴 ----------
 ROLES.pet = {name:"寵物"};
 const SPECIES = {
@@ -923,6 +947,7 @@ const SPECIES = {
   penguin: {name:"企鵝", fur:"#2E2B2B", pats:["plain"]},
   koala:   {name:"無尾熊", fur:"#9AA0A8", pats:["plain"]},
   duck:    {name:"小鴨", fur:"#F6D65A", pats:["plain"]},
+  frog:    {name:"青蛙", fur:"#7BC86C", pats:["plain", "spots"]},
 };
 const FUR_PAL = ["#F6A64A", "#FFFFFF", "#2E2B2B", "#C98A4B", "#9AA0A8", "#F6E7C8", "#E8B57A", "#B9A3E8", "#F7A8C4"];
 const FUR_PATS = {plain:{name:"素色"}, tabby:{name:"虎斑"}, spots:{name:"斑點"}, tuxedo:{name:"白肚子"}, calico:{name:"三花"}};
@@ -1003,7 +1028,7 @@ const PETTOYS = {
 };
 const petTail = (sp, fur) => {
   if(sp === "bunny" || sp === "bear" || sp === "panda") return "";
-  if(sp === "hamster" || sp === "koala") return "";
+  if(sp === "hamster" || sp === "koala" || sp === "frog") return "";
   if(sp === "duck") return P("M200 290 L226 270 L212 302 Z", fur);
   if(sp === "penguin") return P("M198 304 L224 318 L196 320 Z", fur);
   if(sp === "pig") return LN("M214 258 q16 -2 16 -14 q0 -10 -9 -8 q-7 2 -2 9 q7 7 18 -3", 3.4);
@@ -1015,6 +1040,7 @@ const petTail = (sp, fur) => {
 const petEars = (sp, fur) => {
   const pink = "#F7B6C8";
   if(sp === "dog" || sp === "penguin" || sp === "duck") return "";
+  if(sp === "frog") return C(116, 92, 24, fur) + C(184, 92, 24, fur);   // 頭頂兩顆鼓鼓的眼泡（眼睛畫在下面）
   if(sp === "koala") return C(88, 100, 28, fur) + C(212, 100, 28, fur) + C(90, 102, 16, "#F3EDEA", 0) + C(210, 102, 16, "#F3EDEA", 0) + LN("M70 92 L78 96 M72 108 L80 108 M228 92 L222 96 M228 108 L220 108", 1.6, "#F3EDEA");   // 狗狗的耳朵垂在臉旁邊，畫在頭上面；企鵝沒有耳朵
   if(sp === "hamster") return C(100, 88, 17, fur) + C(200, 88, 17, fur) + C(101, 89, 9, pink, 0) + C(199, 89, 9, pink, 0);
   if(sp === "pig") return "";   // 小豬的耳朵往前垂，畫在頭上面
@@ -1059,6 +1085,7 @@ function drawPetStar(L, it){
   else if(sp === "penguin") pt += E(150, 266, 46, 62, "#fff", 0);
   else if(sp === "hamster") pt += E(150, 272, 46, 56, mix(fur, "#FFFFFF", .75), 0);
   else if(sp === "koala") pt += E(150, 266, 36, 50, "#F3EDEA", 0);
+  else if(sp === "frog") pt += E(150, 268, 40, 50, mix(fur, "#FFF6C8", .65), 0);
   else if(pat === "tuxedo" || sp === "dog" || sp === "fox") pt += E(150, 262, 32, 50, pat === "tuxedo" || sp === "fox" ? "#fff" : light, 0);
   if(pat === "tabby") pt += [232, 256, 280].map(y => LN(`M88 ${y} Q100 ${y + 4} 110 ${y} M212 ${y} Q200 ${y + 4} 190 ${y}`, 3, dark)).join("");
   if(pat === "spots") pt += [[118, 236, 11], [182, 262, 9], [122, 292, 8], [176, 300, 7]].map(([x, y, r]) => E(x, y, r, r * .8, dark, 0)).join("");
@@ -1109,6 +1136,7 @@ function drawPetStar(L, it){
   if(sp === "pig") s += E(150, 162, 19, 13, shade(fur, -.12), 2.2) + E(144, 162, 2.6, 4, INK, 0) + E(156, 162, 2.6, 4, INK, 0) + LN("M142 180 Q150 186 158 180", 2);
   else if(sp === "penguin") s += P("M138 152 Q150 145 162 152 L150 170 Z", "#F59A4A", 2) + LN("M141 155 Q150 159 159 155", 1.4);
   else if(sp === "duck") s += P("M128 160 Q128 150 150 150 Q172 150 172 160 Q172 172 150 172 Q128 172 128 160 Z", "#F59A4A", 2.2) + LN("M130 161 Q150 166 170 161", 1.6) + E(142, 155, 1.6, 1.2, INK, 0) + E(158, 155, 1.6, 1.2, INK, 0);
+  else if(sp === "frog") s += E(145, 156, 1.8, 1.4, INK, 0) + E(155, 156, 1.8, 1.4, INK, 0) + LN("M122 166 Q150 186 178 166", 2.4);
   else if(sp === "koala") s += P("M140 146 Q140 138 150 138 Q160 138 160 146 L160 164 Q160 174 150 174 Q140 174 140 164 Z", "#3A2C28", 2) + E(146, 146, 3, 5, "rgba(255,255,255,.35)", 0) + LN("M142 182 Q150 187 158 182", 2);
   else if(sp === "hamster") s += E(150, 157, 4, 3, "#F07F98", 1.2) + LN("M150 160 L150 164 M143 163 Q146.5 168 150 164 Q153.5 168 157 163", 1.8) + P("M147 166 L153 166 L153 172 L147 172 Z", "#fff", 1.4) + LN("M150 166 L150 172", 1);
   else {

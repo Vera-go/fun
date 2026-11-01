@@ -39,7 +39,7 @@ const CATS = [
   {id:"petbody", roles:["pet"], name:"寵物", groups:[
     {type:"pick", key:"species", label:"種類", list:SPECIES, vb:"40 0 220 460"},
     {type:"color", key:"fur", label:"毛色", pal:FUR_PAL},
-    {type:"pick", key:"petMouth", label:"嘴巴", list:PET_MOUTHS, vb:"126 236 48 44", only:L => !["hamster", "pig", "penguin", "duck", "koala"].includes(L.species)},
+    {type:"pick", key:"petMouth", label:"嘴巴", list:PET_MOUTHS, vb:"126 236 48 44", only:L => !["hamster", "pig", "penguin", "duck", "koala", "frog"].includes(L.species)},
     {type:"pick", key:"furPat", label:"花色", list:FUR_PATS, only:L => petPats(L).length > 1, keys:petPats, vb:"60 60 180 300"},
     {type:"color", key:"blush", label:"腮紅", pal:BLUSH, none:true},
     {type:"slot", key:"petwear", label:"寵物的衣服", list:PETWEAR, vb:"50 180 200 270"},
@@ -109,7 +109,7 @@ const ROLE_PRESET = {
 };
 const BOY_HAIR = ["boycut", "mushroom", "wolf", "curlyboy", "buzz", "short", "twoblock", "longboy", "afro"], BOY_FRINGE = ["boyfringe", "sweep", "bowl", "spiky", "quiff", "side", "messy", "comma"];
 // 男生隨機搭配時不抽這些（自己選還是可以穿）
-const BOY_SKIP = ["cami", "crop", "blouse", "offshoulder", "ruffle", "culottes", "mermaid", "sailor", "maryjane", "heels", "lace", "tights", "knee", "striped", "pearl", "heart", "choker", "handbag", "catbag", "bunny", "bouquet"];
+const BOY_SKIP = ["cami", "crop", "blouse", "offshoulder", "ruffle", "culottes", "mermaid", "sailor", "maryjane", "heels", "lace", "tights", "knee", "striped", "pearl", "heart", "choker", "handbag", "catbag", "bunny", "bouquet", "fairy", "flowers"];
 const BOY_BOTTOM = ["khaki", "bshorts", "jeans", "shorts", "slacks", "wide", "cargo", "track", "joggers", "ripped"];
 const applyRole = (look, r) => Object.assign(look, clone(ROLE_PRESET[r] || ROLE_PRESET.girl), {role:r});
 let S = {look:clone(DEFAULT_LOOK), cat:"hair", theme:"", best:{}, wardrobe:[]};
