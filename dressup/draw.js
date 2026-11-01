@@ -906,18 +906,14 @@ function drawPetStar(L, it){
   if(pat === "tabby") pt += [232, 256, 280].map(y => LN(`M88 ${y} Q100 ${y + 4} 110 ${y} M212 ${y} Q200 ${y + 4} 190 ${y}`, 3, dark)).join("");
   if(pat === "spots") pt += [[118, 236, 11], [182, 262, 9], [122, 292, 8], [176, 300, 7]].map(([x, y, r]) => E(x, y, r, r * .8, dark, 0)).join("");
   if(pat === "calico") pt += E(114, 250, 18, 22, "#F6A64A", 0) + E(186, 286, 16, 18, "#2E2B2B", 0);
-  // 前腳：從肩膀斜斜往中間收，腳掌併在一起
+  // 前腳：短短的，從肚子下面（或衣服下襬）冒出來，上面淡淡接進身體；腳掌併在一起
   const LW = {std:26, thick:32, hoof:24}[legs], lh = LW / 2;
-  const legPts = LW ? [0, 1].map(r => { const o = r ? -1 : 1, ex = 150 - o * lh; return [[ex - o * 14, 238], [ex - o * 10, 276], [ex, 308]]; }) : [];
-  const legD = legPts.map(pts => tube(pts, LW)), sleeve = it.sleeve && LW, cuffX = r => legPts[r][1][0] + (legPts[r][2][0] - legPts[r][1][0]) * .5;
-  // 沒穿袖子：前腳跟胸口連在一起（上面不畫外框，腳兩邊的線慢慢浮出來），一起上明暗
-  if(LW && !sleeve) pt += legD.map(d => `<path d="${d}" fill="${legC}"/>`).join("") +
-    it.fade(legPts.map(([a, m, e], r) => { const o = r ? -1 : 1; return LN(`M${a[0] - o * lh} ${a[1]} Q${m[0] - o * lh} ${m[1]} ${e[0] - o * lh} 312`, 2.4, INK); }).join("") + LN("M150 280 L150 312", 2.4, INK));
+  const legPts = LW ? [1, -1].map(o => { const ex = 150 - o * lh; return [[ex - o * 3, 280], [ex, 310]]; }) : [];
+  // 腳的顏色塊清楚畫出來，外框線從上面淡淡浮出來；衣服會蓋住上面一點，腳掌畫在衣服前面
+  if(LW) pt += legPts.map(pts => `<path d="${tube(pts, LW)}" fill="${legC}"/>`).join("") +
+    it.fade(legPts.map(([a, e], r) => { const o = r ? -1 : 1; return LN(`M${a[0] - o * lh} ${a[1]} L${e[0] - o * lh} 312`, 2.4, INK); }).join("") + LN("M150 284 L150 312", 2.4, INK), 280, 298);
   s += it.inBody(pt) + it.bodyShade();
   s += it.wear() + it.toy(legs === "tiny" ? 238 : 290, legs === "tiny" ? .9 : 1.35);
-  // 穿袖子的衣服：前腳畫在衣服前面，上半段是袖子（肩膀那頭淡淡接進衣服裡）
-  if(sleeve) s += it.fade(legD.map((d, r) => P(d, legC, 2.4) + it.clipTo(d)(`<rect x="0" y="200" width="300" height="94" fill="${it.sleeve}"/>`) +
-    LN(`M${cuffX(r) - lh} 292 Q${cuffX(r)} 297 ${cuffX(r) + lh} 292`, 2, INK) + P(d, "none", 2.4)).join(""), 236, 258);
   if(sp === "penguin") s += PB("M108 202 Q80 236 78 282 Q94 286 108 256 Z", body);
   else if(legs === "tiny"){
     // 倉鼠：小小的粉紅手手捧在胸前，小腳丫露在前面
@@ -925,7 +921,7 @@ function drawPetStar(L, it){
     s += [120, 180].map(x => E(x, 322, 14, 7, pink, 2.2) + LN(`M${x - 5} 318 L${x - 5} 322 M${x} 317 L${x} 322 M${x + 5} 318 L${x + 5} 322`, 1.2, INK)).join("");
   }else{
     s += legPts.map(pts => {
-      const x = pts[2][0], cap = `M${x - lh} 308 Q${x - lh} 323 ${x} 323 Q${x + lh} 323 ${x + lh} 308`;
+      const x = pts[1][0], cap = `M${x - lh} 308 Q${x - lh} 323 ${x} 323 Q${x + lh} 323 ${x + lh} 308`;
       if(legs === "hoof") return `<path d="${cap} Z" fill="${legC}"/>` + `<path d="M${x - lh + .5} 314 Q${x - lh} 323 ${x} 323 Q${x + lh} 323 ${x + lh - .5} 314 Z" fill="${shade(fur, -.4)}"/>` + LN(cap, 2.4, INK) + LN(`M${x} 315 L${x} 323`, 1.8, INK);
       return `<path d="${cap} Z" fill="${legC}"/>` + LN(cap, 2.4, INK) +
         (legs === "thick" ? E(x, 315, 7, 4, sp === "panda" ? "#555" : mix(fur, "#5A3A2A", .45), 0) : LN(`M${x - 4.5} 316 L${x - 4.5} 321 M${x + 4.5} 316 L${x + 4.5} 321`, 1.6, sp === "panda" ? "#888" : INK));
@@ -1011,7 +1007,7 @@ function drawLook(L, opt = {}){
       defs.push(`<mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><rect x="0" y="${y0}" width="${W}" height="${y1 - y0}" fill="url(#${uid}-fd)"/><rect x="0" y="${y1 - .5}" width="${W}" height="${H}" fill="#fff"/></mask>`);
       return `<g mask="url(#${id})">${svg}</g>`; };
     s += drawPetStar(L, {
-      inBody, fade, clipTo, sleeve:wear && wear.sleeves ? wf : "",
+      inBody, fade, clipTo,
       back:() => wear && wear.back ? fit(shaded(wear.back(wf, L.petwear.color))) : "",
       inHead:clipTo(shp.head),
       toy:(y, k) => toy ? `<g transform="translate(150 ${y}) scale(${k}) translate(-150 -296)">${shaded(toy.draw(fill("pettoy", L.pettoy), L.pettoy.color))}</g>` : "",   // 玩具放大一點，下半部讓前腳抱著
