@@ -855,6 +855,7 @@ function drawPetStar(L, it){
   // 身體：圓圓的坐姿，花紋都裁在身體裡面
   const feetC = sp === "penguin" ? "#F59A4A" : sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
   const edge = mix(body, lum(body) < .25 ? "#FFFFFF" : INK, .35);
+  s += E(106, 314, 24, 11, feetC, 2.6) + E(194, 314, 24, 11, feetC, 2.6);   // 後腳掌：坐著時從身體後面兩邊露出來
   s += P(PET_BODY, body, 2.8);
   let pt = "";
   if(sp === "panda") pt += `<path d="M70 170 L230 170 L230 230 Q150 244 70 230 Z" fill="#2E2B2B"/>`;
@@ -865,15 +866,12 @@ function drawPetStar(L, it){
   if(pat === "calico") pt += E(114, 250, 18, 22, "#F6A64A", 0) + E(186, 286, 16, 18, "#2E2B2B", 0);
   // 前腳：跟胸口連在一起（上面不畫外框，只有腳兩邊的線慢慢浮出來），一起上明暗；衣服蓋住上半段，腳掌再畫在衣服前面
   const legC = sp === "panda" ? "#2E2B2B" : pat === "tuxedo" ? "#fff" : body;
-  if(sp !== "penguin") pt += [134, 166].map(x => `<path d="${tube([[x, 262], [x, 310]], 26)}" fill="${legC}"/>` +
-    LN(`M${x - 13} 282 Q${x - 14} 298 ${x - 13} 312`, 2.4, INK) + LN(`M${x + 13} 286 Q${x + 13.5} 300 ${x + 13} 312`, 2.2, INK)).join("");
+  if(sp !== "penguin") pt += [137, 163].map(x => `<path d="${tube([[x, 262], [x, 310]], 26)}" fill="${legC}"/>`).join("") +
+    it.fade(LN("M124 274 Q122.5 296 124 312 M150 278 L150 312 M176 274 Q177.5 296 176 312", 2.4, INK));
   s += it.inBody(pt) + it.bodyShade();
-  // 後腳的大腿弧線、腳掌（坐著時從身體兩邊伸出來）
-  if(sp !== "penguin") s += LN("M96 304 Q94 280 110 268", 2, edge) + LN(MX("M96 304 Q94 280 110 268"), 2, edge);
-  s += E(104, 316, 22, 11, feetC, 2.6) + E(196, 316, 22, 11, feetC, 2.6);
   s += it.wear();
   if(sp === "penguin") s += PB("M108 202 Q80 236 78 282 Q94 286 108 256 Z", body);
-  else s += [134, 166].map(x => `<path d="M${x - 13} 308 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 308 Z" fill="${legC}"/>` + LN(`M${x - 13} 306 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 306`, 2.4, INK) +
+  else s += [137, 163].map(x => `<path d="M${x - 13} 308 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 308 Z" fill="${legC}"/>` + LN(`M${x - 13} 306 Q${x - 13} 323 ${x} 323 Q${x + 13} 323 ${x + 13} 306`, 2.4, INK) +
     LN(`M${x - 4.5} 316 L${x - 4.5} 321 M${x + 4.5} 316 L${x + 4.5} 321`, 1.6, sp === "panda" ? "#888" : INK)).join("");
   // 頭
   s += P(PET_HEAD, headC, 2.8);
@@ -942,8 +940,10 @@ function drawLook(L, opt = {}){
     const fit = svg => `<g transform="${PET_WEAR_FIT}">${svg}</g>`, inBody = svg => svg ? `<g clip-path="url(#${clip(`<path d="${PET_BODY}"/>`)})">${svg}</g>` : "";
     const tutu = wear && L.petwear.id === "tutu";   // 蓬蓬裙要蓬出身體外面，不裁
     s += `<g transform="${PET_FIT}">`;
+    defs.push(`<linearGradient id="${uid}-fd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>` +
+      `<mask id="${uid}-fm" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><rect x="0" y="270" width="${W}" height="26" fill="url(#${uid}-fd)"/><rect x="0" y="295" width="${W}" height="60" fill="#fff"/></mask>`);
     s += drawPetStar(L, {
-      inBody,
+      inBody, fade:svg => `<g mask="url(#${uid}-fm)">${svg}</g>`,
       back:() => wear && wear.back ? fit(shaded(wear.back(wf, L.petwear.color))) : "",
       wear:() => wear ? (tutu ? fit(shaded(wear.draw(wf, L.petwear.color))) : inBody(fit(shaded(wear.draw(wf, L.petwear.color)))) + P(PET_BODY, "none", 2.8)) : "",
       bodyShade:() => overlay(`<path d="${PET_BODY}"/>`, "sk"),
