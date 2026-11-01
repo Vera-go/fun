@@ -376,10 +376,16 @@ function saveLook(){
   save(); toast("存進衣櫥了！");
 }
 $("bSave").onclick = saveLook;
+// 衣櫥每一套的名字：自己取的優先，沒取的就叫「女生 1、女生 2、寵物 1」（照存的先後編號）
+function wdName(w){
+  if(w.name) return w.name;
+  const role = (w.look && w.look.role) || "girl", same = S.wardrobe.filter(x => ((x.look && x.look.role) || "girl") === role);
+  return `${(ROLES[role] || ROLES.girl).name} ${same.length - same.indexOf(w)}`;
+}
 function showWardrobe(){
   openPanel(`<h2>我的衣櫥</h2>
     <p class="muted" style="text-align:center">存在這個瀏覽器裡，最多 24 套。</p>
-    ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}</b>${esc(w.at)}<div class="row"><button class="btn sm acc" data-wear="${i}">穿上</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有存任何穿搭。搭好喜歡的造型後，按「存進衣櫥」。</p>`}
+    ${S.wardrobe.length ? `<div class="wardrobe">${S.wardrobe.map((w, i) => `<div class="wd">${drawLook(w.look)}<div class="tx"><b>${esc(wdName(w))}</b>${w.theme && TH[w.theme] ? esc(TH[w.theme].name) : "自由搭配"}・${esc(w.at)} 存的<div class="row"><button class="btn sm acc" data-wear="${i}">穿上</button><button class="btn sm" data-ren="${i}">取名字</button><button class="btn sm" data-del="${i}">刪除</button></div></div></div>`).join("")}</div>` : `<p style="text-align:center">還沒有存任何穿搭。搭好喜歡的造型後，按「存進衣櫥」。</p>`}
     <div class="btns"><button class="btn" data-close>關閉</button></div>`);
 }
 $("bWardrobe").onclick = showWardrobe;
@@ -465,7 +471,7 @@ function groupLayer(how){
 }
 function renderGroup(){
   // 現在身上這套也能放進合照；選過的會顯示第幾個（就是從左邊數來的位置）
-  const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:`${(ROLES[w.look.role] || ROLES.girl).name} ${w.at}`})),
+  const opts = [{id:"now", look:L(), name:"現在的穿搭"}, ...S.wardrobe.map(w => ({id:w.id, look:w.look, name:wdName(w)})),
     ...Object.entries(S.group.looks || {}).filter(([id]) => !S.wardrobe.some(w => w.id === id)).map(([id, look]) => ({id, look, name:`合照裡的${(ROLES[look.role] || ROLES.girl).name}`}))];
   S.group.picks = S.group.picks.filter(id => opts.some(o => o.id === id));
   S.group.props = (S.group.props || []).filter(p => PROPS[p.t]);
@@ -662,6 +668,9 @@ $("ov").addEventListener("click", e => {
   if(a && a.dataset.act === "themes") return showThemes();
   const w = e.target.closest("[data-wear]");
   if(w){ snap(); S.look = Object.assign(clone(DEFAULT_LOOK), clone(S.wardrobe[+w.dataset.wear].look)); save(); closePanel(); render(); toast("換上了！"); return; }
+  const rn = e.target.closest("[data-ren]");
+  if(rn){ const w = S.wardrobe[+rn.dataset.ren], v = prompt("幫這套穿搭取個名字（例如：小美、我家的貓）", w.name || wdName(w));
+    if(v !== null){ w.name = v.trim().slice(0, 12) || undefined; if(!w.name) delete w.name; save(); showWardrobe(); } return; }
   const d = e.target.closest("[data-del]");
   if(d && confirm("確定要刪掉這套穿搭嗎？")){ S.wardrobe.splice(+d.dataset.del, 1); save(); showWardrobe(); }
 });
